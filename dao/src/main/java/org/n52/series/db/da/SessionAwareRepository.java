@@ -147,7 +147,8 @@ public abstract class SessionAwareRepository {
     protected SeriesParameters createTimeseriesOutput(MeasurementDatasetEntity series, DbQuery parameters)
             throws DataAccessException {
         SeriesParameters metadata = new SeriesParameters();
-        metadata.setService(getCondensedService(series.getService(), parameters));
+        ServiceEntity service = getServiceEntity(series);
+        metadata.setService(getCondensedService(service, parameters));
         metadata.setOffering(getCondensedOffering(series.getOffering(), parameters));
         metadata.setProcedure(getCondensedProcedure(series.getProcedure(), parameters));
         metadata.setPhenomenon(getCondensedPhenomenon(series.getPhenomenon(), parameters));
@@ -186,8 +187,7 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
-        return createCondensed(new ServiceOutput(), service, parameters);
+        return createCondensed(new ServiceOutput(), entity, parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -213,9 +213,8 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
         final String hrefBase = urHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
-        return createCondensed(new ServiceOutput(), service, parameters, hrefBase);
+        return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T outputvalue,
