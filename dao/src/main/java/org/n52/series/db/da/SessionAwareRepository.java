@@ -147,7 +147,8 @@ public abstract class SessionAwareRepository {
     protected SeriesParameters createTimeseriesOutput(QuantityDatasetEntity series, DbQuery parameters)
             throws DataAccessException {
         SeriesParameters metadata = new SeriesParameters();
-        metadata.setService(getCondensedService(series.getService(), parameters));
+        ServiceEntity service = getServiceEntity(series);
+        metadata.setService(getCondensedService(service, parameters));
         metadata.setOffering(getCondensedOffering(series.getOffering(), parameters));
         metadata.setProcedure(getCondensedProcedure(series.getProcedure(), parameters));
         metadata.setPhenomenon(getCondensedPhenomenon(series.getPhenomenon(), parameters));
