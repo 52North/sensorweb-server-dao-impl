@@ -86,12 +86,12 @@ public class DatasetAccessService extends AccessService<DatasetOutput> implement
         return dataRepository.getData(datasetId, dbQuery);
     }
 
-    private DataRepository createRepository(String datasetType) throws DataAccessException {
-        if (! ("all".equalsIgnoreCase(datasetType) || dataFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown type: " + datasetType);
+    private DataRepository createRepository(String valueType) throws DataAccessException {
+        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+            throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {
-            return dataFactory.create(datasetType);
+            return dataFactory.create(valueType);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }

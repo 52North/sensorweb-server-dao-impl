@@ -48,7 +48,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     public static final String PROPERTY_FEATURE = "feature";
     public static final String PROPERTY_OFFERING = "offering";
     public static final String PROPERTY_PLATFORM = "platform";
-    public static final String PROPERTY_DATASET_TYPE = "datasetType";
+    public static final String PROPERTY_VALUE_TYPE = "valueType";
     public static final String PROPERTY_OBSERVATION_TYPE = "observationType";
 
     private CategoryEntity category;
@@ -69,7 +69,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     private List<T> observations;
 
-    private String datasetType;
+    private String valueType;
 
     private Set<Date> resultTimes;
 
@@ -93,7 +93,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     public DatasetEntity(String type) {
         this.observations = new ArrayList<>();
-        this.datasetType = type;
+        this.valueType = type;
     }
 
     public CategoryEntity getCategory() {
@@ -230,15 +230,15 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
                 : null;
     }
 
-    public String getDatasetType() {
-        return datasetType == null || datasetType.isEmpty()
+    public String getValueType() {
+        return valueType == null || valueType.isEmpty()
                 // backward compatible
                 ? QuantityDatasetOutput.VALUE_TYPE
-                : datasetType;
+                : valueType;
     }
 
-    public void setDatasetType(String datasetType) {
-        this.datasetType = datasetType;
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
     }
 
     /**

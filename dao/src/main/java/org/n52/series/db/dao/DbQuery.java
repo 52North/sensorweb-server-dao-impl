@@ -120,11 +120,11 @@ public class DbQuery {
     }
 
     public Set<String> getDatasetTypes() {
-        return parameters.getDatasetTypes();
+        return parameters.getValueTypes();
     }
 
     public boolean isSetDatasetTypeFilter() {
-        return !parameters.getDatasetTypes()
+        return !parameters.getValueTypes()
                           .isEmpty();
     }
 
@@ -205,19 +205,19 @@ public class DbQuery {
     }
 
     Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
-        Set<String> datasetTypes = getParameters().getDatasetTypes();
-        if (!datasetTypes.isEmpty()) {
+        Set<String> valueTypes = getParameters().getValueTypes();
+        if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = getFilterResolver();
             if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
+                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
                     // series table itself
-                    criteria.add(Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE, datasetTypes));
+                    criteria.add(containsValueType);
                 } else {
+                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE,
-                                                                              datasetTypes))
-                                                         .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
-                                                                                           parameter));
+                                                         .add(containsValueType)
+                                                         .setProjection(onPkids);
                     criteria.add(matchPropertyPkids(parameter, c));
                 }
             }
