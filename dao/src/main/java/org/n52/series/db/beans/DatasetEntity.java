@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.n52.io.response.dataset.measurement.MeasurementDatasetOutput;
+import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
 
 public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity {
 
@@ -233,7 +233,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     public String getDatasetType() {
         return datasetType == null || datasetType.isEmpty()
                 // backward compatible
-                ? MeasurementDatasetOutput.DATASET_TYPE
+                ? QuantityDatasetOutput.VALUE_TYPE
                 : datasetType;
     }
 

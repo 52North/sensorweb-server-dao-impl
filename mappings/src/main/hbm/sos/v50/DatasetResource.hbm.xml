@@ -26,7 +26,7 @@
         <element column="resulttime" type="string" />
     </set>
 
-    <subclass discriminator-value="measurement" name="MeasurementDatasetEntity">
+    <subclass discriminator-value="quantity" name="QuantityDatasetEntity">
       <property formula="3" name="numberOfDecimals" type="int"/>
       <!-- first value for backwards compatibility -->
       <component class="ObservationEntity" name="firstValue">

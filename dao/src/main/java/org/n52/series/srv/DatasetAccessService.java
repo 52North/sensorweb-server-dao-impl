@@ -36,7 +36,7 @@ import org.n52.io.request.RequestParameterSet;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
@@ -78,17 +78,17 @@ public class DatasetAccessService extends AccessService<DatasetOutput> implement
         }
     }
 
-    private Data< ? > getDataFor(String seriesId, RequestParameterSet parameters) throws DataAccessException {
+    private Data< ? > getDataFor(String datasetId, RequestParameterSet parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE);
-        String datasetType = DatasetType.extractType(seriesId, handleAsDatasetFallback);
-        DataRepository dataRepository = createRepository(datasetType);
-        return dataRepository.getData(seriesId, dbQuery);
+        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+        DataRepository dataRepository = createRepository(valueType);
+        return dataRepository.getData(datasetId, dbQuery);
     }
 
     private DataRepository createRepository(String datasetType) throws DataAccessException {
         if (! ("all".equalsIgnoreCase(datasetType) || dataFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
+            throw new ResourceNotFoundException("unknown type: " + datasetType);
         }
         try {
             return dataFactory.create(datasetType);

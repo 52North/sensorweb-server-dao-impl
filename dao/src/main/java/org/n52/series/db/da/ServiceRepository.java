@@ -116,7 +116,7 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getPkid());
             String label = searchResult.getLabelFrom(locale);
-            String hrefBase = new UrlHelper().getFeaturesHrefBaseUrl(query.getHrefBase());
+            String hrefBase = urlHelper.getFeaturesHrefBaseUrl(query.getHrefBase());
             results.add(new FeatureSearchResult(pkid, label, hrefBase));
         }
         return results;

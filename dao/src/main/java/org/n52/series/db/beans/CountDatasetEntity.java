@@ -39,7 +39,7 @@ public class CountDatasetEntity extends DatasetEntity<CountDataEntity> {
     private Set<CountDatasetEntity> referenceValues = new HashSet<>();
 
     public CountDatasetEntity() {
-        super(CountDatasetOutput.DATASET_TYPE);
+        super(CountDatasetOutput.VALUE_TYPE);
     }
 
     public Set<CountDatasetEntity> getReferenceValues() {

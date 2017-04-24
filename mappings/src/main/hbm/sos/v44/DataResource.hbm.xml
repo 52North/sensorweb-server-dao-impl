@@ -25,7 +25,7 @@
             <one-to-many class="org.n52.series.db.beans.parameter.ObservationParameter"/>
         </set>
 
-        <joined-subclass extends="DataEntity" name="MeasurementDataEntity" table="numericvalue">
+        <joined-subclass extends="DataEntity" name="QuantityDataEntity" table="numericvalue">
             <key column="observationid"/>
             <property column="value" name="value" type="double"/>
         </joined-subclass>

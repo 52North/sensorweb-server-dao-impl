@@ -55,7 +55,7 @@ import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -135,10 +135,10 @@ public class DbQuery {
                 : null;
     }
 
-    public String getHandleAsDatasetTypeFallback() {
-        return parameters.containsParameter(Parameters.HANDLE_AS_DATASET_TYPE)
-                ? parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE)
-                : DatasetType.DEFAULT_DATASET_TYPE;
+    public String getHandleAsValueTypeFallback() {
+        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
+                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+                : ValueType.DEFAULT_VALUE_TYPE;
     }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
@@ -328,7 +328,7 @@ public class DbQuery {
 
         addFilterRestriction(parameters.getDatasets()
                                        .stream()
-                                       .map(e -> DatasetType.extractId(e))
+                                       .map(e -> ValueType.extractId(e))
                                        .collect(Collectors.toSet()),
                              filter);
 

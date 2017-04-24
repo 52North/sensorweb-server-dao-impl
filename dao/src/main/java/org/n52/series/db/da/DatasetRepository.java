@@ -40,7 +40,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.SeriesParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
@@ -76,14 +76,14 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
-            String dbId = DatasetType.extractId(id);
-            String handleAsFallback = parameters.getHandleAsDatasetTypeFallback();
-            String datasetType = DatasetType.extractType(id, handleAsFallback);
-            if (!dataRepositoryFactory.isKnown(datasetType)) {
+            String dbId = ValueType.extractId(id);
+            String handleAsFallback = parameters.getHandleAsValueTypeFallback();
+            String valueType = ValueType.extractType(id, handleAsFallback);
+            if (!dataRepositoryFactory.isKnown(valueType)) {
                 return false;
             }
-            DataRepository dataRepository = dataRepositoryFactory.create(datasetType);
-            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(datasetType, session);
+            DataRepository dataRepository = dataRepositoryFactory.create(valueType);
+            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
             return parameters.getParameters()
                              .isMatchDomainIds()
                                      ? dao.hasInstance(dbId, parameters, dataRepository.getEntityType())
@@ -112,7 +112,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters()
                  .isMatchDomainIds()) {
-            String datasetType = query.getHandleAsDatasetTypeFallback();
+            String datasetType = query.getHandleAsValueTypeFallback();
             addCondensedResults(getSeriesDao(datasetType, session), query, results);
             return results;
         }
@@ -139,7 +139,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetType, Session session)
             throws DataAccessException {
         if (! ("all".equalsIgnoreCase(datasetType) || dataRepositoryFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
+            throw new ResourceNotFoundException("unknown type: " + datasetType);
         }
         try {
             DataRepository dataRepository = dataRepositoryFactory.create(datasetType);
@@ -169,7 +169,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters()
                  .isMatchDomainIds()) {
-            String datasetType = query.getHandleAsDatasetTypeFallback();
+            String datasetType = query.getHandleAsValueTypeFallback();
             addExpandedResults(getSeriesDao(datasetType, session), query, results, session);
             return results;
         }
@@ -211,11 +211,11 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     DatasetEntity< ? > getInstanceEntity(String id, DbQuery query, Session session) throws DataAccessException {
-        String seriesId = DatasetType.extractId(id);
-        String handleAsFallback = query.getHandleAsDatasetTypeFallback();
-        final String datasetType = DatasetType.extractType(id, handleAsFallback);
-        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(datasetType, session);
-        DatasetEntity instance = dao.getInstance(Long.parseLong(seriesId), query);
+        String datasetId = ValueType.extractId(id);
+        String handleAsFallback = query.getHandleAsValueTypeFallback();
+        final String valueType = ValueType.extractType(id, handleAsFallback);
+        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
+        DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), query);
         instance.setPlatform(platformRepository.getPlatformEntity(instance, query, session));
         return instance;
     }
@@ -236,7 +236,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -254,7 +254,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         output.setId(series.getPkid()
                            .toString());
         output.setDomainId(series.getDomainId());
-        output.setHrefBase(urHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
+        output.setHrefBase(urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
         return output;
     }
 
