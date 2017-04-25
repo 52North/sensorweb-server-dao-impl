@@ -49,6 +49,7 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,9 +140,24 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(String valueType, Session session)
             throws DataAccessException {
-        if (! ("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
+        if (!("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
+            throw new BadQueryParameterException("unknown type: " + valueType);
+        }
+        return createDataAccessRepository(valueType, session);
+    }
+
+    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
+        throws DataAccessException {
+        String handleAsFallback = query.getHandleAsValueTypeFallback();
+        final String valueType = ValueType.extractType(datasetId, handleAsFallback);
+        if (!dataRepositoryFactory.isKnown(valueType)) {
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
+        return createDataAccessRepository(valueType, session);
+    }
+
+    private DatasetDao< ? extends DatasetEntity> createDataAccessRepository(String valueType, Session session)
+            throws DataAccessException {
         try {
             DataRepository dataRepository = dataRepositoryFactory.create(valueType);
             return getSeriesDao(dataRepository.getEntityType(), session);
@@ -149,7 +165,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throw new DataAccessException(e.getMessage());
         }
     }
-
+    
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
     }
@@ -213,9 +229,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
     DatasetEntity< ? > getInstanceEntity(String id, DbQuery query, Session session) throws DataAccessException {
         String datasetId = ValueType.extractId(id);
-        String handleAsFallback = query.getHandleAsValueTypeFallback();
-        final String valueType = ValueType.extractType(id, handleAsFallback);
-        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
+        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(id, query, session);
         DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), query);
         instance.setPlatform(platformRepository.getPlatformEntity(instance, query, session));
         return instance;
