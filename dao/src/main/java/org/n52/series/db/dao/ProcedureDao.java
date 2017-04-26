@@ -38,10 +38,14 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nProcedureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ProcedureDao extends AbstractDao<ProcedureEntity> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
 
     private static final String COLUMN_REFERENCE = "reference";
 
@@ -52,7 +56,7 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
     @Override
     @SuppressWarnings("unchecked")
     public List<ProcedureEntity> find(DbQuery query) {
-        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(), query);
+        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(true), query);
         criteria.add(Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
         return query.addFilters(criteria, getDatasetProperty())
                     .list();
@@ -61,14 +65,28 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
     @Override
     @SuppressWarnings("unchecked")
     public List<ProcedureEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(), query);
+        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(true), query);
         return (List<ProcedureEntity>) query.addFilters(criteria, getDatasetProperty())
                                             .list();
     }
 
     @Override
+    public ProcedureEntity getInstance(Long key, DbQuery parameters) throws DataAccessException {
+        LOGGER.debug("get instance '{}': {}", key, parameters);
+        Criteria criteria = getDefaultCriteria(true);
+        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
+                                             .uniqueResult());
+    }
+
+    @Override
     protected Criteria getDefaultCriteria() {
-        return super.getDefaultCriteria().add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE));
+        return getDefaultCriteria(true);
+    }
+
+    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures) {
+        return ignoreReferenceProcedures
+                ? super.getDefaultCriteria().add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
+                : super.getDefaultCriteria();
     }
 
     @Override
