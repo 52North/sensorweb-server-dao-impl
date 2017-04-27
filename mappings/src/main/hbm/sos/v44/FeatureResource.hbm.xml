@@ -29,7 +29,7 @@
 
     <set inverse="true" name="parameters" table="featureparameter">
         <key column="featureofinterestid" not-null="true"/>
-        <one-to-many class="org.n52.series.db.beans.parameter.FeatureParameter"/>
+        <one-to-many class="org.n52.series.db.beans.parameter.FeatureParameter" entity-name="RestFeatureParameter"/>
     </set>
   </class>
 </hibernate-mapping>
