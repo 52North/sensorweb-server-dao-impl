@@ -141,13 +141,13 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(String valueType, Session session)
             throws DataAccessException {
         if (!("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
-            throw new BadQueryParameterException("unknown type: " + valueType);
+            throw new BadQueryParameterException("invalid type: " + valueType);
         }
         return createDataAccessRepository(valueType, session);
     }
 
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
-        throws DataAccessException {
+            throws DataAccessException {
         String handleAsFallback = query.getHandleAsValueTypeFallback();
         final String valueType = ValueType.extractType(datasetId, handleAsFallback);
         if (!dataRepositoryFactory.isKnown(valueType)) {
@@ -165,7 +165,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throw new DataAccessException(e.getMessage());
         }
     }
-    
+
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
     }
@@ -263,7 +263,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session) throws DataAccessException {
+    protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
+            throws DataAccessException {
         DatasetOutput output = new DatasetOutput(series.getValueType()) {};
         output.setLabel(createSeriesLabel(series, query.getLocale()));
         output.setId(series.getPkid()
