@@ -148,9 +148,9 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery parameters) throws DataAccessException {
         FeatureOutput result = createCondensed(entity, parameters);
         if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(entity.getService(), parameters));
+            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
+            result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
         if (entity.hasParameters()) {
             for (Parameter< ? > parameter : entity.getParameters()) {
