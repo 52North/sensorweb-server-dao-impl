@@ -27,7 +27,7 @@
  * for more details.
  */
 
-package org.n52.io.extension;
+package org.n52.series.db.beans;
 
 import static org.junit.Assert.assertTrue;
 
@@ -35,9 +35,9 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.junit.Test;
-import org.n52.series.db.beans.MeasurementDataEntity;
+import org.n52.series.db.beans.QuantityDataEntity;
 
-public class MeasurementDataEntityTest {
+public class QuantityDataEntityTest {
 
     @Test
     public void when_noDataCollectionContainsValue_then_detectNoDataValue() {
@@ -45,7 +45,7 @@ public class MeasurementDataEntityTest {
             "9999",
             "-9999.9"
         });
-        MeasurementDataEntity entity = new MeasurementDataEntity();
+        QuantityDataEntity entity = new QuantityDataEntity();
         entity.setValue(9999d);
         assertTrue(entity.isNoDataValue(noDataValues));
     }

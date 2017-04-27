@@ -32,9 +32,10 @@ package org.n52.series.srv;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.RequestParameterSet;
-import org.n52.io.response.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.DataCollection;
-import org.n52.io.response.dataset.measurement.MeasurementData;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
+import org.n52.io.response.dataset.quantity.QuantityData;
+import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
 import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
@@ -47,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Deprecated
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
-        implements DataService<MeasurementData> {
+        implements DataService<QuantityData> {
 
     @Autowired
     private IDataRepositoryFactory factory;
@@ -57,11 +58,11 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
     }
 
     @Override
-    public DataCollection<MeasurementData> getData(RequestParameterSet parameters) {
+    public DataCollection<QuantityData> getData(RequestParameterSet parameters) {
         try {
-            TvpDataCollection<MeasurementData> dataCollection = new TvpDataCollection<>();
+            TvpDataCollection<QuantityData> dataCollection = new TvpDataCollection<>();
             for (String timeseriesId : parameters.getDatasets()) {
-                MeasurementData data = getDataFor(timeseriesId, parameters);
+                QuantityData data = getDataFor(timeseriesId, parameters);
                 if (data != null) {
                     dataCollection.addNewSeries(timeseriesId, data);
                 }
@@ -72,15 +73,15 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
         }
     }
 
-    private MeasurementData getDataFor(String timeseriesId, RequestParameterSet parameters) throws DataAccessException {
+    private QuantityData getDataFor(String timeseriesId, RequestParameterSet parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
         DataRepository dataRepository = createRepository();
-        return (MeasurementData) dataRepository.getData(timeseriesId, dbQuery);
+        return (QuantityData) dataRepository.getData(timeseriesId, dbQuery);
     }
 
     private DataRepository createRepository() throws DataAccessException {
         try {
-            return factory.create("measurement");
+            return factory.create(QuantityDatasetOutput.VALUE_TYPE);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }

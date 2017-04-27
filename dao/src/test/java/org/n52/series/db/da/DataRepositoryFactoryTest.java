@@ -43,6 +43,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.n52.io.DatasetFactoryException;
+import org.n52.io.response.dataset.count.CountDatasetOutput;
+import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
+import org.n52.io.response.dataset.text.TextDatasetOutput;
 
 public class DataRepositoryFactoryTest {
 
@@ -60,35 +63,35 @@ public class DataRepositoryFactoryTest {
     @Test
     public void when_createdWithNoConfig_useDefaultConfig() throws DatasetFactoryException {
         IDataRepositoryFactory m = new DefaultDataRepositoryFactory();
-        assertFalse(m.isKnown("text"));
-        assertFalse(m.isKnown("count"));
-        assertTrue(m.create("measurement")
-                    .getClass() == MeasurementDataRepository.class);
+        assertFalse(m.isKnown(TextDatasetOutput.VALUE_TYPE));
+        assertFalse(m.isKnown(CountDatasetOutput.VALUE_TYPE));
+        assertTrue(m.create(QuantityDatasetOutput.VALUE_TYPE)
+                    .getClass() == QuantityDataRepository.class);
     }
 
     @Test
     public void when_mapToText_then_returnTextDataRepository() throws DatasetFactoryException {
-        assertTrue(factory.create("text")
+        assertTrue(factory.create(TextDatasetOutput.VALUE_TYPE)
                           .getClass() == TextDataRepository.class);
     }
 
     @Test
     public void when_mapToText_then_returnCountDataRepository() throws DatasetFactoryException {
-        assertTrue(factory.create("count")
+        assertTrue(factory.create(CountDatasetOutput.VALUE_TYPE)
                           .getClass() == CountDataRepository.class);
     }
 
     @Test
-    public void when_mapToText_then_returnMeasurementDataRepository() throws DatasetFactoryException {
-        assertTrue(factory.create("measurement")
-                          .getClass() == MeasurementDataRepository.class);
+    public void when_mapToText_then_returnQuantityDataRepository() throws DatasetFactoryException {
+        assertTrue(factory.create(QuantityDatasetOutput.VALUE_TYPE)
+                          .getClass() == QuantityDataRepository.class);
     }
 
     @Test
     public void when_instanceCreated_then_nextTimeFromCache() throws DatasetFactoryException {
-        DataRepository instance = factory.create("measurement");
-        Assert.assertTrue(factory.hasCacheEntry("measurement"));
-        Assert.assertTrue(instance == factory.create("measurement"));
+        DataRepository instance = factory.create(QuantityDatasetOutput.VALUE_TYPE);
+        Assert.assertTrue(factory.hasCacheEntry(QuantityDatasetOutput.VALUE_TYPE));
+        Assert.assertTrue(instance == factory.create(QuantityDatasetOutput.VALUE_TYPE));
     }
 
     private File getConfigFile(String name) throws URISyntaxException {

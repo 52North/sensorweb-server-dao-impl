@@ -41,7 +41,7 @@ import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -73,7 +73,7 @@ class HierarchicalParameterRepository extends SessionAwareRepository {
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
             DatasetDao<DatasetEntity<?>> dao = new DatasetDao<>(session);
             for (DatasetOutput dataset : platform.getDatasets()) {
-                String datasetId = DatasetType.extractId(dataset.getId());
+                String datasetId = ValueType.extractId(dataset.getId());
                 DatasetEntity<?> instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
                 addProcedureParents(instance, dbQuery, extras);
                 // TODO add further parents

@@ -79,7 +79,7 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getFeaturesHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getFeaturesHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -172,7 +172,7 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
 
     private void checkForHref(FeatureOutput result, DbQuery parameters) {
         if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urHelper.getFeaturesHrefBaseUrl(parameters.getHrefBase()));
+            result.setHrefBase(urlHelper.getFeaturesHrefBaseUrl(parameters.getHrefBase()));
         }
     }
 

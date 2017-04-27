@@ -283,7 +283,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private GeometryInfo addCondensedValues(GeometryInfo geometryInfo, FeatureEntity featureEntity, DbQuery parameters)
             throws DataAccessException {
         geometryInfo.setId(Long.toString(featureEntity.getPkid()));
-        geometryInfo.setHrefBase(urHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
+        geometryInfo.setHrefBase(urlHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
         geometryInfo.setPlatform(getPlatfom(featureEntity, parameters));
         return geometryInfo;
     }

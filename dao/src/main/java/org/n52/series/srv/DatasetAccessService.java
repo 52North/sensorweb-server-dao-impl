@@ -83,10 +83,10 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     private Data<AbstractValue< ? >> getDataFor(String datasetId, RequestParameterSet parameters)
             throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE);
-        String datasetType = DatasetType.extractType(seriesId, handleAsDatasetFallback);
-        DataRepository dataRepository = createRepository(datasetType);
-        return dataRepository.getData(seriesId, dbQuery);
+        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+        DataRepository dataRepository = createRepository(valueType);
+        return dataRepository.getData(datasetId, dbQuery);
     }
 
     private DataRepository createRepository(String valueType) throws DataAccessException {
@@ -94,7 +94,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {
-            return dataFactory.create(datasetType);
+            return dataFactory.create(valueType);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
