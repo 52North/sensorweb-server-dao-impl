@@ -33,23 +33,23 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.n52.io.response.dataset.measurement.MeasurementDatasetOutput;
+import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
 
-public class MeasurementDatasetEntity extends DatasetEntity<MeasurementDataEntity> {
+public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
 
     private int numberOfDecimals;
 
-    private Set<MeasurementDatasetEntity> referenceValues = new HashSet<>();
+    private Set<QuantityDatasetEntity> referenceValues = new HashSet<>();
 
-    public MeasurementDatasetEntity() {
-        super(MeasurementDatasetOutput.DATASET_TYPE);
+    public QuantityDatasetEntity() {
+        super(QuantityDatasetOutput.VALUE_TYPE);
     }
 
-    public Set<MeasurementDatasetEntity> getReferenceValues() {
+    public Set<QuantityDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
 
-    public void setReferenceValues(Set<MeasurementDatasetEntity> referenceValues) {
+    public void setReferenceValues(Set<QuantityDatasetEntity> referenceValues) {
         this.referenceValues = referenceValues;
     }
 
@@ -62,8 +62,8 @@ public class MeasurementDatasetEntity extends DatasetEntity<MeasurementDataEntit
     }
 
     @Override
-    public MeasurementDataEntity getFirstValue() {
-        final MeasurementDataEntity firstValue = super.getFirstValue();
+    public QuantityDataEntity getFirstValue() {
+        final QuantityDataEntity firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
             Double value = firstValue.getValue();
@@ -76,8 +76,8 @@ public class MeasurementDatasetEntity extends DatasetEntity<MeasurementDataEntit
     }
 
     @Override
-    public MeasurementDataEntity getLastValue() {
-        final MeasurementDataEntity lastValue = super.getLastValue();
+    public QuantityDataEntity getLastValue() {
+        final QuantityDataEntity lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
             Double value = lastValue.getValue();

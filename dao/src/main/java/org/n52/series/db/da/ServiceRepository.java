@@ -55,7 +55,6 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlHelper;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -116,7 +115,7 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getPkid());
             String label = searchResult.getLabelFrom(locale);
-            String hrefBase = new UrlHelper().getFeaturesHrefBaseUrl(query.getHrefBase());
+            String hrefBase = urlHelper.getFeaturesHrefBaseUrl(query.getHrefBase());
             results.add(new FeatureSearchResult(pkid, label, hrefBase));
         }
         return results;
@@ -239,12 +238,12 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
 
     private void addSupportedDatasetsTo(ServiceOutput service) {
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
-        for (String datasetType : ioFactoryCreator.getKnownTypes()) {
+        for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? , ? > factory = ioFactoryCreator.create(datasetType);
-                mimeTypesByDatasetTypes.put(datasetType, factory.getSupportedMimeTypes());
+                IoFactory< ? , ? , ? > factory = ioFactoryCreator.create(valueType);
+                mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
-                LOGGER.error("IO Factory for dataset type '{}' couldn't be created.", datasetType);
+                LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
             }
         }
         service.addSupportedDatasets(mimeTypesByDatasetTypes);

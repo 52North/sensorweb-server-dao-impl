@@ -126,7 +126,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
         result.setLabel(entity.getLabelFrom(parameters.getLocale()));
         result.setId(Long.toString(entity.getPkid()));
         result.setDomainId(entity.getDomainId());
-        result.setHrefBase(urHelper.getPlatformsHrefBaseUrl(parameters.getHrefBase()));
+        result.setHrefBase(urlHelper.getPlatformsHrefBaseUrl(parameters.getHrefBase()));
         return result;
     }
 
@@ -224,7 +224,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
             // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
             try {
                 String id = dataset.getId();
-                DataRepository dataRepository = factory.create(dataset.getDatasetType());
+                DataRepository dataRepository = factory.create(dataset.getValueType());
                 DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
                 AbstractValue< ? > valueToCheck = dataRepository.getLastValue(entity, session, query);
                 currentLastValue = getLaterValue(currentLastValue, valueToCheck);
@@ -294,7 +294,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
             String pkid = searchResult.getPkid()
                                       .toString();
             String label = searchResult.getLabelFrom(locale);
-            String hrefBase = urHelper.getPlatformsHrefBaseUrl(query.getHrefBase());
+            String hrefBase = urlHelper.getPlatformsHrefBaseUrl(query.getHrefBase());
             results.add(new PlatformSearchResult(pkid, label, hrefBase));
         }
         return results;

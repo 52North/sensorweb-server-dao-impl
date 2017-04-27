@@ -78,7 +78,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getOfferingsHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getOfferingsHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -171,7 +171,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
 
     private void checkForHref(OfferingOutput result, DbQuery parameters) {
         if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
+            result.setHrefBase(urlHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
         }
     }
 }

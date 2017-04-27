@@ -32,7 +32,7 @@ package org.n52.io.extension.resulttime;
 import java.util.Set;
 
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 
 public class ResultTimeService {
 
@@ -42,8 +42,8 @@ public class ResultTimeService {
         this.repository = repository;
     }
 
-    public Set<String> getResultTimeList(IoParameters parameters, String timeseriesId) {
-        return repository.getExtras(DatasetType.extractId(timeseriesId), parameters);
+    public Set<String> getResultTimeList(IoParameters parameters, String datasetId) {
+        return repository.getExtras(ValueType.extractId(datasetId), parameters);
     }
 
 }
