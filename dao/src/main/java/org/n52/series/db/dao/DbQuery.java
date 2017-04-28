@@ -318,7 +318,6 @@ public class DbQuery {
     public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
 
-        filterBackwardsCompatible(filter);
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
         addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter);
         addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter);
@@ -429,36 +428,6 @@ public class DbQuery {
             }
         }
         return set;
-    }
-
-    @Deprecated
-    private void filterBackwardsCompatible(DetachedCriteria filter) {
-        // old query parameter to stay backward compatible
-        if (getParameters().getPhenomenon() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_PHENOMENON)
-                  .add(QueryUtils.matchesPkid(getParameters().getPhenomenon()));
-        }
-        if (getParameters().getProcedure() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getProcedure()));
-        }
-        if (getParameters().getOffering() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_OFFERING)
-                  .add(QueryUtils.matchesPkid(getParameters().getOffering()));
-        }
-        if (getParameters().getFeature() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_FEATURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getFeature()));
-        }
-        if (getParameters().getStation() != null) {
-            // here feature == station
-            filter.createCriteria(DatasetEntity.PROPERTY_FEATURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getStation()));
-        }
-        if (getParameters().getCategory() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_CATEGORY)
-                  .add(QueryUtils.matchesPkid(getParameters().getCategory()));
-        }
     }
 
     public IoParameters getParameters() {
