@@ -320,8 +320,8 @@ public class DbQuery {
 
         filterBackwardsCompatible(filter);
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter);
+        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
         addFilterRestriction(parameters.getFeatures(), DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(parameters.getSeries(), filter);
@@ -354,13 +354,13 @@ public class DbQuery {
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
                                                               String entity,
-                                                              DetachedCriteria filter) {
+                                                              DetachedCriteria filter, String prefix) {
         if (hasValues(values)) {
-            filter.createCriteria(entity, "e")
+            filter.createCriteria(entity, prefix + "e")
                   // join the parents to enable filtering via parent ids
-                  .createAlias("e.parents", "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, "v"),
-                                       Restrictions.in("p.pkid", QueryUtils.parseToIds(values))));
+                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
