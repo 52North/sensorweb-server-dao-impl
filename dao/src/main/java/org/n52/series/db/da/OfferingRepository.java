@@ -123,9 +123,9 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery parameters) throws DataAccessException {
         OfferingOutput result = createCondensed(entity, parameters);
         if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(entity.getService(), parameters));
+            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
+            result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
         return result;
     }
