@@ -314,8 +314,8 @@ public class DbQuery {
         }
         return null;
     }
-
-    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
+    
+    public DetachedCriteria createDatasetFilter() {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
 
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
@@ -341,6 +341,11 @@ public class DbQuery {
                 addFilterRestriction(mobileIds, DatasetEntity.PROPERTY_PROCEDURE, filter);
             }
         }
+        return filter;
+    }
+
+    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
+        DetachedCriteria filter = createDatasetFilter();
 
         // TODO refactory/simplify projection
         String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);

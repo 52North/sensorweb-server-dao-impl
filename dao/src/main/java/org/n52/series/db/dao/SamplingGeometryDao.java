@@ -33,9 +33,15 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Subqueries;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.SamplingGeometryEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class SamplingGeometryDao {
 
@@ -52,7 +58,11 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery parameters) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        parameters.addDetachedFilters(COLUMN_SERIES_PKID, criteria);
+        
+        DetachedCriteria filter = parameters.createDatasetFilter()
+                .setProjection(Property.forName(DatasetEntity.PROPERTY_PKID));
+        criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
+        
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
         parameters.addSpatialFilterTo(criteria, parameters);
