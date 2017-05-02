@@ -30,14 +30,25 @@
 package org.n52.series.db;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.NamedQueryDefinition;
+import org.hibernate.engine.spi.NamedSQLQueryDefinition;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
+
+    public static boolean isNamedQuerySupported(String namedQuery, Session session) {
+        NamedQueryDefinition namedQueryDef = ((SessionImpl) session).getSessionFactory().getNamedQuery(namedQuery);
+        NamedSQLQueryDefinition namedSQLQueryDef =
+                ((SessionImpl) session).getSessionFactory().getNamedSQLQuery(namedQuery);
+        return namedQueryDef != null || namedSQLQueryDef != null;
+    }
 
     public static String getSqlString(Criteria criteria) {
         CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
