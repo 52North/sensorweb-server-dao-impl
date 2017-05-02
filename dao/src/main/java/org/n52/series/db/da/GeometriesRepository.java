@@ -29,15 +29,12 @@
 
 package org.n52.series.db.da;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -46,6 +43,7 @@ import org.n52.io.response.GeometryInfo;
 import org.n52.io.response.GeometryType;
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
@@ -55,8 +53,6 @@ import org.n52.series.spi.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,11 +61,12 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometriesRepository.class);
 
-    @Autowired
-    private PlatformRepository platformRepository;
+    private static final String NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE = "getSampleLatLonGeometries";
+
+    private static final String NAMED_QUERY_PARAMETER_FEATURE_ID = "featureid";
 
     @Autowired
-    private DataSource dataSource;
+    private PlatformRepository platformRepository;
 
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
@@ -252,7 +249,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 geometryInfo.setGeometry(featureEntity.getGeometry(getDatabaseSrid()));
                 return geometryInfo;
             } else {
-                Geometry lineString = createTrajectory(featureEntity);
+                Geometry lineString = createTrajectory(featureEntity, session);
                 geometryInfo.setGeometry(lineString);
                 return geometryInfo;
             }
@@ -260,21 +257,29 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return geometryInfo;
     }
 
-    private Geometry createTrajectory(FeatureEntity featureEntity) {
+    private Geometry createTrajectory(FeatureEntity featureEntity, Session session) {
         try {
-         // track available as points from observation table
+            // track available as points from observation table
             final List<Coordinate> coordinates = new ArrayList<>();
-            JdbcTemplate template = new JdbcTemplate(dataSource);
-            template.query("select distinct o.phenomenontime, o.lat, o.lon "
-                    + "from observation o, series s "
-                    + "where s.seriesid = o.seriesid and s.featureofinterestid=?"
-                    + "order by o.phenomenontime asc", new RowMapper<Void>() {
-                        @Override
-                        public Void mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            coordinates.add(new Coordinate(rs.getDouble("lon"), rs.getDouble("lat")));
-                            return null;
-                        }
-                    }, featureEntity.getPkid());
+            if (DataModelUtil.isNamedQuerySupported(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE, session)) {
+                Query query = session.getNamedQuery(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE);
+                query.setLong(NAMED_QUERY_PARAMETER_FEATURE_ID, featureEntity.getPkid());
+                for (Object entity : query.list()) {
+                    Object[] row = (Object[]) entity;
+                    // time is needed for ordering only
+                    // Date phenomenonTime = (Date) row[0];
+                    if (row.length > 2) {
+                        coordinates.add(new Coordinate((double) row[1], (double) row[2]));
+                    } else {
+                        Geometry geom = (Geometry) row[1];
+                        coordinates.add(geom.getCoordinate());
+                    }
+                }
+            } else {
+                LOGGER.debug("Could not create trajectory! Named query '{}' not defined",
+                             NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE);
+            }
+
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
             return getCrsUtils().createLineString(points, getDatabaseSrid());
         } catch (org.springframework.dao.DataAccessException e) {
