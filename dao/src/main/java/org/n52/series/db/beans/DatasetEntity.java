@@ -88,7 +88,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     private long observationCount = -1;
 
     public DatasetEntity() {
-        this((String)null);
+        this((String) null);
     }
 
     public DatasetEntity(String type) {
