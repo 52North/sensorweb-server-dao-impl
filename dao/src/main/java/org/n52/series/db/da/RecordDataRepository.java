@@ -126,8 +126,8 @@ public class RecordDataRepository
 
     // XXX
     private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity();
-        RecordDataEntity referenceEnd = new RecordDataEntity();
+        RecordDataEntity referenceStart = new RecordDataEntity() {};
+        RecordDataEntity referenceEnd = new RecordDataEntity() {};
         referenceStart.setTimestamp(query.getTimespan()
                                          .getStart()
                                          .toDate());
