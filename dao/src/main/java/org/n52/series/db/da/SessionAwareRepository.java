@@ -187,8 +187,7 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
-        return createCondensed(new ServiceOutput(), service, parameters);
+        return createCondensed(new ServiceOutput(), entity, parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -214,9 +213,8 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
         final String hrefBase = urlHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
-        return createCondensed(new ServiceOutput(), service, parameters, hrefBase);
+        return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T outputvalue,
