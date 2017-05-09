@@ -127,14 +127,6 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public void setComplexChild(boolean complex) {
-        parameters = parameters.extendWith(Parameters.COMPLEX_CHILD, Boolean.toString(complex));
-    }
-    
-    public boolean isComplexChild() {
-        return parameters.getAsBoolean(Parameters.COMPLEX_CHILD, false);
-    }
-
     public Set<String> getDatasetTypes() {
         return parameters.getValueTypes();
     }
