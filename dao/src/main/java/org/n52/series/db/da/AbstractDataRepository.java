@@ -52,7 +52,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Override
-    public Data< ? > getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? > > getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
