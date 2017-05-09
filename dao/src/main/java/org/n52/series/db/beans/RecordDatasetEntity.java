@@ -32,7 +32,7 @@ package org.n52.series.db.beans;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
+public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
 
     private Set<RecordDatasetEntity> referenceValues = new HashSet<>();
     
