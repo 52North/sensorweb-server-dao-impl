@@ -40,9 +40,6 @@ public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
         super();
     }
     
-    @Override
-    public abstract String getValueType();
-
     public Set<RecordDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
