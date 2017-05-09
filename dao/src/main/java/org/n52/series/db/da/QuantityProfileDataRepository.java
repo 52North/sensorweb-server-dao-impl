@@ -9,16 +9,12 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.profile.ProfileData;
 import org.n52.io.response.dataset.profile.ProfileValue;
-import org.n52.io.response.dataset.quantity.QuantityData;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
-import org.n52.series.db.da.QuantityProfileDataRepository.QuantityProfileDataItem;
-import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class QuantityProfileDataRepository
