@@ -26,7 +26,7 @@ public class QuantityProfileDataRepository
     public QuantityProfileDataRepository() {
         this.quantityRepository = new QuantityDataRepository();
     }
-    
+
     @Override
     public ProfileValue getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
@@ -43,35 +43,41 @@ public class QuantityProfileDataRepository
     public Class<ProfileDatasetEntity> getDatasetEntityType() {
         return ProfileDatasetEntity.class;
     }
-    
+
     private boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        return parameterObject.containsKey("name") 
-                && ((String)parameterObject.get("name")).equalsIgnoreCase(verticalName);
+        return parameterObject.containsKey("name")
+                && ((String) parameterObject.get("name")).equalsIgnoreCase(verticalName);
     }
 
     public static class QuantityProfileDataItem {
         private String verticalUnit;
         private Double vertical;
         private Double value;
+
         public String getVerticalUnit() {
             return verticalUnit;
         }
+
         public void setVerticalUnit(String verticalUnit) {
             this.verticalUnit = verticalUnit;
         }
+
         public Double getVertical() {
             return vertical;
         }
+
         public void setVertical(Double vertical) {
             this.vertical = vertical;
         }
+
         public Double getValue() {
             return value;
         }
+
         public void setValue(Double value) {
             this.value = value;
         }
-        
+
     }
 
     @Override
@@ -86,7 +92,7 @@ public class QuantityProfileDataRepository
         ProfileValue profile = parameters.isShowTimeIntervals()
                 ? new ProfileValue(start, end, null)
                 : new ProfileValue(end, null);
-        
+
         List<QuantityProfileDataItem> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : valueEntity.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
@@ -112,7 +118,7 @@ public class QuantityProfileDataRepository
                 }
             }
         }
-        
+
         profile.setValue(dataItems);
         return profile;
     }
