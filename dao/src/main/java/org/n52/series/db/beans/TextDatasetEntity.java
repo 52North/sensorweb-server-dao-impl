@@ -39,7 +39,7 @@ public class TextDatasetEntity extends DatasetEntity<TextDataEntity> {
     private Set<TextDatasetEntity> referenceValues = new HashSet<>();
 
     public TextDatasetEntity() {
-        super(TextDatasetOutput.DATASET_TYPE);
+        super(TextDatasetOutput.VALUE_TYPE);
     }
 
     public Set<TextDatasetEntity> getReferenceValues() {

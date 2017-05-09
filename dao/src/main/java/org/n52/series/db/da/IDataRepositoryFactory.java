@@ -33,10 +33,10 @@ import org.n52.io.DatasetFactoryException;
 
 public interface IDataRepositoryFactory {
 
-    boolean isKnown(String datasetType);
+    boolean isKnown(String valueType);
 
-    DataRepository create(String datasetType) throws DatasetFactoryException;
+    DataRepository create(String valueType) throws DatasetFactoryException;
 
-    boolean hasCacheEntry(String measurement);
+    boolean hasCacheEntry(String valueType);
 
 }

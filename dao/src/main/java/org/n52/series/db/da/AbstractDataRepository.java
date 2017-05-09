@@ -35,7 +35,7 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -52,11 +52,11 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Override
-    public Data< ? > getData(String seriesId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? > getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
-            String id = DatasetType.extractId(seriesId);
+            String id = ValueType.extractId(datasetId);
             S series = seriesDao.getInstance(id, dbQuery);
             if (series.getService() == null) {
                 series.setService(getServiceEntity());

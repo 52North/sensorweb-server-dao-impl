@@ -35,11 +35,11 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.StationOutput;
+import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.MeasurementDatasetEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
@@ -181,8 +181,8 @@ public class StationRepository extends SessionAwareRepository implements OutputA
 
     private StationOutput createExpanded(FeatureEntity feature, DbQuery parameters, Session session)
             throws DataAccessException {
-        DatasetDao<MeasurementDatasetEntity> seriesDao = new DatasetDao<>(session, MeasurementDatasetEntity.class);
-        List<MeasurementDatasetEntity> series = seriesDao.getInstancesWith(feature);
+        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature);
         StationOutput stationOutput = createCondensed(feature, parameters);
         stationOutput.setTimeseries(createTimeseriesList(series, parameters));
         return stationOutput;

@@ -82,7 +82,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         List<SearchResult> results = new ArrayList<>();
         String locale = query.getLocale();
-        String hrefBase = urHelper.getProceduresHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getProceduresHrefBaseUrl(query.getHrefBase());
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getPkid());
             String label = searchResult.getLabelFrom(locale);
@@ -164,9 +164,9 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery parameters) {
         ProcedureOutput result = createCondensed(entity, parameters);
         if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(entity.getService(), parameters));
+            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
+            result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
         result.setParents(createCondensed(entity.getParents(), parameters));
         result.setChildren(createCondensed(entity.getChildren(), parameters));
@@ -183,7 +183,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     private void checkForHref(ProcedureOutput result, DbQuery parameters) {
         if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
+            result.setHrefBase(urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
         }
     }
 

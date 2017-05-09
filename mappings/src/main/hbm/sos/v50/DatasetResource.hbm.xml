@@ -15,7 +15,7 @@
     <many-to-one class="PlatformEntity" column="procedureid" insert="false" name="platform" update="false"/>
     <property column="published" insert="false" name="published" type="org.hibernate.type.TrueFalseType" update="false"/>
     <property column="deleted" insert="false" name="deleted" type="org.hibernate.type.TrueFalseType" update="false"/>
-    <property column="seriesType" insert="false" name="datasetType" type="string" update="false"/>
+    <property column="seriesType" insert="false" name="valueType" type="string" update="false"/>
 
     <property column="identifier" insert="false" name="domainId" type="string" update="false"/>
     <property column="firsttimestamp" name="firstValueAt" type="timestamp"/>
@@ -26,16 +26,18 @@
         <element column="resulttime" type="string" />
     </set>
 
-    <subclass discriminator-value="measurement" name="MeasurementDatasetEntity">
+    <subclass discriminator-value="quantity" name="QuantityDatasetEntity">
       <property formula="3" name="numberOfDecimals" type="int"/>
       <!-- first value for backwards compatibility -->
       <component class="ObservationEntity" name="firstValue">
-        <property column="firsttimestamp" name="timestamp" type="timestamp" insert="false" update="false"/>
+        <property column="firsttimestamp" name="timestart" type="timestamp" insert="false" update="false"/>
+        <property column="firsttimestamp" name="timeend" type="timestamp" insert="false" update="false"/>
         <property column="firstnumericvalue" name="value" type="double"/>
       </component>
       <!-- last value for backwards compatibility -->
       <component class="ObservationEntity" name="lastValue">
-        <property column="lasttimestamp" name="timestamp" type="timestamp" insert="false" update="false"/>
+        <property column="lasttimestamp" name="timestart" type="timestamp" insert="false" update="false"/>
+        <property column="lasttimestamp" name="timeend" type="timestamp" insert="false" update="false"/>
         <property column="lastnumericvalue" name="value" type="double"/>
       </component>
       <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false"/>

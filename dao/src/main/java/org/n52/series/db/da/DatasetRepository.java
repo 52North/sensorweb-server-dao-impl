@@ -40,8 +40,8 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
 import org.n52.io.response.dataset.SeriesParameters;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -49,6 +49,7 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,14 +77,14 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
-            String dbId = DatasetType.extractId(id);
-            String handleAsFallback = parameters.getHandleAsDatasetTypeFallback();
-            String datasetType = DatasetType.extractType(id, handleAsFallback);
-            if (!dataRepositoryFactory.isKnown(datasetType)) {
+            String dbId = ValueType.extractId(id);
+            String handleAsFallback = parameters.getHandleAsValueTypeFallback();
+            String valueType = ValueType.extractType(id, handleAsFallback);
+            if (!dataRepositoryFactory.isKnown(valueType)) {
                 return false;
             }
-            DataRepository dataRepository = dataRepositoryFactory.create(datasetType);
-            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(datasetType, session);
+            DataRepository dataRepository = dataRepositoryFactory.create(valueType);
+            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
             return parameters.getParameters()
                              .isMatchDomainIds()
                                      ? dao.hasInstance(dbId, parameters, dataRepository.getEntityType())
@@ -112,16 +113,16 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters()
                  .isMatchDomainIds()) {
-            String datasetType = query.getHandleAsDatasetTypeFallback();
-            addCondensedResults(getSeriesDao(datasetType, session), query, results);
+            String valueType = query.getHandleAsValueTypeFallback();
+            addCondensedResults(getSeriesDao(valueType, session), query, results, session);
             return results;
         }
 
         if (filterResolver.shallIncludeAllDatasetTypes()) {
-            addCondensedResults(getSeriesDao(DatasetEntity.class, session), query, results);
+            addCondensedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String datasetType : query.getDatasetTypes()) {
-                addCondensedResults(getSeriesDao(datasetType, session), query, results);
+            for (String valueType : query.getDatasetTypes()) {
+                addCondensedResults(getSeriesDao(valueType, session), query, results, session);
             }
         }
         return results;
@@ -129,20 +130,36 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
     private void addCondensedResults(DatasetDao< ? extends DatasetEntity> dao,
                                      DbQuery query,
-                                     List<DatasetOutput> results)
+                                     List<DatasetOutput> results,
+                                     Session session)
             throws DataAccessException {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            results.add(createCondensed(series, query));
+            results.add(createCondensed(series, query, session));
         }
     }
 
-    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetType, Session session)
+    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String valueType, Session session)
             throws DataAccessException {
-        if (! ("all".equalsIgnoreCase(datasetType) || dataRepositoryFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
+        if (!("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
+            throw new BadQueryParameterException("invalid type: " + valueType);
         }
+        return createDataAccessRepository(valueType, session);
+    }
+
+    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
+            throws DataAccessException {
+        String handleAsFallback = query.getHandleAsValueTypeFallback();
+        final String valueType = ValueType.extractType(datasetId, handleAsFallback);
+        if (!dataRepositoryFactory.isKnown(valueType)) {
+            throw new ResourceNotFoundException("unknown type: " + valueType);
+        }
+        return createDataAccessRepository(valueType, session);
+    }
+
+    private DatasetDao< ? extends DatasetEntity> createDataAccessRepository(String valueType, Session session)
+            throws DataAccessException {
         try {
-            DataRepository dataRepository = dataRepositoryFactory.create(datasetType);
+            DataRepository dataRepository = dataRepositoryFactory.create(valueType);
             return getSeriesDao(dataRepository.getEntityType(), session);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
@@ -169,16 +186,16 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters()
                  .isMatchDomainIds()) {
-            String datasetType = query.getHandleAsDatasetTypeFallback();
-            addExpandedResults(getSeriesDao(datasetType, session), query, results, session);
+            String valueType = query.getHandleAsValueTypeFallback();
+            addExpandedResults(getSeriesDao(valueType, session), query, results, session);
             return results;
         }
 
         if (filterResolver.shallIncludeAllDatasetTypes()) {
             addExpandedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String datasetType : query.getDatasetTypes()) {
-                addExpandedResults(getSeriesDao(datasetType, session), query, results, session);
+            for (String valueType : query.getDatasetTypes()) {
+                addExpandedResults(getSeriesDao(valueType, session), query, results, session);
             }
         }
         return results;
@@ -211,11 +228,9 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     DatasetEntity< ? > getInstanceEntity(String id, DbQuery query, Session session) throws DataAccessException {
-        String seriesId = DatasetType.extractId(id);
-        String handleAsFallback = query.getHandleAsDatasetTypeFallback();
-        final String datasetType = DatasetType.extractType(id, handleAsFallback);
-        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(datasetType, session);
-        DatasetEntity instance = dao.getInstance(Long.parseLong(seriesId), query);
+        String datasetId = ValueType.extractId(id);
+        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(id, query, session);
+        DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), query);
         instance.setPlatform(platformRepository.getPlatformEntity(instance, query, session));
         return instance;
     }
@@ -236,7 +251,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -248,13 +263,16 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query) throws DataAccessException {
-        DatasetOutput output = new DatasetOutput(series.getDatasetType()) {};
+    protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
+            throws DataAccessException {
+        DatasetOutput output = new DatasetOutput(series.getValueType()) {};
         output.setLabel(createSeriesLabel(series, query.getLocale()));
         output.setId(series.getPkid()
                            .toString());
         output.setDomainId(series.getDomainId());
-        output.setHrefBase(urHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
+        output.setHrefBase(urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
+        PlatformOutput platform = getCondensedPlatform(series, query, session);
+        output.setPlatformType(platform.getPlatformType());
         return output;
     }
 
@@ -262,7 +280,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     protected DatasetOutput createExpanded(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
         try {
-            DatasetOutput result = createCondensed(series, query);
+            DatasetOutput result = createCondensed(series, query, session);
             SeriesParameters seriesParameters = createSeriesParameters(series, query, session);
             seriesParameters.setPlatform(getCondensedPlatform(series, query, session));
             result.setSeriesParameters(seriesParameters);
@@ -271,7 +289,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                 series.setService(getServiceEntity());
             }
             result.setUom(series.getUnitI18nName(query.getLocale()));
-            DataRepository dataRepository = dataRepositoryFactory.create(series.getDatasetType());
+            DataRepository dataRepository = dataRepositoryFactory.create(series.getValueType());
             result.setFirstValue(dataRepository.getFirstValue(series, session, query));
             result.setLastValue(dataRepository.getLastValue(series, session, query));
             return result;

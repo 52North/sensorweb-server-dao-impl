@@ -27,7 +27,7 @@
  * for more details.
  */
 
-package org.n52.io.extension;
+package org.n52.series.db.beans;
 
 import static org.junit.Assert.assertTrue;
 

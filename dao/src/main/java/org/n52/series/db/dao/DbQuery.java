@@ -55,7 +55,7 @@ import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -120,11 +120,11 @@ public class DbQuery {
     }
 
     public Set<String> getDatasetTypes() {
-        return parameters.getDatasetTypes();
+        return parameters.getValueTypes();
     }
 
     public boolean isSetDatasetTypeFilter() {
-        return !parameters.getDatasetTypes()
+        return !parameters.getValueTypes()
                           .isEmpty();
     }
 
@@ -135,10 +135,10 @@ public class DbQuery {
                 : null;
     }
 
-    public String getHandleAsDatasetTypeFallback() {
-        return parameters.containsParameter(Parameters.HANDLE_AS_DATASET_TYPE)
-                ? parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE)
-                : DatasetType.DEFAULT_DATASET_TYPE;
+    public String getHandleAsValueTypeFallback() {
+        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
+                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+                : ValueType.DEFAULT_VALUE_TYPE;
     }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
@@ -205,19 +205,19 @@ public class DbQuery {
     }
 
     Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
-        Set<String> datasetTypes = getParameters().getDatasetTypes();
-        if (!datasetTypes.isEmpty()) {
+        Set<String> valueTypes = getParameters().getValueTypes();
+        if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = getFilterResolver();
             if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
+                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
                     // series table itself
-                    criteria.add(Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE, datasetTypes));
+                    criteria.add(containsValueType);
                 } else {
+                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE,
-                                                                              datasetTypes))
-                                                         .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
-                                                                                           parameter));
+                                                         .add(containsValueType)
+                                                         .setProjection(onPkids);
                     criteria.add(matchPropertyPkids(parameter, c));
                 }
             }
@@ -318,17 +318,16 @@ public class DbQuery {
     public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
 
-        filterBackwardsCompatible(filter);
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter);
+        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
         addFilterRestriction(parameters.getFeatures(), DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(parameters.getSeries(), filter);
 
         addFilterRestriction(parameters.getDatasets()
                                        .stream()
-                                       .map(e -> DatasetType.extractId(e))
+                                       .map(e -> ValueType.extractId(e))
                                        .collect(Collectors.toSet()),
                              filter);
 
@@ -354,13 +353,13 @@ public class DbQuery {
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
                                                               String entity,
-                                                              DetachedCriteria filter) {
+                                                              DetachedCriteria filter, String prefix) {
         if (hasValues(values)) {
-            filter.createCriteria(entity, "e")
+            filter.createCriteria(entity, prefix + "e")
                   // join the parents to enable filtering via parent ids
-                  .createAlias("e.parents", "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, "v"),
-                                       Restrictions.in("p.pkid", QueryUtils.parseToIds(values))));
+                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -429,36 +428,6 @@ public class DbQuery {
             }
         }
         return set;
-    }
-
-    @Deprecated
-    private void filterBackwardsCompatible(DetachedCriteria filter) {
-        // old query parameter to stay backward compatible
-        if (getParameters().getPhenomenon() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_PHENOMENON)
-                  .add(QueryUtils.matchesPkid(getParameters().getPhenomenon()));
-        }
-        if (getParameters().getProcedure() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getProcedure()));
-        }
-        if (getParameters().getOffering() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_OFFERING)
-                  .add(QueryUtils.matchesPkid(getParameters().getOffering()));
-        }
-        if (getParameters().getFeature() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_FEATURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getFeature()));
-        }
-        if (getParameters().getStation() != null) {
-            // here feature == station
-            filter.createCriteria(DatasetEntity.PROPERTY_FEATURE)
-                  .add(QueryUtils.matchesPkid(getParameters().getStation()));
-        }
-        if (getParameters().getCategory() != null) {
-            filter.createCriteria(DatasetEntity.PROPERTY_CATEGORY)
-                  .add(QueryUtils.matchesPkid(getParameters().getCategory()));
-        }
     }
 
     public IoParameters getParameters() {

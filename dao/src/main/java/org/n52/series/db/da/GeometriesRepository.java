@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -42,12 +43,12 @@ import org.n52.io.response.GeometryInfo;
 import org.n52.io.response.GeometryType;
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
-import org.n52.series.db.dao.SamplingGeometryDao;
 import org.n52.series.spi.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +56,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 public class GeometriesRepository extends SessionAwareRepository implements OutputAssembler<GeometryInfo> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometriesRepository.class);
+
+    private static final String NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE = "getSampleLatLonGeometries";
+
+    private static final String NAMED_QUERY_PARAMETER_FEATURE_ID = "featureid";
 
     @Autowired
     private PlatformRepository platformRepository;
@@ -245,17 +249,43 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 geometryInfo.setGeometry(featureEntity.getGeometry(getDatabaseSrid()));
                 return geometryInfo;
             } else {
-                // track available as points from observation table
-                DbQuery featureQuery = getDbQuery(parameters.getParameters()
-                                                            .extendWith(Parameters.FEATURES,
-                                                                        Long.toString(featureEntity.getPkid())));
-                final SamplingGeometryDao dao = new SamplingGeometryDao(session);
-                List<GeometryEntity> samplingGeometries = dao.getGeometriesOrderedByTimestamp(featureQuery);
-                geometryInfo.setGeometry(createLineString(samplingGeometries));
+                Geometry lineString = createTrajectory(featureEntity, session);
+                geometryInfo.setGeometry(lineString);
                 return geometryInfo;
             }
         }
         return geometryInfo;
+    }
+
+    private Geometry createTrajectory(FeatureEntity featureEntity, Session session) {
+        try {
+            // track available as points from observation table
+            final List<Coordinate> coordinates = new ArrayList<>();
+            if (DataModelUtil.isNamedQuerySupported(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE, session)) {
+                Query query = session.getNamedQuery(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE);
+                query.setLong(NAMED_QUERY_PARAMETER_FEATURE_ID, featureEntity.getPkid());
+                for (Object entity : query.list()) {
+                    Object[] row = (Object[]) entity;
+                    // time is needed for ordering only
+                    // Date phenomenonTime = (Date) row[0];
+                    if (row.length > 2) {
+                        coordinates.add(new Coordinate((double) row[1], (double) row[2]));
+                    } else {
+                        Geometry geom = (Geometry) row[1];
+                        coordinates.add(geom.getCoordinate());
+                    }
+                }
+            } else {
+                LOGGER.debug("Could not create trajectory! Named query '{}' not defined",
+                             NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE);
+            }
+
+            Coordinate[] points = coordinates.toArray(new Coordinate[0]);
+            return getCrsUtils().createLineString(points, getDatabaseSrid());
+        } catch (org.springframework.dao.DataAccessException e) {
+            LOGGER.error("Could not get trajectory for feature '{}'", featureEntity.getPkid());
+            return null;
+        }
     }
 
     private Collection<GeometryInfo> getAllObservedGeometriesStatic(DbQuery parameters,
@@ -283,7 +313,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private GeometryInfo addCondensedValues(GeometryInfo geometryInfo, FeatureEntity featureEntity, DbQuery parameters)
             throws DataAccessException {
         geometryInfo.setId(Long.toString(featureEntity.getPkid()));
-        geometryInfo.setHrefBase(urHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
+        geometryInfo.setHrefBase(urlHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
         geometryInfo.setPlatform(getPlatfom(featureEntity, parameters));
         return geometryInfo;
     }
@@ -298,15 +328,6 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()
                         .next();
-    }
-
-    private Geometry createLineString(List<GeometryEntity> samplingGeometries) {
-        List<Coordinate> coordinates = new ArrayList<>();
-        for (GeometryEntity geometryEntity : samplingGeometries) {
-            Point geometry = (Point) geometryEntity.getGeometry(getDatabaseSrid());
-            coordinates.add(geometry.getCoordinate());
-        }
-        return getCrsUtils().createLineString(coordinates.toArray(new Coordinate[0]), getDatabaseSrid());
     }
 
 }

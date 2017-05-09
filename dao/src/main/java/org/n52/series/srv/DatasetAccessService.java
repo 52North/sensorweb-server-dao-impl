@@ -33,10 +33,11 @@ import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.request.RequestParameterSet;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
+import org.n52.io.response.dataset.ValueType;
 import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
@@ -53,7 +54,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class DatasetAccessService extends AccessService<DatasetOutput> implements DataService<Data< ? >> {
+public class DatasetAccessService extends AccessService<DatasetOutput>
+        implements DataService<Data<AbstractValue< ? >>> {
 
     @Autowired
     private IDataRepositoryFactory dataFactory;
@@ -63,11 +65,11 @@ public class DatasetAccessService extends AccessService<DatasetOutput> implement
     }
 
     @Override
-    public DataCollection<Data< ? >> getData(RequestParameterSet parameters) {
+    public DataCollection<Data<AbstractValue< ? >>> getData(RequestParameterSet parameters) {
         try {
-            TvpDataCollection<Data< ? >> dataCollection = new TvpDataCollection<>();
+            TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
             for (String seriesId : parameters.getDatasets()) {
-                Data< ? > data = getDataFor(seriesId, parameters);
+                Data<AbstractValue< ? >> data = getDataFor(seriesId, parameters);
                 if (data != null) {
                     dataCollection.addNewSeries(seriesId, data);
                 }
@@ -78,20 +80,21 @@ public class DatasetAccessService extends AccessService<DatasetOutput> implement
         }
     }
 
-    private Data< ? > getDataFor(String seriesId, RequestParameterSet parameters) throws DataAccessException {
+    private Data<AbstractValue< ? >> getDataFor(String datasetId, RequestParameterSet parameters)
+            throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE);
-        String datasetType = DatasetType.extractType(seriesId, handleAsDatasetFallback);
-        DataRepository dataRepository = createRepository(datasetType);
-        return dataRepository.getData(seriesId, dbQuery);
+        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+        DataRepository dataRepository = createRepository(valueType);
+        return dataRepository.getData(datasetId, dbQuery);
     }
 
-    private DataRepository createRepository(String datasetType) throws DataAccessException {
-        if (! ("all".equalsIgnoreCase(datasetType) || dataFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
+    private DataRepository createRepository(String valueType) throws DataAccessException {
+        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+            throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {
-            return dataFactory.create(datasetType);
+            return dataFactory.create(valueType);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }

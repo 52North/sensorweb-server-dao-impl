@@ -78,7 +78,7 @@ public class CategoryRepository extends SessionAwareRepository implements Output
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getProceduresHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getProceduresHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -159,7 +159,7 @@ public class CategoryRepository extends SessionAwareRepository implements Output
     protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery parameters) throws DataAccessException {
         CategoryOutput result = createCondensed(entity, parameters);
         if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(entity.getService(), parameters));
+            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
             result.setService(getCondensedService(entity.getService(), parameters));
         }
@@ -177,7 +177,7 @@ public class CategoryRepository extends SessionAwareRepository implements Output
 
     private void checkForHref(CategoryOutput result, DbQuery parameters) {
         if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
+            result.setHrefBase(urlHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
         }
     }
 

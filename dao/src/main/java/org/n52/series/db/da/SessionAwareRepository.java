@@ -50,7 +50,7 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.MeasurementDatasetEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -68,7 +68,7 @@ public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
 
-    protected UrlHelper urHelper = new UrlHelper();
+    protected UrlHelper urlHelper = new UrlHelper();
 
     // via xml or db
     @Autowired(required = false)
@@ -130,11 +130,11 @@ public abstract class SessionAwareRepository {
         this.databaseSrid = databaseSrid;
     }
 
-    protected Map<String, SeriesParameters> createTimeseriesList(List<MeasurementDatasetEntity> series,
+    protected Map<String, SeriesParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
                                                                  DbQuery parameters)
             throws DataAccessException {
         Map<String, SeriesParameters> timeseriesOutputs = new HashMap<>();
-        for (MeasurementDatasetEntity timeseries : series) {
+        for (QuantityDatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
                             .isReference()) {
                 String timeseriesId = Long.toString(timeseries.getPkid());
@@ -144,10 +144,11 @@ public abstract class SessionAwareRepository {
         return timeseriesOutputs;
     }
 
-    protected SeriesParameters createTimeseriesOutput(MeasurementDatasetEntity series, DbQuery parameters)
+    protected SeriesParameters createTimeseriesOutput(QuantityDatasetEntity series, DbQuery parameters)
             throws DataAccessException {
         SeriesParameters metadata = new SeriesParameters();
-        metadata.setService(getCondensedService(series.getService(), parameters));
+        ServiceEntity service = getServiceEntity(series);
+        metadata.setService(getCondensedService(service, parameters));
         metadata.setOffering(getCondensedOffering(series.getOffering(), parameters));
         metadata.setProcedure(getCondensedProcedure(series.getProcedure(), parameters));
         metadata.setPhenomenon(getCondensedPhenomenon(series.getPhenomenon(), parameters));
@@ -178,7 +179,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new PhenomenonOutput(),
                                entity,
                                parameters,
-                               urHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
+                               urlHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -186,15 +187,14 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
-        return createCondensed(new ServiceOutput(), service, parameters);
+        return createCondensed(new ServiceOutput(), entity, parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
         return createCondensed(new OfferingOutput(),
                                entity,
                                parameters,
-                               urHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
+                               urlHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
     }
 
     public void setServiceEntity(ServiceEntity serviceEntity) {
@@ -213,9 +213,8 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
-        final String hrefBase = urHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
-        return createCondensed(new ServiceOutput(), service, parameters, hrefBase);
+        final String hrefBase = urlHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
+        return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T outputvalue,
@@ -243,7 +242,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new ProcedureOutput(),
                                entity,
                                parameters,
-                               urHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
+                               urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
     }
 
     protected FeatureOutput getCondensedFeature(FeatureEntity entity, DbQuery parameters) {
@@ -254,7 +253,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new FeatureOutput(),
                                entity,
                                parameters,
-                               urHelper.getFeaturesHrefBaseUrl(parameters.getHrefBase()));
+                               urlHelper.getFeaturesHrefBaseUrl(parameters.getHrefBase()));
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
@@ -265,7 +264,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new CategoryOutput(),
                                entity,
                                parameters,
-                               urHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
+                               urlHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {

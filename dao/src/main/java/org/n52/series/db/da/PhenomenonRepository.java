@@ -78,7 +78,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
     @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urHelper.getPhenomenaHrefBaseUrl(query.getHrefBase());
+        String hrefBase = urlHelper.getPhenomenaHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = searchResult.getPkid()
@@ -152,9 +152,9 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
     protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery parameters) throws DataAccessException {
         PhenomenonOutput result = createCondensed(entity, parameters);
         if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(entity.getService(), parameters));
+            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
+            result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
         return result;
     }
@@ -171,7 +171,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     private void checkForHref(PhenomenonOutput result, DbQuery parameters) {
         if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
+            result.setHrefBase(urlHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
         }
     }
 }
