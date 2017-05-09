@@ -16,6 +16,7 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class QuantityProfileDataRepository
@@ -49,37 +50,6 @@ public class QuantityProfileDataRepository
                 && ((String) parameterObject.get("name")).equalsIgnoreCase(verticalName);
     }
 
-    public static class QuantityProfileDataItem {
-        private String verticalUnit;
-        private Double vertical;
-        private Double value;
-
-        public String getVerticalUnit() {
-            return verticalUnit;
-        }
-
-        public void setVerticalUnit(String verticalUnit) {
-            this.verticalUnit = verticalUnit;
-        }
-
-        public Double getVertical() {
-            return vertical;
-        }
-
-        public void setVertical(Double vertical) {
-            this.vertical = vertical;
-        }
-
-        public Double getValue() {
-            return value;
-        }
-
-        public void setValue(Double value) {
-            this.value = value;
-        }
-
-    }
-
     @Override
     protected ProfileValue createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
@@ -111,7 +81,8 @@ public class QuantityProfileDataRepository
                         profile.setVerticalUnit(verticalUnit);
                     }
                     if (profile.getVerticalUnit() == null
-                            || !profile.getVerticalUnit().equals(verticalUnit)) {
+                            || !profile.getVerticalUnit()
+                                       .equals(verticalUnit)) {
                         dataItem.setVerticalUnit(verticalUnit);
                     }
                     dataItems.add(dataItem);
@@ -126,8 +97,16 @@ public class QuantityProfileDataRepository
     @Override
     protected ProfileData assembleData(ProfileDatasetEntity datasetEntity, DbQuery query, Session session)
             throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
+        query.setComplexParent(true);
+        ProfileData result = new ProfileData();
+        DataDao<ProfileDataEntity> dao = createDataDao(session);
+        List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
+        for (ProfileDataEntity observation : observations) {
+            if (observation != null) {
+                result.addValues(createSeriesValueFor(observation, datasetEntity, query));
+            }
+        }
+        return result;
     }
 
     @Override
@@ -135,7 +114,42 @@ public class QuantityProfileDataRepository
                                                           DbQuery dbQuery,
                                                           Session session)
             throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
+        
+        // TODO handle reference values
+        
+        return  assembleData(datasetEntity, dbQuery, session);
     }
+    
+
+    public static class QuantityProfileDataItem {
+        private String verticalUnit;
+        private Double vertical;
+        private Double value;
+
+        public String getVerticalUnit() {
+            return verticalUnit;
+        }
+
+        public void setVerticalUnit(String verticalUnit) {
+            this.verticalUnit = verticalUnit;
+        }
+
+        public Double getVertical() {
+            return vertical;
+        }
+
+        public void setVertical(Double vertical) {
+            this.vertical = vertical;
+        }
+
+        public Double getValue() {
+            return value;
+        }
+
+        public void setValue(Double value) {
+            this.value = value;
+        }
+
+    }
+
 }
