@@ -45,14 +45,11 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity< ? >,
-                                             E extends DataEntity< ? >,
-                                             V extends AbstractValue< ? >>
+public abstract class AbstractDataRepository<D extends Data< ? >, S extends DatasetEntity< ? >, E extends DataEntity< ? >, V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Override
-    public Data< ? extends AbstractValue< ? > > getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
@@ -68,27 +65,19 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             returnSession(session);
         }
     }
-    
+
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
-        E valueEntity = getFirstValueEntity(entity, query, session);
-        return createSeriesValueFor(valueEntity, entity, query);
-    }
-
-    E getFirstValueEntity(S entity, DbQuery query, Session session) {
         DataDao<E> dao = createDataDao(session);
-        return dao.getDataValueViaTimestart(entity, query);
+        E valueEntity = dao.getDataValueViaTimestart(entity, query);
+        return createSeriesValueFor(valueEntity, entity, query);
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
-        E valueEntity = getLastValueEntity(entity, query, session);
-        return createSeriesValueFor(valueEntity, entity, query);
-    }
-
-    E getLastValueEntity(S entity, DbQuery query, Session session) {
         DataDao<E> dao = createDataDao(session);
-        return dao.getDataValueViaTimeend(entity, query);
+        E valueEntity = dao.getDataValueViaTimeend(entity, query);
+        return createSeriesValueFor(valueEntity, entity, query);
     }
 
     protected DatasetDao<S> getSeriesDao(Session session) {

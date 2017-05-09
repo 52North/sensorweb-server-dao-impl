@@ -30,61 +30,18 @@ public class QuantityProfileDataRepository
     @Override
     public ProfileValue getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
-        ProfileDataEntity parentEntity = super.getFirstValueEntity(dataset, query, session);
-        return assembleChildrenFrom(parentEntity, dataset, query);
+        return super.getFirstValue(dataset, session, query);
     }
 
     @Override
     public ProfileValue getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
-        ProfileDataEntity parentEntity = super.getLastValueEntity(dataset, query, session);
-        return assembleChildrenFrom(parentEntity, dataset, query);
+        return super.getLastValue(dataset, session, query);
     }
 
     @Override
     public Class<ProfileDatasetEntity> getDatasetEntityType() {
         return ProfileDatasetEntity.class;
-    }
-    
-    private ProfileValue assembleChildrenFrom(ProfileDataEntity parentValue, ProfileDatasetEntity dataset, DbQuery query) {
-
-        Date timeend = parentValue.getTimeend();
-        Date timestart = parentValue.getTimestart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        ProfileValue profile = parameters.isShowTimeIntervals()
-                ? new ProfileValue(start, end, null)
-                : new ProfileValue(end, null);
-        
-        List<QuantityProfileDataItem> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : parentValue.getValue()) {
-            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
-            addParameters(quantityEntity, valueItem, query);
-            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
-                String verticalName = dataset.getVerticalParameterName();
-                if (isVertical(parameterObject, verticalName)) {
-                    // TODO vertical unit is missing for now
-                    QuantityProfileDataItem dataItem = new QuantityProfileDataItem();
-                    dataItem.setValue(quantityEntity.getValue());
-                    // set vertical's value
-                    dataItem.setVertical((double) parameterObject.get("value"));
-                    String verticalUnit = (String) parameterObject.get("unit");
-                    if (profile.getVerticalUnit() == null) {
-                        profile.setVerticalUnit(verticalUnit);
-                    }
-                    if (profile.getVerticalUnit() == null
-                            || !profile.getVerticalUnit().equals(verticalUnit)) {
-                        dataItem.setVerticalUnit(verticalUnit);
-                    }
-                    dataItems.add(dataItem);
-                }
-            }
-        }
-        
-        profile.setValue(dataItems);
-        return profile;
     }
     
     private boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
@@ -121,7 +78,43 @@ public class QuantityProfileDataRepository
     protected ProfileValue createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
                                                 DbQuery query) {
-        return null;
+        Date timeend = valueEntity.getTimeend();
+        Date timestart = valueEntity.getTimestart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        ProfileValue profile = parameters.isShowTimeIntervals()
+                ? new ProfileValue(start, end, null)
+                : new ProfileValue(end, null);
+        
+        List<QuantityProfileDataItem> dataItems = new ArrayList<>();
+        for (DataEntity< ? > dataEntity : valueEntity.getValue()) {
+            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
+            QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
+            addParameters(quantityEntity, valueItem, query);
+            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
+                String verticalName = datasetEntity.getVerticalParameterName();
+                if (isVertical(parameterObject, verticalName)) {
+                    // TODO vertical unit is missing for now
+                    QuantityProfileDataItem dataItem = new QuantityProfileDataItem();
+                    dataItem.setValue(quantityEntity.getValue());
+                    // set vertical's value
+                    dataItem.setVertical((double) parameterObject.get("value"));
+                    String verticalUnit = (String) parameterObject.get("unit");
+                    if (profile.getVerticalUnit() == null) {
+                        profile.setVerticalUnit(verticalUnit);
+                    }
+                    if (profile.getVerticalUnit() == null
+                            || !profile.getVerticalUnit().equals(verticalUnit)) {
+                        dataItem.setVerticalUnit(verticalUnit);
+                    }
+                    dataItems.add(dataItem);
+                }
+            }
+        }
+        
+        profile.setValue(dataItems);
+        return profile;
     }
 
     @Override
