@@ -53,7 +53,7 @@ public class QuantityDataRepository extends
         AbstractDataRepository<QuantityData, QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
 
     @Override
-    public Class<QuantityDatasetEntity> getEntityType() {
+    public Class<QuantityDatasetEntity> getDatasetEntityType() {
         return QuantityDatasetEntity.class;
     }
 

@@ -51,7 +51,7 @@ public class CountDataRepository
         extends AbstractDataRepository<CountData, CountDatasetEntity, CountDataEntity, CountValue> {
 
     @Override
-    public Class<CountDatasetEntity> getEntityType() {
+    public Class<CountDatasetEntity> getDatasetEntityType() {
         return CountDatasetEntity.class;
     }
 

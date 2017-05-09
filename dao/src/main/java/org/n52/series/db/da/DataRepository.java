@@ -29,6 +29,8 @@
 
 package org.n52.series.db.da;
 
+import java.util.Set;
+
 import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
@@ -52,5 +54,5 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
         // void
     }
 
-    Class<E> getEntityType();
+    Class<E> getDatasetEntityType();
 }

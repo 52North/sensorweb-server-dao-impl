@@ -39,7 +39,7 @@ import org.n52.series.db.dao.DbQuery;
 public class ProfileDataRepository extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue>{
 
     @Override
-    public Class<ProfileDatasetEntity> getEntityType() {
+    public Class<ProfileDatasetEntity> getDatasetEntityType() {
         return ProfileDatasetEntity.class;
     }
 

@@ -51,7 +51,7 @@ public class RecordDataRepository
         extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
     @Override
-    public Class<RecordDatasetEntity> getEntityType() {
+    public Class<RecordDatasetEntity> getDatasetEntityType() {
         return RecordDatasetEntity.class;
     }
 
