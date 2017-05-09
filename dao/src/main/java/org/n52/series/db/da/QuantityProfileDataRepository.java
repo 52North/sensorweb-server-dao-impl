@@ -2,11 +2,12 @@
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.profile.ProfileData;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
@@ -47,17 +48,21 @@ public class QuantityProfileDataRepository
     
     private ProfileValue assembleChildrenFrom(ProfileDataEntity parentValue, ProfileDatasetEntity dataset, DbQuery query) {
 
-        ProfileValue profile = new ProfileValue();
-//        quantityRepository.getData(datasetId, dbQuery)
-        // TODO Auto-generated method stub
+        Date timeend = parentValue.getTimeend();
+        Date timestart = parentValue.getTimestart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        ProfileValue profile = parameters.isShowTimeIntervals()
+                ? new ProfileValue(start, end, null)
+                : new ProfileValue(end, null);
         
         List<QuantityProfileDataItem> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : parentValue.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
-            Set<Map<String,Object>> parameters = valueItem.getParameters();
-            for (Map<String, Object> parameterObject : parameters) {
+            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
                 String verticalName = dataset.getVerticalParameterName();
                 if (isVertical(parameterObject, verticalName)) {
                     // TODO vertical unit is missing for now
@@ -69,8 +74,8 @@ public class QuantityProfileDataRepository
                     if (profile.getVerticalUnit() == null) {
                         profile.setVerticalUnit(verticalUnit);
                     }
-                    if (profile.getVerticalUnit() != null
-                            && profile.getVerticalUnit().equals(verticalUnit)) {
+                    if (profile.getVerticalUnit() == null
+                            || !profile.getVerticalUnit().equals(verticalUnit)) {
                         dataItem.setVerticalUnit(verticalUnit);
                     }
                     dataItems.add(dataItem);
@@ -79,7 +84,6 @@ public class QuantityProfileDataRepository
         }
         
         profile.setValue(dataItems);
-        // TODO timestamp etc.
         return profile;
     }
     
