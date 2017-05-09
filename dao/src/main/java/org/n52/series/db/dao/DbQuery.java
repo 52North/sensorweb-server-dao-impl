@@ -118,6 +118,22 @@ public class DbQuery {
     public boolean isExpanded() {
         return parameters.isExpanded();
     }
+    
+    public void setComplexParent(boolean complex) {
+        parameters = parameters.extendWith(Parameters.COMPLEX_PARENT, Boolean.toString(complex));
+    }
+    
+    public boolean isComplexParent() {
+        return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
+    }
+
+    public void setComplexChild(boolean complex) {
+        parameters = parameters.extendWith(Parameters.COMPLEX_CHILD, Boolean.toString(complex));
+    }
+    
+    public boolean isComplexChild() {
+        return parameters.getAsBoolean(Parameters.COMPLEX_CHILD, false);
+    }
 
     public Set<String> getDatasetTypes() {
         return parameters.getValueTypes();

@@ -76,6 +76,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private static final String COLUMN_TIMEEND = "timeend";
 
     private static final String COLUMN_PARENT = "parent";
+
     private final Class<T> entityType;
 
     @Autowired
@@ -175,13 +176,16 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(COLUMN_TIMEEND))
                                    .add(Restrictions.eq(COLUMN_DELETED, Boolean.FALSE));
-        if (parameters != null) {
-            criteria = parameters.getResultTime() != null
-                    ? criteria.add(Restrictions.eq(COLUMN_RESULTTIME, parameters.getResultTime()))
-                    : criteria;
-        }
 
-        return criteria.add(Restrictions.eq(COLUMN_PARENT, false));
+        if (parameters != null && parameters.getResultTime() != null) {
+            criteria = criteria.add(Restrictions.eq(COLUMN_RESULTTIME, parameters.getResultTime()));
+        }
+        
+        criteria = parameters != null && parameters.isComplexParent()
+                ? criteria.add(Restrictions.eq(COLUMN_PARENT, true))
+                : criteria.add(Restrictions.eq(COLUMN_PARENT, false));
+
+        return criteria;
     }
 
     @Override
@@ -202,7 +206,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     @SuppressWarnings("unchecked")
     private T getDataValueAt(Date timestamp, String column, DatasetEntity series, DbQuery query) {
         LOGGER.debug("get instances @{} for '{}'", timestamp, series.getPkid());
-        Criteria criteria = getDefaultCriteria().add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
+        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
                                                 .add(Restrictions.eq(column, timestamp));
 
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
@@ -211,17 +215,22 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
 
         IoParameters parameters = query.getParameters();
-        if (!parameters.containsParameter(Parameters.RESULTTIME)) {
-            List<T> list = criteria.list();
-            return getLastResultTimeValue(list);
-        } else {
+        if (parameters.containsParameter(Parameters.RESULTTIME)) {
             Instant resultTime = parameters.getResultTime();
             criteria.add(Restrictions.eq(COLUMN_RESULTTIME, resultTime.toDate()));
             return (T) criteria.uniqueResult();
+        } else {
+            List<T> list = criteria.list();
+
+            // XXX having parent/children relationship (complex or profile)
+            // we do not know at this point how to assemble children
+            // under a certain parent
+
+            return getLastValueWhenMultipleResultTimesAvailable(list);
         }
     }
 
-    private T getLastResultTimeValue(List<T> values) {
+    private T getLastValueWhenMultipleResultTimesAvailable(List<T> values) {
         T lastValue = null;
         for (T value : values) {
             lastValue = lastValue != null

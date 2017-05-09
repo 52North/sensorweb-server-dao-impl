@@ -68,19 +68,27 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             returnSession(session);
         }
     }
-
+    
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimestart(entity, query);
+        E valueEntity = getFirstValueEntity(entity, query, session);
         return createSeriesValueFor(valueEntity, entity, query);
+    }
+
+    E getFirstValueEntity(S entity, DbQuery query, Session session) {
+        DataDao<E> dao = createDataDao(session);
+        return dao.getDataValueViaTimestart(entity, query);
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimeend(entity, query);
+        E valueEntity = getLastValueEntity(entity, query, session);
         return createSeriesValueFor(valueEntity, entity, query);
+    }
+
+    E getLastValueEntity(S entity, DbQuery query, Session session) {
+        DataDao<E> dao = createDataDao(session);
+        return dao.getDataValueViaTimeend(entity, query);
     }
 
     protected DatasetDao<S> getSeriesDao(Session session) {

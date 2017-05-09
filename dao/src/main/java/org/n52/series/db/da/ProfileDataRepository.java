@@ -29,11 +29,12 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.profile.ProfileData;
-import org.n52.io.response.profile.ProfileValue;
+import org.n52.io.response.dataset.profile.ProfileData;
+import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
+import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class ProfileDataRepository extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue>{
@@ -41,6 +42,20 @@ public class ProfileDataRepository extends AbstractDataRepository<ProfileData, P
     @Override
     public Class<ProfileDatasetEntity> getDatasetEntityType() {
         return ProfileDatasetEntity.class;
+    }
+
+    @Override
+    public ProfileValue getFirstValue(ProfileDatasetEntity entity, Session session, DbQuery query) {
+        DataDao<ProfileDataEntity> dao = new DataDao<>(session);
+        ProfileDataEntity valueEntity = dao.getDataValueViaTimestart(entity, query);
+        return createSeriesValueFor(valueEntity, entity, query);
+    }
+
+    @Override
+    public ProfileValue getLastValue(ProfileDatasetEntity entity, Session session, DbQuery query) {
+        DataDao<ProfileDataEntity> dao = new DataDao<>(session);
+        ProfileDataEntity valueEntity = dao.getDataValueViaTimeend(entity, query);
+        return createSeriesValueFor(valueEntity, entity, query);
     }
 
     @Override
