@@ -66,7 +66,7 @@ public abstract class DataEntity<T> {
     private Date validTimeEnd;
 
     private Date resultTime;
-    
+
     private String valueType;
 
     private final Set<Parameter< ? >> parameters = new HashSet<>(0);

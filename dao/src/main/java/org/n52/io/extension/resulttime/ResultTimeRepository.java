@@ -51,7 +51,7 @@ class ResultTimeRepository extends SessionAwareRepository {
         Session session = getSession();
         try {
             final long pkid = Long.parseLong(datasetId);
-            DatasetDao<DatasetEntity< ? >> dao = new DatasetDao<>(session);
+            DatasetDao<DatasetEntity< ? >> dao = new DatasetDao<>(getDbQueryFactory(), session);
             DatasetEntity< ? > instance = dao.getInstance(pkid, getDbQuery(parameters));
             return instance.getResultTimes()
                            .stream()

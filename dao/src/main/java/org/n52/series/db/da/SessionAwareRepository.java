@@ -57,6 +57,7 @@ import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.web.ctrl.UrlHelper;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
@@ -84,6 +85,12 @@ public abstract class SessionAwareRepository {
 
     @Autowired
     private HibernateSessionStore sessionStore;
+
+    public DbQueryFactory getDbQueryFactory() {
+        return dbQueryFactory != null
+                ? dbQueryFactory
+                : new DefaultDbQueryFactory();
+    }
 
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);

@@ -44,8 +44,8 @@ public class PhenomenonDao extends AbstractDao<PhenomenonEntity> {
 
     private static final String SERIES_PROPERTY = "phenomenon";
 
-    public PhenomenonDao(Session session) {
-        super(session);
+    public PhenomenonDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

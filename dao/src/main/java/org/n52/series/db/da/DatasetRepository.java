@@ -167,7 +167,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
-        return new DatasetDao<>(session, clazz);
+        return new DatasetDao<>(getDbQueryFactory(), session, clazz);
     }
 
     @Override

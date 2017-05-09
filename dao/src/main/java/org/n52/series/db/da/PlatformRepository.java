@@ -84,16 +84,24 @@ public class PlatformRepository extends SessionAwareRepository implements Output
     @Autowired
     private IDataRepositoryFactory factory;
 
+    private FeatureDao createFeatureDao(Session session) {
+        return new FeatureDao(getDbQueryFactory(), session);
+    }
+
+    private PlatformDao createPlatformDao(Session session) {
+        return new PlatformDao(getDbQueryFactory(), session);
+    }
+
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
             Long parsedId = parseId(PlatformType.extractId(id));
             if (PlatformType.isStationaryId(id)) {
-                FeatureDao featureDao = new FeatureDao(session);
+                FeatureDao featureDao = createFeatureDao(session);
                 return featureDao.hasInstance(parsedId, parameters, FeatureEntity.class);
             } else {
-                PlatformDao dao = new PlatformDao(session);
+                PlatformDao dao = createPlatformDao(session);
                 return dao.hasInstance(parsedId, parameters, PlatformEntity.class);
             }
         } finally {
@@ -253,7 +261,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
 
     private PlatformEntity getStation(String id, DbQuery parameters, Session session) throws DataAccessException {
         String featureId = PlatformType.extractId(id);
-        FeatureDao featureDao = new FeatureDao(session);
+        FeatureDao featureDao = createFeatureDao(session);
         FeatureEntity feature = featureDao.getInstance(Long.parseLong(featureId), parameters);
         if (feature == null) {
             throwNewResourceNotFoundException("Station", id);
@@ -264,7 +272,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
     }
 
     private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) throws DataAccessException {
-        PlatformDao dao = new PlatformDao(session);
+        PlatformDao dao = createPlatformDao(session);
         String platformId = PlatformType.extractId(id);
         PlatformEntity result = dao.getInstance(Long.parseLong(platformId), parameters);
         if (result == null) {
@@ -277,7 +285,7 @@ public class PlatformRepository extends SessionAwareRepository implements Output
     public Collection<SearchResult> searchFor(IoParameters parameters) {
         Session session = getSession();
         try {
-            PlatformDao dao = new PlatformDao(session);
+            PlatformDao dao = createPlatformDao(session);
             DbQuery query = getDbQuery(parameters);
             List<PlatformEntity> found = dao.find(query);
             return convertToSearchResults(found, query);
@@ -326,14 +334,14 @@ public class PlatformRepository extends SessionAwareRepository implements Output
 
     private List<PlatformEntity> getAllStationaryInsitu(DbQuery parameters, Session session)
             throws DataAccessException {
-        FeatureDao featureDao = new FeatureDao(session);
+        FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
         return convertAllInsitu(featureDao.getAllInstances(query));
     }
 
     private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session)
             throws DataAccessException {
-        FeatureDao featureDao = new FeatureDao(session);
+        FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
         return convertAllRemote(featureDao.getAllInstances(query));
     }
@@ -352,13 +360,13 @@ public class PlatformRepository extends SessionAwareRepository implements Output
 
     private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_INSITU);
-        PlatformDao dao = new PlatformDao(session);
+        PlatformDao dao = createPlatformDao(session);
         return dao.getAllInstances(query);
     }
 
     private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_REMOTE);
-        PlatformDao dao = new PlatformDao(session);
+        PlatformDao dao = createPlatformDao(session);
         return dao.getAllInstances(query);
     }
 

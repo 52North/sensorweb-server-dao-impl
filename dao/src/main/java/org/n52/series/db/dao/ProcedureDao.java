@@ -49,8 +49,8 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
 
     private static final String COLUMN_REFERENCE = "reference";
 
-    public ProcedureDao(Session session) {
-        super(session);
+    public ProcedureDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

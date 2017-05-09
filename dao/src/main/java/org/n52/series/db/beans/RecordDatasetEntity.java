@@ -35,11 +35,11 @@ import java.util.Set;
 public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
 
     private Set<RecordDatasetEntity> referenceValues = new HashSet<>();
-    
+
     public RecordDatasetEntity() {
         super();
     }
-    
+
     public Set<RecordDatasetEntity> getReferenceValues() {
         return referenceValues;
     }

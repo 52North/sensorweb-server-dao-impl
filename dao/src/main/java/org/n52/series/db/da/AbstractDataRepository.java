@@ -84,11 +84,11 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     }
 
     protected DatasetDao<S> getSeriesDao(Session session) {
-        return new DatasetDao<>(session);
+        return new DatasetDao<>(getDbQueryFactory(), session);
     }
 
     protected DataDao<E> createDataDao(Session session) {
-        return new DataDao<>(session);
+        return new DataDao<>(getDbQueryFactory(), session);
     }
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);

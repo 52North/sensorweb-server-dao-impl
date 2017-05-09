@@ -40,14 +40,20 @@ public class ServiceDao extends AbstractDao<ServiceEntity> {
 
     private static final String SERIES_PROPERTY = "service";
 
-    public ServiceDao(Session session) {
-        super(session);
+    public ServiceDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override
     public List<ServiceEntity> find(DbQuery query) {
         // TODO implement
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<ServiceEntity> getAllInstances(DbQuery parameters) throws DataAccessException {
+        Criteria criteria = getDefaultCriteria();
+        return criteria.list();
     }
 
     @Override
@@ -58,12 +64,6 @@ public class ServiceDao extends AbstractDao<ServiceEntity> {
     @Override
     protected String getDatasetProperty() {
         return SERIES_PROPERTY;
-    }
-
-    @Override
-    public List<ServiceEntity> getAllInstances(DbQuery parameters) throws DataAccessException {
-        Criteria criteria = getDefaultCriteria();
-        return criteria.list();
     }
 
 }

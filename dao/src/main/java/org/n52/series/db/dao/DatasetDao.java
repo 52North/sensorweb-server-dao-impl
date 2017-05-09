@@ -39,6 +39,7 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.I18nFeatureEntity;
@@ -63,15 +64,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
 
     private final Class<T> entityType;
 
-    public DatasetDao(Session session, Class<T> clazz) {
-        super(session);
-        this.entityType = clazz;
+    @SuppressWarnings("unchecked")
+    public DatasetDao(DbQueryFactory queryFactory, Session session) {
+        this(queryFactory, session, (Class<T>) DatasetEntity.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public DatasetDao(Session session) {
-        super(session);
-        this.entityType = (Class<T>) DatasetEntity.class;
+    public DatasetDao(DbQueryFactory queryFactory, Session session, Class<T> clazz) {
+        super(queryFactory, session);
+        this.entityType = clazz;
     }
 
     @Override
@@ -152,6 +152,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
     @Override
     protected String getDatasetProperty() {
         // self has no property
+        return "";
+    }
+
+    @Override
+    protected String getDefaultAlias() {
         return "";
     }
 

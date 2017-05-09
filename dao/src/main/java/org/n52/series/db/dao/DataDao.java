@@ -77,18 +77,14 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private final Class<T> entityType;
 
-    @Autowired
-    private DbQueryFactory dbQueryFactory;
-
-    public DataDao(Session session, Class<T> clazz) {
-        super(session);
-        this.entityType = clazz;
+    @SuppressWarnings("unchecked")
+    public DataDao(DbQueryFactory queryFactory, Session session) {
+        this(queryFactory, session, (Class<T>) DataEntity.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public DataDao(Session session) {
-        super(session);
-        this.entityType = (Class<T>) DataEntity.class;
+    public DataDao(DbQueryFactory queryFactory, Session session, Class<T> clazz) {
+        super(queryFactory, session);
+        this.entityType = clazz;
     }
 
     @Override
@@ -134,7 +130,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     public List<T> getAllInstancesFor(DatasetEntity series) throws DataAccessException {
         LOGGER.debug("get all instances for series '{}'", series.getPkid());
-        return getAllInstancesFor(series, dbQueryFactory.createFrom(IoParameters.createDefaults()));
+        return getAllInstancesFor(series, getQueryDefaults());
     }
 
     /**
@@ -161,6 +157,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     @Override
     protected String getDatasetProperty() {
         // there's no series property for observation
+        return "";
+    }
+
+    @Override
+    protected String getDefaultAlias() {
         return "";
     }
 
