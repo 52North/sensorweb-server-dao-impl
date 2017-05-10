@@ -74,8 +74,9 @@ public class QuantityProfileDataRepository
     }
 
     private boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        if (parameterObject.containsKey("name")) {
-            String value = (String) parameterObject.get("name");
+        String parameter = "name";
+        if (parameterObject.containsKey(parameter)) {
+            String value = (String) parameterObject.get(parameter);
             return value.equalsIgnoreCase(verticalName);
         }
         return false;

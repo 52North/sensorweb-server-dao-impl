@@ -45,7 +45,10 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractDataRepository<D extends Data< ? >, S extends DatasetEntity< ? >, E extends DataEntity< ? >, V extends AbstractValue< ? >>
+public abstract class AbstractDataRepository<D extends Data< ? >,
+                                             S extends DatasetEntity< ? >,
+                                             E extends DataEntity< ? >,
+                                             V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Override
