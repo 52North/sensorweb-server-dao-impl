@@ -118,11 +118,11 @@ public class DbQuery {
     public boolean isExpanded() {
         return parameters.isExpanded();
     }
-    
+
     public void setComplexParent(boolean complex) {
         parameters = parameters.extendWith(Parameters.COMPLEX_PARENT, Boolean.toString(complex));
     }
-    
+
     public boolean isComplexParent() {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }

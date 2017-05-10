@@ -180,7 +180,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         if (parameters != null && parameters.getResultTime() != null) {
             criteria = criteria.add(Restrictions.eq(COLUMN_RESULTTIME, parameters.getResultTime()));
         }
-        
+
         criteria = parameters != null && parameters.isComplexParent()
                 ? criteria.add(Restrictions.eq(COLUMN_PARENT, true))
                 : criteria.add(Restrictions.eq(COLUMN_PARENT, false));

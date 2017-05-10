@@ -29,7 +29,7 @@
 package org.n52.series.db.beans;
 
 public class ProfileDatasetEntity extends DatasetEntity<ProfileDataEntity> {
-    
+
     private String verticalParameterName;
 
     public String getVerticalParameterName() {

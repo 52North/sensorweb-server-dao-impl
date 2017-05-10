@@ -114,12 +114,12 @@ public class QuantityProfileDataRepository
                                                           DbQuery dbQuery,
                                                           Session session)
             throws DataAccessException {
-        
+
         // TODO handle reference values
-        
+
         return  assembleData(datasetEntity, dbQuery, session);
     }
-    
+
 
     public static class QuantityProfileDataItem {
         private String verticalUnit;
