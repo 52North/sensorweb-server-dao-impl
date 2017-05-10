@@ -74,8 +74,11 @@ public class QuantityProfileDataRepository
     }
 
     private boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        return parameterObject.containsKey("name")
-                && ((String) parameterObject.get("name")).equalsIgnoreCase(verticalName);
+        if (parameterObject.containsKey("name")) {
+            String value = (String) parameterObject.get("name");
+            return value.equalsIgnoreCase(verticalName);
+        }
+        return false;
     }
 
     @Override
@@ -99,11 +102,10 @@ public class QuantityProfileDataRepository
             for (Map<String, Object> parameterObject : valueItem.getParameters()) {
                 String verticalName = datasetEntity.getVerticalParameterName();
                 if (isVertical(parameterObject, verticalName)) {
-                    // TODO vertical unit is missing for now
                     QuantityProfileDataItem dataItem = new QuantityProfileDataItem();
                     dataItem.setValue(quantityEntity.getValue());
                     // set vertical's value
-                    dataItem.setVertical((double) parameterObject.get("value"));
+                    dataItem.setVertical((Double) parameterObject.get("value"));
                     String verticalUnit = (String) parameterObject.get("unit");
                     if (profile.getVerticalUnit() == null) {
                         profile.setVerticalUnit(verticalUnit);
