@@ -221,11 +221,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             return (T) criteria.uniqueResult();
         } else {
             List<T> list = criteria.list();
-
-            // XXX having parent/children relationship (complex or profile)
-            // we do not know at this point how to assemble children
-            // under a certain parent
-
             return getLastValueWhenMultipleResultTimesAvailable(list);
         }
     }
