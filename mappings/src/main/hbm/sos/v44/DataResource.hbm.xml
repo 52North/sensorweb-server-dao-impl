@@ -28,16 +28,19 @@
         <joined-subclass extends="DataEntity" name="QuantityDataEntity" table="numericvalue">
             <key column="observationid"/>
             <property column="value" name="value" type="double"/>
+            <property name="valueType" formula="'quantity'" />
         </joined-subclass>
 
         <joined-subclass extends="DataEntity" name="TextDataEntity" table="textvalue">
             <key column="observationid"/>
             <property column="value" name="value" type="string"/>
+            <property name="valueType" formula="'text'" />
         </joined-subclass>
 
         <joined-subclass extends="DataEntity" name="CountDataEntity" table="countvalue">
             <key column="observationid"/>
             <property column="value" name="value" type="integer"/>
+            <property name="valueType" formula="'count'" />
         </joined-subclass>
     </class>
 </hibernate-mapping>
