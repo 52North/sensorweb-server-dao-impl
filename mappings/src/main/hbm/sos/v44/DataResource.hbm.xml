@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.n52.series.db.beans">
-    <class name="DataEntity" table="observation">
+    <class abstract="true" name="DataEntity" table="observation">
         <id name="pkid" type="long">
             <column name="observationid"/>
             <generator class="assigned"/>
@@ -13,6 +13,8 @@
         <property column="validtimestart" name="validTimeStart" not-null="false" type="timestamp"/>
         <property column="validtimeend" name="validTimeEnd" not-null="false" type="timestamp"/>
         <property column="resulttime" name="resultTime" not-null="false" type="timestamp"/>
+        <property column="parent" name="parent" type="org.hibernate.type.TrueFalseType" />
+        <property column="child" name="child" type="org.hibernate.type.TrueFalseType" />
         <component class="GeometryEntity" name="geometryEntity">
             <!--
            <property column="lat" name="lat" type="double" />
@@ -41,6 +43,14 @@
             <key column="observationid"/>
             <property column="value" name="value" type="integer"/>
             <property name="valueType" formula="'count'" />
+        </joined-subclass>
+
+        <joined-subclass extends="DataEntity" name="ProfileDataEntity" table="profilevalue">
+            <key column="observationid"/>
+            <set name="value" table="profileobservation">
+                <key column="observationid" />
+                <many-to-many class="DataEntity" column="childObservationId" />
+            </set>
         </joined-subclass>
     </class>
 </hibernate-mapping>

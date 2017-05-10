@@ -29,23 +29,15 @@
 
 package org.n52.series.db.beans;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
 
-public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
+public class ProfileDataEntity extends DataEntity<Set<DataEntity< ? >>> {
 
-    private Set<RecordDatasetEntity> referenceValues = new HashSet<>();
-
-    public RecordDatasetEntity() {
-        super();
-    }
-
-    public Set<RecordDatasetEntity> getReferenceValues() {
-        return referenceValues;
-    }
-
-    public void setReferenceValues(Set<RecordDatasetEntity> referenceValues) {
-        this.referenceValues = referenceValues;
+    @Override
+    public boolean isNoDataValue(Collection<String> noDataValues) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

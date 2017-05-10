@@ -26,26 +26,18 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+public class ProfileDatasetEntity extends DatasetEntity<ProfileDataEntity> {
 
-public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
+    private String verticalParameterName;
 
-    private Set<RecordDatasetEntity> referenceValues = new HashSet<>();
-
-    public RecordDatasetEntity() {
-        super();
+    public String getVerticalParameterName() {
+        return verticalParameterName;
     }
 
-    public Set<RecordDatasetEntity> getReferenceValues() {
-        return referenceValues;
-    }
-
-    public void setReferenceValues(Set<RecordDatasetEntity> referenceValues) {
-        this.referenceValues = referenceValues;
+    public void setVerticalParameterName(String verticalParameterName) {
+        this.verticalParameterName = verticalParameterName;
     }
 
 }

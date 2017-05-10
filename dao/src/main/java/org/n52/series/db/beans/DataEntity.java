@@ -66,8 +66,12 @@ public abstract class DataEntity<T> {
     private Date validTimeEnd;
 
     private Date resultTime;
-    
+
     private String valueType;
+
+    private boolean parent;
+
+    private boolean child;
 
     private final Set<Parameter< ? >> parameters = new HashSet<>(0);
 
@@ -230,6 +234,30 @@ public abstract class DataEntity<T> {
                 : null;
     }
 
+    public String getValueType() {
+        return valueType;
+    }
+
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
+    }
+
+    public boolean isParent() {
+        return parent;
+    }
+
+    public void setParent(boolean parent) {
+        this.parent = parent;
+    }
+
+    public boolean isChild() {
+        return child;
+    }
+
+    public void setChild(boolean child) {
+        this.child = child;
+    }
+
     public Set<Parameter< ? >> getParameters() {
         return parameters;
     }
@@ -242,14 +270,6 @@ public abstract class DataEntity<T> {
 
     public boolean hasParameters() {
         return getParameters() != null && !getParameters().isEmpty();
-    }
-
-    public String getValueType() {
-        return valueType;
-    }
-
-    public void setValueType(String valueType) {
-        this.valueType = valueType;
     }
 
     @Override

@@ -50,7 +50,7 @@ import org.n52.series.db.dao.DbQuery;
 public class TextDataRepository extends AbstractDataRepository<TextData, TextDatasetEntity, TextDataEntity, TextValue> {
 
     @Override
-    public Class<TextDatasetEntity> getEntityType() {
+    public Class<TextDatasetEntity> getDatasetEntityType() {
         return TextDatasetEntity.class;
     }
 

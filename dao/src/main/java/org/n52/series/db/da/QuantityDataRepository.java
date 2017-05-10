@@ -53,7 +53,7 @@ public class QuantityDataRepository extends
         AbstractDataRepository<QuantityData, QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
 
     @Override
-    public Class<QuantityDatasetEntity> getEntityType() {
+    public Class<QuantityDatasetEntity> getDatasetEntityType() {
         return QuantityDatasetEntity.class;
     }
 
@@ -156,19 +156,7 @@ public class QuantityDataRepository extends
             return null;
         }
 
-        ServiceEntity service = getServiceEntity(series);
-        Double observationValue = !service.isNoDataValue(observation)
-                ? format(observation, series)
-                : null;
-
-        Date timeend = observation.getTimeend();
-        Date timestart = observation.getTimestart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        QuantityValue value = parameters.isShowTimeIntervals()
-                ? new QuantityValue(start, end, observationValue)
-                : new QuantityValue(end, observationValue);
+        QuantityValue value = createValue(observation, series, query);
 
         if (query.isExpanded()) {
             addGeometry(observation, value);
@@ -179,6 +167,25 @@ public class QuantityDataRepository extends
             addGeometry(observation, value);
         }
         return value;
+    }
+
+    private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {
+        ServiceEntity service = getServiceEntity(series);
+        Double observationValue = !service.isNoDataValue(observation)
+                ? format(observation, series)
+                : null;
+        return createValue(observationValue, observation, query);
+    }
+
+    QuantityValue createValue(Double observationValue, QuantityDataEntity observation, DbQuery query) {
+        Date timeend = observation.getTimeend();
+        Date timestart = observation.getTimestart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        return parameters.isShowTimeIntervals()
+                ? new QuantityValue(start, end, observationValue)
+                : new QuantityValue(end, observationValue);
     }
 
     private Double format(QuantityDataEntity observation, QuantityDatasetEntity series) {

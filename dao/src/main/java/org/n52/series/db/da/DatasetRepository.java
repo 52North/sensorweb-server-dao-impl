@@ -85,10 +85,11 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             }
             DataRepository dataRepository = dataRepositoryFactory.create(valueType);
             DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
+            Class datasetEntityType = dataRepository.getDatasetEntityType();
             return parameters.getParameters()
                              .isMatchDomainIds()
-                                     ? dao.hasInstance(dbId, parameters, dataRepository.getEntityType())
-                                     : dao.hasInstance(parseId(dbId), parameters, dataRepository.getEntityType());
+                                     ? dao.hasInstance(dbId, parameters, datasetEntityType)
+                                     : dao.hasInstance(parseId(dbId), parameters, datasetEntityType);
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);
             return false;
@@ -160,7 +161,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throws DataAccessException {
         try {
             DataRepository dataRepository = dataRepositoryFactory.create(valueType);
-            return getSeriesDao(dataRepository.getEntityType(), session);
+            return getSeriesDao(dataRepository.getDatasetEntityType(), session);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
