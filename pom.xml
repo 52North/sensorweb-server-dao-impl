@@ -35,9 +35,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/52North/fotoquest-series-api.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/52North/fotoquest-series-api.git</developerConnection>
-        <url>https://github.com/52North/fotoquest-series-api</url>
+        <connection>scm:git:git://github.com/52North/dao-series-api.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/52North/dao-series-api.git</developerConnection>
+        <url>https://github.com/52North/dao-series-api</url>
         <tag>HEAD</tag>
     </scm>
     
