@@ -17,6 +17,7 @@
 - [#251](https://github.com/52North/series-rest-api/issues/251) allow offering to be full qualified parameter
 - [#266](https://github.com/52North/series-rest-api/issues/266) observations having time intervals
 - [#320](https://github.com/52North/series-rest-api/issues/320) register configurable timezone type
+- [#31](https://github.com/52North/dao-series-api/issues/31) support for profile observations
 
 ### Issues 
 - [#246](https://github.com/52North/series-rest-api/issues/246) no use of deleted flag in `series` table
