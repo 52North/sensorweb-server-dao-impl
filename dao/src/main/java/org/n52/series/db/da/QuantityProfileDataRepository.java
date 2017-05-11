@@ -37,6 +37,7 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.profile.ProfileData;
+import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
@@ -48,7 +49,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class QuantityProfileDataRepository
-        extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue> {
+        extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue<Double>> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -57,13 +58,13 @@ public class QuantityProfileDataRepository
     }
 
     @Override
-    public ProfileValue getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<Double> getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getFirstValue(dataset, session, query);
     }
 
     @Override
-    public ProfileValue getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<Double> getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getLastValue(dataset, session, query);
     }
@@ -83,7 +84,7 @@ public class QuantityProfileDataRepository
     }
 
     @Override
-    protected ProfileValue createSeriesValueFor(ProfileDataEntity valueEntity,
+    protected ProfileValue<Double> createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
                                                 DbQuery query) {
         Date timeend = valueEntity.getTimeend();
@@ -91,11 +92,11 @@ public class QuantityProfileDataRepository
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        ProfileValue profile = parameters.isShowTimeIntervals()
-                ? new ProfileValue(start, end, null)
-                : new ProfileValue(end, null);
+        ProfileValue<Double> profile = parameters.isShowTimeIntervals()
+                ? new ProfileValue<>(start, end, null)
+                : new ProfileValue<>(end, null);
 
-        List<QuantityProfileDataItem> dataItems = new ArrayList<>();
+        List<ProfileDataItem<Double>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : valueEntity.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
@@ -103,7 +104,7 @@ public class QuantityProfileDataRepository
             for (Map<String, Object> parameterObject : valueItem.getParameters()) {
                 String verticalName = datasetEntity.getVerticalParameterName();
                 if (isVertical(parameterObject, verticalName)) {
-                    QuantityProfileDataItem dataItem = new QuantityProfileDataItem();
+                    ProfileDataItem<Double> dataItem = new ProfileDataItem<>();
                     dataItem.setValue(quantityEntity.getValue());
                     // set vertical's value
                     dataItem.setVertical((Double) parameterObject.get("value"));
@@ -120,7 +121,6 @@ public class QuantityProfileDataRepository
                 }
             }
         }
-
         profile.setValue(dataItems);
         return profile;
     }
@@ -148,39 +148,7 @@ public class QuantityProfileDataRepository
 
         // TODO handle reference values
 
-        return  assembleData(datasetEntity, dbQuery, session);
-    }
-
-
-    public static class QuantityProfileDataItem {
-        private String verticalUnit;
-        private Double vertical;
-        private Double value;
-
-        public String getVerticalUnit() {
-            return verticalUnit;
-        }
-
-        public void setVerticalUnit(String verticalUnit) {
-            this.verticalUnit = verticalUnit;
-        }
-
-        public Double getVertical() {
-            return vertical;
-        }
-
-        public void setVertical(Double vertical) {
-            this.vertical = vertical;
-        }
-
-        public Double getValue() {
-            return value;
-        }
-
-        public void setValue(Double value) {
-            this.value = value;
-        }
-
+        return assembleData(datasetEntity, dbQuery, session);
     }
 
 }
