@@ -41,6 +41,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.criterion.Subqueries;
+import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -205,7 +206,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     @SuppressWarnings("unchecked")
     private T getDataValueAt(Date timestamp, String column, DatasetEntity series, DbQuery query) {
-        LOGGER.debug("get instances @{} for '{}'", timestamp, series.getPkid());
+        LOGGER.debug("get instances @{} for '{}'", new DateTime(timestamp.getTime()), series.getPkid());
         Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
                                                 .add(Restrictions.eq(column, timestamp));
 
