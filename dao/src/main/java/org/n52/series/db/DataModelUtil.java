@@ -29,6 +29,9 @@
 
 package org.n52.series.db;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.NamedQueryDefinition;
@@ -42,6 +45,16 @@ import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
+
+    public static Date createUnmutableTimestamp(Date value) {
+        if (value == null) {
+            return null;
+        }
+        return !(value instanceof Timestamp)
+                ? new Timestamp(value.getTime())
+                // keeps nano seconds if available
+                : Timestamp.class.cast(value);
+    }
 
     public static boolean isNamedQuerySupported(String namedQuery, Session session) {
         NamedQueryDefinition namedQueryDef = ((SessionImpl) session).getSessionFactory().getNamedQuery(namedQuery);

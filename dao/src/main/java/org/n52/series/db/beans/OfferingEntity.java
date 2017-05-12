@@ -29,9 +29,10 @@
 
 package org.n52.series.db.beans;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Set;
+
+import org.n52.series.db.DataModelUtil;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -112,9 +113,7 @@ public class OfferingEntity extends HierarchicalEntity<OfferingEntity> {
      * @return the phenomenonTimeStart
      */
     public Date getPhenomenonTimeStart() {
-        return hasPhenomenonTimeStart()
-                ? new Timestamp(phenomenonTimeStart.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(phenomenonTimeStart);
     }
 
     /**
@@ -122,22 +121,14 @@ public class OfferingEntity extends HierarchicalEntity<OfferingEntity> {
      *        the phenomenonTimeStart to set
      */
     public void setPhenomenonTimeStart(Date phenomenonTimeStart) {
-        this.phenomenonTimeStart = phenomenonTimeStart != null
-                ? new Timestamp(phenomenonTimeStart.getTime())
-                : null;
-    }
-
-    public boolean hasPhenomenonTimeStart() {
-        return phenomenonTimeStart != null;
+        this.phenomenonTimeStart = DataModelUtil.createUnmutableTimestamp(phenomenonTimeStart);
     }
 
     /**
      * @return the phenomenonTimeEnd
      */
     public Date getPhenomenonTimeEnd() {
-        return hasPhenomenonTimeEnd()
-                ? new Timestamp(phenomenonTimeEnd.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(phenomenonTimeEnd);
     }
 
     /**
@@ -145,22 +136,14 @@ public class OfferingEntity extends HierarchicalEntity<OfferingEntity> {
      *        the phenomenonTimeEnd to set
      */
     public void setPhenomenonTimeEnd(Date phenomenonTimeEnd) {
-        this.phenomenonTimeEnd = phenomenonTimeEnd != null
-                ? new Timestamp(phenomenonTimeEnd.getTime())
-                : null;
-    }
-
-    public boolean hasPhenomenonTimeEnd() {
-        return phenomenonTimeEnd != null;
+        this.phenomenonTimeEnd = DataModelUtil.createUnmutableTimestamp(phenomenonTimeEnd);
     }
 
     /**
      * @return the resultTimeStart
      */
     public Date getResultTimeStart() {
-        return hasResultTimeStart()
-                ? new Timestamp(resultTimeStart.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(resultTimeStart);
     }
 
     /**
@@ -168,22 +151,14 @@ public class OfferingEntity extends HierarchicalEntity<OfferingEntity> {
      *        the resultTimeStart to set
      */
     public void setResultTimeStart(Date resultTimeStart) {
-        this.resultTimeStart = resultTimeStart != null
-                ? new Timestamp(resultTimeStart.getTime())
-                : null;
-    }
-
-    public boolean hasResultTimeStart() {
-        return resultTimeStart != null;
+        this.resultTimeStart = DataModelUtil.createUnmutableTimestamp(resultTimeStart);
     }
 
     /**
      * @return the resultTimeEnd
      */
     public Date getResultTimeEnd() {
-        return hasResultTimeEnd()
-                ? new Timestamp(resultTimeEnd.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(resultTimeEnd);
     }
 
     /**
@@ -191,13 +166,7 @@ public class OfferingEntity extends HierarchicalEntity<OfferingEntity> {
      *        the resultTimeEnd to set
      */
     public void setResultTimeEnd(Date resultTimeEnd) {
-        this.resultTimeEnd = resultTimeEnd != null
-                ? new Timestamp(resultTimeEnd.getTime())
-                : null;
-    }
-
-    public boolean hasResultTimeEnd() {
-        return resultTimeEnd != null;
+        this.resultTimeEnd = DataModelUtil.createUnmutableTimestamp(resultTimeEnd);
     }
 
     @Override
