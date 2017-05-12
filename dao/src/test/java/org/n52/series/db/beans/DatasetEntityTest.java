@@ -14,17 +14,17 @@ public class DatasetEntityTest {
     public void when_settingFirstValueAtWithNanos_then_nanosAvailableOnGetting() {
         DatasetEntity<DataEntity<?>> datasetEntity = new DatasetEntity<>();
         Timestamp timestamp = createTimestamp("2015-07-17T21:14:35.022+02", 321);
-        
+
         datasetEntity.setFirstValueAt(timestamp);
         Timestamp firstValueAt = (Timestamp) datasetEntity.getFirstValueAt();
         MatcherAssert.assertThat(firstValueAt.getNanos(), is(timestamp.getNanos()));
     }
-    
+
     @Test
     public void when_settingLastValueAtWithNanos_then_nanosAvailableOnGetting() {
         DatasetEntity<DataEntity<?>> datasetEntity = new DatasetEntity<>();
         Timestamp timestamp = createTimestamp("2015-07-17T21:14:35.022+02", 321);
-        
+
         datasetEntity.setLastValueAt(timestamp);
         Timestamp lastValueAt = (Timestamp) datasetEntity.getLastValueAt();
         MatcherAssert.assertThat(lastValueAt.getNanos(), is(timestamp.getNanos()));
