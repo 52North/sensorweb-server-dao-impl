@@ -46,19 +46,6 @@ import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
 
-    public static Date getUnmutableTimestamp(Date value) {
-        if (value != null) {
-            Timestamp timestamp = new Timestamp(value.getTime());
-            if (value instanceof Timestamp) {
-                // keeps nano seconds if available
-                Timestamp withNanos = Timestamp.class.cast(value);
-                timestamp.setNanos(withNanos.getNanos());
-            }
-            return timestamp;
-        }
-        return null;
-    }
-
     public static Date createUnmutableTimestamp(Date value) {
         if (value == null) {
             return null;

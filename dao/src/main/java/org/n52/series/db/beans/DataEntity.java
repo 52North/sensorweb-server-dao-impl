@@ -89,7 +89,7 @@ public abstract class DataEntity<T> {
      */
     @Deprecated
     public Date getTimestamp() {
-        return DataModelUtil.getUnmutableTimestamp(timeend);
+        return DataModelUtil.createUnmutableTimestamp(timeend);
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class DataEntity<T> {
      * @since 2.0.0
      */
     public Date getTimestart() {
-        return DataModelUtil.getUnmutableTimestamp(timestart);
+        return DataModelUtil.createUnmutableTimestamp(timestart);
     }
 
     /**
@@ -124,7 +124,7 @@ public abstract class DataEntity<T> {
      * @since 2.0.0
      */
     public Date getTimeend() {
-        return DataModelUtil.getUnmutableTimestamp(timeend);
+        return DataModelUtil.createUnmutableTimestamp(timeend);
     }
 
     /**
@@ -175,7 +175,7 @@ public abstract class DataEntity<T> {
     }
 
     public Date getValidTimeStart() {
-        return DataModelUtil.getUnmutableTimestamp(validTimeStart);
+        return DataModelUtil.createUnmutableTimestamp(validTimeStart);
     }
 
     public void setValidTimeStart(Date validTimeStart) {
@@ -183,7 +183,7 @@ public abstract class DataEntity<T> {
     }
 
     public Date getValidTimeEnd() {
-        return DataModelUtil.getUnmutableTimestamp(validTimeEnd);
+        return DataModelUtil.createUnmutableTimestamp(validTimeEnd);
     }
 
     public void setValidTimeEnd(Date validTimeEnd) {
@@ -203,7 +203,7 @@ public abstract class DataEntity<T> {
     }
 
     public Date getResultTime() {
-        return DataModelUtil.getUnmutableTimestamp(resultTime);
+        return DataModelUtil.createUnmutableTimestamp(resultTime);
     }
 
     public void setResultTime(Date resultTime) {

@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
 import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
 import org.n52.series.db.DataModelUtil;
 
@@ -209,7 +208,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     }
 
     public Date getFirstValueAt() {
-        return DataModelUtil.getUnmutableTimestamp(firstValueAt);
+        return DataModelUtil.createUnmutableTimestamp(firstValueAt);
     }
 
     public void setFirstValueAt(Date firstValueAt) {
@@ -217,7 +216,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     }
 
     public Date getLastValueAt() {
-        return DataModelUtil.getUnmutableTimestamp(lastValueAt);
+        return DataModelUtil.createUnmutableTimestamp(lastValueAt);
     }
 
     public void setLastValueAt(Date lastValueAt) {
