@@ -49,7 +49,7 @@ public final class DataModelUtil {
     public static Date getUnmutableTimestamp(Date value) {
         if (value != null) {
             Timestamp timestamp = new Timestamp(value.getTime());
-            if (isOfTypeTimestamp(value)) {
+            if (value instanceof Timestamp) {
                 // keeps nano seconds if available
                 Timestamp withNanos = Timestamp.class.cast(value);
                 timestamp.setNanos(withNanos.getNanos());
@@ -63,16 +63,11 @@ public final class DataModelUtil {
         if (value == null) {
             return null;
         }
-        return !isOfTypeTimestamp(value)
+        return !(value instanceof Timestamp)
                 ? new Timestamp(value.getTime())
                 // keeps nano seconds if available
                 : Timestamp.class.cast(value);
     }
-
-    private static boolean isOfTypeTimestamp(Date firstValueAt) {
-        return Timestamp.class.isAssignableFrom(firstValueAt.getClass());
-    }
-
 
     public static boolean isNamedQuerySupported(String namedQuery, Session session) {
         NamedQueryDefinition namedQueryDef = ((SessionImpl) session).getSessionFactory().getNamedQuery(namedQuery);
