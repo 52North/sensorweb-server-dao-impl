@@ -92,7 +92,7 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     private TextData expandReferenceDataIfNecessary(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         TextData result = new TextData();
-        DataDao<TextDataEntity> dao = new DataDao<>(session);
+        DataDao<TextDataEntity> dao = new DataDao<>(getDbQueryFactory(), session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             TextValue lastValidValue = getLastValue(seriesEntity, session, query);
@@ -110,7 +110,7 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     protected TextData assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         TextData result = new TextData();
-        DataDao<TextDataEntity> dao = new DataDao<>(session);
+        DataDao<TextDataEntity> dao = new DataDao<>(getDbQueryFactory(), session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {

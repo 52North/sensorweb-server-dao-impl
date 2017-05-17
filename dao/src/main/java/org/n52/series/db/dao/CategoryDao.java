@@ -48,8 +48,8 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryDao.class);
 
-    public CategoryDao(Session session) {
-        super(session);
+    public CategoryDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

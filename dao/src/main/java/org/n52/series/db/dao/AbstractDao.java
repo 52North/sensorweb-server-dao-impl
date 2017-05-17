@@ -33,9 +33,13 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +48,15 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
+    private final DbQueryFactory queryFactory;
+
     protected Session session;
 
-    public AbstractDao(Session session) {
+    public AbstractDao(DbQueryFactory queryFactory, Session session) {
         if (session == null) {
             throw new NullPointerException("Cannot operate on a null session.");
         }
+        this.queryFactory = queryFactory;
         this.session = session;
     }
 
@@ -58,6 +65,14 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected abstract Class<T> getEntityClass();
 
     protected abstract String getDatasetProperty();
+
+    protected String getDefaultAlias() {
+        return getDatasetProperty();
+    }
+
+    protected DbQuery getQueryDefaults() {
+        return queryFactory.createFrom(IoParameters.createDefaults());
+    }
 
     public boolean hasInstance(String id, DbQuery query, Class< ? extends T> clazz) throws DataAccessException {
         return getInstance(id, query) != null;
@@ -106,19 +121,48 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
 
+//    protected Criteria getDefaultCriteria() {
+//        return getDefaultCriteria(getDatasetProperty());
+//    }
+//
+//    protected Criteria getDefaultCriteria(String alias) {
+//        return alias == null || alias.isEmpty()
+//                ? session.createCriteria(getEntityClass())
+//                : session.createCriteria(getEntityClass(), alias);
+//    }
+
+
     protected Criteria getDefaultCriteria() {
-        return getDefaultCriteria(getDatasetProperty());
+        return getDefaultCriteria((String) null);
     }
 
     protected Criteria getDefaultCriteria(String alias) {
-        
-        
-        // XXX apply criteria fixes from 1.10x
-        
-        
-        return alias == null || alias.isEmpty()
-                ? session.createCriteria(getEntityClass())
-                : session.createCriteria(getEntityClass(), alias);
+        return getDefaultCriteria(alias, queryFactory.createFrom(IoParameters.createDefaults()));
+    }
+
+    protected Criteria getDefaultCriteria(String alias, DbQuery query) {
+        alias = alias != null ? alias : getDefaultAlias();
+//        DetachedCriteria filter = createSeriesSubQuery(alias, query);
+        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(alias, query);
+        return session.createCriteria(getEntityClass(), alias)
+                .add(Subqueries.propertyIn("pkid", filter));
+    }
+
+    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(String alias, DbQuery query) {
+        return DetachedCriteria.forClass(DatasetEntity.class)
+                .add(Restrictions.eq("published", Boolean.TRUE))
+                .createAlias(alias, "ref")
+                .setProjection(Projections.property("ref.pkid"));
+    }
+
+    private DetachedCriteria createSeriesSubQuery(String alias, DbQuery query) {
+        String filterProperty = alias != null && !alias.isEmpty()
+                ? alias + ".pkid"
+                : "pkid";
+        return DetachedCriteria.forClass(DatasetEntity.class)
+                .add(Restrictions.eq("published", Boolean.TRUE))
+                // XXX NPE when filterProperty is mapped by formula
+                .setProjection(Projections.property(filterProperty));
     }
 
 }

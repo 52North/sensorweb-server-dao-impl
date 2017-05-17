@@ -48,7 +48,7 @@ import org.n52.web.exception.ResourceNotFoundException;
 public class CategoryRepository extends SessionAwareRepository implements OutputAssembler<CategoryOutput> {
 
     private CategoryDao createDao(Session session) {
-        return new CategoryDao(session);
+        return new CategoryDao(getDbQueryFactory(), session);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class CategoryRepository extends SessionAwareRepository implements Output
     public Collection<SearchResult> searchFor(IoParameters parameters) {
         Session session = getSession();
         try {
-            CategoryDao categoryDao = createDao(session);
+            CategoryDao dao = createDao(session);
             DbQuery query = getDbQuery(parameters);
-            List<CategoryEntity> found = categoryDao.find(query);
+            List<CategoryEntity> found = dao.find(query);
             return convertToSearchResults(found, query);
         } finally {
             returnSession(session);
@@ -144,8 +144,8 @@ public class CategoryRepository extends SessionAwareRepository implements Output
     }
 
     protected CategoryEntity getInstance(Long id, DbQuery parameters, Session session) throws DataAccessException {
-        CategoryDao categoryDao = createDao(session);
-        CategoryEntity result = categoryDao.getInstance(id, parameters);
+        CategoryDao dao = createDao(session);
+        CategoryEntity result = dao.getInstance(id, parameters);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }

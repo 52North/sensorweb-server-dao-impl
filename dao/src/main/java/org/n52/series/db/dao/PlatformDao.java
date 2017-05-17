@@ -48,8 +48,8 @@ public class PlatformDao extends AbstractDao<PlatformEntity> {
 
     private static final String SERIES_PROPERTY = "platform";
 
-    public PlatformDao(Session session) {
-        super(session);
+    public PlatformDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

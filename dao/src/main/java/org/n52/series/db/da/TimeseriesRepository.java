@@ -74,6 +74,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Autowired
     private IDataRepositoryFactory factory;
 
+    private DatasetDao<QuantityDatasetEntity> createDao(Session session) {
+        return new DatasetDao<>(getDbQueryFactory(), session, QuantityDatasetEntity.class);
+    }
+
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
@@ -83,10 +87,6 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         } finally {
             returnSession(session);
         }
-    }
-
-    private DatasetDao<QuantityDatasetEntity> createDao(Session session) {
-        return new DatasetDao<>(session, QuantityDatasetEntity.class);
     }
 
     @Override

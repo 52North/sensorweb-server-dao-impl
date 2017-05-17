@@ -57,6 +57,10 @@ import com.vividsolutions.jts.geom.Geometry;
 @Deprecated
 public class StationRepository extends SessionAwareRepository implements OutputAssembler<StationOutput> {
 
+    private FeatureDao createDao(Session session) {
+        return new FeatureDao(getDbQueryFactory(), session);
+    }
+
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
@@ -66,10 +70,6 @@ public class StationRepository extends SessionAwareRepository implements OutputA
         } finally {
             returnSession(session);
         }
-    }
-
-    private FeatureDao createDao(Session session) {
-        return new FeatureDao(session);
     }
 
     @Override
@@ -181,7 +181,8 @@ public class StationRepository extends SessionAwareRepository implements OutputA
 
     private StationOutput createExpanded(FeatureEntity feature, DbQuery parameters, Session session)
             throws DataAccessException {
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
+        Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
+        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(getDbQueryFactory(), session, clazz);
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature);
         StationOutput stationOutput = createCondensed(feature, parameters);
         stationOutput.setTimeseries(createTimeseriesList(series, parameters));

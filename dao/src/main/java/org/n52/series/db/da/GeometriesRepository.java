@@ -70,13 +70,17 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     @Autowired
     private PlatformRepository platformRepository;
 
+    private FeatureDao createFeatureDao(Session session) {
+        return new FeatureDao(getDbQueryFactory(), session);
+    }
+
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
             if (GeometryType.isPlatformGeometryId(id)) {
                 String dbId = GeometryType.extractId(id);
-                final FeatureDao dao = new FeatureDao(session);
+                final FeatureDao dao = createFeatureDao(session);
                 // XXX must be FALSE if 'site/2' matches an id of a feature from a mobile platform
                 return dao.hasInstance(parseId(dbId), parameters, FeatureEntity.class);
             } else if (GeometryType.isObservedGeometryId(id)) {
@@ -192,7 +196,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     }
 
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
-        FeatureDao dao = new FeatureDao(session);
+        FeatureDao dao = createFeatureDao(session);
         long geometryId = Long.parseLong(GeometryType.extractId(id));
         return dao.getInstance(geometryId, parameters);
     }
@@ -200,7 +204,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private List<GeometryInfo> getAllSites(DbQuery parameters, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
-        FeatureDao dao = new FeatureDao(session);
+        FeatureDao dao = createFeatureDao(session);
         DbQuery siteQuery = dbQueryFactory.createFrom(parameters.getParameters()
                                                                 .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
                                                                 .extendWith(Parameters.FILTER_PLATFORM_TYPES,
@@ -230,7 +234,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private Collection<GeometryInfo> getAllTracks(DbQuery parameters, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
-        FeatureDao featureDao = new FeatureDao(session);
+        FeatureDao featureDao = createFeatureDao(session);
         DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
                                                                  .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
                                                                  .extendWith(Parameters.FILTER_PLATFORM_TYPES,

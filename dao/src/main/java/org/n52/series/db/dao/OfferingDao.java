@@ -43,8 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class OfferingDao extends AbstractDao<OfferingEntity> {
 
-    public OfferingDao(Session session) {
-        super(session);
+    public OfferingDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

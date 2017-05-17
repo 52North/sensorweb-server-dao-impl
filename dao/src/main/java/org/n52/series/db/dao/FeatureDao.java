@@ -47,8 +47,8 @@ public class FeatureDao extends AbstractDao<FeatureEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDao.class);
 
-    public FeatureDao(Session session) {
-        super(session);
+    public FeatureDao(DbQueryFactory queryFactory, Session session) {
+        super(queryFactory, session);
     }
 
     @Override

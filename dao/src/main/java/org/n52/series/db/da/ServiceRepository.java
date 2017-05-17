@@ -207,7 +207,7 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
     }
 
     private ServiceDao createDao(Session session) {
-        return new ServiceDao(session);
+        return new ServiceDao(getDbQueryFactory(), session);
     }
 
     private ServiceOutput createExpandedService(ServiceEntity entity, DbQuery parameters) {
