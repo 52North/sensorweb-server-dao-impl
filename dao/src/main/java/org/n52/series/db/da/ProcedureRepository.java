@@ -50,10 +50,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
-    private ProcedureDao createDao(Session session) {
-        return new ProcedureDao(getDbQueryFactory(), session);
-    }
-
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();

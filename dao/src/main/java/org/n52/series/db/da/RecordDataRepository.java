@@ -95,7 +95,7 @@ public class RecordDataRepository
     private RecordData expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         RecordData result = new RecordData();
-        DataDao<RecordDataEntity> dao = new DataDao<>(getDbQueryFactory(), session);
+        DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             RecordValue lastValidValue = getLastValue(seriesEntity, session, query);
@@ -113,7 +113,7 @@ public class RecordDataRepository
     protected RecordData assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         RecordData result = new RecordData();
-        DataDao<RecordDataEntity> dao = new DataDao<>(getDbQueryFactory(), session);
+        DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?

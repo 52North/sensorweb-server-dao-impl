@@ -84,8 +84,6 @@ public class PlatformRepository extends SessionAwareRepository implements Output
     @Autowired
     private IDataRepositoryFactory factory;
 
-    private FeatureDao createFeatureDao(Session session) {
-        return new FeatureDao(getDbQueryFactory(), session);
     }
 
     private PlatformDao createPlatformDao(Session session) {

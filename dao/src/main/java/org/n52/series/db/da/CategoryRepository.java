@@ -47,10 +47,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 
 public class CategoryRepository extends SessionAwareRepository implements OutputAssembler<CategoryOutput> {
 
-    private CategoryDao createDao(Session session) {
-        return new CategoryDao(getDbQueryFactory(), session);
-    }
-
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();

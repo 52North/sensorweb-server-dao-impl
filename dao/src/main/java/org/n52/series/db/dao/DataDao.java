@@ -81,12 +81,12 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private final Class<T> entityType;
 
     @SuppressWarnings("unchecked")
-    public DataDao(DbQueryFactory queryFactory, Session session) {
-        this(queryFactory, session, (Class<T>) DataEntity.class);
+    public DataDao(Session session) {
+        this(session, (Class<T>) DataEntity.class);
     }
 
-    public DataDao(DbQueryFactory queryFactory, Session session, Class<T> clazz) {
-        super(queryFactory, session);
+    public DataDao(Session session, Class<T> clazz) {
+        super(session);
         this.entityType = clazz;
     }
 

@@ -75,7 +75,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private IDataRepositoryFactory factory;
 
     private DatasetDao<QuantityDatasetEntity> createDao(Session session) {
-        return new DatasetDao<>(getDbQueryFactory(), session, QuantityDatasetEntity.class);
+        return new DatasetDao<>(session, QuantityDatasetEntity.class);
     }
 
     @Override

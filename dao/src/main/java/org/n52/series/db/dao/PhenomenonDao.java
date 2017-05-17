@@ -44,10 +44,6 @@ public class PhenomenonDao extends AbstractDao<PhenomenonEntity> {
 
     private static final String SERIES_PROPERTY = "phenomenon";
 
-    public PhenomenonDao(DbQueryFactory queryFactory, Session session) {
-        super(queryFactory, session);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<PhenomenonEntity> find(DbQuery query) {

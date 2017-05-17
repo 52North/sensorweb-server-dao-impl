@@ -48,15 +48,12 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
-    private final DbQueryFactory queryFactory;
-
     protected Session session;
 
-    public AbstractDao(DbQueryFactory queryFactory, Session session) {
+    public AbstractDao(Session session) {
         if (session == null) {
             throw new NullPointerException("Cannot operate on a null session.");
         }
-        this.queryFactory = queryFactory;
         this.session = session;
     }
 
@@ -70,8 +67,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getDatasetProperty();
     }
 
-    protected DbQuery getQueryDefaults() {
-        return queryFactory.createFrom(IoParameters.createDefaults());
     }
 
     public boolean hasInstance(String id, DbQuery query, Class< ? extends T> clazz) throws DataAccessException {

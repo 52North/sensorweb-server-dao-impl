@@ -65,12 +65,12 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
     private final Class<T> entityType;
 
     @SuppressWarnings("unchecked")
-    public DatasetDao(DbQueryFactory queryFactory, Session session) {
-        this(queryFactory, session, (Class<T>) DatasetEntity.class);
+    public DatasetDao(Session session) {
+        this(session, (Class<T>) DatasetEntity.class);
     }
 
-    public DatasetDao(DbQueryFactory queryFactory, Session session, Class<T> clazz) {
-        super(queryFactory, session);
+    public DatasetDao(Session session, Class<T> clazz) {
+        super(session);
         this.entityType = clazz;
     }
 

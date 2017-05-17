@@ -47,10 +47,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
-    private PhenomenonDao createDao(Session session) {
-        return new PhenomenonDao(getDbQueryFactory(), session);
-    }
-
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();

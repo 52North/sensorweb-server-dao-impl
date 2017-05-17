@@ -48,10 +48,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
-    private FeatureDao createDao(Session session) {
-        return new FeatureDao(getDbQueryFactory(), session);
-    }
-
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();

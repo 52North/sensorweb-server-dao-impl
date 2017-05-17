@@ -48,10 +48,6 @@ public class PlatformDao extends AbstractDao<PlatformEntity> {
 
     private static final String SERIES_PROPERTY = "platform";
 
-    public PlatformDao(DbQueryFactory queryFactory, Session session) {
-        super(queryFactory, session);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<PlatformEntity> find(DbQuery query) {

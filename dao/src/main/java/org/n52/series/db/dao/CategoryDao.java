@@ -48,10 +48,6 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryDao.class);
 
-    public CategoryDao(DbQueryFactory queryFactory, Session session) {
-        super(queryFactory, session);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<CategoryEntity> find(DbQuery query) {

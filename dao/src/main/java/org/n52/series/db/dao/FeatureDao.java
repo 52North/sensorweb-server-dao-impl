@@ -47,10 +47,6 @@ public class FeatureDao extends AbstractDao<FeatureEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDao.class);
 
-    public FeatureDao(DbQueryFactory queryFactory, Session session) {
-        super(queryFactory, session);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<FeatureEntity> find(DbQuery query) {

@@ -47,10 +47,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
 
-    private OfferingDao createDao(Session session) {
-        return new OfferingDao(getDbQueryFactory(), session);
-    }
-
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();

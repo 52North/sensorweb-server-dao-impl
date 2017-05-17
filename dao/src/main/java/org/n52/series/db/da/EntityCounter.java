@@ -60,7 +60,7 @@ public class EntityCounter {
     public Integer countFeatures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new FeatureDao(dbQueryFactory, session), query);
+            return getCount(new FeatureDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -74,7 +74,7 @@ public class EntityCounter {
     public Integer countProcedures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new ProcedureDao(dbQueryFactory, session), query);
+            return getCount(new ProcedureDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -83,7 +83,7 @@ public class EntityCounter {
     public Integer countPhenomena(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new PhenomenonDao(dbQueryFactory, session), query);
+            return getCount(new PhenomenonDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -92,7 +92,7 @@ public class EntityCounter {
     public Integer countCategories(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new CategoryDao(dbQueryFactory, session), query);
+            return getCount(new CategoryDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -101,7 +101,7 @@ public class EntityCounter {
     public Integer countPlatforms(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new PlatformDao(dbQueryFactory, session), query);
+            return getCount(new PlatformDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -110,7 +110,7 @@ public class EntityCounter {
     public Integer countDatasets(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new DatasetDao<DatasetEntity>(dbQueryFactory, session, DatasetEntity.class), query);
+            return getCount(new DatasetDao<DatasetEntity>(session, DatasetEntity.class), query);
         } finally {
             sessionStore.returnSession(session);
         }
@@ -136,17 +136,15 @@ public class EntityCounter {
         }
     }
 
-    public Integer getCount(AbstractDao<?> dao, DbQuery query) throws DataAccessException {
+    public Integer getCount(AbstractDao< ? > dao, DbQuery query) throws DataAccessException {
         return dao.getCount(query);
     }
 
     private DbQuery createBackwardsCompatibleQuery() {
-        return dbQueryFactory.createFrom(IoParameters.createDefaults()
-                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                 "stationary",
-                                                                 "insitu")
-                                                     .extendWith(Parameters.FILTER_VALUE_TYPES,
-                                                                 ValueType.DEFAULT_VALUE_TYPE));
+        IoParameters parameters = IoParameters.createDefaults();
+        parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES, "stationary", "insitu")
+                               .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
+        return dbQueryFactory.createFrom(parameters);
     }
 
 }

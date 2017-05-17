@@ -40,10 +40,6 @@ public class ServiceDao extends AbstractDao<ServiceEntity> {
 
     private static final String SERIES_PROPERTY = "service";
 
-    public ServiceDao(DbQueryFactory queryFactory, Session session) {
-        super(queryFactory, session);
-    }
-
     @Override
     public List<ServiceEntity> find(DbQuery query) {
         // TODO implement
@@ -54,6 +50,8 @@ public class ServiceDao extends AbstractDao<ServiceEntity> {
     public List<ServiceEntity> getAllInstances(DbQuery parameters) throws DataAccessException {
         Criteria criteria = getDefaultCriteria();
         return criteria.list();
+    public ServiceDao(Session session) {
+        super(session);
     }
 
     @Override

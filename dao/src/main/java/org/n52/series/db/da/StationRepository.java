@@ -58,7 +58,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class StationRepository extends SessionAwareRepository implements OutputAssembler<StationOutput> {
 
     private FeatureDao createDao(Session session) {
-        return new FeatureDao(getDbQueryFactory(), session);
+        return new FeatureDao(session);
     }
 
     @Override

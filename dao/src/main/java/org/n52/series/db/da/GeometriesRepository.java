@@ -71,7 +71,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private PlatformRepository platformRepository;
 
     private FeatureDao createFeatureDao(Session session) {
-        return new FeatureDao(getDbQueryFactory(), session);
+        return new FeatureDao(session);
     }
 
     @Override
