@@ -29,15 +29,12 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nEntity;
@@ -57,8 +54,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         this.session = session;
     }
 
-    public abstract List<T> find(DbQuery query);
-
     protected abstract Class<T> getEntityClass();
 
     protected abstract String getDatasetProperty();
@@ -67,40 +62,45 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getDatasetProperty();
     }
 
+    public boolean hasInstance(String id, DbQuery query) throws DataAccessException {
+        return getInstance(id, query) != null;
     }
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? extends T> clazz) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) throws DataAccessException {
         return getInstance(id, query) != null;
     }
 
     @Override
-    public boolean hasInstance(Long id, DbQuery query, Class< ? extends T> clazz) {
+    public boolean hasInstance(Long id, DbQuery query) {
+        return session.get(getEntityClass(), id) != null;
+    }
+
+    public boolean hasInstance(Long id, DbQuery query, Class< ? > clazz) {
         return session.get(clazz, id) != null;
     }
 
-    public T getInstance(String key, DbQuery parameters) throws DataAccessException {
-        if (!parameters.getParameters()
-                        .isMatchDomainIds()) {
-            return getInstance(Long.parseLong(key), parameters);
-        }
-
-        LOGGER.debug("get dataset type for '{}'. {}", key, parameters);
-        Criteria criteria = getDefaultCriteria();
-        return getEntityClass().cast(criteria.add(Restrictions.eq("domainId", key))
-                                             .uniqueResult());
+    public T getInstance(String key, DbQuery query) throws DataAccessException {
+        return getInstance(key, query, getEntityClass());
     }
 
     @Override
-    public T getInstance(Long key, DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get instance '{}': {}", key, parameters);
-        Criteria criteria = getDefaultCriteria();
-        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
-                                             .uniqueResult());
+    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+        LOGGER.debug("get instance '{}': {}", key, query);
+        return getInstance(Long.toString(key), query, getEntityClass());
+    }
+
+    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+        LOGGER.debug("get instance for '{}'. {}", key, query);
+        Criteria criteria = getDefaultCriteria(query, clazz);
+        criteria = query.isMatchDomainIds()
+                ? criteria.add(Restrictions.eq("domainId", key))
+                : criteria.add(Restrictions.eq("pkid", key));
+        return clazz.cast(criteria.uniqueResult());
     }
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        Criteria criteria = getDefaultCriteria().setProjection(Projections.rowCount());
+        Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
         return ((Long) query.addFilters(criteria, getDatasetProperty())
                             .uniqueResult()).intValue();
     }
@@ -116,48 +116,44 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
 
-//    protected Criteria getDefaultCriteria() {
-//        return getDefaultCriteria(getDatasetProperty());
-//    }
-//
-//    protected Criteria getDefaultCriteria(String alias) {
-//        return alias == null || alias.isEmpty()
-//                ? session.createCriteria(getEntityClass())
-//                : session.createCriteria(getEntityClass(), alias);
-//    }
-
-
-    protected Criteria getDefaultCriteria() {
-        return getDefaultCriteria((String) null);
+    protected Criteria getDefaultCriteria(DbQuery query) {
+        return getDefaultCriteria((String) null, query, getEntityClass());
     }
 
-    protected Criteria getDefaultCriteria(String alias) {
-        return getDefaultCriteria(alias, queryFactory.createFrom(IoParameters.createDefaults()));
+    protected Criteria getDefaultCriteria(DbQuery query, Class<?> clazz) {
+        return getDefaultCriteria((String) null, query, clazz);
     }
-
+    
     protected Criteria getDefaultCriteria(String alias, DbQuery query) {
-        alias = alias != null ? alias : getDefaultAlias();
-//        DetachedCriteria filter = createSeriesSubQuery(alias, query);
-        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(alias, query);
-        return session.createCriteria(getEntityClass(), alias)
-                .add(Subqueries.propertyIn("pkid", filter));
+        return getDefaultCriteria(alias, query, getEntityClass());
     }
 
-    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(String alias, DbQuery query) {
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        alias = alias != null
+                ? alias
+                : getDefaultAlias();
+        // DetachedCriteria filter = createSeriesSubQuery(alias, query);
+        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(query);
+        return session.createCriteria(clazz, alias)
+                      .add(Subqueries.propertyIn("pkid", filter));
+    }
+
+    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
         return DetachedCriteria.forClass(DatasetEntity.class)
-                .add(Restrictions.eq("published", Boolean.TRUE))
-                .createAlias(alias, "ref")
-                .setProjection(Projections.property("ref.pkid"));
+                               .add(Restrictions.eq("published", Boolean.TRUE))
+                               .createAlias(getDatasetProperty(), "ref")
+                               .setProjection(Projections.property("ref.pkid"));
     }
 
-    private DetachedCriteria createSeriesSubQuery(String alias, DbQuery query) {
-        String filterProperty = alias != null && !alias.isEmpty()
-                ? alias + ".pkid"
+    private DetachedCriteria createSeriesSubQuery(DbQuery query) {
+        String property = getDatasetProperty();
+        String filterProperty = property != null && !property.isEmpty()
+                ? property + ".pkid"
                 : "pkid";
         return DetachedCriteria.forClass(DatasetEntity.class)
-                .add(Restrictions.eq("published", Boolean.TRUE))
-                // XXX NPE when filterProperty is mapped by formula
-                .setProjection(Projections.property(filterProperty));
+                               .add(Restrictions.eq("published", Boolean.TRUE))
+                               // XXX NPE when filterProperty is mapped by formula
+                               .setProjection(Projections.property(filterProperty));
     }
 
 }

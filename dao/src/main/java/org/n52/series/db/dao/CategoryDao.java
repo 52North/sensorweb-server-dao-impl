@@ -29,42 +29,18 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.I18nCategoryEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class CategoryDao extends AbstractDao<CategoryEntity> {
+public class CategoryDao extends ParameterDao<CategoryEntity, I18nCategoryEntity> {
 
     private static final String SERIES_PROPERTY = "category";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryDao.class);
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<CategoryEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = i18n(I18nCategoryEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike(CategoryEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<CategoryEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = i18n(I18nCategoryEntity.class, getDefaultCriteria(), query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+    public CategoryDao(Session session) {
+        super(session);
     }
 
     @Override
@@ -75,6 +51,11 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
     @Override
     protected Class<CategoryEntity> getEntityClass() {
         return CategoryEntity.class;
+    }
+
+    @Override
+    protected Class<I18nCategoryEntity> getI18NEntityClass() {
+        return I18nCategoryEntity.class;
     }
 
 }

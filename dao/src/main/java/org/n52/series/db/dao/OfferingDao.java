@@ -29,35 +29,17 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nOfferingEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OfferingDao extends AbstractDao<OfferingEntity> {
+public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity> {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<OfferingEntity> find(DbQuery query) {
-        Criteria criteria = i18n(I18nOfferingEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike(OfferingEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<OfferingEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = i18n(I18nOfferingEntity.class, getDefaultCriteria(), query);
-        return (List<OfferingEntity>) query.addFilters(criteria, getDatasetProperty())
-                                           .list();
+    public OfferingDao(Session session) {
+        super(session);
     }
 
     @Override
@@ -68,6 +50,11 @@ public class OfferingDao extends AbstractDao<OfferingEntity> {
     @Override
     protected Class<OfferingEntity> getEntityClass() {
         return OfferingEntity.class;
+    }
+
+    @Override
+    protected Class<I18nOfferingEntity> getI18NEntityClass() {
+        return I18nOfferingEntity.class;
     }
 
 }

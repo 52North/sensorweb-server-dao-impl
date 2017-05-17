@@ -29,27 +29,14 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.I18nServiceEntity;
 import org.n52.series.db.beans.ServiceEntity;
 
-public class ServiceDao extends AbstractDao<ServiceEntity> {
+public class ServiceDao extends ParameterDao<ServiceEntity, I18nServiceEntity> {
 
     private static final String SERIES_PROPERTY = "service";
 
-    @Override
-    public List<ServiceEntity> find(DbQuery query) {
-        // TODO implement
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public List<ServiceEntity> getAllInstances(DbQuery parameters) throws DataAccessException {
-        Criteria criteria = getDefaultCriteria();
-        return criteria.list();
     public ServiceDao(Session session) {
         super(session);
     }
@@ -62,6 +49,11 @@ public class ServiceDao extends AbstractDao<ServiceEntity> {
     @Override
     protected String getDatasetProperty() {
         return SERIES_PROPERTY;
+    }
+
+    @Override
+    protected Class<I18nServiceEntity> getI18NEntityClass() {
+        return I18nServiceEntity.class;
     }
 
 }

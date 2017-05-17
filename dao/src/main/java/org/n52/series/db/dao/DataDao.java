@@ -29,7 +29,6 @@
 
 package org.n52.series.db.dao;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +49,6 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -91,12 +89,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    public List<T> find(DbQuery query) {
-        LOGGER.debug("find instances: {}", query);
-        return Collections.emptyList();
-    }
-
-    @Override
     public T getInstance(Long key, DbQuery parameters) throws DataAccessException {
         LOGGER.debug("get instance '{}': {}", key, parameters);
         return entityType.cast(session.get(entityType, key));
@@ -119,21 +111,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
-        return (List<T>) criteria.list();
-    }
-
-    /**
-     * Retrieves all available observations belonging to a particular series.
-     *
-     * @param series
-     *        the entity to get all observations for.
-     * @return all observation entities belonging to the series.
-     * @throws org.n52.series.db.DataAccessException
-     *         if accessing database fails.
-     */
-    public List<T> getAllInstancesFor(DatasetEntity series) throws DataAccessException {
-        LOGGER.debug("get all instances for series '{}'", series.getPkid());
-        return getAllInstancesFor(series, getQueryDefaults());
+        return criteria.list();
     }
 
     /**
@@ -141,20 +119,20 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      *
      * @param series
      *        the series the observations belongs to.
-     * @param parameters
+     * @param query
      *        some query parameters to restrict result.
      * @return all observation entities belonging to the given series which match the given query.
      * @throws DataAccessException
      *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery parameters) throws DataAccessException {
+    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
         final Long pkid = series.getPkid();
-        LOGGER.debug("get all instances for series '{}': {}", pkid, parameters);
+        LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         final SimpleExpression equalsPkid = Restrictions.eq(COLUMN_SERIES_PKID, pkid);
-        Criteria criteria = getDefaultCriteria(parameters).add(equalsPkid);
-        parameters.addTimespanTo(criteria);
-        return (List<T>) criteria.list();
+        Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
+        query.addTimespanTo(criteria);
+        return criteria.list();
     }
 
     @Override
@@ -164,10 +142,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    protected String getDefaultAlias() {
-        return "";
-    }
-
     protected Criteria getDefaultCriteria(DbQuery parameters) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
