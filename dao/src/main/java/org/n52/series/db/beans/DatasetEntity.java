@@ -29,7 +29,6 @@
 
 package org.n52.series.db.beans;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -258,7 +257,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
         return dates != null
                 ? dates.stream()
                        .map(d -> d != null
-                               ? new Timestamp(d.getTime())
+                               ? DataModelUtil.createUnmutableTimestamp(d)
                                : null)
                        .collect(Collectors.toSet())
                 : null;
