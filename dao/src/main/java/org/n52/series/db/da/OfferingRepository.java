@@ -29,145 +29,50 @@
 
 package org.n52.series.db.da;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.OfferingOutput;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.OfferingDao;
-import org.n52.series.spi.search.OfferingSearchResult;
+import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.exception.ResourceNotFoundException;
 
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            OfferingDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, OfferingEntity.class);
-        } finally {
-            returnSession(session);
-        }
+    protected OfferingOutput prepareEmptyParameterOutput(OfferingEntity entity) {
+        return new OfferingOutput();
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
-        Session session = getSession();
-        try {
-            OfferingDao dao = createDao(session);
-            DbQuery query = getDbQuery(parameters);
-            List<OfferingEntity> found = dao.find(query);
-            return convertToSearchResults(found, query);
-        } finally {
-            returnSession(session);
-        }
+    protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
+        return new FeatureSearchResult(id, label, baseUrl);
     }
 
     @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
-        String hrefBase = urlHelper.getOfferingsHrefBaseUrl(query.getHrefBase());
-        List<SearchResult> results = new ArrayList<>();
-        for (DescribableEntity searchResult : found) {
-            String pkid = searchResult.getPkid()
-                                      .toString();
-            String label = searchResult.getLabelFrom(locale);
-            results.add(new OfferingSearchResult(pkid, label, hrefBase));
-        }
-        return results;
+    protected String createHref(String hrefBase) {
+        return urlHelper.getOfferingsHrefBaseUrl(hrefBase);
     }
 
     @Override
-    public List<OfferingOutput> getAllCondensed(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllCondensed(parameters, session);
-        } finally {
-            returnSession(session);
-        }
+    protected OfferingDao createDao(Session session) {
+        return new OfferingDao(session);
     }
 
     @Override
-    public List<OfferingOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        return createCondensed(getAllInstances(parameters, session), parameters);
+    protected SearchableDao<OfferingEntity> createSearchableDao(Session session) {
+        return new OfferingDao(session);
     }
 
     @Override
-    public List<OfferingOutput> getAllExpanded(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllExpanded(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<OfferingOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        return createExpanded(getAllInstances(parameters, session), parameters);
-    }
-
-    @Override
-    protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery parameters) throws DataAccessException {
-        OfferingOutput result = createCondensed(entity, parameters);
+    protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery parameters, Session session) {
+        OfferingOutput result = createCondensed(entity, parameters, session);
         if (parameters.getHrefBase() != null) {
             result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
             result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
         return result;
-    }
-
-    @Override
-    public OfferingOutput getInstance(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getInstance(id, parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public OfferingOutput getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        OfferingEntity result = getInstance(parseId(id), parameters, session);
-        return createExpanded(result, parameters);
-    }
-
-    private OfferingEntity getInstance(Long id, DbQuery parameters, Session session) throws DataAccessException {
-        OfferingDao dao = createDao(session);
-        OfferingEntity result = dao.getInstance(id, parameters);
-        if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
-        }
-        return result;
-    }
-
-    private List<OfferingEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return createDao(session).getAllInstances(parameters);
-    }
-
-    @Override
-    protected OfferingOutput createCondensed(OfferingEntity entity, DbQuery parameters) {
-        OfferingOutput result = new OfferingOutput();
-        result.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        result.setId(Long.toString(entity.getPkid()));
-        result.setDomainId(entity.getDomainId());
-        checkForHref(result, parameters);
-        return result;
-    }
-
-    private void checkForHref(OfferingOutput result, DbQuery parameters) {
-        if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urlHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
-        }
     }
 }

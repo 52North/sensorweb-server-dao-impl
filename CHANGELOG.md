@@ -11,6 +11,7 @@
 - `service` is now a full qualified entity
 - Support for pluralized filter parameters
 - output includes href property
+- more consistent filter handling
 
 ### Features
 - [#232](https://github.com/52North/series-rest-api/issues/232) possibility to use `domainId` instead of database id

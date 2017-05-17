@@ -45,7 +45,7 @@ public class ServiceEntity extends DescribableEntity {
     private String url;
 
     private String version;
-    
+
     private List<String> noDataValues;
 
     private String type = "Thin DB access layer service.";

@@ -29,158 +29,68 @@
 
 package org.n52.series.db.da;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.ProcedureOutput;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.ProcedureDao;
-import org.n52.series.spi.search.ProcedureSearchResult;
+import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.exception.ResourceNotFoundException;
 
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            ProcedureDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, ProcedureEntity.class);
-        } finally {
-            returnSession(session);
-        }
+    protected ProcedureOutput prepareEmptyParameterOutput(ProcedureEntity entity) {
+        return new ProcedureOutput();
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
-        Session session = getSession();
-        try {
-            ProcedureDao procedureDao = createDao(session);
-            DbQuery query = getDbQuery(parameters);
-            List<ProcedureEntity> found = procedureDao.find(query);
-            return convertToSearchResults(found, query);
-        } finally {
-            returnSession(session);
-        }
+    protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
+        return new FeatureSearchResult(id, label, baseUrl);
     }
 
     @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        List<SearchResult> results = new ArrayList<>();
-        String locale = query.getLocale();
-        String hrefBase = urlHelper.getProceduresHrefBaseUrl(query.getHrefBase());
-        for (DescribableEntity searchResult : found) {
-            String pkid = Long.toString(searchResult.getPkid());
-            String label = searchResult.getLabelFrom(locale);
-            results.add(new ProcedureSearchResult(pkid, label, hrefBase));
-        }
-        return results;
+    protected String createHref(String hrefBase) {
+        return urlHelper.getProceduresHrefBaseUrl(hrefBase);
     }
 
     @Override
-    public List<ProcedureOutput> getAllCondensed(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllCondensed(parameters, session);
-        } finally {
-            returnSession(session);
-        }
+    protected ProcedureDao createDao(Session session) {
+        return new ProcedureDao(session);
     }
 
     @Override
-    public List<ProcedureOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        return createCondensed(getAllInstances(parameters, session), parameters);
+    protected SearchableDao<ProcedureEntity> createSearchableDao(Session session) {
+        return new ProcedureDao(session);
     }
 
     @Override
-    public List<ProcedureOutput> getAllExpanded(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllExpanded(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<ProcedureOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        return createExpanded(getAllInstances(parameters, session), parameters);
-    }
-
-    @Override
-    public ProcedureOutput getInstance(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getInstance(id, parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public ProcedureOutput getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        ProcedureEntity result = getInstance(parseId(id), parameters, session);
-        return createExpanded(result, parameters);
-    }
-
-    private ProcedureEntity getInstance(Long id, DbQuery parameters, Session session) throws DataAccessException {
-        ProcedureDao procedureDAO = createDao(session);
-        ProcedureEntity result = procedureDAO.getInstance(id, parameters);
-        if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
-        }
-        return result;
-    }
-
-    private List<ProcedureEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return createDao(session).getAllInstances(parameters);
-    }
-
-    @Override
-    protected ProcedureOutput createCondensed(ProcedureEntity entity, DbQuery parameters) {
-        ProcedureOutput result = new ProcedureOutput();
-        result.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        result.setId(Long.toString(entity.getPkid()));
-        result.setDomainId(entity.getDomainId());
-        checkForHref(result, parameters);
-        return result;
-    }
-
-    @Override
-    protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery parameters) {
-        ProcedureOutput result = createCondensed(entity, parameters);
+    protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery parameters, Session session) {
+        ProcedureOutput result = createCondensed(entity, parameters, session);
         if (parameters.getHrefBase() != null) {
             result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
             result.setService(getCondensedService(getServiceEntity(entity), parameters));
         }
-        result.setParents(createCondensed(entity.getParents(), parameters));
-        result.setChildren(createCondensed(entity.getChildren(), parameters));
+        result.setParents(createCondensed(entity.getParents(), parameters, session));
+        result.setChildren(createCondensed(entity.getChildren(), parameters, session));
         return result;
     }
 
-    protected List<ProcedureOutput> createCondensedHierarchyMembers(Set<ProcedureEntity> members, DbQuery parameters) {
+    protected List<ProcedureOutput> createCondensedHierarchyMembers(Set<ProcedureEntity> members,
+                                                                    DbQuery parameters,
+                                                                    Session session) {
         return members == null
                 ? Collections.emptyList()
                 : members.stream()
-                         .map(e -> createCondensed(e, parameters))
+                         .map(e -> createCondensed(e, parameters, session))
                          .collect(Collectors.toList());
-    }
-
-    private void checkForHref(ProcedureOutput result, DbQuery parameters) {
-        if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
-        }
     }
 
 }

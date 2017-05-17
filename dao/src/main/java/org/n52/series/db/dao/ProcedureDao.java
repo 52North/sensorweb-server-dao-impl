@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
 
     private static final String COLUMN_REFERENCE = "reference";

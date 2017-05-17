@@ -31,7 +31,6 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +42,6 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityReferenceValueOutput;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -100,14 +98,6 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         } finally {
             returnSession(session);
         }
-    }
-
-    @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        // not needed, use #convertToResults() instead
-
-        // TODO fix interface here
-        return Collections.emptyList();
     }
 
     private List<SearchResult> convertToResults(List<QuantityDatasetEntity> found, String locale) {

@@ -37,6 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,8 +94,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
         criteria = query.isMatchDomainIds()
-                ? criteria.add(Restrictions.eq("domainId", key))
-                : criteria.add(Restrictions.eq("pkid", key));
+                ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, key));
         return clazz.cast(criteria.uniqueResult());
     }
 
@@ -123,18 +124,17 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected Criteria getDefaultCriteria(DbQuery query, Class<?> clazz) {
         return getDefaultCriteria((String) null, query, clazz);
     }
-    
+
     protected Criteria getDefaultCriteria(String alias, DbQuery query) {
         return getDefaultCriteria(alias, query, getEntityClass());
     }
 
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-        alias = alias != null
+        String nonNullAlias = alias != null
                 ? alias
                 : getDefaultAlias();
-        // DetachedCriteria filter = createSeriesSubQuery(alias, query);
         DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(query);
-        return session.createCriteria(clazz, alias)
+        return session.createCriteria(clazz, nonNullAlias)
                       .add(Subqueries.propertyIn("pkid", filter));
     }
 
@@ -143,17 +143,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                                .add(Restrictions.eq("published", Boolean.TRUE))
                                .createAlias(getDatasetProperty(), "ref")
                                .setProjection(Projections.property("ref.pkid"));
-    }
-
-    private DetachedCriteria createSeriesSubQuery(DbQuery query) {
-        String property = getDatasetProperty();
-        String filterProperty = property != null && !property.isEmpty()
-                ? property + ".pkid"
-                : "pkid";
-        return DetachedCriteria.forClass(DatasetEntity.class)
-                               .add(Restrictions.eq("published", Boolean.TRUE))
-                               // XXX NPE when filterProperty is mapped by formula
-                               .setProjection(Projections.property(filterProperty));
     }
 
 }

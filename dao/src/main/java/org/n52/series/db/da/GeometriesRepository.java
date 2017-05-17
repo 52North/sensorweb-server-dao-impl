@@ -44,7 +44,6 @@ import org.n52.io.response.GeometryType;
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -82,7 +81,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 String dbId = GeometryType.extractId(id);
                 final FeatureDao dao = createFeatureDao(session);
                 // XXX must be FALSE if 'site/2' matches an id of a feature from a mobile platform
-                return dao.hasInstance(parseId(dbId), parameters, FeatureEntity.class);
+                return dao.hasInstance(parseId(dbId), parameters);
             } else if (GeometryType.isObservedGeometryId(id)) {
                 LOGGER.warn("ObservedGeometries not fully supported right now!");
                 // id = GeometryType.extractId(id);
@@ -149,11 +148,6 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     @Override
     public Collection<SearchResult> searchFor(IoParameters parameters) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         return Collections.emptyList();
     }
 

@@ -249,7 +249,6 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
-    @Override
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
@@ -303,7 +302,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     private PlatformOutput getCondensedPlatform(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return platformRepository.getCondensedInstance(series, query, session);
+        return platformRepository.createCondensed(series, query, session);
     }
 
     private String createSeriesLabel(DatasetEntity< ? > series, String locale) {

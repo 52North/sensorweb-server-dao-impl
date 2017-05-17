@@ -1,3 +1,4 @@
+
 package org.n52.series.db.dao;
 
 import java.util.List;
@@ -11,8 +12,9 @@ import org.n52.series.db.beans.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity> extends AbstractDao<T> implements SearchableDao<T> {
-    
+public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity> extends AbstractDao<T>
+        implements SearchableDao<T> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ParameterDao.class);
 
     public ParameterDao(Session session) {
