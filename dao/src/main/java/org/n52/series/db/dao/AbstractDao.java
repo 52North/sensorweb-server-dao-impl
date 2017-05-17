@@ -111,6 +111,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Criteria getDefaultCriteria(String alias) {
+        
+        
+        // XXX apply criteria fixes from 1.10x
+        
+        
         return alias == null || alias.isEmpty()
                 ? session.createCriteria(getEntityClass())
                 : session.createCriteria(getEntityClass(), alias);
