@@ -44,11 +44,13 @@ public class ServiceEntity extends DescribableEntity {
 
     private String url;
 
-    private String type = "Thin DB access layer service.";
-
+    private String version;
+    
     private List<String> noDataValues;
 
-    private String version;
+    private String type = "Thin DB access layer service.";
+
+    private boolean supportsFirstLatest = true;
 
     public ServiceEntity() {
         noDataValues = Collections.emptyList();
@@ -98,6 +100,14 @@ public class ServiceEntity extends DescribableEntity {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public boolean isSupportsFirstLatest() {
+        return supportsFirstLatest;
+    }
+
+    public void setSupportsFirstLatest(boolean supportsFirstLatest) {
+        this.supportsFirstLatest = supportsFirstLatest;
     }
 
     @Override
