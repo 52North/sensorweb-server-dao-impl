@@ -137,7 +137,6 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     @Override
     public GeometryInfo getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         if (GeometryType.isPlatformGeometryId(id)) {
             return getPlatformLocationGeometry(id, parameters, session);
         } else {
@@ -154,7 +153,6 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private List<GeometryInfo> getAllInstances(DbQuery query, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryInfo> geometries = new ArrayList<>();
-        query.setDatabaseAuthorityCode(getDatabaseSrid());
         final FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeInsituPlatformTypes()) {
             if (filterResolver.shallIncludePlatformGeometriesSite()) {
@@ -212,12 +210,13 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return geometryInfoList;
     }
 
-    private GeometryInfo createSite(FeatureEntity featureEntity, DbQuery parameters, boolean expanded)
+    private GeometryInfo createSite(FeatureEntity featureEntity, DbQuery query, boolean expanded)
             throws DataAccessException {
         final GeometryInfo geomInfo = new GeometryInfo(GeometryType.PLATFORM_SITE);
-        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, parameters);
+        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, query);
         if (expanded) {
-            Geometry geometry = featureEntity.getGeometry(getDatabaseSrid());
+            String srid = query.getDatabaseSridCode();
+            Geometry geometry = featureEntity.getGeometry(srid);
             if (geometry != null) {
                 geometryInfo.setGeometry(geometry);
             }
@@ -239,17 +238,18 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return geometryInfoList;
     }
 
-    private GeometryInfo createTrack(FeatureEntity featureEntity, DbQuery parameters, boolean expanded, Session session)
+    private GeometryInfo createTrack(FeatureEntity featureEntity, DbQuery query, boolean expanded, Session session)
             throws DataAccessException {
         final GeometryInfo geomInfo = new GeometryInfo(GeometryType.PLATFORM_TRACK);
-        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, parameters);
+        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, query);
         if (expanded) {
             if (featureEntity.isSetGeometry()) {
                 // track available from feature table
-                geometryInfo.setGeometry(featureEntity.getGeometry(getDatabaseSrid()));
+                String srid = query.getDatabaseSridCode();
+                geometryInfo.setGeometry(featureEntity.getGeometry(srid));
                 return geometryInfo;
             } else {
-                Geometry lineString = createTrajectory(featureEntity, parameters, session);
+                Geometry lineString = createTrajectory(featureEntity, query, session);
                 geometryInfo.setGeometry(lineString);
                 return geometryInfo;
             }
@@ -258,6 +258,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     }
 
     private Geometry createTrajectory(FeatureEntity featureEntity, DbQuery dbQuery, Session session) {
+        String srid = dbQuery.getDatabaseSridCode();
         // track available as points from observation table
         final List<Coordinate> coordinates = new ArrayList<>();
         if (DataModelUtil.isNamedQuerySupported(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE, session)) {
@@ -275,24 +276,24 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 }
             }
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
-            return getCrsUtils().createLineString(points, getDatabaseSrid());
+            return getCrsUtils().createLineString(points, srid);
         } else {
             // when named query not configured --> bad performance
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
                     .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getPkid()));
             List<GeometryEntity> samplingGeometries = dao.getGeometriesOrderedByTimestamp(getDbQuery(parameters));
-            return createLineString(samplingGeometries);
+            return createLineString(samplingGeometries, srid);
         }
     }
 
-    private Geometry createLineString(List<GeometryEntity> samplingGeometries) {
+    private Geometry createLineString(List<GeometryEntity> samplingGeometries, String srid) {
         List<Coordinate> coordinates = new ArrayList<>();
         for (GeometryEntity geometryEntity : samplingGeometries) {
-            Point geometry = (Point) geometryEntity.getGeometry(getDatabaseSrid());
+            Point geometry = (Point) geometryEntity.getGeometry(srid);
             coordinates.add(geometry.getCoordinate());
         }
-        return getCrsUtils().createLineString(coordinates.toArray(new Coordinate[0]), getDatabaseSrid());
+        return getCrsUtils().createLineString(coordinates.toArray(new Coordinate[0]), srid);
     }
 
     private Collection<GeometryInfo> getAllObservedGeometriesStatic(DbQuery parameters,
