@@ -82,7 +82,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
          * to join both tables and search for given pattern on any of the stored labels.
          */
-        Criteria criteria = addIgnoreUnpublishedSeriesTo(getDefaultCriteria("s", query), "s");
+        Criteria criteria = getDefaultCriteria("s", query);
 
         Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE,
                                                            JoinType.LEFT_OUTER_JOIN);
