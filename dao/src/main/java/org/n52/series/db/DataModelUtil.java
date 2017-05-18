@@ -58,7 +58,7 @@ public final class DataModelUtil {
                 // keeps nano seconds if available
                 : Timestamp.class.cast(value);
     }
-    
+
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
         SessionFactoryImplementor factory = getSessionFactory(session);
         return hasProperty(property, factory.getClassMetadata(clazz));
@@ -78,7 +78,7 @@ public final class DataModelUtil {
         List<String> properties = Arrays.asList(metadata.getPropertyNames());
         return properties.contains(property);
     }
-    
+
     public static boolean isNamedQuerySupported(String namedQuery, Session session) {
         SessionFactoryImplementor factory = getSessionFactory(session);
         NamedQueryDefinition namedQueryDef = factory.getNamedQuery(namedQuery);
@@ -140,7 +140,7 @@ public final class DataModelUtil {
         }
         return session;
     }
-    
+
     private static CriteriaImpl getCriteriaImpl(Criteria criteria) {
         if (criteria instanceof CriteriaImpl.Subcriteria) {
             return (CriteriaImpl) ((CriteriaImpl.Subcriteria) criteria).getParent();

@@ -297,9 +297,9 @@ public class DbQuery {
                     Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
                     Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
                     Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-        
+
                     criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
-        
+
                     // TODO intersect with linestring
                     // XXX do sampling filter only on generated line strings stored in FOI table,
                     // otherwise we would have to check each observation row
@@ -309,7 +309,7 @@ public class DbQuery {
                     LOGGER.error("Could not perform transformation.", e);
                 }
             }
-        
+
             Set<String> geometryTypes = parameters.getGeometryTypes();
             for (String geometryType : geometryTypes) {
                 if (!geometryType.isEmpty()) {
