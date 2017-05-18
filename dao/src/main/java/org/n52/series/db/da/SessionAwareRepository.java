@@ -80,9 +80,6 @@ public abstract class SessionAwareRepository {
 
     private final CRSUtils crsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
-    // if null, database is expected to have srs set properly
-    private String databaseSrid;
-
     @Autowired
     private HibernateSessionStore sessionStore;
 
@@ -108,10 +105,6 @@ public abstract class SessionAwareRepository {
         return crsUtils;
     }
 
-    protected String getDatabaseSrid() {
-        return databaseSrid;
-    }
-
     protected Long parseId(String id) throws BadRequestException {
         try {
             return Long.parseLong(id);
@@ -131,10 +124,6 @@ public abstract class SessionAwareRepository {
         } catch (Throwable e) {
             throw new IllegalStateException("Could not get hibernate session.", e);
         }
-    }
-
-    public void setDatabaseSrid(String databaseSrid) {
-        this.databaseSrid = databaseSrid;
     }
 
     protected Map<String, SeriesParameters> createTimeseriesList(List<QuantityDatasetEntity> series,

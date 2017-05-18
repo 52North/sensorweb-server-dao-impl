@@ -109,7 +109,6 @@ public class StationRepository extends SessionAwareRepository
 
     @Override
     public List<StationOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
         List<StationOutput> results = new ArrayList<>();
         for (FeatureEntity featureEntity : allFeatures) {
@@ -130,7 +129,6 @@ public class StationRepository extends SessionAwareRepository
 
     @Override
     public List<StationOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
 
         List<StationOutput> results = new ArrayList<>();
@@ -166,14 +164,12 @@ public class StationRepository extends SessionAwareRepository
 
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session)
             throws DataAccessException, BadRequestException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         DbQuery query = addPointLocationOnlyRestriction(parameters);
         return createDao(session).getInstance(parseId(id), query);
     }
 
     public StationOutput getCondensedInstance(String id, DbQuery parameters, Session session)
             throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         FeatureDao featureDao = createDao(session);
         FeatureEntity result = featureDao.getInstance(parseId(id), getDbQuery(IoParameters.createDefaults()));
         return createCondensed(result, parameters);
@@ -189,17 +185,18 @@ public class StationRepository extends SessionAwareRepository
         return stationOutput;
     }
 
-    private StationOutput createCondensed(FeatureEntity entity, DbQuery parameters) {
+    private StationOutput createCondensed(FeatureEntity entity, DbQuery query) {
         StationOutput stationOutput = new StationOutput();
-        stationOutput.setGeometry(createPoint(entity));
+        stationOutput.setGeometry(createPoint(entity, query));
         stationOutput.setId(Long.toString(entity.getPkid()));
-        stationOutput.setLabel(entity.getLabelFrom(parameters.getLocale()));
+        stationOutput.setLabel(entity.getLabelFrom(query.getLocale()));
         return stationOutput;
     }
 
-    private Geometry createPoint(FeatureEntity featureEntity) {
+    private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
+        String srid = query.getDatabaseSridCode();
         return featureEntity.isSetGeometry()
-                ? featureEntity.getGeometry(getDatabaseSrid())
+                ? featureEntity.getGeometry(srid)
                 : null;
     }
 
