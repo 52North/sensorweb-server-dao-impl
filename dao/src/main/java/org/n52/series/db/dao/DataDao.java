@@ -136,6 +136,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
+    protected Class<T> getEntityClass() {
+        return entityType;
+    }
+
+    @Override
     protected String getDatasetProperty() {
         // there's no series property for observation
         return "";
@@ -157,11 +162,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                 : criteria.add(Restrictions.eq(COLUMN_PARENT, false));
 
         return criteria;
-    }
-
-    @Override
-    protected Class<T> getEntityClass() {
-        return entityType;
     }
 
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {

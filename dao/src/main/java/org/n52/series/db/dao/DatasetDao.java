@@ -137,15 +137,6 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                        .list();
     }
 
-    // @SuppressWarnings("unchecked")
-    // public List<T> getInstancesWith(PlatformEntity platform) {
-    // LOGGER.debug("get instance for platform '{}'", platform);
-    // Criteria criteria = getDefaultCriteria();
-    // return criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, JoinType.LEFT_OUTER_JOIN)
-    // .add(Restrictions.eq(COLUMN_PKID, platform.getPkid()))
-    // .list();
-    // }
-
     @Override
     protected Class<T> getEntityClass() {
         return entityType;
