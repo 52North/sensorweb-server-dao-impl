@@ -141,13 +141,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
         return DetachedCriteria.forClass(DatasetEntity.class)
-                               .add(createPublicDatasetFilter())
+                               .add(createPublishedDatasetFilter())
                                .createAlias(getDatasetProperty(), "ref")
                                .setProjection(Projections.property("ref.pkid"));
     }
 
-    protected final Conjunction createPublicDatasetFilter() {
-        return Restrictions.and(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED , true), 
+    protected final Conjunction createPublishedDatasetFilter() {
+        return Restrictions.and(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED, true),
                                 Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false),
                                 Restrictions.isNotNull(DatasetEntity.PROPERTY_FIRST_VALUE_AT),
                                 Restrictions.isNotNull(DatasetEntity.PROPERTY_LAST_VALUE_AT));
