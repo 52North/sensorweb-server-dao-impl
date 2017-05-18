@@ -59,8 +59,8 @@ public class QuantityDataRepository extends
 
     @Override
     protected QuantityData assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                              DbQuery dbQuery,
-                                                              Session session)
+                                                           DbQuery dbQuery,
+                                                           Session session)
             throws DataAccessException {
         QuantityData result = assembleData(timeseries, dbQuery, session);
         Set<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -73,8 +73,8 @@ public class QuantityDataRepository extends
     }
 
     private Map<String, QuantityData> assembleReferenceSeries(Set<QuantityDatasetEntity> referenceValues,
-                                                                 DbQuery query,
-                                                                 Session session)
+                                                              DbQuery query,
+                                                              Session session)
             throws DataAccessException {
         Map<String, QuantityData> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -97,8 +97,8 @@ public class QuantityDataRepository extends
     }
 
     private QuantityData expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity,
-                                                           DbQuery query,
-                                                           Session session)
+                                                        DbQuery query,
+                                                        Session session)
             throws DataAccessException {
         QuantityData result = new QuantityData();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
@@ -149,24 +149,15 @@ public class QuantityDataRepository extends
 
     @Override
     public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
-                                                 QuantityDatasetEntity series,
-                                                 DbQuery query) {
+                                              QuantityDatasetEntity series,
+                                              DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
         QuantityValue value = createValue(observation, series, query);
-
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-        } else if (series.getPlatform()
-                         .isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
+        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
     private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {

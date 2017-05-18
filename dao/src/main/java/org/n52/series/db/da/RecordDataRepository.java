@@ -163,16 +163,7 @@ public class RecordDataRepository
         RecordValue value = parameters.isShowTimeIntervals()
                 ? new RecordValue(start, end, observationValue)
                 : new RecordValue(end, observationValue);
-
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-        } else if (series.getPlatform()
-                         .isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
+        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }

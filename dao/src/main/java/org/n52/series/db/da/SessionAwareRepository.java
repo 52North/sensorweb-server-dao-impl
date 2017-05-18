@@ -183,7 +183,9 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        return createCondensed(new ServiceOutput(), entity, parameters);
+        return entity != null
+                ? createCondensed(new ServiceOutput(), entity, parameters)
+                : createCondensed(new ServiceOutput(), getServiceEntity(), parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
