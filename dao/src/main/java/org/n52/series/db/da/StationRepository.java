@@ -55,21 +55,22 @@ import com.vividsolutions.jts.geom.Geometry;
  * @deprecated since 2.0.0.
  */
 @Deprecated
-public class StationRepository extends SessionAwareRepository implements OutputAssembler<StationOutput> {
+public class StationRepository extends SessionAwareRepository
+        implements OutputAssembler<StationOutput>, SearchableRepository {
+
+    private FeatureDao createDao(Session session) {
+        return new FeatureDao(session);
+    }
 
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
             FeatureDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, FeatureEntity.class);
+            return dao.hasInstance(parseId(id), parameters);
         } finally {
             returnSession(session);
         }
-    }
-
-    private FeatureDao createDao(Session session) {
-        return new FeatureDao(session);
     }
 
     @Override
@@ -85,8 +86,7 @@ public class StationRepository extends SessionAwareRepository implements OutputA
         }
     }
 
-    @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
+    private List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
@@ -179,12 +179,13 @@ public class StationRepository extends SessionAwareRepository implements OutputA
         return createCondensed(result, parameters);
     }
 
-    private StationOutput createExpanded(FeatureEntity feature, DbQuery parameters, Session session)
+    private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature);
-        StationOutput stationOutput = createCondensed(feature, parameters);
-        stationOutput.setTimeseries(createTimeseriesList(series, parameters));
+        Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
+        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        StationOutput stationOutput = createCondensed(feature, query);
+        stationOutput.setTimeseries(createTimeseriesList(series, query));
         return stationOutput;
     }
 

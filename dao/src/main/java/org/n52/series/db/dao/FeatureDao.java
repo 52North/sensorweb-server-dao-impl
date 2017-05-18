@@ -29,45 +29,17 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.I18nFeatureEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class FeatureDao extends AbstractDao<FeatureEntity> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDao.class);
+public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
 
     public FeatureDao(Session session) {
         super(session);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<FeatureEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = i18n(I18nFeatureEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike(FeatureEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<FeatureEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = i18n(I18nFeatureEntity.class, getDefaultCriteria(), query);
-        return (List<FeatureEntity>) query.addFilters(criteria, getDatasetProperty())
-                                          .list();
     }
 
     @Override
@@ -78,6 +50,11 @@ public class FeatureDao extends AbstractDao<FeatureEntity> {
     @Override
     protected Class<FeatureEntity> getEntityClass() {
         return FeatureEntity.class;
+    }
+
+    @Override
+    protected Class<I18nFeatureEntity> getI18NEntityClass() {
+        return I18nFeatureEntity.class;
     }
 
 }

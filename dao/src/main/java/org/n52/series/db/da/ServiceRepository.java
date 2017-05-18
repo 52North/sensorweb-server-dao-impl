@@ -29,7 +29,6 @@
 
 package org.n52.series.db.da;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,19 +48,20 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
-import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.series.spi.search.ServiceSearchResult;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ServiceRepository extends SessionAwareRepository implements OutputAssembler<ServiceOutput> {
+public class ServiceRepository extends ParameterRepository<ServiceEntity, ServiceOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRepository.class);
 
@@ -76,19 +76,46 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
                              AbstractValue< ? >> ioFactoryCreator;
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
-        if (serviceEntity != null) {
-            return String.valueOf(serviceEntity.getPkid())
-                         .equalsIgnoreCase(id);
-        }
+    protected ServiceOutput prepareEmptyParameterOutput(ServiceEntity entity) {
+        return new ServiceOutput();
+    }
 
+    @Override
+    protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
+        return new ServiceSearchResult(id, label, baseUrl);
+    }
+
+    @Override
+    protected String createHref(String hrefBase) {
+        return urlHelper.getServicesHrefBaseUrl(hrefBase);
+    }
+
+    @Override
+    protected ServiceDao createDao(Session session) {
+        return new ServiceDao(session);
+    }
+
+    @Override
+    protected SearchableDao<ServiceEntity> createSearchableDao(Session session) {
+        return new ServiceDao(session);
+    }
+
+    @Override
+    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
+            Long rawId = parseId(id);
             ServiceDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, ServiceEntity.class);
+            return isConfiguredServiceInstance(rawId)
+                    || dao.hasInstance(rawId, parameters);
         } finally {
             returnSession(session);
         }
+    }
+
+    private boolean isConfiguredServiceInstance(Long id) {
+        return serviceEntity != null
+                && serviceEntity.getPkid().equals(id);
     }
 
     @Override
@@ -109,122 +136,37 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
     }
 
     @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        List<SearchResult> results = new ArrayList<>();
-        String locale = query.getLocale();
-        for (DescribableEntity searchResult : found) {
-            String pkid = Long.toString(searchResult.getPkid());
-            String label = searchResult.getLabelFrom(locale);
-            String hrefBase = urlHelper.getFeaturesHrefBaseUrl(query.getHrefBase());
-            results.add(new FeatureSearchResult(pkid, label, hrefBase));
-        }
-        return results;
+    protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
+        return serviceEntity != null
+                ? Collections.singletonList(serviceEntity)
+                : createDao(session).getAllInstances(parameters);
     }
 
     @Override
-    public List<ServiceOutput> getAllCondensed(DbQuery parameters) throws DataAccessException {
-        if (serviceEntity != null) {
-            return Collections.singletonList(getCondensedService(serviceEntity, parameters));
-        }
-        Session session = getSession();
-        try {
-            return getAllCondensed(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<ServiceOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        if (serviceEntity != null) {
-            return Collections.singletonList(getCondensedService(serviceEntity, parameters));
-        }
-        List<ServiceOutput> results = new ArrayList<>();
-        for (ServiceEntity entity : getAllInstances(parameters, session)) {
-            results.add(getCondensedService(entity, parameters));
-        }
-        return results;
-    }
-
-    @Override
-    public List<ServiceOutput> getAllExpanded(DbQuery parameters) throws DataAccessException {
-        if (serviceEntity != null) {
-            return Collections.singletonList(createExpandedService(serviceEntity, parameters));
-        }
-        Session session = getSession();
-        try {
-            return getAllExpanded(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<ServiceOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        if (serviceEntity != null) {
-            return Collections.singletonList(createExpandedService(serviceEntity, parameters));
-        }
-        List<ServiceOutput> results = new ArrayList<>();
-        for (ServiceEntity entity : getAllInstances(parameters, session)) {
-            results.add(createExpandedService(entity, parameters));
-        }
-        return results;
-    }
-
-    @Override
-    public ServiceOutput getInstance(String id, DbQuery parameters) throws DataAccessException {
-        if (serviceEntity != null) {
-            return createExpandedService(serviceEntity, parameters);
-        }
-        Session session = getSession();
-        try {
-            return getInstance(id, parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public ServiceOutput getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        if (serviceEntity != null) {
-            return createExpandedService(serviceEntity, parameters);
-        }
-        ServiceEntity result = getInstance(parseId(id), parameters, session);
-        return createExpandedService(result, parameters);
-    }
-
-    private ServiceEntity getInstance(Long id, DbQuery parameters, Session session) throws DataAccessException {
-        ServiceDao serviceDAO = createDao(session);
-        ServiceEntity result = serviceDAO.getInstance(id, parameters);
+    protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
+            throws DataAccessException {
+        ServiceEntity result = !isConfiguredServiceInstance(id)
+                ? dao.getInstance(id, query)
+                : serviceEntity;
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }
         return result;
     }
 
-    private List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return createDao(session).getAllInstances(parameters);
-    }
-
-    private ServiceDao createDao(Session session) {
-        return new ServiceDao(session);
-    }
-
-    private ServiceOutput createExpandedService(ServiceEntity entity, DbQuery parameters) {
+    @Override
+    protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery parameters, Session session) {
         ServiceOutput service = getCondensedService(entity, parameters);
         service.setQuantities(countParameters(service, parameters));
+        service.setSupportsFirstLatest(entity.isSupportsFirstLatest());
         service.setServiceUrl(entity.getUrl());
-        service.setSupportsFirstLatest(true);
+        service.setType(getServiceType(entity));
 
         FilterResolver filterResolver = parameters.getFilterResolver();
         if (filterResolver.shallBehaveBackwardsCompatible()) {
             // ensure backwards compatibility
             service.setVersion("1.0.0");
-            service.setType(SERVICE_TYPE);
         } else {
-            service.setType(entity.getType() == null
-                    ? SERVICE_TYPE
-                    : entity.getType());
             service.setVersion(entity.getVersion() != null
                     ? entity.getVersion()
                     : "2.0");
@@ -234,6 +176,12 @@ public class ServiceRepository extends SessionAwareRepository implements OutputA
             // TODO different counts
         }
         return service;
+    }
+
+    private String getServiceType(ServiceEntity entity) {
+        return entity.getType() != null
+                ? entity.getType()
+                : SERVICE_TYPE;
     }
 
     private void addSupportedDatasetsTo(ServiceOutput service) {

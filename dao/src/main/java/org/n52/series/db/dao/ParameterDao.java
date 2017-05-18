@@ -29,61 +29,46 @@
 
 package org.n52.series.db.dao;
 
+import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.I18nProcedureEntity;
-import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
-public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
+public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity> extends AbstractDao<T>
+        implements SearchableDao<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParameterDao.class);
 
-    private static final String COLUMN_REFERENCE = "reference";
-
-    public ProcedureDao(Session session) {
+    public ParameterDao(Session session) {
         super(session);
     }
 
-    @Override
-    public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
-        LOGGER.debug("get instance '{}': {}", key, query);
-        Criteria criteria = getDefaultCriteria(true, query);
-        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
-                                             .uniqueResult());
-    }
+    protected abstract Class<I> getI18NEntityClass();
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery query) {
-        return getDefaultCriteria(true, query);
-    }
-
-    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures, DbQuery query) {
-        return ignoreReferenceProcedures
-                ? super.getDefaultCriteria(query).add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
-                : super.getDefaultCriteria(query);
+    @SuppressWarnings("unchecked")
+    public List<T> find(DbQuery query) {
+        LOGGER.debug("find instance: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+        criteria = i18n(getI18NEntityClass(), criteria, query);
+        criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
+        return query.addFilters(criteria, getDatasetProperty())
+                    .list();
     }
 
     @Override
-    protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_PROCEDURE;
+    @SuppressWarnings("unchecked")
+    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
+        LOGGER.debug("get all instances: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+        criteria = i18n(getI18NEntityClass(), criteria, query);
+        return query.addFilters(criteria, getDatasetProperty())
+                    .list();
     }
-
-    @Override
-    protected Class<ProcedureEntity> getEntityClass() {
-        return ProcedureEntity.class;
-    }
-
-    @Override
-    protected Class<I18nProcedureEntity> getI18NEntityClass() {
-        return I18nProcedureEntity.class;
-    }
-
 }

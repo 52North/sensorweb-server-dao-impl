@@ -119,6 +119,10 @@ public class DbQuery {
         return parameters.isExpanded();
     }
 
+    public boolean isMatchDomainIds() {
+        return parameters.getAsBoolean(Parameters.MATCH_DOMAIN_IDS, Parameters.DEFAULT_MATCH_DOMAIN_IDS);
+    }
+
     public void setComplexParent(boolean complex) {
         parameters = parameters.extendWith(Parameters.COMPLEX_PARENT, Boolean.toString(complex));
     }

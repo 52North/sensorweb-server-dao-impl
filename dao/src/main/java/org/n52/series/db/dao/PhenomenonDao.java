@@ -29,40 +29,18 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.I18nPhenomenonEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PhenomenonDao extends AbstractDao<PhenomenonEntity> {
+public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
 
     private static final String SERIES_PROPERTY = "phenomenon";
 
     public PhenomenonDao(Session session) {
         super(session);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PhenomenonEntity> find(DbQuery query) {
-        Criteria criteria = i18n(I18nPhenomenonEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PhenomenonEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = i18n(I18nPhenomenonEntity.class, getDefaultCriteria(), query);
-        return (List<PhenomenonEntity>) query.addFilters(criteria, getDatasetProperty())
-                                             .list();
     }
 
     @Override
@@ -73,6 +51,11 @@ public class PhenomenonDao extends AbstractDao<PhenomenonEntity> {
     @Override
     protected Class<PhenomenonEntity> getEntityClass() {
         return PhenomenonEntity.class;
+    }
+
+    @Override
+    protected Class<I18nPhenomenonEntity> getI18NEntityClass() {
+        return I18nPhenomenonEntity.class;
     }
 
 }

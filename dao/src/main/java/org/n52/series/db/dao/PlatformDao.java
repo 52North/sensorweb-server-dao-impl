@@ -29,46 +29,18 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.I18nPlatformEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlatformDao extends AbstractDao<PlatformEntity> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformDao.class);
+public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity> {
 
     private static final String SERIES_PROPERTY = "platform";
 
     public PlatformDao(Session session) {
         super(session);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PlatformEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = i18n(I18nPlatformEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike(PlatformEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PlatformEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        final String seriesProperty = getDatasetProperty();
-        Criteria criteria = i18n(I18nPlatformEntity.class, getDefaultCriteria(seriesProperty), query);
-        return (List<PlatformEntity>) query.addFilters(criteria, seriesProperty)
-                                           .list();
     }
 
     @Override
@@ -79,6 +51,11 @@ public class PlatformDao extends AbstractDao<PlatformEntity> {
     @Override
     protected Class<PlatformEntity> getEntityClass() {
         return PlatformEntity.class;
+    }
+
+    @Override
+    protected Class<I18nPlatformEntity> getI18NEntityClass() {
+        return I18nPlatformEntity.class;
     }
 
 }
