@@ -34,8 +34,6 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
@@ -115,11 +113,17 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     @SuppressWarnings("unchecked")
+    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+        Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+        return (T) criteria.add(Restrictions.eq(COLUMN_PKID, key))
+                           .uniqueResult();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
-        Criteria procedureCreateria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE);
-        procedureCreateria.add(Restrictions.eq("reference", false));
         return query.addFilters(criteria, getDatasetProperty())
                     .list();
     }
@@ -154,32 +158,27 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery query) {
-        // declare explicit alias here
-        return getDefaultCriteria(DatasetEntity.ENTITY_ALIAS, query);
+    protected String getDefaultAlias() {
+        return DatasetEntity.ENTITY_ALIAS;
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query) {
-        Criteria criteria = entityType != null
-                ? super.getDefaultCriteria(alias, query)
-                : session.createCriteria(DatasetEntity.class, alias);
-        addIgnoreUnpublishedSeriesTo(criteria, alias);
-        return criteria;
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        // declare explicit alias here
+        return getDefaultCriteria(alias, true, query, clazz);
     }
 
-    private Criteria addIgnoreUnpublishedSeriesTo(Criteria criteria, String alias) {
-        return criteria.add(Restrictions.and(createNotNullFirstLastValueRestriction(alias),
-                                             createPublishedAndNotDeletedRestriction(alias)));
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query) {
+        return getDefaultCriteria(alias, ignoreReferenceSeries, query, getEntityClass());
+    }
+    
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class<?> clazz) {
+        Criteria criteria = session.createCriteria(clazz)
+                                   .add(createPublicDatasetFilter())
+                                   .createAlias("procedure", "p");
+        return ignoreReferenceSeries
+                ? criteria.add(Restrictions.eq("p.reference", Boolean.FALSE))
+                : criteria;
     }
 
-    private Criterion createPublishedAndNotDeletedRestriction(String alias) {
-        return Restrictions.and(Restrictions.eq(QueryUtils.createAssociation(alias, "published"), true),
-                                Restrictions.eqOrIsNull(QueryUtils.createAssociation(alias, "deleted"), false));
-    }
-
-    private LogicalExpression createNotNullFirstLastValueRestriction(String alias) {
-        return Restrictions.and(Restrictions.isNotNull(QueryUtils.createAssociation(alias, "firstValueAt")),
-                                Restrictions.isNotNull(QueryUtils.createAssociation(alias, "lastValueAt")));
-    }
 }

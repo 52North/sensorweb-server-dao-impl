@@ -49,6 +49,10 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     public static final String PROPERTY_OFFERING = "offering";
     public static final String PROPERTY_PLATFORM = "platform";
     public static final String PROPERTY_VALUE_TYPE = "valueType";
+    public static final String PROPERTY_PUBLISHED = "published";
+    public static final String PROPERTY_FIRST_VALUE_AT = "firstValueAt";
+    public static final String PROPERTY_LAST_VALUE_AT = "lastValueAt";
+    public static final String PROPERTY_DELETED = "deleted";
     public static final String PROPERTY_OBSERVATION_TYPE = "observationType";
 
     private CategoryEntity category;

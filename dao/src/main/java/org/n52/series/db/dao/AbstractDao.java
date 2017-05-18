@@ -31,6 +31,7 @@ package org.n52.series.db.dao;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -95,7 +96,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         Criteria criteria = getDefaultCriteria(query, clazz);
         criteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, key));
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
         return clazz.cast(criteria.uniqueResult());
     }
 
@@ -118,18 +119,18 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Criteria getDefaultCriteria(DbQuery query) {
-        return getDefaultCriteria((String) null, query, getEntityClass());
-    }
-
-    protected Criteria getDefaultCriteria(DbQuery query, Class<?> clazz) {
-        return getDefaultCriteria((String) null, query, clazz);
+        return getDefaultCriteria((String) null, query);
     }
 
     protected Criteria getDefaultCriteria(String alias, DbQuery query) {
         return getDefaultCriteria(alias, query, getEntityClass());
     }
 
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+    private Criteria getDefaultCriteria(DbQuery query, Class< ? > clazz) {
+        return getDefaultCriteria((String) null, query, clazz);
+    }
+
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
         String nonNullAlias = alias != null
                 ? alias
                 : getDefaultAlias();
@@ -140,9 +141,16 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
         return DetachedCriteria.forClass(DatasetEntity.class)
-                               .add(Restrictions.eq("published", Boolean.TRUE))
+                               .add(createPublicDatasetFilter())
                                .createAlias(getDatasetProperty(), "ref")
                                .setProjection(Projections.property("ref.pkid"));
+    }
+
+    protected final Conjunction createPublicDatasetFilter() {
+        return Restrictions.and(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED , true), 
+                                Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false),
+                                Restrictions.isNotNull(DatasetEntity.PROPERTY_FIRST_VALUE_AT),
+                                Restrictions.isNotNull(DatasetEntity.PROPERTY_LAST_VALUE_AT));
     }
 
 }
