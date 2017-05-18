@@ -133,10 +133,11 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     public boolean exists(String id, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
+            Long parsedId = parseId(PlatformType.extractId(id));
             AbstractDao< ? extends DescribableEntity> dao = PlatformType.isStationaryId(id)
                     ? createFeatureDao(session)
                     : createPlatformDao(session);
-            return dao.hasInstance(parseId(id), query);
+            return dao.hasInstance(parsedId, query);
         } finally {
             returnSession(session);
         }
