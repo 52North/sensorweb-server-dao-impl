@@ -55,21 +55,22 @@ import com.vividsolutions.jts.geom.Geometry;
  * @deprecated since 2.0.0.
  */
 @Deprecated
-public class StationRepository extends SessionAwareRepository implements OutputAssembler<StationOutput> {
+public class StationRepository extends SessionAwareRepository
+        implements OutputAssembler<StationOutput>, SearchableRepository {
+
+    private FeatureDao createDao(Session session) {
+        return new FeatureDao(session);
+    }
 
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
             FeatureDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, FeatureEntity.class);
+            return dao.hasInstance(parseId(id), parameters);
         } finally {
             returnSession(session);
         }
-    }
-
-    private FeatureDao createDao(Session session) {
-        return new FeatureDao(session);
     }
 
     @Override
@@ -85,8 +86,7 @@ public class StationRepository extends SessionAwareRepository implements OutputA
         }
     }
 
-    @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
+    private List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
@@ -109,7 +109,6 @@ public class StationRepository extends SessionAwareRepository implements OutputA
 
     @Override
     public List<StationOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
         List<StationOutput> results = new ArrayList<>();
         for (FeatureEntity featureEntity : allFeatures) {
@@ -130,7 +129,6 @@ public class StationRepository extends SessionAwareRepository implements OutputA
 
     @Override
     public List<StationOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
 
         List<StationOutput> results = new ArrayList<>();
@@ -166,39 +164,39 @@ public class StationRepository extends SessionAwareRepository implements OutputA
 
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session)
             throws DataAccessException, BadRequestException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         DbQuery query = addPointLocationOnlyRestriction(parameters);
         return createDao(session).getInstance(parseId(id), query);
     }
 
     public StationOutput getCondensedInstance(String id, DbQuery parameters, Session session)
             throws DataAccessException {
-        parameters.setDatabaseAuthorityCode(getDatabaseSrid());
         FeatureDao featureDao = createDao(session);
         FeatureEntity result = featureDao.getInstance(parseId(id), getDbQuery(IoParameters.createDefaults()));
         return createCondensed(result, parameters);
     }
 
-    private StationOutput createExpanded(FeatureEntity feature, DbQuery parameters, Session session)
+    private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature);
-        StationOutput stationOutput = createCondensed(feature, parameters);
-        stationOutput.setTimeseries(createTimeseriesList(series, parameters));
+        Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
+        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        StationOutput stationOutput = createCondensed(feature, query);
+        stationOutput.setTimeseries(createTimeseriesList(series, query));
         return stationOutput;
     }
 
-    private StationOutput createCondensed(FeatureEntity entity, DbQuery parameters) {
+    private StationOutput createCondensed(FeatureEntity entity, DbQuery query) {
         StationOutput stationOutput = new StationOutput();
-        stationOutput.setGeometry(createPoint(entity));
+        stationOutput.setGeometry(createPoint(entity, query));
         stationOutput.setId(Long.toString(entity.getPkid()));
-        stationOutput.setLabel(entity.getLabelFrom(parameters.getLocale()));
+        stationOutput.setLabel(entity.getLabelFrom(query.getLocale()));
         return stationOutput;
     }
 
-    private Geometry createPoint(FeatureEntity featureEntity) {
+    private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
+        String srid = query.getDatabaseSridCode();
         return featureEntity.isSetGeometry()
-                ? featureEntity.getGeometry(getDatabaseSrid())
+                ? featureEntity.getGeometry(srid)
                 : null;
     }
 

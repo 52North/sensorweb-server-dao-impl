@@ -82,7 +82,7 @@ public class DbQuery {
 
     private IoParameters parameters = IoParameters.createDefaults();
 
-    private String sridAuthorityCode = "EPSG:4326";
+    private String databaseSridCode = "EPSG:4326";
 
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
@@ -90,8 +90,12 @@ public class DbQuery {
         }
     }
 
-    public void setDatabaseAuthorityCode(String code) {
-        this.sridAuthorityCode = code;
+    public String getDatabaseSridCode() {
+        return databaseSridCode;
+    }
+
+    public void setDatabaseSridCode(String databaseSridCode) {
+        this.databaseSridCode = databaseSridCode;
     }
 
     public String getHrefBase() {
@@ -117,6 +121,18 @@ public class DbQuery {
 
     public boolean isExpanded() {
         return parameters.isExpanded();
+    }
+
+    public boolean isMatchDomainIds() {
+        return parameters.getAsBoolean(Parameters.MATCH_DOMAIN_IDS, Parameters.DEFAULT_MATCH_DOMAIN_IDS);
+    }
+
+    public void setComplexParent(boolean complex) {
+        parameters = parameters.extendWith(Parameters.COMPLEX_PARENT, Boolean.toString(complex));
+    }
+
+    public boolean isComplexParent() {
+        return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
     public Set<String> getDatasetTypes() {
@@ -276,9 +292,9 @@ public class DbQuery {
         if (spatialFilter != null) {
             try {
                 CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                int databaseSrid = crsUtils.getSrsIdFrom(sridAuthorityCode);
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), sridAuthorityCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), sridAuthorityCode);
+                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
                 Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
                 criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));

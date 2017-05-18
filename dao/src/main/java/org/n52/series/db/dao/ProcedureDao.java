@@ -29,7 +29,6 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ProcedureDao extends AbstractDao<ProcedureEntity> {
+public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
 
@@ -54,39 +53,22 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<ProcedureEntity> find(DbQuery query) {
-        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(true), query);
-        criteria.add(Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<ProcedureEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = i18n(I18nProcedureEntity.class, getDefaultCriteria(true), query);
-        return (List<ProcedureEntity>) query.addFilters(criteria, getDatasetProperty())
-                                            .list();
-    }
-
-    @Override
-    public ProcedureEntity getInstance(Long key, DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get instance '{}': {}", key, parameters);
-        Criteria criteria = getDefaultCriteria(true);
+    public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
+        LOGGER.debug("get instance '{}': {}", key, query);
+        Criteria criteria = getDefaultCriteria(true, query);
         return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
                                              .uniqueResult());
     }
 
     @Override
-    protected Criteria getDefaultCriteria() {
-        return getDefaultCriteria(true);
+    protected Criteria getDefaultCriteria(DbQuery query) {
+        return getDefaultCriteria(true, query);
     }
 
-    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures) {
+    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures, DbQuery query) {
         return ignoreReferenceProcedures
-                ? super.getDefaultCriteria().add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
-                : super.getDefaultCriteria();
+                ? super.getDefaultCriteria(query).add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
+                : super.getDefaultCriteria(query);
     }
 
     @Override
@@ -97,6 +79,11 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
     @Override
     protected Class<ProcedureEntity> getEntityClass() {
         return ProcedureEntity.class;
+    }
+
+    @Override
+    protected Class<I18nProcedureEntity> getI18NEntityClass() {
+        return I18nProcedureEntity.class;
     }
 
 }

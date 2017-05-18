@@ -29,7 +29,6 @@
 
 package org.n52.series.db.beans;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
+import org.n52.series.db.DataModelUtil;
 
 public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity {
 
@@ -49,6 +49,10 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     public static final String PROPERTY_OFFERING = "offering";
     public static final String PROPERTY_PLATFORM = "platform";
     public static final String PROPERTY_VALUE_TYPE = "valueType";
+    public static final String PROPERTY_PUBLISHED = "published";
+    public static final String PROPERTY_FIRST_VALUE_AT = "firstValueAt";
+    public static final String PROPERTY_LAST_VALUE_AT = "lastValueAt";
+    public static final String PROPERTY_DELETED = "deleted";
     public static final String PROPERTY_OBSERVATION_TYPE = "observationType";
 
     private CategoryEntity category;
@@ -88,7 +92,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     private long observationCount = -1;
 
     public DatasetEntity() {
-        this.observations = new ArrayList<>();
+        this((String) null);
     }
 
     public DatasetEntity(String type) {
@@ -207,27 +211,19 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     }
 
     public Date getFirstValueAt() {
-        return firstValueAt != null
-                ? new Timestamp(firstValueAt.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(firstValueAt);
     }
 
     public void setFirstValueAt(Date firstValueAt) {
-        this.firstValueAt = firstValueAt != null
-                ? new Timestamp(firstValueAt.getTime())
-                : null;
+        this.firstValueAt = DataModelUtil.createUnmutableTimestamp(firstValueAt);
     }
 
     public Date getLastValueAt() {
-        return lastValueAt != null
-                ? new Timestamp(lastValueAt.getTime())
-                : null;
+        return DataModelUtil.createUnmutableTimestamp(lastValueAt);
     }
 
     public void setLastValueAt(Date lastValueAt) {
-        this.lastValueAt = lastValueAt != null
-                ? new Timestamp(lastValueAt.getTime())
-                : null;
+        this.lastValueAt = DataModelUtil.createUnmutableTimestamp(lastValueAt);
     }
 
     public String getValueType() {
@@ -265,7 +261,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
         return dates != null
                 ? dates.stream()
                        .map(d -> d != null
-                               ? new Timestamp(d.getTime())
+                               ? DataModelUtil.createUnmutableTimestamp(d)
                                : null)
                        .collect(Collectors.toSet())
                 : null;

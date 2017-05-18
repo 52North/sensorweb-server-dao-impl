@@ -51,7 +51,7 @@ public class RecordDataRepository
         extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
     @Override
-    public Class<RecordDatasetEntity> getEntityType() {
+    public Class<RecordDatasetEntity> getDatasetEntityType() {
         return RecordDatasetEntity.class;
     }
 
@@ -126,8 +126,8 @@ public class RecordDataRepository
 
     // XXX
     private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity();
-        RecordDataEntity referenceEnd = new RecordDataEntity();
+        RecordDataEntity referenceStart = new RecordDataEntity() {};
+        RecordDataEntity referenceEnd = new RecordDataEntity() {};
         referenceStart.setTimestamp(query.getTimespan()
                                          .getStart()
                                          .toDate());
@@ -163,16 +163,7 @@ public class RecordDataRepository
         RecordValue value = parameters.isShowTimeIntervals()
                 ? new RecordValue(start, end, observationValue)
                 : new RecordValue(end, observationValue);
-
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-        } else if (series.getPlatform()
-                         .isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
+        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }

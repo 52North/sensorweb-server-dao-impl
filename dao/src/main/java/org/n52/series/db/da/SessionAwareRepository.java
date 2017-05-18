@@ -50,13 +50,14 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.web.ctrl.UrlHelper;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
@@ -79,11 +80,14 @@ public abstract class SessionAwareRepository {
 
     private final CRSUtils crsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
-    // if null, database is expected to have srs set properly
-    private String databaseSrid;
-
     @Autowired
     private HibernateSessionStore sessionStore;
+
+    public DbQueryFactory getDbQueryFactory() {
+        return dbQueryFactory != null
+                ? dbQueryFactory
+                : new DefaultDbQueryFactory();
+    }
 
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
@@ -99,10 +103,6 @@ public abstract class SessionAwareRepository {
 
     protected CRSUtils getCrsUtils() {
         return crsUtils;
-    }
-
-    protected String getDatabaseSrid() {
-        return databaseSrid;
     }
 
     protected Long parseId(String id) throws BadRequestException {
@@ -124,10 +124,6 @@ public abstract class SessionAwareRepository {
         } catch (Throwable e) {
             throw new IllegalStateException("Could not get hibernate session.", e);
         }
-    }
-
-    public void setDatabaseSrid(String databaseSrid) {
-        this.databaseSrid = databaseSrid;
     }
 
     protected Map<String, SeriesParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
@@ -187,8 +183,9 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
-        return createCondensed(new ServiceOutput(), service, parameters);
+        return entity != null
+                ? createCondensed(new ServiceOutput(), entity, parameters)
+                : createCondensed(new ServiceOutput(), getServiceEntity(), parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -214,9 +211,8 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        ServiceEntity service = getServiceEntity(entity);
         final String hrefBase = urlHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
-        return createCondensed(new ServiceOutput(), service, parameters, hrefBase);
+        return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T outputvalue,

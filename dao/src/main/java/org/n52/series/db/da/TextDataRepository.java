@@ -50,7 +50,7 @@ import org.n52.series.db.dao.DbQuery;
 public class TextDataRepository extends AbstractDataRepository<TextData, TextDatasetEntity, TextDataEntity, TextValue> {
 
     @Override
-    public Class<TextDatasetEntity> getEntityType() {
+    public Class<TextDatasetEntity> getDatasetEntityType() {
         return TextDatasetEntity.class;
     }
 
@@ -160,15 +160,7 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
                 ? new TextValue(start, end, observationValue)
                 : new TextValue(end, observationValue);
 
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-        } else if (series.getPlatform()
-                         .isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
+        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }

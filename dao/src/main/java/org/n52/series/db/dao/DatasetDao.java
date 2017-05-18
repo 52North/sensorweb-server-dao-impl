@@ -34,8 +34,6 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
@@ -47,7 +45,6 @@ import org.n52.series.db.beans.I18nPhenomenonEntity;
 import org.n52.series.db.beans.I18nProcedureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
-import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @SuppressWarnings("rawtypes")
-public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
+public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
@@ -63,15 +60,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
 
     private final Class<T> entityType;
 
+    @SuppressWarnings("unchecked")
+    public DatasetDao(Session session) {
+        this(session, (Class<T>) DatasetEntity.class);
+    }
+
     public DatasetDao(Session session, Class<T> clazz) {
         super(session);
         this.entityType = clazz;
-    }
-
-    @SuppressWarnings("unchecked")
-    public DatasetDao(Session session) {
-        super(session);
-        this.entityType = (Class<T>) DatasetEntity.class;
     }
 
     @Override
@@ -86,7 +82,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
          * to join both tables and search for given pattern on any of the stored labels.
          */
-        Criteria criteria = addIgnoreUnpublishedSeriesTo(getDefaultCriteria("s"), "s");
+        Criteria criteria = getDefaultCriteria("s", query);
 
         Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE,
                                                            JoinType.LEFT_OUTER_JOIN);
@@ -117,31 +113,28 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", parameters);
-        Criteria criteria = getDefaultCriteria();
-        Criteria procedureCreateria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE);
-        procedureCreateria.add(Restrictions.eq("reference", false));
-        return (List<T>) parameters.addFilters(criteria, getDatasetProperty())
-                                   .list();
+    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+        Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+        return (T) criteria.add(Restrictions.eq(COLUMN_PKID, key))
+                           .uniqueResult();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
+        LOGGER.debug("get all instances: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+        return query.addFilters(criteria, getDatasetProperty())
+                    .list();
     }
 
     @SuppressWarnings("unchecked")
-    public List<T> getInstancesWith(FeatureEntity feature) {
+    public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
-        Criteria criteria = getDefaultCriteria().createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                                JoinType.LEFT_OUTER_JOIN)
-                                                .add(Restrictions.eq(COLUMN_PKID, feature.getPkid()));
-        return (List<T>) criteria.list();
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<T> getInstancesWith(PlatformEntity platform) {
-        LOGGER.debug("get instance for platform '{}'", platform);
-        Criteria criteria = getDefaultCriteria().createCriteria(DatasetEntity.PROPERTY_PROCEDURE,
-                                                                JoinType.LEFT_OUTER_JOIN)
-                                                .add(Restrictions.eq(COLUMN_PKID, platform.getPkid()));
-        return (List<T>) criteria.list();
+        Criteria criteria = getDefaultCriteria(query);
+        return criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
+                       .add(Restrictions.eq(COLUMN_PKID, feature.getPkid()))
+                       .list();
     }
 
     @Override
@@ -156,33 +149,27 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> {
     }
 
     @Override
-    protected Criteria getDefaultCriteria() {
-        // declare explicit alias here
-        return getDefaultCriteria(DatasetEntity.ENTITY_ALIAS);
+    protected String getDefaultAlias() {
+        return DatasetEntity.ENTITY_ALIAS;
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias) {
-        Criteria criteria = entityType != null
-                ? super.getDefaultCriteria(alias)
-                : session.createCriteria(DatasetEntity.class, alias);
-        addIgnoreUnpublishedSeriesTo(criteria, alias);
-        return criteria;
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        // declare explicit alias here
+        return getDefaultCriteria(alias, true, query, clazz);
     }
 
-    private Criteria addIgnoreUnpublishedSeriesTo(Criteria criteria, String alias) {
-        criteria.add(Restrictions.and(createNotNullFirstLastValueRestriction(alias),
-                                      createPublishedAndNotDeletedRestriction(alias)));
-        return criteria;
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query) {
+        return getDefaultCriteria(alias, ignoreReferenceSeries, query, getEntityClass());
     }
 
-    private Criterion createPublishedAndNotDeletedRestriction(String alias) {
-        return Restrictions.and(Restrictions.eq(QueryUtils.createAssociation(alias, "published"), true),
-                                Restrictions.eqOrIsNull(QueryUtils.createAssociation(alias, "deleted"), false));
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class<?> clazz) {
+        Criteria criteria = session.createCriteria(clazz)
+                                   .add(createPublishedDatasetFilter())
+                                   .createAlias("procedure", "p");
+        return ignoreReferenceSeries
+                ? criteria.add(Restrictions.eq("p.reference", Boolean.FALSE))
+                : criteria;
     }
 
-    private LogicalExpression createNotNullFirstLastValueRestriction(String alias) {
-        return Restrictions.and(Restrictions.isNotNull(QueryUtils.createAssociation(alias, "firstValueAt")),
-                                Restrictions.isNotNull(QueryUtils.createAssociation(alias, "lastValueAt")));
-    }
 }

@@ -26,34 +26,32 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+package org.n52.series.db.beans;
 
-package org.n52.series.db.da;
+import static org.hamcrest.CoreMatchers.is;
 
-import java.util.Collection;
-import java.util.List;
+import java.sql.Timestamp;
 
-import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.dao.DbQuery;
-import org.n52.series.spi.search.SearchResult;
+import org.hamcrest.MatcherAssert;
+import org.joda.time.DateTime;
+import org.junit.Test;
 
-public interface OutputAssembler<T> {
+public class SamplingGeometryEntityTest {
 
-    List<T> getAllCondensed(DbQuery parameters) throws DataAccessException;
+    @Test
+    public void when_settingTimestampWithNanos_then_nanosAvailableOnGetting() {
+        SamplingGeometryEntity samplingGeometryEntity = new SamplingGeometryEntity();
+        Timestamp expected = createTimestamp("2015-07-17T21:14:35.022+02", 321);
 
-    List<T> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException;
+        samplingGeometryEntity.setTimestamp(expected);
+        Timestamp actual = (Timestamp) samplingGeometryEntity.getTimestamp();
+        MatcherAssert.assertThat(actual.getNanos(), is(expected.getNanos()));
+    }
 
-    List<T> getAllExpanded(DbQuery parameters) throws DataAccessException;
-
-    List<T> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException;
-
-    T getInstance(String id, DbQuery parameters) throws DataAccessException;
-
-    T getInstance(String id, DbQuery parameters, Session session) throws DataAccessException;
-
-    Collection<SearchResult> searchFor(IoParameters parameters);
-
-    boolean exists(String id, DbQuery query) throws DataAccessException;
-
+    private Timestamp createTimestamp(String date, int nanos) {
+        DateTime timeValue = DateTime.parse(date);
+        Timestamp timestamp = new Timestamp(timeValue.getMillis());
+        timestamp.setNanos(nanos);
+        return timestamp;
+    }
 }

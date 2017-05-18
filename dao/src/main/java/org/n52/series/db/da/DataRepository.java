@@ -52,5 +52,5 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
         // void
     }
 
-    Class<E> getEntityType();
+    Class<E> getDatasetEntityType();
 }

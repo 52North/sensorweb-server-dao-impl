@@ -32,9 +32,22 @@ import org.n52.io.request.IoParameters;
 
 public class DefaultDbQueryFactory implements DbQueryFactory {
 
+    private String databaseSrid = "EPSG:4326";
+
     @Override
     public DbQuery createFrom(IoParameters parameters) {
-        return new DbQuery(parameters);
+        DbQuery query = new DbQuery(parameters);
+        query.setDatabaseSridCode(databaseSrid);
+        return query;
     }
 
+    @Override
+    public String getDatabaseSrid() {
+        return databaseSrid;
+    }
+
+    @Override
+    public void setDatabaseSrid(String databaseSrid) {
+        this.databaseSrid = databaseSrid;
+    }
 }

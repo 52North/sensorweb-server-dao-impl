@@ -40,6 +40,7 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
@@ -52,7 +53,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Override
-    public Data< ? > getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
@@ -106,10 +107,24 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         return observations.size() == 1;
     }
 
-    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value) {
+    protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
+        PlatformEntity platform = dataset.getPlatform();
+        if (query.isExpanded()) {
+            addValidTime(observation, value);
+            addParameters(observation, value, query);
+            addGeometry(observation, value, query);
+        } else {
+            if (platform.isMobile()) {
+                addGeometry(observation, value, query);
+            }
+        }
+        return value;
+    }
+
+    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
         if (dataEntity.isSetGeometry()) {
             GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(geometry.getGeometry(getDatabaseSrid()));
+            value.setGeometry(geometry.getGeometry(query.getDatabaseSridCode()));
         }
     }
 

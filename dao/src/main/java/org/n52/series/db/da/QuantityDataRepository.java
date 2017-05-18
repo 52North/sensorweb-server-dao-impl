@@ -53,14 +53,14 @@ public class QuantityDataRepository extends
         AbstractDataRepository<QuantityData, QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
 
     @Override
-    public Class<QuantityDatasetEntity> getEntityType() {
+    public Class<QuantityDatasetEntity> getDatasetEntityType() {
         return QuantityDatasetEntity.class;
     }
 
     @Override
     protected QuantityData assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                              DbQuery dbQuery,
-                                                              Session session)
+                                                           DbQuery dbQuery,
+                                                           Session session)
             throws DataAccessException {
         QuantityData result = assembleData(timeseries, dbQuery, session);
         Set<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -73,8 +73,8 @@ public class QuantityDataRepository extends
     }
 
     private Map<String, QuantityData> assembleReferenceSeries(Set<QuantityDatasetEntity> referenceValues,
-                                                                 DbQuery query,
-                                                                 Session session)
+                                                              DbQuery query,
+                                                              Session session)
             throws DataAccessException {
         Map<String, QuantityData> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -97,8 +97,8 @@ public class QuantityDataRepository extends
     }
 
     private QuantityData expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity,
-                                                           DbQuery query,
-                                                           Session session)
+                                                        DbQuery query,
+                                                        Session session)
             throws DataAccessException {
         QuantityData result = new QuantityData();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
@@ -149,36 +149,34 @@ public class QuantityDataRepository extends
 
     @Override
     public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
-                                                 QuantityDatasetEntity series,
-                                                 DbQuery query) {
+                                              QuantityDatasetEntity series,
+                                              DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
+        QuantityValue value = createValue(observation, series, query);
+        return addMetadatasIfNeeded(observation, value, series, query);
+    }
+
+    private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         Double observationValue = !service.isNoDataValue(observation)
                 ? format(observation, series)
                 : null;
+        return createValue(observationValue, observation, query);
+    }
 
+    QuantityValue createValue(Double observationValue, QuantityDataEntity observation, DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        QuantityValue value = parameters.isShowTimeIntervals()
+        return parameters.isShowTimeIntervals()
                 ? new QuantityValue(start, end, observationValue)
                 : new QuantityValue(end, observationValue);
-
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-        } else if (series.getPlatform()
-                         .isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
     }
 
     private Double format(QuantityDataEntity observation, QuantityDatasetEntity series) {

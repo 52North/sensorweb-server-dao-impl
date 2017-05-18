@@ -29,13 +29,16 @@
 
 package org.n52.series.db.dao;
 
-import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Conjunction;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,44 +56,53 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         this.session = session;
     }
 
-    public abstract List<T> find(DbQuery query);
-
     protected abstract Class<T> getEntityClass();
 
     protected abstract String getDatasetProperty();
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? extends T> clazz) throws DataAccessException {
+    protected String getDefaultAlias() {
+        return getDatasetProperty();
+    }
+
+    public boolean hasInstance(String id, DbQuery query) throws DataAccessException {
+        return getInstance(id, query) != null;
+    }
+
+    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) throws DataAccessException {
         return getInstance(id, query) != null;
     }
 
     @Override
-    public boolean hasInstance(Long id, DbQuery query, Class< ? extends T> clazz) {
+    public boolean hasInstance(Long id, DbQuery query) {
+        return session.get(getEntityClass(), id) != null;
+    }
+
+    public boolean hasInstance(Long id, DbQuery query, Class< ? > clazz) {
         return session.get(clazz, id) != null;
     }
 
-    public T getInstance(String key, DbQuery parameters) throws DataAccessException {
-        if (!parameters.getParameters()
-                        .isMatchDomainIds()) {
-            return getInstance(Long.parseLong(key), parameters);
-        }
-
-        LOGGER.debug("get dataset type for '{}'. {}", key, parameters);
-        Criteria criteria = getDefaultCriteria();
-        return getEntityClass().cast(criteria.add(Restrictions.eq("domainId", key))
-                                             .uniqueResult());
+    public T getInstance(String key, DbQuery query) throws DataAccessException {
+        return getInstance(key, query, getEntityClass());
     }
 
     @Override
-    public T getInstance(Long key, DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get instance '{}': {}", key, parameters);
-        Criteria criteria = getDefaultCriteria();
-        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
-                                             .uniqueResult());
+    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+        LOGGER.debug("get instance '{}': {}", key, query);
+        return getInstance(Long.toString(key), query, getEntityClass());
+    }
+
+    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+        LOGGER.debug("get instance for '{}'. {}", key, query);
+        Criteria criteria = getDefaultCriteria(query, clazz);
+        criteria = query.isMatchDomainIds()
+                ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
+        return clazz.cast(criteria.uniqueResult());
     }
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        Criteria criteria = getDefaultCriteria().setProjection(Projections.rowCount());
+        Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
         return ((Long) query.addFilters(criteria, getDatasetProperty())
                             .uniqueResult()).intValue();
     }
@@ -106,14 +118,39 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
 
-    protected Criteria getDefaultCriteria() {
-        return getDefaultCriteria(getDatasetProperty());
+    protected Criteria getDefaultCriteria(DbQuery query) {
+        return getDefaultCriteria((String) null, query);
     }
 
-    protected Criteria getDefaultCriteria(String alias) {
-        return alias == null || alias.isEmpty()
-                ? session.createCriteria(getEntityClass())
-                : session.createCriteria(getEntityClass(), alias);
+    protected Criteria getDefaultCriteria(String alias, DbQuery query) {
+        return getDefaultCriteria(alias, query, getEntityClass());
+    }
+
+    private Criteria getDefaultCriteria(DbQuery query, Class< ? > clazz) {
+        return getDefaultCriteria((String) null, query, clazz);
+    }
+
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+        String nonNullAlias = alias != null
+                ? alias
+                : getDefaultAlias();
+        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(query);
+        return session.createCriteria(clazz, nonNullAlias)
+                      .add(Subqueries.propertyIn("pkid", filter));
+    }
+
+    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
+        return DetachedCriteria.forClass(DatasetEntity.class)
+                               .add(createPublishedDatasetFilter())
+                               .createAlias(getDatasetProperty(), "ref")
+                               .setProjection(Projections.property("ref.pkid"));
+    }
+
+    protected final Conjunction createPublishedDatasetFilter() {
+        return Restrictions.and(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED, true),
+                                Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false),
+                                Restrictions.isNotNull(DatasetEntity.PROPERTY_FIRST_VALUE_AT),
+                                Restrictions.isNotNull(DatasetEntity.PROPERTY_LAST_VALUE_AT));
     }
 
 }

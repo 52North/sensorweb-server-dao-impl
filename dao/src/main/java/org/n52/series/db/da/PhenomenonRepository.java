@@ -29,149 +29,52 @@
 
 package org.n52.series.db.da;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.PhenomenonOutput;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.PhenomenonDao;
-import org.n52.series.spi.search.PhenomenonSearchResult;
+import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.exception.ResourceNotFoundException;
 
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            PhenomenonDao dao = createDao(session);
-            return dao.hasInstance(parseId(id), parameters, PhenomenonEntity.class);
-        } finally {
-            returnSession(session);
-        }
+    protected PhenomenonOutput prepareEmptyParameterOutput(PhenomenonEntity entity) {
+        return new PhenomenonOutput();
     }
 
-    private PhenomenonDao createDao(Session session) {
+    @Override
+    protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
+        return new CategorySearchResult(id, label, baseUrl);
+    }
+
+    @Override
+    protected String createHref(String hrefBase) {
+        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
+    }
+
+    @Override
+    protected AbstractDao<PhenomenonEntity> createDao(Session session) {
         return new PhenomenonDao(session);
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
-        Session session = getSession();
-        try {
-            PhenomenonDao phenomenonDao = createDao(session);
-            DbQuery query = getDbQuery(parameters);
-            List<PhenomenonEntity> found = phenomenonDao.find(query);
-            return convertToSearchResults(found, query);
-        } finally {
-            returnSession(session);
-        }
+    protected SearchableDao<PhenomenonEntity> createSearchableDao(Session session) {
+        return new PhenomenonDao(session);
     }
 
     @Override
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
-        String hrefBase = urlHelper.getPhenomenaHrefBaseUrl(query.getHrefBase());
-        List<SearchResult> results = new ArrayList<>();
-        for (DescribableEntity searchResult : found) {
-            String pkid = searchResult.getPkid()
-                                      .toString();
-            String label = searchResult.getLabelFrom(locale);
-            results.add(new PhenomenonSearchResult(pkid, label, hrefBase));
-        }
-        return results;
-    }
-
-    @Override
-    public List<PhenomenonOutput> getAllCondensed(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllCondensed(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<PhenomenonOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
-        return createCondensed(getAllInstances(parameters, session), parameters);
-    }
-
-    @Override
-    public List<PhenomenonOutput> getAllExpanded(DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getAllExpanded(parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public List<PhenomenonOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        return createExpanded(getAllInstances(parameters, session), parameters);
-    }
-
-    @Override
-    public PhenomenonOutput getInstance(String id, DbQuery parameters) throws DataAccessException {
-        Session session = getSession();
-        try {
-            return getInstance(id, parameters, session);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    @Override
-    public PhenomenonOutput getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        PhenomenonEntity result = getInstance(parseId(id), parameters, session);
-        return createExpanded(result, parameters);
-    }
-
-    private PhenomenonEntity getInstance(Long id, DbQuery parameters, Session session) throws DataAccessException {
-        PhenomenonDao phenomenonDao = createDao(session);
-        PhenomenonEntity result = phenomenonDao.getInstance(id, parameters);
-        if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
-        }
-        return result;
-    }
-
-    private List<PhenomenonEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return createDao(session).getAllInstances(parameters);
-    }
-
-    @Override
-    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery parameters) throws DataAccessException {
-        PhenomenonOutput result = createCondensed(entity, parameters);
+    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery parameters, Session session) {
+        PhenomenonOutput result = createCondensed(entity, parameters, session);
         if (parameters.getHrefBase() != null) {
             result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
         } else {
-            result.setService(getCondensedService(getServiceEntity(entity), parameters));
+            result.setService(getCondensedService(entity.getService(), parameters));
         }
         return result;
     }
 
-    @Override
-    protected PhenomenonOutput createCondensed(PhenomenonEntity entity, DbQuery parameters) {
-        PhenomenonOutput result = new PhenomenonOutput();
-        result.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        result.setId(Long.toString(entity.getPkid()));
-        result.setDomainId(entity.getDomainId());
-        checkForHref(result, parameters);
-        return result;
-    }
-
-    private void checkForHref(PhenomenonOutput result, DbQuery parameters) {
-        if (parameters.getHrefBase() != null) {
-            result.setHrefBase(urlHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
-        }
-    }
 }
