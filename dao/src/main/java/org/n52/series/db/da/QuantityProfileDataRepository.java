@@ -122,7 +122,7 @@ public class QuantityProfileDataRepository
             }
         }
         profile.setValue(dataItems);
-        return profile;
+        return addMetadatasIfNeeded(valueEntity, profile, datasetEntity, query);
     }
 
     @Override
