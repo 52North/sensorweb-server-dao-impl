@@ -267,7 +267,7 @@ public class DbQuery {
         addDetachedFilters(seriesProperty, criteria);
         addPlatformTypeFilter(seriesProperty, criteria);
         addDatasetTypeFilter(seriesProperty, criteria);
-        return addSpatialFilterTo(criteria, this);
+        return addSpatialFilterTo(criteria);
     }
 
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
@@ -287,34 +287,36 @@ public class DbQuery {
                                Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
     }
 
-    public Criteria addSpatialFilterTo(Criteria criteria, DbQuery query) {
-        BoundingBox spatialFilter = parameters.getSpatialFilter();
-        if (spatialFilter != null) {
-            try {
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
+    public Criteria addSpatialFilterTo(Criteria criteria) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
+            BoundingBox spatialFilter = parameters.getSpatialFilter();
+            if (spatialFilter != null) {
+                try {
+                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
-                criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
 
-                // TODO intersect with linestring
-                // XXX do sampling filter only on generated line strings stored in FOI table,
-                // otherwise we would have to check each observation row
-            } catch (FactoryException e) {
-                LOGGER.error("Could not create transformation facilities.", e);
-            } catch (TransformException e) {
-                LOGGER.error("Could not perform transformation.", e);
+                    // TODO intersect with linestring
+                    // XXX do sampling filter only on generated line strings stored in FOI table,
+                    // otherwise we would have to check each observation row
+                } catch (FactoryException e) {
+                    LOGGER.error("Could not create transformation facilities.", e);
+                } catch (TransformException e) {
+                    LOGGER.error("Could not perform transformation.", e);
+                }
             }
-        }
 
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                Type type = getGeometryType(geometryType);
-                if (type != null) {
-                    criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
+            Set<String> geometryTypes = parameters.getGeometryTypes();
+            for (String geometryType : geometryTypes) {
+                if (!geometryType.isEmpty()) {
+                    Type type = getGeometryType(geometryType);
+                    if (type != null) {
+                        criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
+                    }
                 }
             }
         }

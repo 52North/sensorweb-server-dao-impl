@@ -30,7 +30,9 @@
 package org.n52.series.db;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -42,6 +44,7 @@ import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
@@ -56,11 +59,36 @@ public final class DataModelUtil {
                 : Timestamp.class.cast(value);
     }
 
+    public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
+        SessionFactoryImplementor factory = getSessionFactory(session);
+        return hasProperty(property, factory.getClassMetadata(clazz));
+    }
+
+    public static boolean isPropertyNameSupported(String property, Criteria criteria) {
+        SessionFactoryImplementor factory = extractSessionFactory(criteria);
+        CriteriaImpl criteriaImpl = getCriteriaImpl(criteria);
+        if (criteriaImpl == null) {
+            return false;
+        }
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        return hasProperty(property, factory.getClassMetadata(entityOrClassName));
+    }
+
+    private static boolean hasProperty(String property, ClassMetadata metadata) {
+        List<String> properties = Arrays.asList(metadata.getPropertyNames());
+        return properties.contains(property);
+    }
+
     public static boolean isNamedQuerySupported(String namedQuery, Session session) {
-        NamedQueryDefinition namedQueryDef = ((SessionImpl) session).getSessionFactory().getNamedQuery(namedQuery);
+        SessionFactoryImplementor factory = getSessionFactory(session);
+        NamedQueryDefinition namedQueryDef = factory.getNamedQuery(namedQuery);
         NamedSQLQueryDefinition namedSQLQueryDef =
-                ((SessionImpl) session).getSessionFactory().getNamedSQLQuery(namedQuery);
+                factory.getNamedSQLQuery(namedQuery);
         return namedQueryDef != null || namedSQLQueryDef != null;
+    }
+
+    private static SessionFactoryImplementor getSessionFactory(Session session) {
+        return ((SessionImpl) session).getSessionFactory();
     }
 
     public static String getSqlString(Criteria criteria) {
@@ -111,5 +139,15 @@ public final class DataModelUtil {
             session = temp.getSession();
         }
         return session;
+    }
+
+    private static CriteriaImpl getCriteriaImpl(Criteria criteria) {
+        if (criteria instanceof CriteriaImpl.Subcriteria) {
+            return (CriteriaImpl) ((CriteriaImpl.Subcriteria) criteria).getParent();
+        }
+        if (criteria instanceof CriteriaImpl) {
+            return (CriteriaImpl) criteria;
+        }
+        return null;
     }
 }
