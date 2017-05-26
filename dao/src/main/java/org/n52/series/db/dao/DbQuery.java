@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
+import org.hibernate.criterion.Order;
 
 public class DbQuery {
 
@@ -267,6 +268,10 @@ public class DbQuery {
         addDetachedFilters(seriesProperty, criteria);
         addPlatformTypeFilter(seriesProperty, criteria);
         addDatasetTypeFilter(seriesProperty, criteria);
+        
+        //TODO(specki): sinnvoller ordern?
+        // Always order ascending independent of presence of paging params?
+        criteria.addOrder(Order.asc(PROPERTY_PKID));
         return addSpatialFilterTo(criteria);
     }
 
