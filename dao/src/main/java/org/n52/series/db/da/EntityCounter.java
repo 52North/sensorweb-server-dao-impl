@@ -45,6 +45,7 @@ import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
+import org.n52.series.db.dao.ServiceDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -75,6 +76,15 @@ public class EntityCounter {
         Session session = sessionStore.getSession();
         try {
             return getCount(new ProcedureDao(session), query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
+    }
+    
+    public Integer countServices(DbQuery query) throws DataAccessException {
+        Session session = sessionStore.getSession();
+        try {
+            return getCount(new ServiceDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
