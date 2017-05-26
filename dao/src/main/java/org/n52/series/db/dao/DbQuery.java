@@ -254,6 +254,9 @@ public class DbQuery {
     }
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
+        // Add ordering independent of Paging
+        criteria.addOrder(Order.asc(PROPERTY_PKID));
+
         if (getParameters().containsParameter(Parameters.OFFSET)) {
             criteria.setFirstResult(getParameters().getOffset());
         }
@@ -268,10 +271,6 @@ public class DbQuery {
         addDetachedFilters(seriesProperty, criteria);
         addPlatformTypeFilter(seriesProperty, criteria);
         addDatasetTypeFilter(seriesProperty, criteria);
-        
-        //TODO(specki): sinnvoller ordern?
-        // Always order ascending independent of presence of paging params?
-        criteria.addOrder(Order.asc(PROPERTY_PKID));
         return addSpatialFilterTo(criteria);
     }
 
