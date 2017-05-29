@@ -254,14 +254,13 @@ public class DbQuery {
     }
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
-        // Add ordering independent of Paging
-        criteria.addOrder(Order.asc(PROPERTY_PKID));
-
         if (getParameters().containsParameter(Parameters.OFFSET)) {
             criteria.setFirstResult(getParameters().getOffset());
+            criteria = criteria.addOrder(Order.asc(PROPERTY_PKID));
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
             criteria.setMaxResults(getParameters().getLimit());
+            criteria = criteria.addOrder(Order.asc(PROPERTY_PKID));
         }
         return criteria;
     }
