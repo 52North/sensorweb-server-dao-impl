@@ -28,6 +28,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.n52.series-api</groupId>
+            <artifactId>web-resources</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dao</artifactId>
             <scope>runtime</scope>
@@ -46,6 +51,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -172,6 +182,20 @@
                                 <groupId>org.n52.series-api</groupId>
                                 <artifactId>rest</artifactId>
                                 <includes>api-doc/**</includes>
+                                <outputDirectory>${webappDirectory}</outputDirectory>
+                                <overWrite>false</overWrite>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <includes>docs/**</includes>
+                                <outputDirectory>${webappDirectory}</outputDirectory>
+                                <overWrite>false</overWrite>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <includes>landing/**</includes>
                                 <outputDirectory>${webappDirectory}</outputDirectory>
                                 <overWrite>false</overWrite>
                             </artifactItem>
