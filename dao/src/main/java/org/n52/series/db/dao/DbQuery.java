@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
+import org.hibernate.criterion.Order;
 
 public class DbQuery {
 
@@ -255,9 +256,11 @@ public class DbQuery {
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
             criteria.setFirstResult(getParameters().getOffset());
+            criteria.addOrder(Order.asc(PROPERTY_PKID));
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
             criteria.setMaxResults(getParameters().getLimit());
+            criteria.addOrder(Order.asc(PROPERTY_PKID));
         }
         return criteria;
     }
