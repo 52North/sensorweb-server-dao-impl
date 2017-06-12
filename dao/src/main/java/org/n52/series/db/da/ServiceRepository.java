@@ -201,7 +201,9 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         try {
             ParameterCount quantities = new ServiceOutput.ParameterCount();
             DbQuery serviceQuery = getDbQuery(query.getParameters()
-                                                   .extendWith(IoParameters.SERVICES, service.getId()));
+                                                   .extendWith(IoParameters.SERVICES, service.getId())
+                                                   .removeAllOf("offset")
+                                                   .removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
             quantities.setProceduresSize(counter.countProcedures(serviceQuery));
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
