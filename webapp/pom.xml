@@ -31,6 +31,7 @@
             <groupId>org.n52.series-api</groupId>
             <artifactId>web-resources</artifactId>
             <scope>runtime</scope>
+            <type>war</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -185,20 +186,6 @@
                                 <outputDirectory>${webappDirectory}</outputDirectory>
                                 <overWrite>false</overWrite>
                             </artifactItem>
-                            <artifactItem>
-                                <groupId>org.n52.series-api</groupId>
-                                <artifactId>web-resources</artifactId>
-                                <includes>docs/**</includes>
-                                <outputDirectory>${webappDirectory}</outputDirectory>
-                                <overWrite>false</overWrite>
-                            </artifactItem>
-                            <artifactItem>
-                                <groupId>org.n52.series-api</groupId>
-                                <artifactId>web-resources</artifactId>
-                                <includes>landing/**</includes>
-                                <outputDirectory>${webappDirectory}</outputDirectory>
-                                <overWrite>false</overWrite>
-                            </artifactItem>
                         </artifactItems>
                         <overWriteReleases>false</overWriteReleases>
                     </configuration>
@@ -209,6 +196,9 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
+                        <filters>
+                            <filter>src/main/resources/application.properties</filter>
+                        </filters>
                         <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                         <webappDirectory>${webappDirectory}</webappDirectory>
                         <webResources>
@@ -217,6 +207,13 @@
                                 <filtering>true</filtering>
                             </resource>
                         </webResources>
+                        <overlays>
+                            <overlay>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <filtered>true</filtered>
+                            </overlay>
+                        </overlays>
                     </configuration>
                 </plugin>
 
