@@ -336,15 +336,15 @@ public class DbQuery {
     public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
         Set<String> features = parameters.getFeatures();
-        Set<String> procedure = parameters.getProcedures();
+        Set<String> procedures = parameters.getProcedures();
 
         if (hasValues(parameters.getPlatforms())) {
             features.addAll(getStationaryIds(parameters.getPlatforms()));
-            procedure.addAll(getMobileIds(parameters.getPlatforms()));
+            procedures.addAll(getMobileIds(parameters.getPlatforms()));
         }
 
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedure, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
         addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
         addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
