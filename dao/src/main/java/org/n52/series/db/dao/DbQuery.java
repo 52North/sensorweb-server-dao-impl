@@ -256,8 +256,9 @@ public class DbQuery {
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = ((getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit():DEFAULT_LIMIT);
-            limit = (limit > 1)?limit:DEFAULT_LIMIT;
+            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
+                                                                              : DEFAULT_LIMIT;
+            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
