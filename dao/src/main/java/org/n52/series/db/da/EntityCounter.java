@@ -42,6 +42,7 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
+import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
@@ -67,8 +68,12 @@ public class EntityCounter {
     }
 
     public Integer countOfferings(DbQuery query) throws DataAccessException {
-        // offerings equals procedures in our case
-        return countProcedures(query);
+        Session session = sessionStore.getSession();
+        try {
+            return getCount(new OfferingDao(session), query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
     }
 
     public Integer countProcedures(DbQuery query) throws DataAccessException {

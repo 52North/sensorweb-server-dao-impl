@@ -14,6 +14,7 @@
 - more consistent filter handling
 
 ### Features
+- [#129](https://github.com/52North/series-rest-api/issues/129) Implement Paging for DAO SPI implemenation
 - [#232](https://github.com/52North/series-rest-api/issues/232) possibility to use `domainId` instead of database id
 - [#251](https://github.com/52North/series-rest-api/issues/251) allow offering to be full qualified parameter
 - [#266](https://github.com/52North/series-rest-api/issues/266) observations having time intervals
