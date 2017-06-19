@@ -17,6 +17,7 @@
         <postgresql.version>9.4.1208.jre7</postgresql.version>
         
         <finalName>${project.artifactId}</finalName>
+        <docs.workdir>${project.build.directory}/docs-sources</docs.workdir>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
         <config.logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</config.logger.fileappender.filepath>
     </properties>
@@ -165,23 +166,6 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <configuration>
-                        <artifactItems>
-                            <artifactItem>
-                                <groupId>org.n52.series-api</groupId>
-                                <artifactId>rest</artifactId>
-                                <includes>api-doc/**</includes>
-                                <outputDirectory>${webappDirectory}</outputDirectory>
-                                <overWrite>false</overWrite>
-                            </artifactItem>
-                        </artifactItems>
-                        <overWriteReleases>false</overWriteReleases>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -228,4 +212,330 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+        <profile>
+            <id>jekyll-docs</id>
+
+            <activation>
+                <os>
+                    <family>!windows</family>
+                </os>
+            </activation>
+
+            <repositories>
+                <!--Repository for ruby (Jekyll) gems-->
+                <repository>
+                    <id>rubygems-proxy</id>
+                    <name>Rubygems Proxy</name>
+                    <url>http://rubygems-proxy.torquebox.org/releases</url>
+                    <layout>default</layout>
+                </repository>
+            </repositories>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.n52.series-api</groupId>
+                    <artifactId>web-resources</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll</artifactId>
+                    <version>3.1.2</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sitemap</artifactId>
+                    <version>1.1.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>liquid</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>kramdown</artifactId>
+                    <version>1.10.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>mercenary</artifactId>
+                    <version>0.3.5</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>safe_yaml</artifactId>
+                    <version>1.0.4</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>colorator</artifactId>
+                    <version>0.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>rouge</artifactId>
+                    <version>1.10.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sass-converter</artifactId>
+                    <version>1.4.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>sass</artifactId>
+                    <version>3.4.22</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>listen</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-watch</artifactId>
+                    <version>1.3.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>rb-fsevent</artifactId>
+                    <version>0.9.7</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>rb-inotify</artifactId>
+                    <version>0.9.7</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>ffi</artifactId>
+                    <version>1.9.10</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid-essentials</artifactId>
+                    <version>0.20.5</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid-supervision</artifactId>
+                    <version>0.20.5</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>bundler</artifactId>
+                    <version>1.11.2</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/docs</directory>
+                        <targetPath>${project.build.directory}/docs-sources/docs</targetPath>
+                    </resource>
+                </resources>
+                
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-docs-sources</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <!--Allow a definition of the gem repo-->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <configuration>
+                            <requireNoRepositories>
+                                <allowedRepositories>
+                                    <id>rubygems-proxy</id>
+                                </allowedRepositories>
+                            </requireNoRepositories>
+                        </configuration>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>de.saumya.mojo</groupId>
+                        <artifactId>gem-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-documentation</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                    <execArgs>build --trace --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <!-- assemble licenses -->
+                            <groupId>org.jasig.maven</groupId>
+                            <artifactId>maven-notice-plugin</artifactId>
+                            <configuration>
+                                <noticeTemplate>etc/NOTICE.template</noticeTemplate>
+                                <licenseMapping>
+                                    <param>etc/license-mappings.xml</param>
+                                    <param>../etc/license-mappings.xml</param>
+        <!--                             <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param> -->
+                                </licenseMapping>
+                                <generateChildNotices>false</generateChildNotices>
+                            </configuration>
+                        </plugin>
+                        
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>org.n52.series-api</groupId>
+                                        <artifactId>web-resources</artifactId>
+                                        <includes>docs/**</includes>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${docs.workdir}</outputDirectory>
+                                    </artifactItem>
+                                </artifactItems>
+                                <overWriteReleases>false</overWriteReleases>
+                            </configuration>
+                        </plugin>
+                        
+                        <plugin>
+                            <groupId>de.saumya.mojo</groupId>
+                            <artifactId>gem-maven-plugin</artifactId>
+                            <version>1.1.5</version>
+                            <configuration>
+                                <supportNative>true</supportNative>
+                                <jrubyVersion>9.0.5.0</jrubyVersion>
+                                <addProjectClasspath>true</addProjectClasspath>
+                                <jrubyVerbose>false</jrubyVerbose>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
+                                    <id>jekyll-serve</id>
+                                    <phase>compile</phase>
+                                    <goals>
+                                        <goal>exec</goal>
+                                    </goals>
+                                    <configuration>
+                                        <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                        <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>docs-serve</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.n52.series-api</groupId>
+                    <artifactId>web-resources</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/docs</directory>
+                        <targetPath>${project.build.directory}/docs-sources/docs</targetPath>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>de.saumya.mojo</groupId>
+                        <artifactId>gem-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
+                                <id>jekyll-serve</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                    <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
+    
