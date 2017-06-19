@@ -145,19 +145,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
             </plugin>
         </plugins>
@@ -220,6 +207,9 @@
                 <os>
                     <family>!windows</family>
                 </os>
+                <property>
+                    <name>docs</name>
+                </property>
             </activation>
 
             <repositories>
@@ -480,8 +470,7 @@
                             <executions>
                                 <execution>
                                     <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
-                                    <id>jekyll-serve</id>
-                                    <phase>compile</phase>
+                                    <phase>none</phase>
                                     <goals>
                                         <goal>exec</goal>
                                     </goals>
@@ -492,48 +481,8 @@
                                 </execution>
                             </executions>
                         </plugin>
-                        
                     </plugins>
                 </pluginManagement>
-            </build>
-        </profile>
-        
-        <profile>
-            <id>docs-serve</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.n52.series-api</groupId>
-                    <artifactId>web-resources</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/docs</directory>
-                        <targetPath>${project.build.directory}/docs-sources/docs</targetPath>
-                    </resource>
-                </resources>
-                <plugins>
-                    <plugin>
-                        <groupId>de.saumya.mojo</groupId>
-                        <artifactId>gem-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
-                                <id>jekyll-serve</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
     </profiles>
