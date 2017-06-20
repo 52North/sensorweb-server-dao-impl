@@ -29,6 +29,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.n52.series-api</groupId>
+            <artifactId>web-resources</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dao</artifactId>
             <scope>runtime</scope>
@@ -153,6 +158,23 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <includes>static/**</includes>
+                                <overWrite>false</overWrite>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                        <overWriteReleases>false</overWriteReleases>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -201,7 +223,7 @@
 
     <profiles>
         <profile>
-            <id>jekyll-docs</id>
+            <id>with-docs</id>
 
             <activation>
                 <os>
@@ -224,14 +246,9 @@
 
             <dependencies>
                 <dependency>
-                    <groupId>org.n52.series-api</groupId>
-                    <artifactId>web-resources</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.5.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
@@ -257,7 +274,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>liquid</artifactId>
-                    <version>3.0.6</version>
+                    <version>4.0.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -285,7 +302,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>colorator</artifactId>
-                    <version>0.1</version>
+                    <version>1.1.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -378,6 +395,20 @@
                 
                 <plugins>
                     <plugin>
+                        <!-- assemble licenses -->
+                        <groupId>org.jasig.maven</groupId>
+                        <artifactId>maven-notice-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
@@ -430,13 +461,11 @@
                             <groupId>org.jasig.maven</groupId>
                             <artifactId>maven-notice-plugin</artifactId>
                             <configuration>
-                                <noticeTemplate>etc/NOTICE.template</noticeTemplate>
                                 <licenseMapping>
                                     <param>etc/license-mappings.xml</param>
-                                    <param>../etc/license-mappings.xml</param>
-        <!--                             <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param> -->
+                                    <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
                                 </licenseMapping>
-                                <generateChildNotices>false</generateChildNotices>
+                                <generateChildNotices>true</generateChildNotices>
                             </configuration>
                         </plugin>
                         

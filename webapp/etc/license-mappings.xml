@@ -25,7 +25,7 @@
         <!-- http://www.rubydoc.info/gems/colorator/0.1#License -->
         <groupId>rubygems</groupId>
         <artifactId>colorator</artifactId>
-        <version>0.1</version>
+        <version>1.1.0</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -47,7 +47,7 @@
         <!-- https://github.com/jekyll/jekyll/blob/v3.4.3/LICENSE -->
         <groupId>rubygems</groupId>
         <artifactId>jekyll</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.0</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -80,10 +80,38 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
-        <!-- https://github.com/Shopify/liquid/blob/3-0-stable/MIT-LICENSE -->
+        <!-- https://github.com/Shopify/liquid/blob/v4.0.0/LICENSE -->
         <groupId>rubygems</groupId>
         <artifactId>liquid</artifactId>
-        <version>3.0.6</version>
+        <version>4.0.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/sporkmonger/addressable/blob/addressable-2.5.1/LICENSE.txt -->
+        <groupId>rubygems</groupId>
+        <artifactId>addressable</artifactId>
+        <version>2.5.1</version>
+        <license>Apache License 2.0</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/envygeeks/pathutil/blob/v0.14.0/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>pathutil</artifactId>
+        <version>0.14.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/envygeeks/forwardable-extended/blob/v2.6.0/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>forwardable-extended</artifactId>
+        <version>2.6.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- http://www.rubydoc.info/gems/public_suffix/2.0.5#License -->
+        <groupId>rubygems</groupId>
+        <artifactId>public_suffix</artifactId>
+        <version>2.0.5</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -119,7 +147,7 @@
         <groupId>rubygems</groupId>
         <artifactId>rouge</artifactId>
         <version>1.10.1</version>
-        <license>MIT License (with copyright/author notice of pygments)</license>
+        <license>MIT License</license>
     </artifact>
     <artifact>
         <!-- https://github.com/dtao/safe_yaml/blob/1.0.4/LICENSE.txt -->

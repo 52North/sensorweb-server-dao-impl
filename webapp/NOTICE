@@ -4,10 +4,14 @@ Licensed under GNU General Public License, Version 2.0
 
 This project includes: 
   52North Sensor Web Client PDF report structure under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  52°North SOS - Hibernate Session Factory under GPLv2
-  52°North SOS - SOS API Module under GPLv2
-  52°North Third Party - NCName resolver under BSD 2-clause "Simplified" or "FreeBSD"
-                License
+  A basic Sass converter for Jekyll. under MIT License
+  A fast, high resolution timer library for recording peformance metrics. under ISC License
+  A powerful but elegant CSS compiler that makes CSS fun again. under MIT License
+  A pure-ruby colorizer based on pygments under MIT License (with copyright/author notice of pygments)
+  A Ruby wrapper for Linux's inotify, using FFI under MIT License
+  A secure, non-evaling end user template engine with aesthetic markup. under MIT License
+  A simple, blog aware, static site generator. under MIT License
+  Almost like Pathname but just a little less insane. under MIT License
   AntLR Parser Generator under BSD License
   AOP alliance under Public Domain
   Apache Commons Codec under Apache License, Version 2.0
@@ -18,6 +22,7 @@ This project includes:
   API interfaces under GNU Lesser General Public License (LGPL) version 2.1
   AspectJ tools under Eclipse Public License - v 1.0
   AspectJ weaver under Eclipse Public License - v 1.0
+  Automatically generate a sitemap.xml for your Jekyll site. under MIT License
   Avalon Framework API under The Apache Software License, Version 2.0
   Avalon Framework Implementation under The Apache Software License, Version 2.0
   Batik animation engine under The Apache Software License, Version 2.0
@@ -36,23 +41,22 @@ This project includes:
   Batik utility library under The Apache Software License, Version 2.0
   Batik XML utility library under The Apache Software License, Version 2.0
   c3p0:JDBC DataSources/Resource Pools under GNU LESSER GENERAL PUBLIC LICENSE
-  ClassLoader leak prevention under Apache 2
-  Commons Lang under The Apache Software License, Version 2.0
+  Celluloid Supervision under MIT License
+  Colorize your text in the terminal. under MIT License
   Commons Pool under The Apache Software License, Version 2.0
   Core Hibernate O/RM functionality under GNU Lesser General Public License
   CORS Filter under The Apache Software License, Version 2.0
   dom4j under DOM4J license, http://dom4j.sourceforge.net/dom4j-1.6.1/license.html (BSD style)
+  Domain name parser based on the Public Suffix List. under MIT License
   Ehcache Core under The Apache Software License, Version 2.0
   EJML under The Apache Software License, Version 2.0
   EPSG Authority Service using HSQL database under GNU Lesser General Public License (LGPL) version 2.1
-  Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
-  Hamcrest All under New BSD License
-  Hamcrest Core under New BSD License
+  Forwardable with hash, and instance variable extensions. under MIT License
   Hibernate Commons Annotations under GNU Lesser General Public License
   hibernate-spatial under GNU Lesser General Public License (LGPL) version 2.1
-  Hibernate/c3p0 Integration under GNU Lesser General Public License
   Hibernate/Ehcache Integration under GNU Lesser General Public License
   HyperSQL Database under HSQLDB License, a BSD open source license
+  Internally used tools, and superstructural dependencies of Celluloid under MIT License
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
@@ -71,7 +75,9 @@ This project includes:
   Joda-Time under Apache 2
   jsr-275 under BSD License
   JTS Topology Suite under Lesser General Public License (LGPL)
-  JUnit under Eclipse Public License 1.0
+  kramdown is a fast, pure-Ruby Markdown-superset converter. under MIT License
+  Lightweight and flexible library for writing command-line apps in Ruby. under MIT License
+  Listen to file modifications under MIT License
   Log4j Implemented Over SLF4J under Apache Software Licenses
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
@@ -79,16 +85,17 @@ This project includes:
   Open GIS Interfaces under GNU Lesser General Public License (LGPL) version 2.1
   Postgis JDBC Driver under GNU Lesser General Public License
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
+  Pure Ruby one-shot and periodic timers under MIT License
   Quartz Enterprise Job Scheduler under Apache 2.0
+  Rebuild your Jekyll site when a file changes with the `--watch` switch. under MIT License
   Referencing services under GNU Lesser General Public License (LGPL) version 2.1
-  Reflections under WTFPL
-  Series DAO REST API under GNU General Public License, Version 2.0
+  Ruby FFI under BSD License
+  SameYAML provides an alternative implementation of YAML.load suitable for accepting user input in Ruby applications. under MIT License
   Series REST API - DAO Mappings module under GNU General Public License, Version 2.0
   Series REST API - DAO module under GNU General Public License, Version 2.0
   Series REST API - DAO Webapp under GNU General Public License, Version 2.0
   Series REST API - IO module under GNU General Public License, Version 2.0
   Series REST API - REST module under GNU General Public License, Version 2.0
-  Series REST API - SOS DAO module under GNU General Public License, Version 2.0
   Series REST API - SPI module under GNU General Public License, Version 2.0
   Series REST API - Web Resources under GNU General Public License, Version 2.0
   SLF4J API Module under MIT License
@@ -106,7 +113,9 @@ This project includes:
   Spring Web under The Apache Software License, Version 2.0
   Spring Web MVC under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
-  vecmath under GPL 2.0 license w/ CPE
+  The best way to manage your application's dependencies under MIT License
+  URI Implementation under Apache License 2.0
+  Very simple & usable FSEvents API under MIT License
   xalan under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
