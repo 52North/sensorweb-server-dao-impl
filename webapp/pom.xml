@@ -12,12 +12,20 @@
     <description>RESTful Sensor Web Client API as template Web application.</description>
 
     <properties>
+    
+        <!-- optional properties file -->
+<!--         <local.configFile>file:${user.home}/${project.build.finalName}.properties</local.configFile> -->
+        <local.configFile>src/main/resources/application.properties</local.configFile>
+    
         <postgis.version>2.2.0</postgis.version>
         <aspectj.version>1.8.9</aspectj.version>
         <postgresql.version>9.4.1208.jre7</postgresql.version>
         
+        <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
+        <docs.workdir>${webapp.workdir}/docs-sources</docs.workdir>
+        <docs.context>docs</docs.context>
+        
         <finalName>${project.artifactId}</finalName>
-        <docs.workdir>${project.build.directory}/docs-sources</docs.workdir>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
         <config.logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</config.logger.fileappender.filepath>
     </properties>
@@ -145,8 +153,26 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        
+        <filters>
+            <filter>${local.configFile}</filter>
+        </filters>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-docs-sources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -165,10 +191,9 @@
                                 <artifactId>web-resources</artifactId>
                                 <includes>static/**</includes>
                                 <overWrite>false</overWrite>
-                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                <outputDirectory>${webapp.workdir}</outputDirectory>
                             </artifactItem>
                         </artifactItems>
-                        <overWriteReleases>false</overWriteReleases>
                     </configuration>
                 </plugin>
                 
@@ -184,6 +209,14 @@
                                 <directory>src/main/webapp</directory>
                                 <filtering>true</filtering>
                             </resource>
+                            <resource>
+                                <directory>${webapp.workdir}</directory>
+                                <filtering>true</filtering>
+                                <excludes>
+                                    <!-- exlude processed source files -->
+                                    <exclude>docs-sources/**</exclude>
+                                </excludes>
+                            </resource>
                         </webResources>
                     </configuration>
                 </plugin>
@@ -197,16 +230,18 @@
                         <scanIntervalSeconds>0</scanIntervalSeconds>
                         <reload>manual</reload>
                         <webAppConfig>
+                            <resourceBases>
+                                <resourceBase>src/main/webapp</resourceBase>
+                                <resourceBase>${webappDirectory}</resourceBase>
+                            </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../series-dao/target/classes;../../io/target/classes;../../rest/target/classes;</extraClasspath>
+                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../dao/target/classes</extraClasspath>
                         </webAppConfig>
                         <scanTargets>
                             <scanTarget>/target/classes/</scanTarget>
                             <scanTarget>${project.build.outputDirectory}</scanTarget>
-                            <scanTarget>../series-dao/target/classes</scanTarget>
-                            <scanTarget>../../../io/target/classes</scanTarget>
-                            <scanTarget>../../../rest/target/classes</scanTarget>
+                            <scanTarget>../dao/target/classes</scanTarget>
                         </scanTargets>
                         <systemProperties>
                             <systemProperty>
@@ -388,7 +423,7 @@
                 <resources>
                     <resource>
                         <directory>src/main/docs</directory>
-                        <targetPath>${project.build.directory}/docs-sources/docs</targetPath>
+                        <targetPath>${docs.workdir}/${docs.context}</targetPath>
                     </resource>
                 </resources>
                 
@@ -446,7 +481,7 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>build --trace --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                    <execArgs>build --trace --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -458,7 +493,7 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                    <execArgs>serve --trace --incremental --watch --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
                                 </configuration>
                             </execution>
                         </executions>
@@ -492,8 +527,14 @@
                                         <overWrite>false</overWrite>
                                         <outputDirectory>${docs.workdir}</outputDirectory>
                                     </artifactItem>
+                                    <artifactItem>
+                                        <groupId>org.n52.series-api</groupId>
+                                        <artifactId>web-resources</artifactId>
+                                        <includes>static/**</includes>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${webapp.workdir}</outputDirectory>
+                                    </artifactItem>
                                 </artifactItems>
-                                <overWriteReleases>false</overWriteReleases>
                             </configuration>
                         </plugin>
                         
