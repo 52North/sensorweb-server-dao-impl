@@ -28,6 +28,12 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.n52.series-api</groupId>
+            <artifactId>web-resources</artifactId>
+            <scope>runtime</scope>
+            <type>war</type>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dao</artifactId>
             <scope>runtime</scope>
@@ -46,6 +52,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -185,6 +196,9 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
+                        <filters>
+                            <filter>src/main/resources/application.properties</filter>
+                        </filters>
                         <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                         <webappDirectory>${webappDirectory}</webappDirectory>
                         <webResources>
@@ -193,6 +207,13 @@
                                 <filtering>true</filtering>
                             </resource>
                         </webResources>
+                        <overlays>
+                            <overlay>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <filtered>true</filtered>
+                            </overlay>
+                        </overlays>
                     </configuration>
                 </plugin>
 
