@@ -481,7 +481,7 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>build --trace --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
+                                    <execArgs>build --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
                                 </configuration>
                             </execution>
                             <execution>
