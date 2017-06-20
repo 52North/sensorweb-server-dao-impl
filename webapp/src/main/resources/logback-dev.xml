@@ -12,8 +12,10 @@
 
     <logger name="org.n52" level="DEBUG" />
 
-    <logger name="org.geotools" level="WARN" />
     <logger name="org.apache" level="WARN" />
+    <logger name="org.geotools" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+<!--     <logger name="org.springframework" level="INFO" /> -->
 
     <logger name="com.sun.xml" level="ERROR" />
     <logger name="org.geotools" level="WARN" />
