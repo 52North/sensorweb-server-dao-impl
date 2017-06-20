@@ -7,7 +7,7 @@ This project includes:
   A basic Sass converter for Jekyll. under MIT License
   A fast, high resolution timer library for recording peformance metrics. under ISC License
   A powerful but elegant CSS compiler that makes CSS fun again. under MIT License
-  A pure-ruby colorizer based on pygments under MIT License (with copyright/author notice of pygments)
+  A pure-ruby colorizer based on pygments under MIT License
   A Ruby wrapper for Linux's inotify, using FFI under MIT License
   A secure, non-evaling end user template engine with aesthetic markup. under MIT License
   A simple, blog aware, static site generator. under MIT License

@@ -450,6 +450,18 @@
                                     <execArgs>build --trace --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
+                                <id>jekyll-serve</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                    <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
@@ -496,19 +508,6 @@
                                 <addProjectClasspath>true</addProjectClasspath>
                                 <jrubyVerbose>false</jrubyVerbose>
                             </configuration>
-                            <executions>
-                                <execution>
-                                    <!-- run me with: mvn gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
-                                    <phase>none</phase>
-                                    <goals>
-                                        <goal>exec</goal>
-                                    </goals>
-                                    <configuration>
-                                        <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                        <execArgs>serve --trace --incremental --watch --baseurl /docs --source ${docs.workdir}/docs --destination ${webappDirectory}/static/docs</execArgs>
-                                    </configuration>
-                                </execution>
-                            </executions>
                         </plugin>
                     </plugins>
                 </pluginManagement>
