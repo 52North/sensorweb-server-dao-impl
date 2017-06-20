@@ -22,8 +22,6 @@
         <postgresql.version>9.4.1208.jre7</postgresql.version>
         
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
-        <docs.workdir>${webapp.workdir}/docs-sources</docs.workdir>
-        <docs.context>docs</docs.context>
         
         <finalName>${project.artifactId}</finalName>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
@@ -231,8 +229,8 @@
                         <reload>manual</reload>
                         <webAppConfig>
                             <resourceBases>
-                                <resourceBase>src/main/webapp</resourceBase>
                                 <resourceBase>${webappDirectory}</resourceBase>
+                                <resourceBase>src/main/webapp</resourceBase>
                             </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
@@ -267,6 +265,12 @@
                     <name>docs</name>
                 </property>
             </activation>
+            
+            <properties>
+                <docs.context>docs</docs.context>
+                <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
+                <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
+            </properties>
 
             <repositories>
                 <!--Repository for ruby (Jekyll) gems-->
@@ -423,7 +427,10 @@
                 <resources>
                     <resource>
                         <directory>src/main/docs</directory>
-                        <targetPath>${docs.workdir}/${docs.context}</targetPath>
+                        <!-- match the unpacked docs folder -->
+                        <targetPath>${docs.sources.directory}/docs</targetPath>
+                        <!-- gets filtered after docs generation -->
+                        <filtering>false</filtering>
                     </resource>
                 </resources>
                 
@@ -441,7 +448,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
@@ -481,7 +488,7 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>build --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
+                                    <execArgs>build --baseurl /${docs.context} --source ${docs.sources.directory}/docs --destination ${docs.output.directory}</execArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -493,7 +500,7 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>serve --trace --incremental --watch --baseurl /${docs.context} --source ${docs.workdir}/${docs.context} --destination ${webappDirectory}/static/${docs.context}</execArgs>
+                                    <execArgs>serve --trace --incremental --watch --baseurl /${docs.context} --source ${docs.sources.directory}/docs --destination ${docs.output.directory}</execArgs>
                                 </configuration>
                             </execution>
                         </executions>
@@ -524,8 +531,9 @@
                                         <groupId>org.n52.series-api</groupId>
                                         <artifactId>web-resources</artifactId>
                                         <includes>docs/**</includes>
+                                        <excludes>docs/_config.yml</excludes>
                                         <overWrite>false</overWrite>
-                                        <outputDirectory>${docs.workdir}</outputDirectory>
+                                        <outputDirectory>${docs.sources.directory}</outputDirectory>
                                     </artifactItem>
                                     <artifactItem>
                                         <groupId>org.n52.series-api</groupId>
