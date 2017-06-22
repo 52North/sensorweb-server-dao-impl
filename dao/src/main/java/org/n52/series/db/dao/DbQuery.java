@@ -80,6 +80,8 @@ public class DbQuery {
 
     private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity.geometry";
 
+    private static final int DEFAULT_LIMIT = 10000;
+
     private IoParameters parameters = IoParameters.createDefaults();
 
     private String databaseSridCode = "EPSG:4326";
@@ -254,7 +256,10 @@ public class DbQuery {
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            criteria.setFirstResult(getParameters().getOffset());
+            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
+                                                                              : DEFAULT_LIMIT;
+            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
+            criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
             criteria.setMaxResults(getParameters().getLimit());
