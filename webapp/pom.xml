@@ -516,7 +516,7 @@
                             <artifactId>maven-notice-plugin</artifactId>
                             <configuration>
                                 <licenseMapping>
-                                    <param>etc/license-mappings.xml</param>
+                                    <param>../etc/license-mappings.xml</param>
                                     <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
                                 </licenseMapping>
                                 <generateChildNotices>true</generateChildNotices>
