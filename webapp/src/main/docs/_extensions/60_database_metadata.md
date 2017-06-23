@@ -37,3 +37,27 @@ series.database.mappings=\
 
 {:.n52-callout .n52-callout-todo}
 `json` metadata is not serialized properly at the moment. 
+
+#### Configuration
+
+Enabling extension is being done via adding extension module to `metadataExtension` list
+of the `DatasetController`. No further properties are needed.
+
+{::options parse_block_html="true" /}
+{: .n52-example-block}
+<div>
+<div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
+Enable extension on `DatasetController`
+</div>
+```xml
+<bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
+    <property name="parameterService" ref="datasetService" />
+    <property name="metadataExtensions">
+        <list merge="true">
+            <!-- Using DatabaseMetadataExtension requires some preparation work. -->
+            <bean class="org.n52.io.extension.metadata.DatabaseMetadataExtension" />
+        </list>
+    </property>
+</bean>
+```
+</div>
