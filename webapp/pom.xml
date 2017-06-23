@@ -482,7 +482,7 @@
                         <artifactId>gem-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>generate-documentation</id>
+                                <id>jekyll-build</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>exec</goal>
