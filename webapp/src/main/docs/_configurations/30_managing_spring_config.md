@@ -24,11 +24,9 @@ from there, otherwise properties are read from default `WEB-INF/classes/applicat
 A property replacement config example
 </div>
 ```xml
-<ctx:property-placeholder 
-    <!-- ${user.home}/application.properties} when -Dlocal.configFile not defined -->
-    location="${local.configFile:classpath:/application.properties}"
-    ignore-resource-not-found="true" ignore-unresolvable="true" />
-```
+    <ctx:property-placeholder location="${local.configFile:classpath:/application.properties}"
+        ignore-resource-not-found="false" ignore-unresolvable="false" />
+``` 
 </div>
 
 A placeholder can now be declared within Spring XML files via `${placeholder:default}`.
