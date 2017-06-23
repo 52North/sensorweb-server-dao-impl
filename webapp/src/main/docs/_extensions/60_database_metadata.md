@@ -4,7 +4,7 @@ title: Database Metadata Extension
 permalink: /extensions/database_metadata
 ---
 
-### Database metadata
+### Database Metadata
 
 Next to the actual phenomenon time observation data may have a `resultTime` which 
 indicates when the data became available. An example for such cases is forecast data

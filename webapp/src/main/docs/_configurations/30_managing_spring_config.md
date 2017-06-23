@@ -3,9 +3,12 @@ layout: section
 title: Manage Spring Configuration
 ---
 
-#### Managing Configuration
+### Managing Configuration
 
-##### Separate Properties
+Spring configuration is done via xml files laying under `WEB-INF/spring/` directory. 
+This section gives some notes how Spring configuration is being managed.
+
+#### Separate Properties
 It is helpful to separate all properties values from XML configuration for several
 reasons. First, it may be tedious to find all single properties within verbose XML. 
 However, more it also very important to keep sensitive information (like database
@@ -33,7 +36,7 @@ If present in the application properties file (your one or the default) it will 
 replaced, otherwise the given default will be used.
 
 
-##### Separate Configuration Sections
+#### Separate Configuration Sections
 
 To keep overview we can separate parts of the configuration files and include them
 via file import, e.g. `<import resource="mvc.xml" />`.

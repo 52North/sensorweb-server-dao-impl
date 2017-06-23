@@ -3,12 +3,12 @@ layout: section
 title: Dispatcher Configuration
 ---
 
-#### Configuring Web Layer
+### Web Layer
 The Web Layer can be configured by Spring MVC controllers served by a dispatcher servlet 
 (configured in `web.xml`). Configuration includes content negotiation, serialization config, 
 and Web controller injections.
 
-##### Dispatcher Servlet
+#### Dispatcher Servlet
 
 This describes an example configuration via Spring. There are lots of variants and 
 alternatives which may end in the same result. This example splits Spring configuration 
@@ -44,7 +44,7 @@ Example configuration of the dispatcher servlet.
 ```
 </div>
 
-##### Content Negotiation
+#### Content Negotiation
 To support proper content negotiation and JSON serialization the following should be 
 added to the `/WEB-INF/spring/dispatcher-servlet.xml`:
 
@@ -83,7 +83,7 @@ Content negotiation example
 ```
 </div>
 
-##### Web Controller injections
+#### Web Controller injections
 A Web controller serves an endpoint and behaves like described in the [Web API]({{site.baseurl}}/api.html). It 
 performs [I/O operations]({{site.baseurl}}/io.html) (graph rendering, generalization, etc.) if neccessary.
 
@@ -227,7 +227,7 @@ an extra application properties file
 
 </div>
 
-##### General Properties
+#### General Properties
 Configurable properties are 
 
 * `requestIntervalRestriction`: sets the maximum time period a clients can query data for, e.g. `P380D`
