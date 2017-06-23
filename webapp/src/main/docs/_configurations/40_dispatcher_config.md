@@ -143,52 +143,6 @@ Example how to configure Web MVC controllers
     </property>
 </bean>
 
-<bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
-    <property name="parameterService">
-        <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-            <constructor-arg index="0" ref="categoryParameterService" />
-        </bean>
-    </property>
-</bean>
-
-<bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
-    <property name="parameterService">
-        <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-            <constructor-arg index="0" ref="featureParameterService" />
-        </bean>
-    </property>
-</bean>
-
-<bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
-    <property name="parameterService">
-        <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-            <constructor-arg index="0" ref="procedureParameterService" />
-        </bean>
-    </property>
-</bean>
-
-<bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
-    <property name="parameterService">
-        <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-            <constructor-arg index="0" ref="phenomenonParameterService" />
-        </bean>
-    </property>
-</bean>
-
-<bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
-    <property name="parameterService" ref="platformParameterService" />
-    <property name="metadataExtensions">
-        <list merge="true">
-            <bean class="org.n52.io.extension.parents.HierarchicalParameterExtension">
-                <property name="service" ref="hierarchicalParameterService" />
-            </bean>
-        </list>
-    </property>
-</bean>
-
-<bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
-    <property name="parameterService" ref="geometriesService" />
-</bean>
 
 <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
     <property name="parameterService" ref="datasetService" />
