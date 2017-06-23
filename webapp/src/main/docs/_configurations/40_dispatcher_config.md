@@ -188,6 +188,3 @@ Configurable properties are
 * `externalUrl`: sets the external URL under which the API can be accessed by clients, e.g. (`https://example.com/my-api/`)
 
 
-#### Extensions
-See [Extension section]({{site.baseurl}}/extensions.html) for how to configure extensions in detail.
-
