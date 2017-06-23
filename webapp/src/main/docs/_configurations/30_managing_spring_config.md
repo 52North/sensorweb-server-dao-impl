@@ -18,9 +18,9 @@ If `local.configFile` parameter is present at startup-/build-time properties are
 from there, otherwise properties are read from default `WEB-INF/classes/application.properties`.
 
 {::options parse_block_html="true" /}
-{: .n52-example-code}
+{: .n52-example-block}
 <div>
-<div class="n52-example-caption">
+<div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
 A property replacement config example
 </div>
 ```xml

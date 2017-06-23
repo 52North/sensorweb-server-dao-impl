@@ -21,10 +21,10 @@ However, everything starts by adding Spring's `DispatcherServlet` within the `we
 put both configuration files, and relate it to some context path like so:
 
 {::options parse_block_html="true" /}
-{: .n52-example-code}
+{: .n52-example-block}
 <div>
-<div class="n52-example-caption">
-Example configuration of the dispatcher servlet.
+<div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
+Example configuration of the dispatcher servlet
 </div>
 ```xml
 <servlet>
@@ -49,9 +49,9 @@ To support proper content negotiation and JSON serialization the following shoul
 added to the `/WEB-INF/spring/dispatcher-servlet.xml`:
 
 {::options parse_block_html="true" /}
-{: .n52-example-code}
+{: .n52-example-block}
 <div>
-<div class="n52-example-caption">
+<div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
 Content negotiation example
 </div>
 ```xml
@@ -94,9 +94,9 @@ referenced here. SPI implementors have to use these references to make sure the 
 backend service is called.
 
 {::options parse_block_html="true" /}
-{: .n52-example-code}
+{: .n52-example-block}
 <div>
-<div class="n52-example-caption">
+<div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
 Example how to configure Web MVC controllers
 </div>
 ```xml
