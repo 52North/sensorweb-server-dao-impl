@@ -30,8 +30,7 @@ collections:
 
 markdown: kramdown
 
-# starting from 3.5.0
-plugins:
+plugins_dir:
   - jekyll-sitemap
   
 # Exclude these files from your production _site
