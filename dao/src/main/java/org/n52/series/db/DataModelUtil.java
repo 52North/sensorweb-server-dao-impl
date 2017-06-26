@@ -71,7 +71,8 @@ public final class DataModelUtil {
             return false;
         }
         String entityOrClassName = criteriaImpl.getEntityOrClassName();
-        return hasProperty(property, factory.getClassMetadata(entityOrClassName));
+        ClassMetadata classMetadata = factory.getClassMetadata(entityOrClassName);
+        return classMetadata != null && hasProperty(property, classMetadata);
     }
 
     private static boolean hasProperty(String property, ClassMetadata metadata) {
