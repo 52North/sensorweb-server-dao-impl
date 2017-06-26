@@ -30,8 +30,8 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
-import org.n52.series.db.beans.I18nPlatformEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.i18n.I18nPlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional

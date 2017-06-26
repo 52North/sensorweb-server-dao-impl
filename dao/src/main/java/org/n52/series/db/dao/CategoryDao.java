@@ -31,7 +31,7 @@ package org.n52.series.db.dao;
 
 import org.hibernate.Session;
 import org.n52.series.db.beans.CategoryEntity;
-import org.n52.series.db.beans.I18nCategoryEntity;
+import org.n52.series.db.beans.i18n.I18nCategoryEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional

@@ -39,7 +39,7 @@ import org.hibernate.criterion.Subqueries;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.I18nEntity;
+import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

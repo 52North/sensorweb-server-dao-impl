@@ -32,7 +32,7 @@ package org.n52.series.db.dao;
 import org.hibernate.Session;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.I18nFeatureEntity;
+import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
