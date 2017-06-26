@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.n52.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
@@ -12,17 +13,17 @@
     <description>RESTful Sensor Web Client API as template Web application.</description>
 
     <properties>
-    
+
         <!-- optional properties file -->
-<!--         <local.configFile>file:${user.home}/${project.build.finalName}.properties</local.configFile> -->
+        <!-- <local.configFile>file:${user.home}/${project.build.finalName}.properties</local.configFile> -->
         <local.configFile>src/main/resources/application.properties</local.configFile>
-    
+
         <postgis.version>2.2.0</postgis.version>
         <aspectj.version>1.8.9</aspectj.version>
         <postgresql.version>9.4.1208.jre7</postgresql.version>
-        
+
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
-        
+
         <finalName>${project.artifactId}</finalName>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
         <config.logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</config.logger.fileappender.filepath>
@@ -49,7 +50,7 @@
             <artifactId>mappings</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -151,7 +152,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <filters>
             <filter>${local.configFile}</filter>
         </filters>
@@ -170,7 +171,7 @@
                     </execution>
                 </executions>
             </plugin>
-        
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -194,7 +195,7 @@
                         </artifactItems>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -265,7 +266,7 @@
                     <name>docs</name>
                 </property>
             </activation>
-            
+
             <properties>
                 <docs.context>docs</docs.context>
                 <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
@@ -274,11 +275,16 @@
             </properties>
 
             <repositories>
-                <!--Repository for ruby (Jekyll) gems-->
+                <!--Repository for ruby (Jekyll) gems -->
                 <repository>
                     <id>rubygems-proxy</id>
                     <name>Rubygems Proxy</name>
                     <url>http://rubygems-proxy.torquebox.org/releases</url>
+                    <layout>default</layout>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
@@ -288,120 +294,30 @@
             <dependencies>
                 <dependency>
                     <groupId>rubygems</groupId>
-                    <artifactId>jekyll</artifactId>
-                    <version>3.5.0</version>
+                    <artifactId>activesupport</artifactId>
+                    <version>4.2.8</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>addressable</artifactId>
+                    <version>2.5.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid</artifactId>
+                    <version>0.17.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
                         <exclusion>
                             <groupId>rubygems</groupId>
-                            <artifactId>jekyll-watch</artifactId>
+                            <artifactId>timers</artifactId>
                         </exclusion>
                     </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>jekyll-sitemap</artifactId>
-                    <version>1.1.1</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>rubygems</groupId>
-                            <artifactId>jekyll-watch</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>liquid</artifactId>
-                    <version>4.0.0</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>kramdown</artifactId>
-                    <version>1.10.0</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>mercenary</artifactId>
-                    <version>0.3.5</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>safe_yaml</artifactId>
-                    <version>1.0.4</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>colorator</artifactId>
-                    <version>1.1.0</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>rouge</artifactId>
-                    <version>1.10.1</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>jekyll-sass-converter</artifactId>
-                    <version>1.4.0</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>sass</artifactId>
-                    <version>3.4.22</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>listen</artifactId>
-                    <version>3.0.6</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>jekyll-watch</artifactId>
-                    <version>1.3.1</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>rb-fsevent</artifactId>
-                    <version>0.9.7</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>rb-inotify</artifactId>
-                    <version>0.9.7</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
-                </dependency>
-                <dependency>
-                    <groupId>rubygems</groupId>
-                    <artifactId>ffi</artifactId>
-                    <version>1.9.10</version>
-                    <scope>provided</scope>
-                    <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
@@ -419,8 +335,159 @@
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
-                    <artifactId>bundler</artifactId>
-                    <version>1.11.2</version>
+                    <artifactId>coffee-script</artifactId>
+                    <version>2.4.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>colorator</artifactId>
+                    <version>1.1.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>ffi</artifactId>
+                    <version>1.9.18</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>forwardable-extended</artifactId>
+                    <version>2.6.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>github-pages</artifactId>
+                    <version>140</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>html-pipeline</artifactId>
+                    <version>2.6.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>i18n</artifactId>
+                    <version>0.8.4</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll</artifactId>
+                    <version>3.4.3</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sass-converter</artifactId>
+                    <version>1.5.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sitemap</artifactId>
+                    <version>1.1.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-watch</artifactId>
+                    <version>1.5.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>kramdown</artifactId>
+                    <version>1.13.2</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>listen</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>liquid</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>mercenary</artifactId>
+                    <version>0.3.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>nokogiri</artifactId>
+                    <version>1.8.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>pathutil</artifactId>
+                    <version>0.14.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>rouge</artifactId>
+                    <version>1.11.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>sass</artifactId>
+                    <version>3.4.24</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>timers</artifactId>
+                    <version>4.1.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -436,7 +503,7 @@
                         <filtering>false</filtering>
                     </resource>
                 </resources>
-                
+
                 <plugins>
                     <plugin>
                         <!-- assemble licenses -->
@@ -465,9 +532,9 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
-                        <!--Allow a definition of the gem repo-->
+                        <!--Allow a definition of the gem repo -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <configuration>
@@ -478,7 +545,7 @@
                             </requireNoRepositories>
                         </configuration>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>de.saumya.mojo</groupId>
                         <artifactId>gem-maven-plugin</artifactId>
@@ -491,11 +558,12 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>build --baseurl /${docs.context} --source ${docs.sources.directory}/docs --destination ${docs.output.directory}</execArgs>
+                                    <execArgs>build --baseurl /${docs.context} --source ${docs.sources.directory}/docs
+                                        --destination ${docs.output.directory}</execArgs>
                                 </configuration>
                             </execution>
                             <execution>
-                                <!-- run me with: mvn compile gem:exec@jekyll-serve (maven version >= 3.3.1 required)-->
+                                <!-- run me with: mvn compile gem:exec@jekyll-serve (maven version >= 3.3.1 required) -->
                                 <id>jekyll-serve</id>
                                 <phase>none</phase>
                                 <goals>
@@ -503,13 +571,15 @@
                                 </goals>
                                 <configuration>
                                     <file>${project.build.directory}/rubygems/bin/jekyll</file>
-                                    <execArgs>serve --trace --incremental --watch --port ${jekyll.port} --baseurl /${docs.context} --source ${docs.sources.directory}/docs --destination ${docs.output.directory}</execArgs>
+                                    <execArgs>serve --trace --incremental --watch --port ${jekyll.port} --baseurl
+                                        /${docs.context} --source ${docs.sources.directory}/docs --destination
+                                        ${docs.output.directory}</execArgs>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
                 </plugins>
-                
+
                 <pluginManagement>
                     <plugins>
                         <plugin>
@@ -524,7 +594,7 @@
                                 <generateChildNotices>true</generateChildNotices>
                             </configuration>
                         </plugin>
-                        
+
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-dependency-plugin</artifactId>
@@ -548,7 +618,7 @@
                                 </artifactItems>
                             </configuration>
                         </plugin>
-                        
+
                         <plugin>
                             <groupId>de.saumya.mojo</groupId>
                             <artifactId>gem-maven-plugin</artifactId>
