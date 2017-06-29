@@ -22,7 +22,7 @@
             -->
             <property column="samplingGeometry" name="geometry" type="org.hibernate.spatial.GeometryType"/>
         </component>
-        <set inverse="true" name="parameters" table="parameter">
+        <set inverse="true" name="parameters" table="parameter" fetch="join">
             <key column="observationid" not-null="true"/>
             <one-to-many class="org.n52.series.db.beans.parameter.ObservationParameter"/>
         </set>
