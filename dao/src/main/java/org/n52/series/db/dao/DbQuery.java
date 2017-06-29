@@ -309,7 +309,7 @@ public class DbQuery {
                     if (DataModelUtil.isPropertyNameSupported(PROPERTY_FEATURE, criteria)) {
                         criteria.createCriteria(PROPERTY_FEATURE)
                                 .add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
-                    }else{
+                    } else {
                         criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
                     }
 
