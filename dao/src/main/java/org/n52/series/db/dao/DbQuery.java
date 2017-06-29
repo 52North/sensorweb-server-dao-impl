@@ -80,6 +80,8 @@ public class DbQuery {
 
     private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity.geometry";
 
+    private static final String PROPERTY_FEATURE = "feature";
+
     private static final int DEFAULT_LIMIT = 10000;
 
     private IoParameters parameters = IoParameters.createDefaults();
@@ -293,7 +295,8 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria) ||
+            DataModelUtil.isPropertyNameSupported(PROPERTY_FEATURE, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
                 try {
@@ -303,7 +306,12 @@ public class DbQuery {
                     Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
                     Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
-                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+                    if (DataModelUtil.isPropertyNameSupported(PROPERTY_FEATURE, criteria)) {
+                        criteria.createCriteria(PROPERTY_FEATURE)
+                                .add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+                    }else{
+                        criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+                    }
 
                     // TODO intersect with linestring
                     // XXX do sampling filter only on generated line strings stored in FOI table,
