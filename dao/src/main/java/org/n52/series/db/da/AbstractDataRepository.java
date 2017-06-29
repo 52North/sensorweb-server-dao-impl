@@ -87,7 +87,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     @Override
     public GeometryEntity getLastValueGeometry(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
-        return dao.getGeometryValueViaTimeend(entity, query);
+        return dao.getValueGeometryViaTimeend(entity, query);
     }
 
     protected DatasetDao<S> getSeriesDao(Session session) {

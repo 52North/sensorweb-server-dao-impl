@@ -47,6 +47,7 @@ import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +76,8 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private static final String COLUMN_TIMEEND = "timeend";
 
     private static final String COLUMN_PARENT = "parent";
+
+    private static final String COLUMN_GEOMETRY_ENTITY = "geometryEntity";
 
     private final Class<T> entityType;
 
@@ -174,16 +177,21 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return getDataValueAt(timestart, COLUMN_TIMESTART, series, query);
     }
 
+    public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
+        Date timestart = series.getFirstValueAt();
+        Criteria criteria = createDataAtCriteria(timestart, COLUMN_TIMESTART, series, query);
+        criteria.setProjection(Projections.property(COLUMN_GEOMETRY_ENTITY));
+        IoParameters parameters = query.getParameters();
+        if (parameters.containsParameter(Parameters.RESULTTIME)) {
+            Instant resultTime = parameters.getResultTime();
+            criteria.add(Restrictions.eq(COLUMN_RESULTTIME, resultTime.toDate()));
+        }
+        return (GeometryEntity) criteria.uniqueResult();
+    }
+
     @SuppressWarnings("unchecked")
     private T getDataValueAt(Date timestamp, String column, DatasetEntity series, DbQuery query) {
-        LOGGER.debug("get instances @{} for '{}'", new DateTime(timestamp.getTime()), series.getPkid());
-        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
-                                                .add(Restrictions.eq(column, timestamp));
-
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
-                                                  .setProjection(Projections.projectionList()
-                                                                            .add(Projections.property("pkid")));
-        criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
+        Criteria criteria = createDataAtCriteria(timestamp, COLUMN_TIMESTART, series, query);
 
         IoParameters parameters = query.getParameters();
         if (parameters.containsParameter(Parameters.RESULTTIME)) {
@@ -194,6 +202,17 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             List<T> list = criteria.list();
             return getLastValueWhenMultipleResultTimesAvailable(list);
         }
+    }
+
+    private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity series, DbQuery query) {
+        LOGGER.debug("get instances @{} for '{}'", new DateTime(timestamp.getTime()), series.getPkid());
+        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
+                .add(Restrictions.eq(column, timestamp));
+
+        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
+                .setProjection(Projections.projectionList().add(Projections.property("pkid")));
+        criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
+        return criteria;
     }
 
     private T getLastValueWhenMultipleResultTimesAvailable(List<T> values) {
