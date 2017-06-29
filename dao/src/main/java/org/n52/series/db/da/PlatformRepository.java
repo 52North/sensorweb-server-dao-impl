@@ -45,6 +45,7 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.parameter.Parameter;
@@ -183,38 +184,47 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        AbstractValue< ? > currentLastValue = null;
+        // XXX fix generics and inheritance of Data, AbstractValue, etc.
+        // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
+        DatasetEntity<?> lastDataset = getLastDataset(datasets, query, session);
+        try {
+            DataRepository dataRepository = factory.create(lastDataset.getValueType());
+            GeometryEntity lastValueGeometry = dataRepository.getLastValueGeometry(lastDataset, session, query);
+            return lastValueGeometry != null && lastValueGeometry.isSetGeometry() ? lastValueGeometry.getGeometry() : null;
+        } catch (DatasetFactoryException e) {
+            LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
+                    lastDataset.getPkid());
+        }
+        return null;
+    }
+
+    private DatasetEntity<?> getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session) throws DataAccessException {
+        DatasetEntity<?> currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
-            // XXX fix generics and inheritance of Data, AbstractValue, etc.
-            // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-            try {
-                String id = dataset.getId();
-                DataRepository dataRepository = factory.create(dataset.getValueType());
-                DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
-                AbstractValue< ? > valueToCheck = dataRepository.getLastValue(entity, session, query);
-                currentLastValue = getLaterValue(currentLastValue, valueToCheck);
-            } catch (DatasetFactoryException e) {
-                LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                             dataset.getId());
+            String id = dataset.getId();
+            DatasetEntity<?> entity = seriesRepository.getInstanceEntity(id, query, session);
+            if (currentLastDataset == null) {
+                currentLastDataset = entity;
+            } else {
+                if (currentLastDataset.getLastValueAt().after(entity.getLastValueAt())) {
+                    currentLastDataset = entity;
+                }
             }
         }
-
-        return currentLastValue != null && currentLastValue.isSetGeometry()
-                ? currentLastValue.getGeometry()
-                : null;
+        return currentLastDataset;
     }
 
-    private AbstractValue< ? > getLaterValue(AbstractValue< ? > currentLastValue, AbstractValue< ? > valueToCheck) {
-        if (currentLastValue == null) {
-            return valueToCheck;
-        }
-        if (valueToCheck == null) {
-            return currentLastValue;
-        }
-        return currentLastValue.getTimestamp() > valueToCheck.getTimestamp()
-                ? currentLastValue
-                : valueToCheck;
-    }
+//    private AbstractValue< ? > getLaterValue(AbstractValue< ? > currentLastValue, AbstractValue< ? > valueToCheck) {
+//        if (currentLastValue == null) {
+//            return valueToCheck;
+//        }
+//        if (valueToCheck == null) {
+//            return currentLastValue;
+//        }
+//        return currentLastValue.getTimestamp() > valueToCheck.getTimestamp()
+//                ? currentLastValue
+//                : valueToCheck;
+//    }
 
     private PlatformEntity getStation(String id, DbQuery parameters, Session session) throws DataAccessException {
         String featureId = PlatformType.extractId(id);
