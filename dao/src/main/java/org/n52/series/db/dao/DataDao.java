@@ -191,7 +191,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     @SuppressWarnings("unchecked")
     private T getDataValueAt(Date timestamp, String column, DatasetEntity series, DbQuery query) {
-        Criteria criteria = createDataAtCriteria(timestamp, COLUMN_TIMESTART, series, query);
+        Criteria criteria = createDataAtCriteria(timestamp, column, series, query);
 
         IoParameters parameters = query.getParameters();
         if (parameters.containsParameter(Parameters.RESULTTIME)) {
