@@ -78,6 +78,8 @@ public class DbQuery {
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
 
+    private static final String PROPERTY_OBSERVATIONS = "observations";
+
     private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity.geometry";
 
     private static final int DEFAULT_LIMIT = 10000;
@@ -293,8 +295,8 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria) ||
-            DataModelUtil.isPropertyNameSupported(DatasetEntity.PROPERTY_FEATURE, criteria)) {
+        if (DataModelUtil.isPropertyNameSupported("geometryEntity", criteria) ||
+            DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
                 try {
@@ -303,10 +305,11 @@ public class DbQuery {
                     Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
                     Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
                     Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-
-                    if (DataModelUtil.isPropertyNameSupported(DatasetEntity.PROPERTY_FEATURE, criteria)) {
-                        criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE)
+                    //TODO(specki): optimize to reduce second call to isPropertyNameSupported
+                    if (DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
+                        criteria.createCriteria(PROPERTY_OBSERVATIONS)
                                 .add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+
                     } else {
                         criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
                     }
