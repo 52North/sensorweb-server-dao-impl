@@ -42,7 +42,7 @@ import org.n52.series.spi.search.SearchResult;
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
     @Override
-    protected FeatureOutput prepareEmptyParameterOutput(FeatureEntity entity) {
+    protected FeatureOutput prepareOutput(FeatureEntity entity) {
         return new FeatureOutput();
     }
 

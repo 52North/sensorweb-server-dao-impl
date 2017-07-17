@@ -48,7 +48,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
-    protected abstract O prepareEmptyParameterOutput(E entity);
+    protected abstract O prepareOutput(E entity);
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
 
@@ -98,7 +98,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
-        O result = prepareEmptyParameterOutput(entity);
+        O result = prepareOutput(entity);
         result.setId(Long.toString(entity.getPkid()));
         result.setLabel(entity.getLabelFrom(query.getLocale()));
         result.setDomainId(entity.getDomainId());

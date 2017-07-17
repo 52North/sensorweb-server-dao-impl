@@ -76,7 +76,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                              AbstractValue< ? >> ioFactoryCreator;
 
     @Override
-    protected ServiceOutput prepareEmptyParameterOutput(ServiceEntity entity) {
+    protected ServiceOutput prepareOutput(ServiceEntity entity) {
         return new ServiceOutput();
     }
 

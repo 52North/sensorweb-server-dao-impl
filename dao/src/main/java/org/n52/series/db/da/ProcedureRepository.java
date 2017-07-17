@@ -46,7 +46,7 @@ import org.n52.series.spi.search.SearchResult;
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
     @Override
-    protected ProcedureOutput prepareEmptyParameterOutput(ProcedureEntity entity) {
+    protected ProcedureOutput prepareOutput(ProcedureEntity entity) {
         return new ProcedureOutput();
     }
 

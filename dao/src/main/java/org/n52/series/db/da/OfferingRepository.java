@@ -41,7 +41,7 @@ import org.n52.series.spi.search.SearchResult;
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
 
     @Override
-    protected OfferingOutput prepareEmptyParameterOutput(OfferingEntity entity) {
+    protected OfferingOutput prepareOutput(OfferingEntity entity) {
         return new OfferingOutput();
     }
 

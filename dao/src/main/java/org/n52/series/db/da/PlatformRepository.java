@@ -85,7 +85,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private IDataRepositoryFactory factory;
 
     @Override
-    protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
+    protected PlatformOutput prepareOutput(PlatformEntity entity) {
         boolean mobile = entity.getPlatformType().isMobile();
         boolean insitu = entity.getPlatformType().isInsitu();
         return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
