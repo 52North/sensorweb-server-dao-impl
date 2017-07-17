@@ -86,7 +86,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        return new PlatformOutput(entity.getPlatformType());
+        boolean mobile = entity.getPlatformType().isMobile();
+        boolean insitu = entity.getPlatformType().isInsitu();
+        return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
     }
 
     @Override
@@ -355,7 +357,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private String getPlatformId(DatasetEntity< ? > series) {
         ProcedureEntity procedure = series.getProcedure();
-        PlatformType type = procedure.getPlatformType();
+        boolean mobile = procedure.isMobile();
+        boolean insitu = procedure.isInsitu();
+        PlatformType type = PlatformType.toInstance(mobile, insitu);
         DescribableEntity entity = type.isStationary()
                 ? series.getFeature()
                 : series.getProcedure();
