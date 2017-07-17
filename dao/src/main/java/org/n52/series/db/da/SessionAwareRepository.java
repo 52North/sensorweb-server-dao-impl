@@ -50,6 +50,7 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -65,6 +66,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
@@ -78,7 +81,7 @@ public abstract class SessionAwareRepository {
     @Autowired
     protected DbQueryFactory dbQueryFactory;
 
-    private final CRSUtils crsUtils = CRSUtils.createEpsgStrictAxisOrder();
+    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     @Autowired
     private HibernateSessionStore sessionStore;
@@ -102,8 +105,15 @@ public abstract class SessionAwareRepository {
     }
 
     protected CRSUtils getCrsUtils() {
-        return crsUtils;
+        return internalCrsUtils;
     }
+
+    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
+        String srid = query.getDatabaseSridCode();
+        geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+        return geometryEntity.getGeometry();
+    }
+
 
     protected Long parseId(String id) throws BadRequestException {
         try {

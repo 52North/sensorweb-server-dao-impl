@@ -215,8 +215,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         final GeometryInfo geomInfo = new GeometryInfo(GeometryType.PLATFORM_SITE);
         GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, query);
         if (expanded) {
-            String srid = query.getDatabaseSridCode();
-            Geometry geometry = featureEntity.getGeometry(srid);
+            GeometryEntity geometryEntity = featureEntity.getGeometryEntity();
+            Geometry geometry = getGeometry(geometryEntity, query);
             if (geometry != null) {
                 geometryInfo.setGeometry(geometry);
             }
@@ -245,8 +245,9 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         if (expanded) {
             if (featureEntity.isSetGeometry()) {
                 // track available from feature table
-                String srid = query.getDatabaseSridCode();
-                geometryInfo.setGeometry(featureEntity.getGeometry(srid));
+                GeometryEntity geometryEntity = featureEntity.getGeometryEntity();
+                Geometry geometry = getGeometry(geometryEntity, query);
+                geometryInfo.setGeometry(geometry);
                 return geometryInfo;
             } else {
                 Geometry lineString = createTrajectory(featureEntity, query, session);
@@ -283,17 +284,19 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             IoParameters parameters = dbQuery.getParameters()
                     .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getPkid()));
             List<GeometryEntity> samplingGeometries = dao.getGeometriesOrderedByTimestamp(getDbQuery(parameters));
-            return createLineString(samplingGeometries, srid);
+            return createLineString(samplingGeometries, dbQuery);
         }
     }
 
-    private Geometry createLineString(List<GeometryEntity> samplingGeometries, String srid) {
+    private Geometry createLineString(List<GeometryEntity> samplingGeometries, DbQuery query) {
         List<Coordinate> coordinates = new ArrayList<>();
         for (GeometryEntity geometryEntity : samplingGeometries) {
-            Point geometry = (Point) geometryEntity.getGeometry(srid);
+            Point geometry = (Point) getGeometry(geometryEntity, query);
             coordinates.add(geometry.getCoordinate());
         }
-        return getCrsUtils().createLineString(coordinates.toArray(new Coordinate[0]), srid);
+
+        Coordinate[] points = coordinates.toArray(new Coordinate[0]);
+        return getCrsUtils().createLineString(points, query.getDatabaseSridCode());
     }
 
     private Collection<GeometryInfo> getAllObservedGeometriesStatic(DbQuery parameters,

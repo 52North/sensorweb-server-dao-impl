@@ -46,6 +46,8 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public abstract class AbstractDataRepository<D extends Data< ? >,
                                              S extends DatasetEntity< ? >,
                                              E extends DataEntity< ? >,
@@ -122,9 +124,10 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     }
 
     protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
-        if (dataEntity.isSetGeometry()) {
-            GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(geometry.getGeometry(query.getDatabaseSridCode()));
+        if (dataEntity.isSetGeometryEntity()) {
+            GeometryEntity geometryEntity = dataEntity.getGeometryEntity();
+            Geometry geometry = getGeometry(geometryEntity, query);
+            value.setGeometry(geometry);
         }
     }
 
