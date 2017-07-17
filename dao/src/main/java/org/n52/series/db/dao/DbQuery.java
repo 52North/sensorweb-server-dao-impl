@@ -340,11 +340,18 @@ public class DbQuery {
 
     public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        Set<String> features = parameters.getFeatures();
+        Set<String> procedures = parameters.getProcedures();
+
+        if (hasValues(parameters.getPlatforms())) {
+            features.addAll(getStationaryIds(parameters.getPlatforms()));
+            procedures.addAll(getMobileIds(parameters.getPlatforms()));
+        }
 
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
         addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(parameters.getFeatures(), DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(parameters.getSeries(), filter);
 
@@ -353,17 +360,6 @@ public class DbQuery {
                                        .map(e -> ValueType.extractId(e))
                                        .collect(Collectors.toSet()),
                              filter);
-
-        if (hasValues(parameters.getPlatforms())) {
-            Set<String> stationaryIds = getStationaryIds(parameters.getPlatforms());
-            Set<String> mobileIds = getMobileIds(parameters.getPlatforms());
-            if (!stationaryIds.isEmpty()) {
-                addFilterRestriction(stationaryIds, DatasetEntity.PROPERTY_FEATURE, filter);
-            }
-            if (!mobileIds.isEmpty()) {
-                addFilterRestriction(mobileIds, DatasetEntity.PROPERTY_PROCEDURE, filter);
-            }
-        }
 
         // TODO refactory/simplify projection
         String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
