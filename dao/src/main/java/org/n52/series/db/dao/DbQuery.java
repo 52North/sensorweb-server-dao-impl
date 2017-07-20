@@ -30,7 +30,6 @@
 package org.n52.series.db.dao;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,14 +40,15 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.GeometryType.Type;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
@@ -59,6 +59,8 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -179,66 +181,15 @@ public class DbQuery {
     }
 
     public Criteria addTimespanTo(Criteria criteria) {
-        if (parameters.getTimespan() != null) {
-            Interval interval = parameters.getTimespan()
-                                          .toInterval();
-            Date start = interval.getStart()
-                                 .toDate();
-            Date end = interval.getEnd()
-                               .toDate();
-            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
-        }
-        return criteria;
-    }
-
-    /**
-     * Adds an platform type filter to the query.
-     *
-     * @param parameter
-     *        the parameter to filter on.
-     * @param criteria
-     *        the criteria to add the filter to.
-     * @return the criteria to chain.
-     */
-    Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
-        FilterResolver filterResolver = getFilterResolver();
-        if (!filterResolver.shallIncludeAllPlatformTypes()) {
-            if (parameter == null || parameter.isEmpty()) {
-                // series table itself
-                criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
-                        .add(createMobileExpression(filterResolver))
-                        .add(createInsituExpression(filterResolver));
-            } else {
-                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                     .createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
-                                                     .add(createMobileExpression(filterResolver))
-                                                     .add(createInsituExpression(filterResolver))
-                                                     .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
-                                                                                       parameter));
-                criteria.add(matchPropertyPkids(parameter, c));
-            }
-        }
-        return criteria;
-    }
-
-    Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
-        Set<String> valueTypes = getParameters().getValueTypes();
-        if (!valueTypes.isEmpty()) {
-            FilterResolver filterResolver = getFilterResolver();
-            if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
-                if (parameter == null || parameter.isEmpty()) {
-                    // series table itself
-                    criteria.add(containsValueType);
-                } else {
-                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
-                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(containsValueType)
-                                                         .setProjection(onPkids);
-                    criteria.add(matchPropertyPkids(parameter, c));
-                }
-            }
+        IntervalWithTimeZone timespan = parameters.getTimespan();
+        if (timespan != null) {
+            Interval interval = timespan.toInterval();
+            DateTime startDate = interval.getStart();
+            DateTime endDate = interval.getEnd();
+            Date start = startDate.toDate();
+            Date end = endDate.toDate();
+            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_START, start, end),
+                                         Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_END, start, end)));
         }
         return criteria;
     }
@@ -254,11 +205,22 @@ public class DbQuery {
         return Subqueries.propertyIn(QueryUtils.createAssociation(property, PROPERTY_PKID), c);
     }
 
-    Criteria addLimitAndOffsetFilter(Criteria criteria) {
+    public Criteria addFilters(Criteria criteria, String datasetProperty) {
+        addLimitAndOffsetFilter(criteria);
+        addDetachedFilters(datasetProperty, criteria);
+        addPlatformTypeFilter(datasetProperty, criteria);
+        addDatasetTypeFilter(datasetProperty, criteria);
+        return addSpatialFilterTo(criteria);
+    }
+
+    private Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
-                                                                              : DEFAULT_LIMIT;
-            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
+            int limit = (getParameters().containsParameter(Parameters.LIMIT))
+                    ? getParameters().getLimit()
+                    : DEFAULT_LIMIT;
+            limit = (limit > 1)
+                    ? limit
+                    : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -267,114 +229,77 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addFilters(Criteria criteria, String seriesProperty) {
-        addLimitAndOffsetFilter(criteria);
-        addDetachedFilters(seriesProperty, criteria);
-        addPlatformTypeFilter(seriesProperty, criteria);
-        addDatasetTypeFilter(seriesProperty, criteria);
-        return addSpatialFilterTo(criteria);
-    }
+    public Criteria addDetachedFilters(String datasetName, Criteria criteria) {
 
-    private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
-        boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
-        boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-        return Restrictions.or(
-                               // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile));
-    }
-
-    private LogicalExpression createInsituExpression(FilterResolver filterResolver) {
-        boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
-        boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
-        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
-                               // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
-    }
-
-    public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
-            BoundingBox spatialFilter = parameters.getSpatialFilter();
-            if (spatialFilter != null) {
-                try {
-                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-
-                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
-
-                    // TODO intersect with linestring
-                    // XXX do sampling filter only on generated line strings stored in FOI table,
-                    // otherwise we would have to check each observation row
-                } catch (FactoryException e) {
-                    LOGGER.error("Could not create transformation facilities.", e);
-                } catch (TransformException e) {
-                    LOGGER.error("Could not perform transformation.", e);
-                }
-            }
-
-            Set<String> geometryTypes = parameters.getGeometryTypes();
-            for (String geometryType : geometryTypes) {
-                if (!geometryType.isEmpty()) {
-                    Type type = getGeometryType(geometryType);
-                    if (type != null) {
-                        criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
-                    }
-                }
-            }
-        }
-        return criteria;
-    }
-
-    private Type getGeometryType(String geometryType) {
-        for (GeometryType.Type type : GeometryType.Type.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
-        }
-        return null;
-    }
-
-    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        Set<String> features = parameters.getFeatures();
+        Set<String> categories = parameters.getCategories();
         Set<String> procedures = parameters.getProcedures();
+        Set<String> phenomena = parameters.getPhenomena();
+        Set<String> offerings = parameters.getOfferings();
+        Set<String> platforms = parameters.getPlatforms();
+        Set<String> features = parameters.getFeatures();
+        Set<String> datasets = parameters.getDatasets();
 
-        if (hasValues(parameters.getPlatforms())) {
-            features.addAll(getStationaryIds(parameters.getPlatforms()));
-            procedures.addAll(getMobileIds(parameters.getPlatforms()));
+        if (!(hasValues(platforms)
+                || hasValues(phenomena)
+                || hasValues(procedures)
+                || hasValues(offerings)
+                || hasValues(features)
+                || hasValues(categories)
+                || hasValues(datasets))) {
+            // no subquery neccessary
+            return criteria;
         }
 
-        addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
-        addFilterRestriction(parameters.getSeries(), filter);
+        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
+                                                  .createAlias(datasetName, "ref")
+                                                  .setProjection(Projections.property("ref.pkid"));
 
-        addFilterRestriction(parameters.getDatasets()
-                                       .stream()
-                                       .map(e -> ValueType.extractId(e))
-                                       .collect(Collectors.toSet()),
-                             filter);
+        if (hasValues(platforms)) {
+            features.addAll(getStationaryIds(platforms));
+            procedures.addAll(getMobileIds(platforms));
+        }
 
-        // TODO refactory/simplify projection
-        String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
-        filter.setProjection(Property.forName(projectionProperty));
+        if (hasValues(phenomena)) {
+            String phenomenonPath = getObservationCollectionPath(ObservationConstellationEntity.OBSERVABLE_PROPERTY);
+            addHierarchicalFilterRestriction(phenomena, phenomenonPath, filter, "phen_");
+        }
 
-        String filterProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
-        criteria.add(Subqueries.propertyIn(filterProperty, filter));
+        if (hasValues(procedures)) {
+            String procedurePath = getObservationCollectionPath(ObservationConstellationEntity.PROCEDURE);
+            addHierarchicalFilterRestriction(procedures, procedurePath, filter, "p_");
+        }
+
+        if (hasValues(offerings)) {
+            String offeringPath = getObservationCollectionPath(ObservationConstellationEntity.OFFERING);
+            addHierarchicalFilterRestriction(offerings, offeringPath, filter, "off_");
+        }
+
+        if (hasValues(features)) {
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "f_");
+        }
+
+        if (hasValues(categories)) {
+            addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        }
+
+        if (hasValues(datasets)) {
+            addFilterRestriction(datasets, filter);
+        }
+
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
         return criteria;
+    }
+
+    private String getObservationCollectionPath(String property) {
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, property);
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String entity,
-                                                              DetachedCriteria filter, String prefix) {
+                                                              String associationPath,
+                                                              DetachedCriteria filter,
+                                                              String prefix) {
         if (hasValues(values)) {
-            filter.createCriteria(entity, prefix + "e")
+            filter.createCriteria(associationPath, prefix + "e")
                   // join the parents to enable filtering via parent ids
                   .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
                   .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
@@ -429,24 +354,138 @@ public class DbQuery {
         return values != null && !values.isEmpty();
     }
 
+    private Set<String> getDatasetIds(Set<String> datasets) {
+        return datasets.stream()
+                       .map(e -> ValueType.extractId(e))
+                       .collect(Collectors.toSet());
+    }
+
     private Set<String> getStationaryIds(Set<String> platforms) {
-        Set<String> set = new HashSet<>();
-        for (String platform : platforms) {
-            if (PlatformType.isStationaryId(platform)) {
-                set.add(PlatformType.extractId(platform));
-            }
-        }
-        return set;
+        return platforms.stream()
+                        .filter(e -> PlatformType.isStationaryId(e))
+                        .map(e -> PlatformType.extractId(e))
+                        .collect(Collectors.toSet());
     }
 
     private Set<String> getMobileIds(Set<String> platforms) {
-        Set<String> set = new HashSet<>();
-        for (String platform : platforms) {
-            if (!PlatformType.isStationaryId(platform)) {
-                set.add(PlatformType.extractId(platform));
+        return platforms.stream()
+                        .filter(e -> PlatformType.isMobileId(e))
+                        .map(e -> PlatformType.extractId(e))
+                        .collect(Collectors.toSet());
+    }
+
+    /**
+     * Adds an platform type filter to the query.
+     *
+     * @param parameter
+     *        the parameter to filter on.
+     * @param criteria
+     *        the criteria to add the filter to.
+     * @return the criteria to chain.
+     */
+    private Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
+        FilterResolver filterResolver = getFilterResolver();
+        if (!filterResolver.shallIncludeAllPlatformTypes()) {
+            if (parameter == null || parameter.isEmpty()) {
+                // series table itself
+                criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
+                        .add(createMobileExpression(filterResolver))
+                        .add(createInsituExpression(filterResolver));
+            } else {
+                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
+                                                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                                                     .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                                                     .add(createMobileExpression(filterResolver))
+                                                     .add(createInsituExpression(filterResolver))
+                                                     .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
+                                                                                       parameter));
+                criteria.add(matchPropertyPkids(parameter, c));
             }
         }
-        return set;
+        return criteria;
+    }
+
+    private Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
+        Set<String> valueTypes = getParameters().getValueTypes();
+        if (!valueTypes.isEmpty()) {
+            FilterResolver filterResolver = getFilterResolver();
+            if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
+                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
+                if (parameter == null || parameter.isEmpty()) {
+                    // series table itself
+                    criteria.add(containsValueType);
+                } else {
+                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
+                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
+                                                         .add(containsValueType)
+                                                         .setProjection(onPkids);
+                    criteria.add(matchPropertyPkids(parameter, c));
+                }
+            }
+        }
+        return criteria;
+    }
+
+    private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
+        boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
+        boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
+        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile),
+                               // inverse to match filter
+                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary));
+    }
+
+    private LogicalExpression createInsituExpression(FilterResolver filterResolver) {
+        boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
+        boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
+        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
+                               // inverse to match filter
+                               Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
+    }
+
+    public Criteria addSpatialFilterTo(Criteria criteria) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
+            BoundingBox spatialFilter = parameters.getSpatialFilter();
+            if (spatialFilter != null) {
+                try {
+                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
+
+                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+
+                    // TODO intersect with linestring
+                    // XXX do sampling filter only on generated line strings stored in FOI table,
+                    // otherwise we would have to check each observation row
+                } catch (FactoryException e) {
+                    LOGGER.error("Could not create transformation facilities.", e);
+                } catch (TransformException e) {
+                    LOGGER.error("Could not perform transformation.", e);
+                }
+            }
+
+            Set<String> geometryTypes = parameters.getGeometryTypes();
+            for (String geometryType : geometryTypes) {
+                if (!geometryType.isEmpty()) {
+                    Type type = getGeometryType(geometryType);
+                    if (type != null) {
+                        criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
+                    }
+                }
+            }
+        }
+        return criteria;
+    }
+
+    private Type getGeometryType(String geometryType) {
+        for (GeometryType.Type type : GeometryType.Type.values()) {
+            if (type.name()
+                    .equalsIgnoreCase(geometryType)) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public IoParameters getParameters() {

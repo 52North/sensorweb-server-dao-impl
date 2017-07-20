@@ -134,16 +134,20 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         String nonNullAlias = alias != null
                 ? alias
                 : getDefaultAlias();
-        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(query);
+        DetachedCriteria filter = createDatasetSubqueryViaExplicitJoin(query);
         return session.createCriteria(clazz, nonNullAlias)
-                      .add(Subqueries.propertyIn("pkid", filter));
+                      .add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
     }
 
-    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
-        return DetachedCriteria.forClass(DatasetEntity.class)
-                               .add(createPublishedDatasetFilter())
-                               .createAlias(getDatasetProperty(), "ref")
-                               .setProjection(Projections.property("ref.pkid"));
+    private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
+        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class)
+                                                    .add(createPublishedDatasetFilter());
+        return projectOnDatasetParameterId(subquery);
+    }
+
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(getDatasetProperty(), "ref")
+                       .setProjection(Projections.property("ref.pkid"));
     }
 
     protected final Conjunction createPublishedDatasetFilter() {

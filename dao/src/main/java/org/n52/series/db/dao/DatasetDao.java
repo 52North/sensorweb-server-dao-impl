@@ -39,6 +39,7 @@ import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -84,29 +85,30 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          */
         Criteria criteria = getDefaultCriteria("s", query);
 
-        Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                           JoinType.LEFT_OUTER_JOIN);
-        featureCriteria = i18n(I18nFeatureEntity.class, featureCriteria, query);
-        featureCriteria.add(Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm));
-        series.addAll(featureCriteria.list());
-
-        Criteria procedureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE,
+        criteria.createAlias(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, "c");
+        Criteria procedureCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.PROCEDURE,
                                                              JoinType.LEFT_OUTER_JOIN);
         procedureCriteria = i18n(I18nProcedureEntity.class, procedureCriteria, query);
         procedureCriteria.add(Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm));
         series.addAll(procedureCriteria.list());
 
-        Criteria offeringCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OFFERING,
+        Criteria offeringCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.OFFERING,
                                                             JoinType.LEFT_OUTER_JOIN);
         offeringCriteria = i18n(I18nOfferingEntity.class, offeringCriteria, query);
         offeringCriteria.add(Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm));
         series.addAll(offeringCriteria.list());
 
-        Criteria phenomenonCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PHENOMENON,
+        Criteria phenomenonCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.OBSERVABLE_PROPERTY,
                                                               JoinType.LEFT_OUTER_JOIN);
         phenomenonCriteria = i18n(I18nPhenomenonEntity.class, phenomenonCriteria, query);
         phenomenonCriteria.add(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm));
         series.addAll(phenomenonCriteria.list());
+
+        Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE,
+                                                           JoinType.LEFT_OUTER_JOIN);
+        featureCriteria = i18n(I18nFeatureEntity.class, featureCriteria, query);
+        featureCriteria.add(Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm));
+        series.addAll(featureCriteria.list());
 
         return series;
     }
@@ -154,8 +156,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-        // declare explicit alias here
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
         return getDefaultCriteria(alias, true, query, clazz);
     }
 
@@ -163,13 +164,15 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return getDefaultCriteria(alias, ignoreReferenceSeries, query, getEntityClass());
     }
 
-    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class<?> clazz) {
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = session.createCriteria(clazz)
-                                   .add(createPublishedDatasetFilter())
-                                   .createAlias("procedure", "p");
-        return ignoreReferenceSeries
-                ? criteria.add(Restrictions.eq("p.reference", Boolean.FALSE))
-                : criteria;
+                                   .add(createPublishedDatasetFilter());
+        if (ignoreReferenceSeries) {
+            criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                    .createCriteria(ObservationConstellationEntity.PROCEDURE, "p")
+                    .add(Restrictions.eq("p.reference", Boolean.FALSE));
+        }
+        return criteria;
     }
 
 }

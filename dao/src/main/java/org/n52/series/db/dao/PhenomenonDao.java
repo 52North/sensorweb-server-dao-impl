@@ -30,6 +30,10 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,15 +41,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
 
-    private static final String SERIES_PROPERTY = "phenomenon";
-
     public PhenomenonDao(Session session) {
         super(session);
     }
 
     @Override
     protected String getDatasetProperty() {
-        return SERIES_PROPERTY;
+        return ObservationConstellationEntity.OBSERVABLE_PROPERTY;
+    }
+
+    @Override
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                       .createAlias(getDatasetProperty(), "ref")
+                       .setProjection(Projections.property("ref.pkid"));
     }
 
     @Override
