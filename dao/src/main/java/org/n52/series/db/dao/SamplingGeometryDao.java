@@ -30,6 +30,7 @@
 package org.n52.series.db.dao;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -56,7 +57,13 @@ public class SamplingGeometryDao {
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
         query.addSpatialFilterTo(criteria);
-        return criteria.list();
+        return toGeometryEntities(criteria.list());
+    }
+
+    private List<GeometryEntity> toGeometryEntities(List<SamplingGeometryEntity> entities) {
+        return entities.stream()
+                       .map(e -> e.getGeometryEntity())
+                       .collect(Collectors.toList());
     }
 
 }
