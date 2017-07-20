@@ -132,12 +132,12 @@ public class QuantityDataRepository extends
     private QuantityValue[] expandToInterval(Double value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
+        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
+                                                 .getStart()
+                                                 .toDate());
+        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
+                                               .getEnd()
+                                               .toDate());
         referenceStart.setValue(value);
         referenceEnd.setValue(value);
         return new QuantityValue[] {
@@ -169,8 +169,8 @@ public class QuantityDataRepository extends
     }
 
     QuantityValue createValue(Double observationValue, QuantityDataEntity observation, DbQuery query) {
-        Date timeend = observation.getTimeend();
-        Date timestart = observation.getTimestart();
+        Date timeend = observation.getPhenomenonTimeEnd();
+        Date timestart = observation.getPhenomenonTimeStart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
