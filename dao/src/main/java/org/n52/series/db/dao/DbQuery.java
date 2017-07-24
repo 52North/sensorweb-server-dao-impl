@@ -295,7 +295,7 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported("geometryEntity", criteria) ||
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria) ||
             DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
@@ -309,7 +309,6 @@ public class DbQuery {
                     if (DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
                         criteria.createCriteria(PROPERTY_OBSERVATIONS)
                                 .add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
-
                     } else {
                         criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
                     }
