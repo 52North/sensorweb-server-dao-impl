@@ -30,6 +30,11 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,17 +42,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity> {
 
-    private static final String SERIES_PROPERTY = "platform";
-
     public PlatformDao(Session session) {
         super(session);
     }
 
     @Override
     protected String getDatasetProperty() {
-        return SERIES_PROPERTY;
+        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.PROCEDURE;
     }
 
+    @Override
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                       .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+    }
+    
     @Override
     protected Class<PlatformEntity> getEntityClass() {
         return PlatformEntity.class;

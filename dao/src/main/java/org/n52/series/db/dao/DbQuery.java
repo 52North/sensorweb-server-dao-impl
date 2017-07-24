@@ -387,8 +387,9 @@ public class DbQuery {
         FilterResolver filterResolver = getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
-                // series table itself
-                criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
+                // criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
+                criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                        .createCriteria(ObservationConstellationEntity.PROCEDURE)
                         .add(createMobileExpression(filterResolver))
                         .add(createInsituExpression(filterResolver));
             } else {
