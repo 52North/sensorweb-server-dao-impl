@@ -40,7 +40,7 @@ import org.n52.series.db.beans.SamplingGeometryEntity;
 
 public class SamplingGeometryDao {
 
-    private static final String COLUMN_SERIES_PKID = "seriesPkid";
+    private static final String COLUMN_DATASET = "dataset";
 
     private static final String COLUMN_TIMESTAMP = "timestamp";
 
@@ -53,10 +53,10 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery query) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        query.addDetachedFilters(COLUMN_SERIES_PKID, criteria);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
         query.addSpatialFilterTo(criteria);
+        query.addDetachedFilters(COLUMN_DATASET, criteria);
         return toGeometryEntities(criteria.list());
     }
 
