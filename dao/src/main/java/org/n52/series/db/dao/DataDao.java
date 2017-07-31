@@ -70,10 +70,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private static final String COLUMN_RESULTTIME = "resultTime";
 
-    private static final String COLUMN_TIMESTART = "timestart";
-
-    private static final String COLUMN_TIMEEND = "timeend";
-
     private static final String COLUMN_PARENT = "parent";
 
     private final Class<T> entityType;
@@ -150,7 +146,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     protected Criteria getDefaultCriteria(DbQuery parameters) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(Order.asc(COLUMN_TIMEEND))
+                                   .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
                                    .add(Restrictions.eq(COLUMN_DELETED, Boolean.FALSE));
 
         if (parameters != null && parameters.getResultTime() != null) {
@@ -166,12 +162,12 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
-        return getDataValueAt(timeend, COLUMN_TIMEEND, series, query);
+        return getDataValueAt(timeend, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
     }
 
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
-        return getDataValueAt(timestart, COLUMN_TIMESTART, series, query);
+        return getDataValueAt(timestart, DataEntity.PROPERTY_PHENOMENON_TIME_START, series, query);
     }
 
     @SuppressWarnings("unchecked")
