@@ -29,17 +29,49 @@
 
 package org.n52.series.db.dao;
 
+import java.util.List;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
+import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDao.class);
+
     public FeatureDao(Session session) {
         super(session);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<FeatureEntity> getStationaryInstances(DbQuery query) throws DataAccessException {
+        LOGGER.debug("get stationary instances: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+
+        DetachedCriteria subquery = super.createDatasetSubqueryViaExplicitJoin(query);
+        subquery.setProjection(Projections.property(DatasetEntity.PROPERTY_FEATURE))
+                .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                .add(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, Boolean.FALSE));
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, subquery));
+
+        criteria = i18n(getI18NEntityClass(), criteria, query);
+        return query.addFilters(criteria, getDatasetProperty())
+                    .list();
     }
 
     @Override
