@@ -38,8 +38,9 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.LogicalExpression;
-import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
@@ -194,11 +195,10 @@ public class DbQuery {
         return criteria;
     }
 
-    private ProjectionList matchPropertyPkids(String alias, String property) {
+    private PropertyProjection matchPropertyPkids(String alias, String property) {
         String member = QueryUtils.createAssociation(alias, property);
         String association = QueryUtils.createAssociation(member, PROPERTY_PKID);
-        return Projections.projectionList()
-                          .add(Projections.property(association));
+        return Projections.property(association);
     }
 
     private Criterion matchPropertyPkids(String property, DetachedCriteria c) {
@@ -250,9 +250,12 @@ public class DbQuery {
             return criteria;
         }
 
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
-                                                  .createAlias(datasetName, "ref")
-                                                  .setProjection(Projections.property("ref.pkid"));
+        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        filter = !datasetName.isEmpty()
+                ? filter.createCriteria(datasetName, "filter")
+                        .setProjection(Projections.property("filter.pkid"))
+                : filter.setProjection(Projections.property("pkid"));
+        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter);
 
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
@@ -260,22 +263,25 @@ public class DbQuery {
         }
 
         if (hasValues(phenomena)) {
-            String phenomenonPath = getObservationCollectionPath(ObservationConstellationEntity.OBSERVABLE_PROPERTY);
-            addHierarchicalFilterRestriction(phenomena, phenomenonPath, filter, "phen_");
+            addHierarchicalFilterRestriction(phenomena,
+                                             ObservationConstellationEntity.OBSERVABLE_PROPERTY,
+                                             observationConstellationFilter);
         }
 
         if (hasValues(procedures)) {
-            String procedurePath = getObservationCollectionPath(ObservationConstellationEntity.PROCEDURE);
-            addHierarchicalFilterRestriction(procedures, procedurePath, filter, "p_");
+            addHierarchicalFilterRestriction(procedures,
+                                             ObservationConstellationEntity.PROCEDURE,
+                                             observationConstellationFilter);
         }
 
         if (hasValues(offerings)) {
-            String offeringPath = getObservationCollectionPath(ObservationConstellationEntity.OFFERING);
-            addHierarchicalFilterRestriction(offerings, offeringPath, filter, "off_");
+            addHierarchicalFilterRestriction(offerings,
+                                             ObservationConstellationEntity.OFFERING,
+                                             observationConstellationFilter);
         }
 
         if (hasValues(features)) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "f_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         }
 
         if (hasValues(categories)) {
@@ -290,20 +296,21 @@ public class DbQuery {
         return criteria;
     }
 
-    private String getObservationCollectionPath(String property) {
-        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, property);
+    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter) {
+        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION);
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String associationPath,
-                                                              DetachedCriteria filter,
-                                                              String prefix) {
+                                                              String property,
+                                                              DetachedCriteria filter) {
         if (hasValues(values)) {
-            filter.createCriteria(associationPath, prefix + "e")
+            String itemAlias = property + "_filter";
+            String parentAlias = property + "_parent";
+            filter.createCriteria(property, itemAlias)
                   // join the parents to enable filtering via parent ids
-                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
-                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
+                  .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, itemAlias),
+                                       Restrictions.in(parentAlias + ".pkid", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -387,20 +394,18 @@ public class DbQuery {
         FilterResolver filterResolver = getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
-                // criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
                 criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                         .createCriteria(ObservationConstellationEntity.PROCEDURE)
                         .add(createMobileExpression(filterResolver))
                         .add(createInsituExpression(filterResolver));
             } else {
-                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
+                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class)
                                                      .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                                                     .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                                                     .createCriteria(ObservationConstellationEntity.PROCEDURE, "proc")
                                                      .add(createMobileExpression(filterResolver))
                                                      .add(createInsituExpression(filterResolver))
-                                                     .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
-                                                                                       parameter));
-                criteria.add(matchPropertyPkids(parameter, c));
+                                                     .setProjection(Projections.property("proc.pkid"));
+                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
             }
         }
         return criteria;
@@ -416,7 +421,7 @@ public class DbQuery {
                     // series table itself
                     criteria.add(containsValueType);
                 } else {
-                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
+                    Projection onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
                                                          .add(containsValueType)
                                                          .setProjection(onPkids);
