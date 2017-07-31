@@ -139,11 +139,11 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public Set<String> getDatasetTypes() {
+    public Set<String> getValueTypes() {
         return parameters.getValueTypes();
     }
 
-    public boolean isSetDatasetTypeFilter() {
+    public boolean isSetValueTypeFilter() {
         return !parameters.getValueTypes()
                           .isEmpty();
     }
@@ -209,7 +209,7 @@ public class DbQuery {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
         addPlatformTypeFilter(datasetProperty, criteria);
-        addDatasetTypeFilter(datasetProperty, criteria);
+        addValueTypeFilter(datasetProperty, criteria);
         return addSpatialFilterTo(criteria);
     }
 
@@ -406,7 +406,7 @@ public class DbQuery {
         return criteria;
     }
 
-    private Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
+    private Criteria addValueTypeFilter(String parameter, Criteria criteria) {
         Set<String> valueTypes = getParameters().getValueTypes();
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = getFilterResolver();

@@ -84,7 +84,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                 return false;
             }
             DataRepository dataRepository = dataRepositoryFactory.create(valueType);
-            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(valueType, session);
+            DatasetDao< ? extends DatasetEntity> dao = getDatasetDao(valueType, session);
             Class datasetEntityType = dataRepository.getDatasetEntityType();
             return parameters.getParameters()
                              .isMatchDomainIds()
@@ -115,15 +115,15 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         if (query.getParameters()
                  .isMatchDomainIds()) {
             String valueType = query.getHandleAsValueTypeFallback();
-            addCondensedResults(getSeriesDao(valueType, session), query, results, session);
+            addCondensedResults(getDatasetDao(valueType, session), query, results, session);
             return results;
         }
 
         if (filterResolver.shallIncludeAllDatasetTypes()) {
-            addCondensedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
+            addCondensedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String valueType : query.getDatasetTypes()) {
-                addCondensedResults(getSeriesDao(valueType, session), query, results, session);
+            for (String valueType : query.getValueTypes()) {
+                addCondensedResults(getDatasetDao(valueType, session), query, results, session);
             }
         }
         return results;
@@ -139,7 +139,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
-    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String valueType, Session session)
+    private DatasetDao< ? extends DatasetEntity> getDatasetDao(String valueType, Session session)
             throws DataAccessException {
         if (!("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
             throw new BadQueryParameterException("invalid type: " + valueType);
@@ -161,13 +161,13 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throws DataAccessException {
         try {
             DataRepository dataRepository = dataRepositoryFactory.create(valueType);
-            return getSeriesDao(dataRepository.getDatasetEntityType(), session);
+            return getDatasetDao(dataRepository.getDatasetEntityType(), session);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
     }
 
-    private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
+    private DatasetDao< ? extends DatasetEntity> getDatasetDao(Class< ? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
     }
 
@@ -188,15 +188,15 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         if (query.getParameters()
                  .isMatchDomainIds()) {
             String valueType = query.getHandleAsValueTypeFallback();
-            addExpandedResults(getSeriesDao(valueType, session), query, results, session);
+            addExpandedResults(getDatasetDao(valueType, session), query, results, session);
             return results;
         }
 
         if (filterResolver.shallIncludeAllDatasetTypes()) {
-            addExpandedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
+            addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String valueType : query.getDatasetTypes()) {
-                addExpandedResults(getSeriesDao(valueType, session), query, results, session);
+            for (String valueType : query.getValueTypes()) {
+                addExpandedResults(getDatasetDao(valueType, session), query, results, session);
             }
         }
         return results;
@@ -240,7 +240,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     public Collection<SearchResult> searchFor(IoParameters paramters) {
         Session session = getSession();
         try {
-            DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(DatasetEntity.class, session);
+            DatasetDao< ? extends DatasetEntity> dao = getDatasetDao(DatasetEntity.class, session);
             DbQuery query = getDbQuery(paramters);
             List< ? extends DatasetEntity> found = dao.find(query);
             return convertToSearchResults(found, query);
