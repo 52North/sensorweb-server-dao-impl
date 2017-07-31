@@ -197,7 +197,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                 currentLastValue = getLaterValue(currentLastValue, valueToCheck);
             } catch (DatasetFactoryException e) {
                 LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                             dataset.getId());
+                             dataset.getId(), e);
             }
         }
 
