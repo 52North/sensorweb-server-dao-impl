@@ -263,15 +263,15 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
+    protected DatasetOutput createCondensed(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetOutput output = new DatasetOutput(series.getValueType()) {};
-        output.setLabel(createSeriesLabel(series, query.getLocale()));
-        output.setId(series.getPkid()
+        DatasetOutput output = new DatasetOutput(dataset.getValueType()) {};
+        output.setLabel(dataset.getLabelFrom(query.getLocale()));
+        output.setId(dataset.getPkid()
                            .toString());
-        output.setDomainId(series.getDomainId());
+        output.setDomainId(dataset.getDomainId());
         output.setHrefBase(urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
-        PlatformOutput platform = getCondensedPlatform(series, query, session);
+        PlatformOutput platform = getCondensedPlatform(dataset, query, session);
         output.setPlatformType(platform.getPlatformType());
         return output;
     }
@@ -303,26 +303,6 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
         return platformRepository.createCondensed(series, query, session);
-    }
-
-    private String createSeriesLabel(DatasetEntity< ? > series, String locale) {
-        String station = series.getFeature()
-                               .getLabelFrom(locale);
-        String procedure = series.getProcedure()
-                                 .getLabelFrom(locale);
-        String phenomenon = series.getPhenomenon()
-                                  .getLabelFrom(locale);
-        String offering = series.getOffering()
-                                .getLabelFrom(locale);
-        StringBuilder sb = new StringBuilder();
-        sb.append(phenomenon)
-          .append(" ");
-        sb.append(procedure)
-          .append(", ");
-        sb.append(station)
-          .append(", ");
-        return sb.append(offering)
-                 .toString();
     }
 
     public IDataRepositoryFactory getDataRepositoryFactory() {
