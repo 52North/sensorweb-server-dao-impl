@@ -200,10 +200,6 @@ public class DbQuery {
         return Projections.property(association);
     }
 
-    private Criterion matchPropertyPkids(String property, DetachedCriteria c) {
-        return Subqueries.propertyIn(QueryUtils.createAssociation(property, PROPERTY_PKID), c);
-    }
-
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
@@ -359,12 +355,6 @@ public class DbQuery {
 
     private boolean hasValues(Set<String> values) {
         return values != null && !values.isEmpty();
-    }
-
-    private Set<String> getDatasetIds(Set<String> datasets) {
-        return datasets.stream()
-                       .map(e -> ValueType.extractId(e))
-                       .collect(Collectors.toSet());
     }
 
     private Set<String> getStationaryIds(Set<String> platforms) {
