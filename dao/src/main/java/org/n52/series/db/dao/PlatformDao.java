@@ -57,7 +57,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                        .createCriteria(ObservationConstellationEntity.PROCEDURE)
                        .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
-    
+
     @Override
     protected Class<PlatformEntity> getEntityClass() {
         return PlatformEntity.class;

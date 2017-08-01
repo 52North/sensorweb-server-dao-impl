@@ -67,7 +67,8 @@ public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
                 .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                 .createCriteria(ObservationConstellationEntity.PROCEDURE)
                 .add(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, Boolean.FALSE));
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, subquery));
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, subquery))
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         criteria = i18n(getI18NEntityClass(), criteria, query);
         return query.addFilters(criteria, getDatasetProperty())
