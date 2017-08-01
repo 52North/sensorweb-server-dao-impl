@@ -48,7 +48,8 @@ public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.OFFERING;
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
+                                            ObservationConstellationEntity.OFFERING);
     }
 
     @Override

@@ -47,7 +47,8 @@ public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenon
 
     @Override
     protected String getDatasetProperty() {
-        return ObservationConstellationEntity.OBSERVABLE_PROPERTY;
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
+                                            ObservationConstellationEntity.OBSERVABLE_PROPERTY);
     }
 
     @Override

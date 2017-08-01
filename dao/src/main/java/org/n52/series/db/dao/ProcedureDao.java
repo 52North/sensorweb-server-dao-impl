@@ -75,7 +75,8 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.PROCEDURE;
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
+                                            ObservationConstellationEntity.PROCEDURE);
     }
 
     @Override
