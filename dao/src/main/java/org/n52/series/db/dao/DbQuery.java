@@ -38,7 +38,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.LogicalExpression;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
@@ -422,11 +421,21 @@ public class DbQuery {
                     // series table itself
                     criteria.add(containsValueType);
                 } else {
-                    Projection onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(containsValueType)
-                                                         .setProjection(onPkids);
-                    criteria.add(matchPropertyPkids(parameter, c));
+                                                         .add(containsValueType);
+
+                    String[] associationPathElements = parameter.split("\\.", 2);
+                    if (associationPathElements.length == 2) {
+                        String pathToJoin = associationPathElements[0];
+                        String property = associationPathElements[1];
+                        String alias = "valueTypeFilter";
+                        c.createCriteria(pathToJoin, alias)
+                         .setProjection(matchPropertyPkids(alias, property));
+                    } else {
+                        c.setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter));
+                    }
+                    // criteria.add(matchPropertyPkids(parameter, c));
+                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
                 }
             }
         }
