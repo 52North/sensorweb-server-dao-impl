@@ -250,11 +250,12 @@ public class DbQuery {
             return criteria;
         }
 
+        String alias = "filter";
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
         filter = !datasetName.isEmpty()
-                ? filter.createCriteria(datasetName, "filter")
-                        .setProjection(Projections.property("filter.pkid"))
-                : filter.setProjection(Projections.property("pkid"));
+                ? filter.createCriteria(datasetName, alias)
+                        .setProjection(Projections.property(QueryUtils.createAssociation(alias, PROPERTY_PKID)))
+                : filter.setProjection(Projections.property(PROPERTY_PKID));
         DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter);
 
         if (hasValues(platforms)) {

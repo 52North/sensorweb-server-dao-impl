@@ -85,21 +85,17 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          */
         Criteria criteria = getDefaultCriteria("s", query);
 
-        criteria.createAlias(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, "c");
-        Criteria procedureCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.PROCEDURE,
-                                                             JoinType.LEFT_OUTER_JOIN);
+        Criteria procedureCriteria = constellationJoin(ObservationConstellationEntity.PROCEDURE, criteria);
         procedureCriteria = i18n(I18nProcedureEntity.class, procedureCriteria, query);
         procedureCriteria.add(Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm));
         series.addAll(procedureCriteria.list());
 
-        Criteria offeringCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.OFFERING,
-                                                            JoinType.LEFT_OUTER_JOIN);
+        Criteria offeringCriteria = constellationJoin(ObservationConstellationEntity.OFFERING, criteria);
         offeringCriteria = i18n(I18nOfferingEntity.class, offeringCriteria, query);
         offeringCriteria.add(Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm));
         series.addAll(offeringCriteria.list());
 
-        Criteria phenomenonCriteria = criteria.createCriteria("c." + ObservationConstellationEntity.OBSERVABLE_PROPERTY,
-                                                              JoinType.LEFT_OUTER_JOIN);
+        Criteria phenomenonCriteria = constellationJoin(ObservationConstellationEntity.OBSERVABLE_PROPERTY, criteria);
         phenomenonCriteria = i18n(I18nPhenomenonEntity.class, phenomenonCriteria, query);
         phenomenonCriteria.add(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm));
         series.addAll(phenomenonCriteria.list());
@@ -111,6 +107,13 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         series.addAll(featureCriteria.list());
 
         return series;
+    }
+
+    private Criteria constellationJoin(String procedure, Criteria criteria) {
+        String alias = "c";
+        criteria.createAlias(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
+        String procedureMember = QueryUtils.createAssociation(alias, procedure);
+        return criteria.createCriteria(procedureMember, JoinType.LEFT_OUTER_JOIN);
     }
 
     @Override

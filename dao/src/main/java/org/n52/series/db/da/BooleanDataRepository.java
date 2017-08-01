@@ -56,7 +56,9 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected BooleanData assembleDataWithReferenceValues(BooleanDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected BooleanData assembleDataWithReferenceValues(BooleanDatasetEntity timeseries,
+                                                          DbQuery dbQuery,
+                                                          Session session)
             throws DataAccessException {
         BooleanData result = assembleData(timeseries, dbQuery, session);
         Set<BooleanDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -69,8 +71,8 @@ public class BooleanDataRepository
     }
 
     private Map<String, BooleanData> assembleReferenceSeries(Set<BooleanDatasetEntity> referenceValues,
-                                                           DbQuery query,
-                                                           Session session)
+                                                             DbQuery query,
+                                                             Session session)
             throws DataAccessException {
         Map<String, BooleanData> referenceSeries = new HashMap<>();
         for (BooleanDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -92,7 +94,9 @@ public class BooleanDataRepository
                                   .size() <= 1;
     }
 
-    private BooleanData expandReferenceDataIfNecessary(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
+    private BooleanData expandReferenceDataIfNecessary(BooleanDatasetEntity seriesEntity,
+                                                       DbQuery query,
+                                                       Session session)
             throws DataAccessException {
         BooleanData result = new BooleanData();
         DataDao<BooleanDataEntity> dao = createDataDao(session);
@@ -126,11 +130,11 @@ public class BooleanDataRepository
         BooleanDataEntity referenceStart = new BooleanDataEntity();
         BooleanDataEntity referenceEnd = new BooleanDataEntity();
         referenceStart.setPhenomenonTimeEnd(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
+                                                 .getStart()
+                                                 .toDate());
         referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
+                                               .getEnd()
+                                               .toDate());
         referenceStart.setValue(value);
         referenceEnd.setValue(value);
         return new BooleanValue[] {
@@ -141,7 +145,9 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue createSeriesValueFor(BooleanDataEntity observation, BooleanDatasetEntity series, DbQuery query) {
+    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
+                                             BooleanDatasetEntity series,
+                                             DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
