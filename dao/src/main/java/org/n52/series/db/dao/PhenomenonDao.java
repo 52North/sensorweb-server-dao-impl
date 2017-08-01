@@ -33,6 +33,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -54,8 +55,8 @@ public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenon
     @Override
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
         return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                       .createAlias(getDatasetProperty(), "ref")
-                       .setProjection(Projections.property("ref.pkid"));
+                       .createCriteria(ObservationConstellationEntity.OBSERVABLE_PROPERTY)
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
 
     @Override

@@ -36,6 +36,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.i18n.I18nProcedureEntity;
@@ -81,8 +82,9 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
 
     @Override
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createAlias(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, "obs_const")
-                       .setProjection(Projections.property("obs_const." + ObservationConstellationEntity.PROCEDURE));
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
 
     @Override
