@@ -282,7 +282,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             // when named query not configured --> bad performance
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
-                    .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getPkid()));
+                                             .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getPkid()));
             List<GeometryEntity> samplingGeometries = dao.getGeometriesOrderedByTimestamp(getDbQuery(parameters));
             return createLineString(samplingGeometries, dbQuery);
         }
@@ -330,12 +330,9 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     }
 
     private PlatformOutput getPlatfom(FeatureEntity entity, DbQuery parameters) throws DataAccessException {
-        DbQuery platformQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                    .extendWith(Parameters.FEATURES,
-                                                                                String.valueOf(entity.getPkid()))
-                                                                    .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                                "all"));
-
+        DbQuery platformQuery = getDbQuery(parameters.getParameters()
+                                                     .extendWith(Parameters.FEATURES, String.valueOf(entity.getPkid()))
+                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all"));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()
                         .next();
