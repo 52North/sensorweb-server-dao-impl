@@ -124,6 +124,7 @@
         <groupId>rubygems</groupId>
         <artifactId>faraday</artifactId>
         <version>0.12.1</version>
+        <version>0.12.2</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -445,6 +446,7 @@
         <groupId>rubygems</groupId>
         <artifactId>minitest</artifactId>
         <version>5.10.2</version>
+        <version>5.10.3</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -494,6 +496,7 @@
         <groupId>rubygems</groupId>
         <artifactId>rb-fsevent</artifactId>
         <version>0.9.8</version>
+        <version>0.10.2</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
