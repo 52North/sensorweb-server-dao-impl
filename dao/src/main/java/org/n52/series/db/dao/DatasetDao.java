@@ -59,11 +59,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final String COLUMN_PKID = "pkid";
 
     private static final String PROCEDURE_ALIAS = "proc";
-    
+
     private static final String OFFERING_ALIAS = "off";
 
     private static final String FEATURE_ALIAS = "feat";
-    
+
     private static final String PHENOMENON_ALIAS = "phen";
 
     private final Class<T> entityType;
@@ -88,7 +88,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
          * to join tables and search for given pattern on any of the stored labels.
          */
-        
+
         Criteria criteria = getDefaultCriteria(query);
         // default criteria performs join on procedure table
         constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
@@ -101,7 +101,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         String featureName = QueryUtils.createAssociation(FEATURE_ALIAS, FeatureEntity.PROPERTY_NAME);
         criteria.add(Restrictions.or(Restrictions.ilike(procedureName, searchTerm),
                                      Restrictions.ilike(offeringName, searchTerm),
-                                     Restrictions.ilike(phenomenonName, searchTerm), 
+                                     Restrictions.ilike(phenomenonName, searchTerm),
                                      Restrictions.ilike(featureName, searchTerm)));
 
         i18n(I18nOfferingEntity.class, criteria, query);
