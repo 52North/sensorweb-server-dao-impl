@@ -32,9 +32,7 @@ package org.n52.series.db.da;
 import java.io.File;
 
 import org.n52.io.ConfigTypedFactory;
-import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 

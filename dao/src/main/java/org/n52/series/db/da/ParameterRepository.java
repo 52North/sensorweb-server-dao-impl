@@ -52,9 +52,6 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
 
-    protected abstract O createExpanded(E instance, DbQuery query, Session session)
-            throws DataAccessException;
-
     protected abstract String createHref(String hrefBase);
 
     protected abstract AbstractDao<E> createDao(Session session);
@@ -123,6 +120,9 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<E> allInstances = getAllInstances(query, session);
         return createExpanded(allInstances, query, session);
     }
+
+    protected abstract O createExpanded(E instance, DbQuery query, Session session)
+            throws DataAccessException;
 
     protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {
