@@ -163,16 +163,16 @@ public abstract class SessionAwareRepository {
         return metadata;
     }
 
-    protected SeriesParameters createSeriesParameters(DatasetEntity< ? > series, DbQuery parameters, Session session)
+    protected SeriesParameters createSeriesParameters(DatasetEntity< ? > dataset, DbQuery parameters, Session session)
             throws DataAccessException {
         SeriesParameters metadata = new SeriesParameters();
-        ServiceEntity service = getServiceEntity(series);
+        ServiceEntity service = getServiceEntity(dataset);
         metadata.setService(getCondensedExtendedService(service, parameters));
-        metadata.setOffering(getCondensedExtendedOffering(series.getOffering(), parameters));
-        metadata.setProcedure(getCondensedExtendedProcedure(series.getProcedure(), parameters));
-        metadata.setPhenomenon(getCondensedExtendedPhenomenon(series.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedExtendedFeature(series.getFeature(), parameters));
-        metadata.setCategory(getCondensedExtendedCategory(series.getCategory(), parameters));
+        metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), parameters));
+        metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), parameters));
+        metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), parameters));
+        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), parameters));
+        metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), parameters));
         // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
         return metadata;
     }
