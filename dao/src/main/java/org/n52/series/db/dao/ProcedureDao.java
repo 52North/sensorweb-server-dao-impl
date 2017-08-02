@@ -58,17 +58,17 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     @Override
     public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
         LOGGER.debug("get instance '{}': {}", key, query);
-        Criteria criteria = getDefaultCriteria(true, query);
+        Criteria criteria = getDefaultCriteria(query);
         return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
                                              .uniqueResult());
     }
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery query) {
-        return getDefaultCriteria(true, query);
+    public Criteria getDefaultCriteria(DbQuery query) {
+        return getDefaultCriteria(query, true);
     }
 
-    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures, DbQuery query) {
+    private Criteria getDefaultCriteria(DbQuery query, boolean ignoreReferenceProcedures) {
         return ignoreReferenceProcedures
                 ? super.getDefaultCriteria(query).add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
                 : super.getDefaultCriteria(query);

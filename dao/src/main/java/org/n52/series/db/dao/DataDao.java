@@ -137,7 +137,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery parameters) {
+    public Criteria getDefaultCriteria(DbQuery parameters) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
