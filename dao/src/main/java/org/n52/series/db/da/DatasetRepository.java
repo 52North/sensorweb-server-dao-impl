@@ -40,7 +40,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.SeriesParameters;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
@@ -277,21 +277,21 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createExpanded(DatasetEntity< ? > series, DbQuery query, Session session)
+    protected DatasetOutput createExpanded(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
         try {
-            DatasetOutput result = createCondensed(series, query, session);
-            SeriesParameters seriesParameters = createSeriesParameters(series, query, session);
-            seriesParameters.setPlatform(getCondensedPlatform(series, query, session));
-            result.setSeriesParameters(seriesParameters);
+            DatasetOutput result = createCondensed(dataset, query, session);
+            DatasetParameters parameters = createDatasetParameters(dataset, query, session);
+            parameters.setPlatform(getCondensedPlatform(dataset, query, session));
+            result.setDatasetParameters(parameters);
 
-            if (series.getService() == null) {
-                series.setService(getServiceEntity());
+            if (dataset.getService() == null) {
+                dataset.setService(getServiceEntity());
             }
-            result.setUom(series.getUnitI18nName(query.getLocale()));
-            DataRepository dataRepository = dataRepositoryFactory.create(series.getValueType());
-            result.setFirstValue(dataRepository.getFirstValue(series, session, query));
-            result.setLastValue(dataRepository.getLastValue(series, session, query));
+            result.setUom(dataset.getUnitI18nName(query.getLocale()));
+            DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
+            result.setFirstValue(dataRepository.getFirstValue(dataset, session, query));
+            result.setLastValue(dataRepository.getLastValue(dataset, session, query));
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);
