@@ -65,6 +65,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Autowired
     @Qualifier(value = "stationRepository")
     private OutputAssembler<StationOutput> stationRepository;
+    
+    @Autowired
+    private PlatformRepository platformRepository;
 
     @Autowired
     private IDataRepositoryFactory factory;
@@ -171,14 +174,15 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery dbQuery, Session session)
+    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session)
             throws DataAccessException {
         DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), dbQuery);
+        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + timeseriesId + "' could not be found.");
         }
-        return createExpanded(result, dbQuery, session);
+        result.setPlatform(platformRepository.getPlatformEntity(result, query, session));
+        return createExpanded(result, query, session);
     }
 
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
