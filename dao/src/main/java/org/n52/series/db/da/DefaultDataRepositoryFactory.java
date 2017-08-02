@@ -32,7 +32,9 @@ package org.n52.series.db.da;
 import java.io.File;
 
 import org.n52.io.ConfigTypedFactory;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,6 +46,9 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
 
     @Autowired
     private HibernateSessionStore sessionStore;
+
+    @Autowired
+    private PlatformRepository platformRepository;
 
     @Autowired
     private ServiceEntity serviceEntity;
@@ -59,6 +64,7 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
     @Override
     protected DataRepository initInstance(DataRepository instance) {
         instance.setSessionStore(sessionStore);
+        instance.setPlatformRepository(platformRepository);
         if (serviceEntity != null) {
             // static instance available from Spring config
             instance.setServiceEntity(serviceEntity);

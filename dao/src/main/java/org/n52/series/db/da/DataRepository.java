@@ -48,9 +48,12 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
+    void setPlatformRepository(PlatformRepository platformRepository);
+    
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void
     }
 
     Class<E> getDatasetEntityType();
+
 }

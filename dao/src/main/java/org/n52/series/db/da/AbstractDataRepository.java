@@ -54,22 +54,31 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
+    private PlatformRepository platformRepository;
+    
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
             String id = ValueType.extractId(datasetId);
-            S series = seriesDao.getInstance(id, dbQuery);
+            S series = seriesDao.getInstance(id, query);
+            series.setPlatform(getCondensedPlatform(series, query, session));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
-            return dbQuery.isExpanded()
-                    ? assembleDataWithReferenceValues(series, dbQuery, session)
-                    : assembleData(series, dbQuery, session);
+            return query.isExpanded()
+                    ? assembleDataWithReferenceValues(series, query, session)
+                    : assembleData(series, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    private PlatformEntity getCondensedPlatform(DatasetEntity< ? > dataset, DbQuery query, Session session)
+            throws DataAccessException {
+        // platform has to be handled dynamically (see #309)
+        return platformRepository.getEntity(dataset.getPlatformId(), query, session);
     }
 
     @Override
@@ -151,6 +160,11 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
         }
+    }
+
+    @Override
+    public void setPlatformRepository(PlatformRepository platformRepository) {
+        this.platformRepository = platformRepository;
     }
 
 }
