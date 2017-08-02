@@ -46,7 +46,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
@@ -120,9 +119,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
+    PlatformOutput createCondensed(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformEntity entity = getEntity(getPlatformId(series), query, session);
+        PlatformEntity entity = getEntity(dataset.getPlatformId(), query, session);
         return createCondensed(entity, query, session);
     }
 
@@ -349,21 +348,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    protected PlatformEntity getPlatformEntity(DatasetEntity< ? > series, DbQuery query, Session session)
+    protected PlatformEntity getPlatformEntity(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return getEntity(getPlatformId(series), query, session);
-    }
-
-    private String getPlatformId(DatasetEntity< ? > series) {
-        ProcedureEntity procedure = series.getProcedure();
-        boolean mobile = procedure.isMobile();
-        boolean insitu = procedure.isInsitu();
-        PlatformType type = PlatformType.toInstance(mobile, insitu);
-        DescribableEntity entity = type.isStationary()
-                ? series.getFeature()
-                : series.getProcedure();
-        return type.createId(entity.getPkid());
+        return getEntity(dataset.getPlatformId(), query, session);
     }
 
     private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {
