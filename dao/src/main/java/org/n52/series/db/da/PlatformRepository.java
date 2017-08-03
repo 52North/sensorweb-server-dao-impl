@@ -268,14 +268,14 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
-        return convertAllInsitu(featureDao.getStationaryInstances(query), query);
+        return convertAllInsitu(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session)
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
-        return convertAllRemote(featureDao.getStationaryInstances(query), query);
+        return convertAllRemote(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllMobile(DbQuery query, Session session) throws DataAccessException {
