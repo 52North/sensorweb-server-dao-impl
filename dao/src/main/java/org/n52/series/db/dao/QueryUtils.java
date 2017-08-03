@@ -47,12 +47,24 @@ public class QueryUtils {
                 ? alias + "." + property
                 : property;
     }
-
-    public static DetachedCriteria projectOnPkid(String member, DetachedCriteria criteria) {
-        return projectOnPkid(null, member, criteria);
+    
+    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
+        return projectionOn(null, property, criteria);
+    }
+    
+    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
+        return projectionOn(null, member, property, criteria);
+    }
+    
+    public static DetachedCriteria projectionOn(String alias, String member, String property, DetachedCriteria criteria) {
+        return criteria.setProjection(projectionOn(alias, member, property));
     }
 
-    public static DetachedCriteria projectOnPkid(String alias, String member, DetachedCriteria criteria) {
+    public static DetachedCriteria projectionOnPkid(String member, DetachedCriteria criteria) {
+        return projectionOnPkid(null, member, criteria);
+    }
+
+    public static DetachedCriteria projectionOnPkid(String alias, String member, DetachedCriteria criteria) {
         return criteria.setProjection(projectionOnPkid(alias, member));
     }
 

@@ -243,7 +243,7 @@ public class DbQuery {
         String[] associationPathElements = datasetName.split("\\.", 2);
         if (associationPathElements.length == 2) {
             String property = associationPathElements[1];
-            QueryUtils.projectOnPkid(constellation, property, observationConstellationFilter);
+            QueryUtils.projectionOnPkid(constellation, property, observationConstellationFilter);
         } else {
             filter = !datasetName.isEmpty()
                     ? filter.setProjection(QueryUtils.projectionOn(datasetName))
