@@ -38,8 +38,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.LogicalExpression;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
@@ -194,12 +192,6 @@ public class DbQuery {
         return criteria;
     }
 
-    private PropertyProjection matchPropertyPkids(String alias, String property) {
-        String member = QueryUtils.createAssociation(alias, property);
-        String association = QueryUtils.createAssociation(member, PROPERTY_PKID);
-        return Projections.property(association);
-    }
-
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
@@ -225,7 +217,6 @@ public class DbQuery {
     }
 
     public Criteria addDetachedFilters(String datasetName, Criteria criteria) {
-
         Set<String> categories = parameters.getCategories();
         Set<String> procedures = parameters.getProcedures();
         Set<String> phenomena = parameters.getPhenomena();
@@ -245,13 +236,19 @@ public class DbQuery {
             return criteria;
         }
 
-        String alias = "filter";
+        String constellation = "constellation";
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        filter = !datasetName.isEmpty()
-                ? filter.createCriteria(datasetName, alias)
-                        .setProjection(Projections.property(QueryUtils.createAssociation(alias, PROPERTY_PKID)))
-                : filter.setProjection(Projections.property(PROPERTY_PKID));
-        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter);
+        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter, constellation);
+
+        String[] associationPathElements = datasetName.split("\\.", 2);
+        if (associationPathElements.length == 2) {
+            String property = associationPathElements[1];
+            QueryUtils.projectOnPkid(constellation, property, observationConstellationFilter);
+        } else {
+            filter = !datasetName.isEmpty()
+                    ? filter.setProjection(QueryUtils.projectionOn(datasetName))
+                    : filter.setProjection(QueryUtils.projectionOnPkid());
+        }
 
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
@@ -292,8 +289,8 @@ public class DbQuery {
         return criteria;
     }
 
-    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter) {
-        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION);
+    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter, String alias) {
+        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
@@ -383,18 +380,34 @@ public class DbQuery {
     private Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
         FilterResolver filterResolver = getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
+            LogicalExpression platformTypeRestriction = Restrictions.and(createMobileExpression(filterResolver),
+                                                                         createInsituExpression(filterResolver));
+
             if (parameter == null || parameter.isEmpty()) {
+                // join starts from dataset table
                 criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                         .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                        .add(createMobileExpression(filterResolver))
-                        .add(createInsituExpression(filterResolver));
+                        .add(platformTypeRestriction);
+            } else if (parameter.endsWith(ObservationConstellationEntity.PROCEDURE)) {
+                // restrict directly on procedure table
+                criteria.add(platformTypeRestriction);
             } else {
-                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class)
-                                                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                                                     .createCriteria(ObservationConstellationEntity.PROCEDURE, "proc")
-                                                     .add(createMobileExpression(filterResolver))
-                                                     .add(createInsituExpression(filterResolver))
-                                                     .setProjection(Projections.property("proc.pkid"));
+                // join procedure table via dataset table
+                String alias = "platformTypeFilter";
+                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
+                c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
+                 .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                 .add(platformTypeRestriction);
+
+                String[] associationPathElements = parameter.split("\\.", 2);
+                if (associationPathElements.length == 2) {
+                    // other observationconstellation members
+                    String member = associationPathElements[1];
+                    c.setProjection(QueryUtils.projectionOnPkid(alias, member));
+                } else {
+                    // feature case only
+                    c.setProjection(QueryUtils.projectionOn(parameter));
+                }
                 criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
             }
         }
@@ -408,23 +421,23 @@ public class DbQuery {
             if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
                 Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
-                    // series table itself
+                    // join starts from dataset table
                     criteria.add(containsValueType);
                 } else {
-                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(containsValueType);
+                    String alias = "valueTypeFilter";
+                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
+                    c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
+                     .add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
 
                     String[] associationPathElements = parameter.split("\\.", 2);
                     if (associationPathElements.length == 2) {
-                        String pathToJoin = associationPathElements[0];
-                        String property = associationPathElements[1];
-                        String alias = "valueTypeFilter";
-                        c.createCriteria(pathToJoin, alias)
-                         .setProjection(matchPropertyPkids(alias, property));
+                        // other observationconstellation members
+                        String member = associationPathElements[1];
+                        c.setProjection(QueryUtils.projectionOnPkid(alias, member));
                     } else {
-                        c.setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter));
+                        // feature case only
+                        c.setProjection(QueryUtils.projectionOn(parameter));
                     }
-                    // criteria.add(matchPropertyPkids(parameter, c));
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
                 }
             }

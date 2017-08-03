@@ -32,6 +32,9 @@ package org.n52.series.db.dao;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 
@@ -45,6 +48,40 @@ public class QueryUtils {
                 : property;
     }
 
+    public static DetachedCriteria projectOnPkid(String member, DetachedCriteria criteria) {
+        return projectOnPkid(null, member, criteria);
+    }
+
+    public static DetachedCriteria projectOnPkid(String alias, String member, DetachedCriteria criteria) {
+        return criteria.setProjection(projectionOnPkid(alias, member));
+    }
+
+    public static PropertyProjection projectionOnPkid() {
+        return projectionOnPkid(null);
+    }
+
+    public static PropertyProjection projectionOnPkid(String member) {
+        return projectionOnPkid(null, member);
+    }
+
+    public static PropertyProjection projectionOnPkid(String alias, String member) {
+        return projectionOn(alias, member, PROPERTY_PKID);
+    }
+    
+    public static PropertyProjection projectionOn(String property) {
+        return projectionOn(null, property);
+    }
+
+    public static PropertyProjection projectionOn(String member, String property) {
+        return projectionOn(null, member, property);
+    }
+
+    public static PropertyProjection projectionOn(String alias, String member, String property) {
+        String qMember = QueryUtils.createAssociation(alias, member);
+        String association = QueryUtils.createAssociation(qMember, property);
+        return Projections.property(association);
+    }
+    
     public static Set<Long> parseToIds(Set<String> ids) {
         return ids.stream()
                   .map(e -> parseToId(e))
