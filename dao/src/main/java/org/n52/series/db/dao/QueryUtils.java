@@ -47,16 +47,19 @@ public class QueryUtils {
                 ? alias + "." + property
                 : property;
     }
-    
+
     public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
         return projectionOn(null, property, criteria);
     }
-    
+
     public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
         return projectionOn(null, member, property, criteria);
     }
-    
-    public static DetachedCriteria projectionOn(String alias, String member, String property, DetachedCriteria criteria) {
+
+    public static DetachedCriteria projectionOn(String alias,
+                                                String member,
+                                                String property,
+                                                DetachedCriteria criteria) {
         return criteria.setProjection(projectionOn(alias, member, property));
     }
 
@@ -79,7 +82,7 @@ public class QueryUtils {
     public static PropertyProjection projectionOnPkid(String alias, String member) {
         return projectionOn(alias, member, PROPERTY_PKID);
     }
-    
+
     public static PropertyProjection projectionOn(String property) {
         return projectionOn(null, property);
     }
@@ -93,7 +96,7 @@ public class QueryUtils {
         String association = QueryUtils.createAssociation(qMember, property);
         return Projections.property(association);
     }
-    
+
     public static Set<Long> parseToIds(Set<String> ids) {
         return ids.stream()
                   .map(e -> parseToId(e))
@@ -105,6 +108,9 @@ public class QueryUtils {
     }
 
     /**
+     * parsed the given string to the raw database id. strips prefixes ending with a "<tt>_</tt>", e.g.
+     * <tt>platform_track_8<tt> will return <tt>8</tt>.
+     * 
      * @param id
      *        the id string to parse.
      * @return the long value of given string or {@link Long#MIN_VALUE} if string could not be parsed to type
@@ -112,7 +118,8 @@ public class QueryUtils {
      */
     public static Long parseToId(String id) {
         try {
-            return Long.parseLong(id);
+            String rawId = id.substring(id.lastIndexOf("_") + 1);
+            return Long.parseLong(rawId);
         } catch (NumberFormatException e) {
             return Long.MIN_VALUE;
         }
