@@ -53,8 +53,11 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        DetachedCriteria stationary = QueryUtils.projectionOn("feature", createMobileSubquery("const", false));
-        DetachedCriteria mobile = QueryUtils.projectionOn("const.procedure", createMobileSubquery("const", true));
+        String alias = "const";
+        String procedure = QueryUtils.createAssociation(alias, ObservationConstellationEntity.PROCEDURE);
+        DetachedCriteria mobile = QueryUtils.projectionOn(procedure, createMobileSubquery(alias, true));
+        DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
+                                                              createMobileSubquery(alias, false));
 
         FeatureDao featureDao = new FeatureDao(session);
         ProcedureDao procedureDao = new ProcedureDao(session);
