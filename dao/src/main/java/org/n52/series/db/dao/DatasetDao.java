@@ -54,11 +54,11 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("rawtypes")
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
+    public static final String PROCEDURE_ALIAS = "proc";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
     private static final String COLUMN_PKID = "pkid";
-
-    private static final String PROCEDURE_ALIAS = "proc";
 
     private static final String OFFERING_ALIAS = "off";
 
@@ -170,11 +170,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = session.createCriteria(clazz)
                                    .add(createPublishedDatasetFilter());
+        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS);
         if (ignoreReferenceSeries) {
             String refMember = QueryUtils.createAssociation(PROCEDURE_ALIAS, "reference");
-            criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                    .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS)
-                    .add(Restrictions.eq(refMember, Boolean.FALSE));
+            criteria.add(Restrictions.eq(refMember, Boolean.FALSE));
         }
         return criteria;
     }
