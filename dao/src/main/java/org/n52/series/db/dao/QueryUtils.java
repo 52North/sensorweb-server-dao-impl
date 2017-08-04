@@ -63,6 +63,10 @@ public class QueryUtils {
         return criteria.setProjection(projectionOn(alias, member, property));
     }
 
+    public static DetachedCriteria projectionOnPkid(DetachedCriteria criteria) {
+        return projectionOnPkid(null, criteria);
+    }
+
     public static DetachedCriteria projectionOnPkid(String member, DetachedCriteria criteria) {
         return projectionOnPkid(null, member, criteria);
     }
@@ -72,7 +76,7 @@ public class QueryUtils {
     }
 
     public static PropertyProjection projectionOnPkid() {
-        return projectionOnPkid(null);
+        return projectionOnPkid((String) null);
     }
 
     public static PropertyProjection projectionOnPkid(String member) {
