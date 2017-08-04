@@ -433,14 +433,14 @@ public class DbQuery {
                 } else {
                     String alias = "valueTypeFilter";
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
-                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
+                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
 
                     String[] associationPathElements = parameter.split("\\.", 2);
                     if (associationPathElements.length == 2) {
                         // other observationconstellation members
                         String member = associationPathElements[1];
-                        c.setProjection(QueryUtils.projectionOnPkid(alias, member));
+                        c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
+                         .setProjection(QueryUtils.projectionOnPkid(alias, member));
                     } else {
                         // feature case only
                         c.setProjection(QueryUtils.projectionOn(parameter));
