@@ -110,7 +110,7 @@ public class QueryUtils {
     /**
      * parsed the given string to the raw database id. strips prefixes ending with a "<tt>_</tt>", e.g.
      * <tt>platform_track_8</tt> will return <tt>8</tt>.
-     * 
+     *
      * @param id
      *        the id string to parse.
      * @return the long value of given string or {@link Long#MIN_VALUE} if string could not be parsed to type

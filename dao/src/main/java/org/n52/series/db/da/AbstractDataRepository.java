@@ -56,7 +56,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     private PlatformRepository platformRepository;
-    
+
     @Override
     public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery query) throws DataAccessException {
         Session session = getSession();

@@ -65,7 +65,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Autowired
     @Qualifier(value = "stationRepository")
     private OutputAssembler<StationOutput> stationRepository;
-    
+
     @Autowired
     private PlatformRepository platformRepository;
 
