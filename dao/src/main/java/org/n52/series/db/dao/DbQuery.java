@@ -380,24 +380,23 @@ public class DbQuery {
     private Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
         FilterResolver filterResolver = getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
-            LogicalExpression platformTypeRestriction = Restrictions.and(createMobileExpression(filterResolver),
-                                                                         createInsituExpression(filterResolver));
 
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
-                criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                        .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                        .add(platformTypeRestriction);
+                criteria
+                        // .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
+                        // .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                        .add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_ALIAS, filterResolver));
             } else if (parameter.endsWith(ObservationConstellationEntity.PROCEDURE)) {
                 // restrict directly on procedure table
-                criteria.add(platformTypeRestriction);
+                criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
                 String alias = "platformTypeFilter";
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
                 c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
                  .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                 .add(platformTypeRestriction);
+                 .add(createPlatformTypeRestriction(filterResolver));
 
                 String[] associationPathElements = parameter.split("\\.", 2);
                 if (associationPathElements.length == 2) {
@@ -412,6 +411,15 @@ public class DbQuery {
             }
         }
         return criteria;
+    }
+
+    private LogicalExpression createPlatformTypeRestriction(FilterResolver filterResolver) {
+        return createPlatformTypeRestriction(null, filterResolver);
+    }
+
+    private LogicalExpression createPlatformTypeRestriction(String alias, FilterResolver filterResolver) {
+        return Restrictions.and(createMobileExpression(alias, filterResolver),
+                                createInsituExpression(alias, filterResolver));
     }
 
     private Criteria addValueTypeFilter(String parameter, Criteria criteria) {
@@ -445,20 +453,22 @@ public class DbQuery {
         return criteria;
     }
 
-    private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
+    private LogicalExpression createMobileExpression(String alias, FilterResolver filterResolver) {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile),
+        String propertyMobile = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_MOBILE);
+        return Restrictions.or(Restrictions.eq(propertyMobile, includeMobile),
                                // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary));
+                               Restrictions.eq(propertyMobile, !includeStationary));
     }
 
-    private LogicalExpression createInsituExpression(FilterResolver filterResolver) {
+    private LogicalExpression createInsituExpression(String alias, FilterResolver filterResolver) {
         boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
         boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
-        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
+        String propertyInsitu = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_INSITU);
+        return Restrictions.or(Restrictions.eq(propertyInsitu, includeInsitu),
                                // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
+                               Restrictions.eq(propertyInsitu, !includeRemote));
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
