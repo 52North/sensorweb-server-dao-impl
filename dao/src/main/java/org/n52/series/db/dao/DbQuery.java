@@ -427,15 +427,14 @@ public class DbQuery {
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = getFilterResolver();
             if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
                     // join starts from dataset table
-                    criteria.add(containsValueType);
+                    criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
                     String alias = "valueTypeFilter";
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                    c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
-                     .add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
+                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
+                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
 
                     String[] associationPathElements = parameter.split("\\.", 2);
                     if (associationPathElements.length == 2) {
