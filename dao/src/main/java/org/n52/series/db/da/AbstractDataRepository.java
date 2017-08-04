@@ -45,6 +45,7 @@ import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.web.exception.ResourceNotFoundException;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -62,6 +63,9 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         try {
             DatasetDao<S> seriesDao = getSeriesDao(session);
             String id = ValueType.extractId(datasetId);
+            if (!seriesDao.hasInstance(id, query)) {
+                throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
+            }
             S series = seriesDao.getInstance(id, query);
             series.setPlatform(getCondensedPlatform(series, query, session));
             if (series.getService() == null) {
