@@ -217,19 +217,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return currentLastDataset;
     }
 
-    // private AbstractValue< ? > getLaterValue(AbstractValue< ? > currentLastValue, AbstractValue< ? >
-    // valueToCheck) {
-    // if (currentLastValue == null) {
-    // return valueToCheck;
-    // }
-    // if (valueToCheck == null) {
-    // return currentLastValue;
-    // }
-    // return currentLastValue.getTimestamp() > valueToCheck.getTimestamp()
-    // ? currentLastValue
-    // : valueToCheck;
-    // }
-
     private PlatformEntity getStation(String id, DbQuery parameters, Session session) throws DataAccessException {
         String featureId = PlatformType.extractId(id);
         FeatureDao featureDao = createFeatureDao(session);
