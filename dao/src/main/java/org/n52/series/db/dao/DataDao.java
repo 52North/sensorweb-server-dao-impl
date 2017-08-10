@@ -171,54 +171,52 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(timeend, COLUMN_TIMEEND, series, query);
-        return (T) getDataValueAt(series, criteria, query);
+        return (T) criteria.uniqueResult();
     }
 
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
         Criteria criteria = createDataAtCriteria(timestart, COLUMN_TIMESTART, series, query);
-        return (T) getDataValueAt(series, criteria, query);
+        return (T) criteria.uniqueResult();
     }
 
     public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
-         Date lastValueAt = series.getLastValueAt();
-         Criteria criteria = createDataAtCriteria(lastValueAt, COLUMN_TIMEEND, series, query);
-         criteria.setProjection(Projections.property(COLUMN_GEOMETRY_ENTITY));
-         return (GeometryEntity) getDataValueAt(series, criteria, query);
+        Date lastValueAt = series.getLastValueAt();
+        Criteria criteria = createDataAtCriteria(lastValueAt, COLUMN_TIMEEND, series, query);
+        criteria.setProjection(Projections.property(COLUMN_GEOMETRY_ENTITY));
+        return (GeometryEntity) criteria.uniqueResult();
     }
 
-    private Object getDataValueAt(DatasetEntity series, Criteria criteria, DbQuery query) {
+    private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity dataset, DbQuery query) {
+        LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getPkid());
+        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(column, timestamp))
+                                                     .add(Restrictions.eq(COLUMN_SERIES_PKID, dataset.getPkid()));
+
         IoParameters parameters = query.getParameters();
         if (parameters.containsParameter(Parameters.RESULTTIME)) {
             Instant resultTime = parameters.getResultTime();
             criteria.add(Restrictions.eq(COLUMN_RESULTTIME, resultTime.toDate()));
-            return criteria.uniqueResult();
+            return criteria;
         } else {
             // the value is based on max result time
-            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), "rt");
-            maxResultTimeQuery.add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
+            String rtAlias = "rtAlias";
+            String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, COLUMN_SERIES_PKID);
+            String rtResultTime = QueryUtils.createAssociation(rtAlias, COLUMN_RESULTTIME);
+            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
+            maxResultTimeQuery.add(Restrictions.eq(COLUMN_SERIES_PKID, dataset.getPkid()))
                               .setProjection(Projections.projectionList()
-                                                        .add(Projections.groupProperty(COLUMN_SERIES_PKID))
-                                                        .add(Projections.max(COLUMN_RESULTTIME)));
+                                                        .add(Projections.groupProperty(rtColumn))
+                                                        .add(Projections.groupProperty(rtDatasetId))
+                                                        .add(Projections.max(rtResultTime)));
             criteria.add(Subqueries.propertiesIn(new String[] {
+                column,
                 COLUMN_SERIES_PKID,
                 COLUMN_RESULTTIME
             }, maxResultTimeQuery));
-            return criteria.uniqueResult();
-        }
-    }
-
-    private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity series, DbQuery query) {
-        LOGGER.debug("get instances @{} for '{}'", new DateTime(timestamp.getTime()), series.getPkid());
-        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
-                                                     .add(Restrictions.eq(column, timestamp));
-
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class)
-                                                  .setProjection(Projections.projectionList()
-                                                                            .add(Projections.property("pkid")));
-        criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
-        return criteria;
-    }
+            
+        }return criteria;
+}
 
 }
