@@ -196,17 +196,18 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             // project on oldest result time
             String rtAlias = "rt";
             String rtDatasetAlias = "rtDataset";
+            String rtColumn = QueryUtils.createAssociation(rtAlias, column);
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
             String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_PKID);
             DetachedCriteria resultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
             resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASETS, rtDatasetAlias)
-                           // need valuetype to instantiate joined subclasses
-                           // .createAlias(DatasetEntity.PROPERTY_PKID, datasetAlias)
-                           .add(Restrictions.eq(rtDatasetId, dataset.getPkid()));
-            resultTimeQuery.setProjection(Projections.projectionList()
+                           .add(Restrictions.eq(rtDatasetId, dataset.getPkid()))
+                           .setProjection(Projections.projectionList()
+                                                     .add(Projections.groupProperty(rtColumn))
                                                      .add(Projections.groupProperty(rtDatasetId))
                                                      .add(Projections.max(rtResultTime)));
             criteria.add(Subqueries.propertiesIn(new String[] {
+                column,
                 dsId,
                 DataEntity.PROPERTY_RESULT_TIME
             }, resultTimeQuery));
