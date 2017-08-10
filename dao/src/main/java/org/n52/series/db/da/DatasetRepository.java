@@ -40,7 +40,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.SeriesParameters;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
@@ -281,9 +281,9 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throws DataAccessException {
         try {
             DatasetOutput result = createCondensed(series, query, session);
-            SeriesParameters seriesParameters = createSeriesParameters(series, query, session);
+            DatasetParameters seriesParameters = createDatasetParameters(series, query, session);
             seriesParameters.setPlatform(getCondensedPlatform(series, query, session));
-            result.setSeriesParameters(seriesParameters);
+            result.setDatasetParameters(seriesParameters);
 
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
