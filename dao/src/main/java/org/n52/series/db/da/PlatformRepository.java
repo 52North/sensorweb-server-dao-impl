@@ -38,13 +38,13 @@ import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
@@ -85,8 +85,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareOutput(PlatformEntity entity) {
-        boolean mobile = entity.getPlatformType().isMobile();
-        boolean insitu = entity.getPlatformType().isInsitu();
+        boolean mobile = entity.getPlatformType()
+                               .isMobile();
+        boolean insitu = entity.getPlatformType()
+                               .isInsitu();
         return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
     }
 
@@ -184,37 +186,38 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        AbstractValue< ? > currentLastValue = null;
-        for (DatasetOutput dataset : datasets) {
-            // XXX fix generics and inheritance of Data, AbstractValue, etc.
-            // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-            try {
-                String id = dataset.getId();
-                DataRepository dataRepository = factory.create(dataset.getValueType());
-                DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
-                AbstractValue< ? > valueToCheck = dataRepository.getLastValue(entity, session, query);
-                currentLastValue = getLaterValue(currentLastValue, valueToCheck);
-            } catch (DatasetFactoryException e) {
-                LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                             dataset.getId(), e);
-            }
+        // XXX fix generics and inheritance of Data, AbstractValue, etc.
+        // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
+        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
+        try {
+            DataRepository dataRepository = factory.create(lastDataset.getValueType());
+            GeometryEntity lastValueGeometry = dataRepository.getLastValueGeometry(lastDataset, session, query);
+            return lastValueGeometry != null && lastValueGeometry.isSetGeometry()
+                    ? lastValueGeometry.getGeometry()
+                    : null;
+        } catch (DatasetFactoryException e) {
+            LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
+                         lastDataset.getPkid());
         }
-
-        return currentLastValue != null && currentLastValue.isSetGeometry()
-                ? currentLastValue.getGeometry()
-                : null;
+        return null;
     }
 
-    private AbstractValue< ? > getLaterValue(AbstractValue< ? > currentLastValue, AbstractValue< ? > valueToCheck) {
-        if (currentLastValue == null) {
-            return valueToCheck;
+    private DatasetEntity< ? > getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
+            throws DataAccessException {
+        DatasetEntity< ? > currentLastDataset = null;
+        for (DatasetOutput dataset : datasets) {
+            String id = dataset.getId();
+            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
+            if (currentLastDataset == null) {
+                currentLastDataset = entity;
+            } else {
+                if (currentLastDataset.getLastValueAt()
+                                      .after(entity.getLastValueAt())) {
+                    currentLastDataset = entity;
+                }
+            }
         }
-        if (valueToCheck == null) {
-            return currentLastValue;
-        }
-        return currentLastValue.getTimestamp() > valueToCheck.getTimestamp()
-                ? currentLastValue
-                : valueToCheck;
+        return currentLastDataset;
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {
