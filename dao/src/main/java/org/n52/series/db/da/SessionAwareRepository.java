@@ -43,7 +43,7 @@ import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.io.response.dataset.SeriesParameters;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CategoryEntity;
@@ -126,13 +126,13 @@ public abstract class SessionAwareRepository {
         }
     }
 
-    protected Map<String, SeriesParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
-                                                                 DbQuery parameters)
+    protected Map<String, DatasetParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
+                                                                  DbQuery parameters)
             throws DataAccessException {
-        Map<String, SeriesParameters> timeseriesOutputs = new HashMap<>();
+        Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
         for (QuantityDatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
-                            .isReference()) {
+                           .isReference()) {
                 String timeseriesId = Long.toString(timeseries.getPkid());
                 timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
             }
@@ -140,9 +140,9 @@ public abstract class SessionAwareRepository {
         return timeseriesOutputs;
     }
 
-    protected SeriesParameters createTimeseriesOutput(QuantityDatasetEntity series, DbQuery parameters)
+    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity series, DbQuery parameters)
             throws DataAccessException {
-        SeriesParameters metadata = new SeriesParameters();
+        DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(series);
         metadata.setService(getCondensedService(service, parameters));
         metadata.setOffering(getCondensedOffering(series.getOffering(), parameters));
@@ -153,9 +153,9 @@ public abstract class SessionAwareRepository {
         return metadata;
     }
 
-    protected SeriesParameters createSeriesParameters(DatasetEntity< ? > series, DbQuery parameters, Session session)
+    protected DatasetParameters createDatasetParameters(DatasetEntity< ? > series, DbQuery parameters, Session session)
             throws DataAccessException {
-        SeriesParameters metadata = new SeriesParameters();
+        DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(series);
         metadata.setService(getCondensedExtendedService(service, parameters));
         metadata.setOffering(getCondensedExtendedOffering(series.getOffering(), parameters));
