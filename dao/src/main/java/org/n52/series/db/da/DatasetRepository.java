@@ -224,11 +224,11 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
     @Override
     public DatasetOutput getInstance(String id, DbQuery query, Session session) throws DataAccessException {
-        DatasetEntity< ? > instanceEntity = getInstanceEntity(id, query, session);
+        DatasetEntity instanceEntity = getInstanceEntity(id, query, session);
         return createExpanded(instanceEntity, query, session);
     }
 
-    DatasetEntity< ? > getInstanceEntity(String id, DbQuery query, Session session) throws DataAccessException {
+    DatasetEntity getInstanceEntity(String id, DbQuery query, Session session) throws DataAccessException {
         String datasetId = ValueType.extractId(id);
         DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(id, query, session);
         DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), query);
@@ -263,7 +263,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createCondensed(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    protected DatasetOutput createCondensed(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         DatasetOutput output = new DatasetOutput(dataset.getValueType()) {};
         output.setLabel(dataset.getLabelFrom(query.getLocale()));
@@ -277,7 +277,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput createExpanded(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    protected DatasetOutput createExpanded(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         try {
             DatasetOutput result = createCondensed(dataset, query, session);
@@ -299,7 +299,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
-    private PlatformOutput getCondensedPlatform(DatasetEntity< ? > series, DbQuery query, Session session)
+    private PlatformOutput getCondensedPlatform(DatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
         return platformRepository.createCondensed(series, query, session);

@@ -39,7 +39,7 @@ import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public interface DataRepository<E extends DatasetEntity< ? >, V extends AbstractValue< ? >> {
+public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
 
     Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery) throws DataAccessException;
 

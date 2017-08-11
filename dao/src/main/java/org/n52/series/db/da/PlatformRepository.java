@@ -121,7 +121,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensed(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    PlatformOutput createCondensed(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         PlatformEntity entity = getEntity(dataset.getPlatformId(), query, session);
         return createCondensed(entity, query, session);
@@ -188,7 +188,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
+        DatasetEntity lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastValueGeometry = dataRepository.getLastValueGeometry(lastDataset, session, query);
@@ -202,12 +202,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return null;
     }
 
-    private DatasetEntity< ? > getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
+    private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetEntity< ? > currentLastDataset = null;
+        DatasetEntity currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
-            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
+            DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {
@@ -351,7 +351,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    protected PlatformEntity getPlatformEntity(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
         return getEntity(dataset.getPlatformId(), query, session);

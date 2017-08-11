@@ -50,7 +50,7 @@ import org.n52.web.exception.ResourceNotFoundException;
 import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity< ? >,
+                                             S extends DatasetEntity,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
@@ -79,7 +79,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         }
     }
 
-    private PlatformEntity getCondensedPlatform(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
         return platformRepository.getEntity(dataset.getPlatformId(), query, session);
