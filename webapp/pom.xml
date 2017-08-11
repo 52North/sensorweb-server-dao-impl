@@ -158,9 +158,9 @@
             </resource>
         </resources>
 
-        <filters>
-            <filter>${local.configFile}</filter>
-        </filters>
+<!--         <filters> -->
+<!--             <filter>${local.configFile}</filter> -->
+<!--         </filters> -->
 
         <plugins>
             <plugin>
