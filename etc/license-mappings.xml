@@ -15,9 +15,11 @@
     </artifact>
 
     <artifact>
+        <!-- https://github.com/rails/rails/blob/master/activesupport/MIT-LICENSE -->
         <groupId>rubygems</groupId>
         <artifactId>activesupport</artifactId>
         <version>4.2.8</version>
+        <license>MIT License</license>
     </artifact>
     <artifact>
         <!-- https://github.com/sporkmonger/addressable/blob/master/LICENSE.txt -->
@@ -27,9 +29,44 @@
         <license>Apache License 2.0</license>
     </artifact>
     <artifact>
+        <!-- https://github.com/bundler/bundler/blob/master/LICENSE.md -->
+        <groupId>rubygems</groupId>
+        <artifactId>bundler</artifactId>
+        <version>1.15.3</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/celluloid/celluloid/blob/master/LICENSE.txt -->
+        <groupId>rubygems</groupId>
+        <artifactId>celluloid</artifactId>
+        <version>0.17.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- https://github.com/celluloid/celluloid-essentials/blob/master/LICENSE.txt -->
         <groupId>rubygems</groupId>
         <artifactId>celluloid-essentials</artifactId>
+        <version>0.20.5</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/celluloid/celluloid-extras/blob/master/LICENSE.txt -->
+        <groupId>rubygems</groupId>
+        <artifactId>celluloid-extras</artifactId>
+        <version>0.20.5</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/celluloid/celluloid-fsm/blob/master/LICENSE.txt -->
+        <groupId>rubygems</groupId>
+        <artifactId>celluloid-fsm</artifactId>
+        <version>0.20.5</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/celluloid/celluloid-pool/blob/master/LICENSE.txt -->
+        <groupId>rubygems</groupId>
+        <artifactId>celluloid-pool</artifactId>
         <version>0.20.5</version>
         <license>MIT License</license>
     </artifact>
@@ -41,10 +78,53 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
+        <!-- https://github.com/josh/ruby-coffee-script/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>coffee-script</artifactId>
+        <version>2.4.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/jessedoyle/coffee-script-source/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>coffee-script-source</artifactId>
+        <version>1.12.2</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- http://www.rubydoc.info/gems/colorator/0.1#License -->
         <groupId>rubygems</groupId>
         <artifactId>colorator</artifactId>
         <version>1.1.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/bkeepers/dotenv/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>dotenv</artifactId>
+        <version>2.2.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/typhoeus/typhoeus -->
+        <groupId>rubygems</groupId>
+        <artifactId>ethon</artifactId>
+        <version>0.10.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/sstephenson/execjs/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>execjs</artifactId>
+        <version>2.7.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/lostisland/faraday -->
+        <groupId>rubygems</groupId>
+        <artifactId>faraday</artifactId>
+        <version>0.12.1</version>
+        <version>0.12.2</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -62,6 +142,27 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
+        <!-- https://github.com/github/gemoji/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>gemoji</artifactId>
+        <version>3.0.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/github-pages -->
+        <groupId>rubygems</groupId>
+        <artifactId>github-pages</artifactId>
+        <version>140</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/github-pages-health-check -->
+        <groupId>rubygems</groupId>
+        <artifactId>github-pages-health-check</artifactId>
+        <version>1.3.4</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- http://www.rubydoc.info/gems/hitimes/1.2.5#License -->
         <!-- https://opensource.org/licenses/ISC -->
         <groupId>rubygems</groupId>
@@ -70,10 +171,115 @@
         <license>ISC License</license>
     </artifact>
     <artifact>
+        <!-- https://rubygems.org/gems/html-pipeline -->
+        <groupId>rubygems</groupId>
+        <artifactId>html-pipeline</artifactId>
+        <version>2.6.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/i18n -->
+        <groupId>rubygems</groupId>
+        <artifactId>i18n</artifactId>
+        <version>0.8.4</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- https://github.com/jekyll/jekyll/blob/master/LICENSE -->
         <groupId>rubygems</groupId>
         <artifactId>jekyll</artifactId>
         <version>3.4.3</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-avatar -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-avatar</artifactId>
+        <version>0.4.2</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-coffeescript -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-coffeescript</artifactId>
+        <version>1.0.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-default-layout -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-default-layout</artifactId>
+        <version>0.1.4</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-feed -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-feed</artifactId>
+        <version>0.9.2</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-gist -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-gist</artifactId>
+        <version>1.4.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-github-metadata -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-github-metadata</artifactId>
+        <version>2.3.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-mentions -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-mentions</artifactId>
+        <version>1.2.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-optional-front-matter -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-optional-front-matter</artifactId>
+        <version>0.1.2</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-paginate -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-paginate</artifactId>
+        <version>1.1.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-readme-index -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-readme-index</artifactId>
+        <version>0.1.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-redirect-from -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-redirect-from</artifactId>
+        <version>0.12.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-relative-links -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-relative-links</artifactId>
+        <version>0.4.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-seo-tag -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-seo-tag</artifactId>
+        <version>2.2.3</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -84,10 +290,105 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
-        <!-- https://github.com/jekyll/jekyll-sitemap/blob/master/LICENSE.md -->
+        <!-- https://rubygems.org/gems/jekyll-sitemap -->
         <groupId>rubygems</groupId>
         <artifactId>jekyll-sitemap</artifactId>
-        <version>1.1.1</version>
+        <version>1.0.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-swiss -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-swiss</artifactId>
+        <version>0.4.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-theme-architect -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-architect</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-theme-cayman -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-cayman</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-theme-dinky -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-dinky</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-hacker</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-leap-day</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-merlot</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-midnight</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-minimal</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-modernist</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-primer</artifactId>
+        <version>0.2.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-slate</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-tactile</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-theme-time-machine</artifactId>
+        <version>0.0.4</version>
+        <license>Creative Commons Zero v1.0 Universal</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jekyll-titles-from-headings -->
+        <groupId>rubygems</groupId>
+        <artifactId>jekyll-titles-from-headings</artifactId>
+        <version>0.1.5</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -95,6 +396,13 @@
         <groupId>rubygems</groupId>
         <artifactId>jekyll-watch</artifactId>
         <version>1.5.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/jemoji -->
+        <groupId>rubygems</groupId>
+        <artifactId>jemoji</artifactId>
+        <version>0.8.0</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -123,7 +431,50 @@
         <!-- https://github.com/jekyll/mercenary/blob/master/LICENSE.txt -->
         <groupId>rubygems</groupId>
         <artifactId>mercenary</artifactId>
-        <version>3.0.6</version>
+        <version>0.3.6</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/minima -->
+        <groupId>rubygems</groupId>
+        <artifactId>minima</artifactId>
+        <version>2.1.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/minitest -->
+        <groupId>rubygems</groupId>
+        <artifactId>minitest</artifactId>
+        <version>5.10.2</version>
+        <version>5.10.3</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/multipart-post -->
+        <groupId>rubygems</groupId>
+        <artifactId>multipart-post</artifactId>
+        <version>2.0.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/nenv -->
+        <groupId>rubygems</groupId>
+        <artifactId>nenv</artifactId>
+        <version>0.3.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://github.com/bluemonk/net-dns/blob/master/LICENSE -->
+        <groupId>rubygems</groupId>
+        <artifactId>net-dns</artifactId>
+        <version>0.8.0</version>
+        <license>Ruby License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/octokit -->
+        <groupId>rubygems</groupId>
+        <artifactId>octokit</artifactId>
+        <version>4.7.0</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -145,6 +496,7 @@
         <groupId>rubygems</groupId>
         <artifactId>rb-fsevent</artifactId>
         <version>0.9.8</version>
+        <version>0.10.2</version>
         <license>MIT License</license>
     </artifact>
     <artifact>
@@ -162,6 +514,13 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
+        <!-- https://rubygems.org/gems/rspec-logsplit -->
+        <groupId>rubygems</groupId>
+        <artifactId>rspec-logsplit</artifactId>
+        <version>0.1.3</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- https://github.com/dtao/safe_yaml/blob/master/LICENSE.txt -->
         <groupId>rubygems</groupId>
         <artifactId>safe_yaml</artifactId>
@@ -176,10 +535,45 @@
         <license>MIT License</license>
     </artifact>
     <artifact>
+        <!-- https://rubygems.org/gems/sawyer -->
+        <groupId>rubygems</groupId>
+        <artifactId>sawyer</artifactId>
+        <version>0.8.1</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/terminal-table -->
+        <groupId>rubygems</groupId>
+        <artifactId>terminal-table</artifactId>
+        <version>1.8.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
         <!-- http://www.rubydoc.info/gems/timers#License -->
         <groupId>rubygems</groupId>
         <artifactId>timers</artifactId>
         <version>4.1.2</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/typhoeus -->
+        <groupId>rubygems</groupId>
+        <artifactId>typhoeus</artifactId>
+        <version>0.8.0</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/tzinfo -->
+        <groupId>rubygems</groupId>
+        <artifactId>tzinfo</artifactId>
+        <version>1.2.3</version>
+        <license>MIT License</license>
+    </artifact>
+    <artifact>
+        <!-- https://rubygems.org/gems/unicode-display_width -->
+        <groupId>rubygems</groupId>
+        <artifactId>unicode-display_width</artifactId>
+        <version>1.3.0</version>
         <license>MIT License</license>
     </artifact>
 </license-lookup>

@@ -38,15 +38,14 @@ import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
@@ -86,8 +85,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareOutput(PlatformEntity entity) {
-        boolean mobile = entity.getPlatformType().isMobile();
-        boolean insitu = entity.getPlatformType().isInsitu();
+        boolean mobile = entity.getPlatformType()
+                               .isMobile();
+        boolean insitu = entity.getPlatformType()
+                               .isInsitu();
         return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
     }
 
@@ -120,9 +121,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
+    PlatformOutput createCondensed(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformEntity entity = getEntity(getPlatformId(series), query, session);
+        PlatformEntity entity = getEntity(dataset.getPlatformId(), query, session);
         return createCondensed(entity, query, session);
     }
 
@@ -185,37 +186,38 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        AbstractValue< ? > currentLastValue = null;
-        for (DatasetOutput dataset : datasets) {
-            // XXX fix generics and inheritance of Data, AbstractValue, etc.
-            // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-            try {
-                String id = dataset.getId();
-                DataRepository dataRepository = factory.create(dataset.getValueType());
-                DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
-                AbstractValue< ? > valueToCheck = dataRepository.getLastValue(entity, session, query);
-                currentLastValue = getLaterValue(currentLastValue, valueToCheck);
-            } catch (DatasetFactoryException e) {
-                LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                             dataset.getId(), e);
-            }
+        // XXX fix generics and inheritance of Data, AbstractValue, etc.
+        // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
+        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
+        try {
+            DataRepository dataRepository = factory.create(lastDataset.getValueType());
+            GeometryEntity lastValueGeometry = dataRepository.getLastValueGeometry(lastDataset, session, query);
+            return lastValueGeometry != null && lastValueGeometry.isSetGeometry()
+                    ? lastValueGeometry.getGeometry()
+                    : null;
+        } catch (DatasetFactoryException e) {
+            LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
+                         lastDataset.getPkid());
         }
-
-        return currentLastValue != null && currentLastValue.isSetGeometry()
-                ? currentLastValue.getGeometry()
-                : null;
+        return null;
     }
 
-    private AbstractValue< ? > getLaterValue(AbstractValue< ? > currentLastValue, AbstractValue< ? > valueToCheck) {
-        if (currentLastValue == null) {
-            return valueToCheck;
+    private DatasetEntity< ? > getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
+            throws DataAccessException {
+        DatasetEntity< ? > currentLastDataset = null;
+        for (DatasetOutput dataset : datasets) {
+            String id = dataset.getId();
+            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
+            if (currentLastDataset == null) {
+                currentLastDataset = entity;
+            } else {
+                if (currentLastDataset.getLastValueAt()
+                                      .after(entity.getLastValueAt())) {
+                    currentLastDataset = entity;
+                }
+            }
         }
-        if (valueToCheck == null) {
-            return currentLastValue;
-        }
-        return currentLastValue.getTimestamp() > valueToCheck.getTimestamp()
-                ? currentLastValue
-                : valueToCheck;
+        return currentLastDataset;
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {
@@ -269,14 +271,14 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
-        return convertAllInsitu(featureDao.getStationaryInstances(query), query);
+        return convertAllInsitu(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session)
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
-        return convertAllRemote(featureDao.getStationaryInstances(query), query);
+        return convertAllRemote(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllMobile(DbQuery query, Session session) throws DataAccessException {
@@ -349,21 +351,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    protected PlatformEntity getPlatformEntity(DatasetEntity< ? > series, DbQuery query, Session session)
+    protected PlatformEntity getPlatformEntity(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return getEntity(getPlatformId(series), query, session);
-    }
-
-    private String getPlatformId(DatasetEntity< ? > series) {
-        ProcedureEntity procedure = series.getProcedure();
-        boolean mobile = procedure.isMobile();
-        boolean insitu = procedure.isInsitu();
-        PlatformType type = PlatformType.toInstance(mobile, insitu);
-        DescribableEntity entity = type.isStationary()
-                ? series.getFeature()
-                : series.getProcedure();
-        return type.createId(entity.getPkid());
+        return getEntity(dataset.getPlatformId(), query, session);
     }
 
     private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {

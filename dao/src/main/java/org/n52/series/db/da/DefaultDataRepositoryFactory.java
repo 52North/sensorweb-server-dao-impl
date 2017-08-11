@@ -46,6 +46,9 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
     private HibernateSessionStore sessionStore;
 
     @Autowired
+    private PlatformRepository platformRepository;
+
+    @Autowired
     private ServiceEntity serviceEntity;
 
     public DefaultDataRepositoryFactory() {
@@ -59,6 +62,7 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
     @Override
     protected DataRepository initInstance(DataRepository instance) {
         instance.setSessionStore(sessionStore);
+        instance.setPlatformRepository(platformRepository);
         if (serviceEntity != null) {
             // static instance available from Spring config
             instance.setServiceEntity(serviceEntity);

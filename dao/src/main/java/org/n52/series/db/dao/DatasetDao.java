@@ -54,16 +54,16 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("rawtypes")
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
+    public static final String PROCEDURE_ALIAS = "proc";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
     private static final String COLUMN_PKID = "pkid";
 
-    private static final String PROCEDURE_ALIAS = "proc";
-    
     private static final String OFFERING_ALIAS = "off";
 
     private static final String FEATURE_ALIAS = "feat";
-    
+
     private static final String PHENOMENON_ALIAS = "phen";
 
     private final Class<T> entityType;
@@ -88,7 +88,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
          * to join tables and search for given pattern on any of the stored labels.
          */
-        
+
         Criteria criteria = getDefaultCriteria(query);
         // default criteria performs join on procedure table
         constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
@@ -101,7 +101,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         String featureName = QueryUtils.createAssociation(FEATURE_ALIAS, FeatureEntity.PROPERTY_NAME);
         criteria.add(Restrictions.or(Restrictions.ilike(procedureName, searchTerm),
                                      Restrictions.ilike(offeringName, searchTerm),
-                                     Restrictions.ilike(phenomenonName, searchTerm), 
+                                     Restrictions.ilike(phenomenonName, searchTerm),
                                      Restrictions.ilike(featureName, searchTerm)));
 
         i18n(I18nOfferingEntity.class, criteria, query);
@@ -159,7 +159,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+    public Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
         return getDefaultCriteria(alias, true, query, clazz);
     }
 
@@ -170,11 +170,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = session.createCriteria(clazz)
                                    .add(createPublishedDatasetFilter());
+        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS);
         if (ignoreReferenceSeries) {
             String refMember = QueryUtils.createAssociation(PROCEDURE_ALIAS, "reference");
-            criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                    .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS)
-                    .add(Restrictions.eq(refMember, Boolean.FALSE));
+            criteria.add(Restrictions.eq(refMember, Boolean.FALSE));
         }
         return criteria;
     }

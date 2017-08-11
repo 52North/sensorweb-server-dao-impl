@@ -103,8 +103,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
-        return ((Long) query.addFilters(criteria, getDatasetProperty())
-                            .uniqueResult()).intValue();
+        return ((Long) criteria.uniqueResult()).intValue();
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
@@ -118,11 +117,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
 
-    protected Criteria getDefaultCriteria(DbQuery query) {
+    public Criteria getDefaultCriteria(DbQuery query) {
         return getDefaultCriteria((String) null, query);
     }
 
-    protected Criteria getDefaultCriteria(String alias, DbQuery query) {
+    public Criteria getDefaultCriteria(String alias, DbQuery query) {
         return getDefaultCriteria(alias, query, getEntityClass());
     }
 
