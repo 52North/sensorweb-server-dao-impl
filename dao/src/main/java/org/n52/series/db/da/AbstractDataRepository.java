@@ -117,6 +117,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         PlatformEntity platform = dataset.getPlatform();
         if (query.isExpanded()) {
             addValidTime(observation, value);
+            addResultTime(observation, value);
             addParameters(observation, value, query);
             addGeometry(observation, value, query);
         } else {
@@ -125,13 +126,6 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             }
         }
         return value;
-    }
-
-    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
-        if (dataEntity.isSetGeometry()) {
-            GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(geometry.getGeometry(query.getDatabaseSridCode()));
-        }
     }
 
     protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
@@ -148,11 +142,24 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         }
     }
 
+    protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+        if (observation.getResultTime() != null) {
+            value.setResultTime(observation.getResultTime().getTime());
+        }
+    }
+    
     protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
         if (observation.hasParameters()) {
             for (Parameter< ? > parameter : observation.getParameters()) {
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
+        }
+    }
+
+    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
+        if (dataEntity.isSetGeometry()) {
+            GeometryEntity geometry = dataEntity.getGeometryEntity();
+            value.setGeometry(geometry.getGeometry(query.getDatabaseSridCode()));
         }
     }
 
