@@ -75,7 +75,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
 
     @Override
     public void addExtraMetadataFieldNames(DatasetOutput output) {
-        final ParameterOutput serviceOutput = output.getSeriesParameters()
+        final ParameterOutput serviceOutput = output.getDatasetParameters()
                                                     .getService();
         if (isAvailableFor(serviceOutput.getId())) {
             output.addExtra(EXTENSION_NAME);

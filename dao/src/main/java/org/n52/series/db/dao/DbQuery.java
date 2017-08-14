@@ -45,7 +45,6 @@ import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
-import org.hibernate.spatial.GeometryType.Type;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.Interval;
@@ -326,7 +325,7 @@ public class DbQuery {
             Set<String> geometryTypes = parameters.getGeometryTypes();
             for (String geometryType : geometryTypes) {
                 if (!geometryType.isEmpty()) {
-                    Type type = getGeometryType(geometryType);
+                    GeometryType.Type type = getGeometryType(geometryType);
                     if (type != null) {
                         criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
                     }
@@ -336,7 +335,7 @@ public class DbQuery {
         return criteria;
     }
 
-    private Type getGeometryType(String geometryType) {
+    private GeometryType.Type getGeometryType(String geometryType) {
         for (GeometryType.Type type : GeometryType.Type.values()) {
             if (type.name()
                     .equalsIgnoreCase(geometryType)) {
@@ -348,11 +347,18 @@ public class DbQuery {
 
     public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        Set<String> features = parameters.getFeatures();
+        Set<String> procedures = parameters.getProcedures();
+
+        if (hasValues(parameters.getPlatforms())) {
+            features.addAll(getStationaryIds(parameters.getPlatforms()));
+            procedures.addAll(getMobileIds(parameters.getPlatforms()));
+        }
 
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
         addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(parameters.getFeatures(), DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(parameters.getSeries(), filter);
 
@@ -361,17 +367,6 @@ public class DbQuery {
                                        .map(e -> ValueType.extractId(e))
                                        .collect(Collectors.toSet()),
                              filter);
-
-        if (hasValues(parameters.getPlatforms())) {
-            Set<String> stationaryIds = getStationaryIds(parameters.getPlatforms());
-            Set<String> mobileIds = getMobileIds(parameters.getPlatforms());
-            if (!stationaryIds.isEmpty()) {
-                addFilterRestriction(stationaryIds, DatasetEntity.PROPERTY_FEATURE, filter);
-            }
-            if (!mobileIds.isEmpty()) {
-                addFilterRestriction(mobileIds, DatasetEntity.PROPERTY_PROCEDURE, filter);
-            }
-        }
 
         // TODO refactory/simplify projection
         String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);

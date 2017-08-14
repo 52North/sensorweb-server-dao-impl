@@ -73,7 +73,7 @@ public abstract class DataEntity<T> {
 
     private boolean child;
 
-    private final Set<Parameter< ? >> parameters = new HashSet<>(0);
+    private Set<Parameter> parameters = new HashSet<>(0);
 
     public Long getPkid() {
         return pkid;
@@ -234,13 +234,16 @@ public abstract class DataEntity<T> {
         this.child = child;
     }
 
-    public Set<Parameter< ? >> getParameters() {
+    public Set<Parameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Set<Parameter< ? >> parameters) {
-        if (parameters != null) {
-            this.parameters.addAll(parameters);
+    @SuppressWarnings(value = "unchecked")
+    public void setParameters(Object parameters) {
+        if (parameters instanceof Set<?>) {
+            this.parameters = (Set<Parameter>) parameters;
+        } else {
+            getParameters().add((Parameter) parameters);
         }
     }
 
