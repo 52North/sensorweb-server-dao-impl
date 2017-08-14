@@ -45,7 +45,6 @@ import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
-import org.hibernate.spatial.GeometryType.Type;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.Interval;
@@ -318,7 +317,7 @@ public class DbQuery {
             Set<String> geometryTypes = parameters.getGeometryTypes();
             for (String geometryType : geometryTypes) {
                 if (!geometryType.isEmpty()) {
-                    Type type = getGeometryType(geometryType);
+                    GeometryType.Type type = getGeometryType(geometryType);
                     if (type != null) {
                         criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
                     }
@@ -328,7 +327,7 @@ public class DbQuery {
         return criteria;
     }
 
-    private Type getGeometryType(String geometryType) {
+    private GeometryType.Type getGeometryType(String geometryType) {
         for (GeometryType.Type type : GeometryType.Type.values()) {
             if (type.name()
                     .equalsIgnoreCase(geometryType)) {
