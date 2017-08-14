@@ -298,20 +298,9 @@ public class DbQuery {
             DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
-                try {
-                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-
-                    // TODO intersect with linestring
-                    // XXX do sampling filter only on generated line strings stored in FOI table,
-                    // otherwise we would have to check each observation row
-                } catch (FactoryException e) {
-                    LOGGER.error("Could not create transformation facilities.", e);
-                } catch (TransformException e) {
-                    LOGGER.error("Could not perform transformation.", e);
+                Envelope envelope = createSpatialFilter();
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
                 String geometryMember = PROPERTY_GEOMETRY_ENTITY + ".geometry";
                 if (DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
                     // in case of dataset entities
@@ -321,6 +310,10 @@ public class DbQuery {
                     // all other entities
                     criteria.add(SpatialRestrictions.filter(geometryMember, envelope, databaseSrid));
                 }
+
+                // TODO intersect with linestring
+                // XXX do sampling filter only on generated line strings stored in FOI table,
+                // otherwise we would have to check each observation row
             }
 
             Set<String> geometryTypes = parameters.getGeometryTypes();
@@ -334,6 +327,23 @@ public class DbQuery {
             }
         }
         return criteria;
+    }
+    
+    public Envelope createSpatialFilter() {
+        BoundingBox spatialFilter = parameters.getSpatialFilter();
+        if (spatialFilter != null) {
+            try {
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            } catch (FactoryException e) {
+                LOGGER.error("Could not create transformation facilities.", e);
+            } catch (TransformException e) {
+                LOGGER.error("Could not perform transformation.", e);
+            }
+        }
+        return null;
     }
 
     private GeometryType.Type getGeometryType(String geometryType) {
