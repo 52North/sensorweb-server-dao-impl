@@ -162,7 +162,7 @@ public abstract class SessionAwareRepository {
         return metadata;
     }
 
-    protected DatasetParameters createDatasetParameters(DatasetEntity< ? > dataset, DbQuery parameters, Session session)
+    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery parameters, Session session)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);

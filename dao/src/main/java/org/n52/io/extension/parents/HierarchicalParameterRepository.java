@@ -71,10 +71,10 @@ class HierarchicalParameterRepository extends SessionAwareRepository {
             Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
 
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
-            DatasetDao<DatasetEntity<?>> dao = new DatasetDao<>(session);
+            DatasetDao<DatasetEntity> dao = new DatasetDao<>(session);
             for (DatasetOutput dataset : platform.getDatasets()) {
                 String datasetId = ValueType.extractId(dataset.getId());
-                DatasetEntity<?> instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
+                DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
                 addProcedureParents(instance, dbQuery, extras);
                 // TODO add further parents
             }
@@ -91,7 +91,7 @@ class HierarchicalParameterRepository extends SessionAwareRepository {
         return Collections.emptyMap();
     }
 
-    private void addProcedureParents(DatasetEntity<?> instance, DbQuery dbQuery,
+    private void addProcedureParents(DatasetEntity instance, DbQuery dbQuery,
             Map<String, Set<HierarchicalParameterOutput>> extras) {
         if (!extras.containsKey(KEY_PROCEDURES)) {
             extras.put(KEY_PROCEDURES, new HashSet<>());
