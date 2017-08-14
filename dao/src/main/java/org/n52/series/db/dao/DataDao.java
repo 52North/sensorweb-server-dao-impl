@@ -215,8 +215,9 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                 COLUMN_SERIES_PKID,
                 COLUMN_RESULTTIME
             }, maxResultTimeQuery));
-            
-        }return criteria;
-}
+
+        }
+        return criteria;
+    }
 
 }
