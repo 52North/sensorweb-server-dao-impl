@@ -183,7 +183,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
         TimeseriesMetadataOutput output = createCondensed(series, query, session);
-        output.setSeriesParameters(createTimeseriesOutput(series, query));
+        output.setDatasetParameters (createTimeseriesOutput(series, query));
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
         output.setReferenceValues(createReferenceValueOutputs(series, query, repository));

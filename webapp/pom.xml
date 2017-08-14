@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.n52.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
@@ -12,10 +13,17 @@
     <description>RESTful Sensor Web Client API as template Web application.</description>
 
     <properties>
+
+        <!-- optional properties file -->
+        <!-- <local.configFile>file:${user.home}/${project.build.finalName}.properties</local.configFile> -->
+        <local.configFile>src/main/resources/application.properties</local.configFile>
+
         <postgis.version>2.2.0</postgis.version>
         <aspectj.version>1.8.9</aspectj.version>
         <postgresql.version>9.4.1208.jre7</postgresql.version>
-        
+
+        <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
+
         <finalName>${project.artifactId}</finalName>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
         <config.logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</config.logger.fileappender.filepath>
@@ -28,6 +36,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.n52.series-api</groupId>
+            <artifactId>web-resources</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dao</artifactId>
             <scope>runtime</scope>
@@ -37,7 +50,7 @@
             <artifactId>mappings</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -51,7 +64,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${org.springframework.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -141,12 +153,17 @@
             </resource>
         </resources>
 
+        <filters>
+            <filter>${local.configFile}</filter>
+        </filters>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>unpack-docs-sources</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -170,13 +187,12 @@
                         <artifactItems>
                             <artifactItem>
                                 <groupId>org.n52.series-api</groupId>
-                                <artifactId>rest</artifactId>
-                                <includes>api-doc/**</includes>
-                                <outputDirectory>${webappDirectory}</outputDirectory>
+                                <artifactId>web-resources</artifactId>
+                                <includes>static/**</includes>
                                 <overWrite>false</overWrite>
+                                <outputDirectory>${webapp.workdir}</outputDirectory>
                             </artifactItem>
                         </artifactItems>
-                        <overWriteReleases>false</overWriteReleases>
                     </configuration>
                 </plugin>
 
@@ -192,6 +208,14 @@
                                 <directory>src/main/webapp</directory>
                                 <filtering>true</filtering>
                             </resource>
+                            <resource>
+                                <directory>${webapp.workdir}</directory>
+                                <filtering>true</filtering>
+                                <excludes>
+                                    <!-- exlude processed source files -->
+                                    <exclude>docs-sources/**</exclude>
+                                </excludes>
+                            </resource>
                         </webResources>
                     </configuration>
                 </plugin>
@@ -205,16 +229,18 @@
                         <scanIntervalSeconds>0</scanIntervalSeconds>
                         <reload>manual</reload>
                         <webAppConfig>
+                            <resourceBases>
+                                <resourceBase>${webappDirectory}</resourceBase>
+                                <resourceBase>src/main/webapp</resourceBase>
+                            </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../series-dao/target/classes;../../io/target/classes;../../rest/target/classes;</extraClasspath>
+                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../dao/target/classes</extraClasspath>
                         </webAppConfig>
                         <scanTargets>
                             <scanTarget>/target/classes/</scanTarget>
                             <scanTarget>${project.build.outputDirectory}</scanTarget>
-                            <scanTarget>../series-dao/target/classes</scanTarget>
-                            <scanTarget>../../../io/target/classes</scanTarget>
-                            <scanTarget>../../../rest/target/classes</scanTarget>
+                            <scanTarget>../dao/target/classes</scanTarget>
                         </scanTargets>
                         <systemProperties>
                             <systemProperty>
@@ -228,4 +254,386 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+        <profile>
+            <id>with-docs</id>
+
+            <activation>
+                <os>
+                    <family>!windows</family>
+                </os>
+                <property>
+                    <name>docs</name>
+                </property>
+            </activation>
+
+            <properties>
+                <docs.context>docs</docs.context>
+                <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
+                <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
+                <jekyll.port>4000</jekyll.port>
+            </properties>
+
+            <repositories>
+                <!--Repository for ruby (Jekyll) gems -->
+                <repository>
+                    <id>rubygems-proxy</id>
+                    <name>Rubygems Proxy</name>
+                    <url>http://rubygems-proxy.torquebox.org/releases</url>
+                    <layout>default</layout>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+
+            <dependencies>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>activesupport</artifactId>
+                    <version>4.2.8</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>addressable</artifactId>
+                    <version>2.5.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid</artifactId>
+                    <version>0.17.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>timers</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid-essentials</artifactId>
+                    <version>0.20.5</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>celluloid-supervision</artifactId>
+                    <version>0.20.5</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>coffee-script</artifactId>
+                    <version>2.4.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>colorator</artifactId>
+                    <version>1.1.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>ffi</artifactId>
+                    <version>1.9.18</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>forwardable-extended</artifactId>
+                    <version>2.6.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>github-pages</artifactId>
+                    <version>140</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>html-pipeline</artifactId>
+                    <version>2.6.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>i18n</artifactId>
+                    <version>0.8.4</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll</artifactId>
+                    <version>3.4.3</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sass-converter</artifactId>
+                    <version>1.5.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-sitemap</artifactId>
+                    <version>1.1.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>rubygems</groupId>
+                            <artifactId>jekyll-watch</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>jekyll-watch</artifactId>
+                    <version>1.5.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>kramdown</artifactId>
+                    <version>1.13.2</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>listen</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>liquid</artifactId>
+                    <version>3.0.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>mercenary</artifactId>
+                    <version>0.3.6</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>nokogiri</artifactId>
+                    <version>1.8.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>pathutil</artifactId>
+                    <version>0.14.0</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>rouge</artifactId>
+                    <version>1.11.1</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>sass</artifactId>
+                    <version>3.4.24</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+                <dependency>
+                    <groupId>rubygems</groupId>
+                    <artifactId>timers</artifactId>
+                    <version>4.1.2</version>
+                    <scope>provided</scope>
+                    <type>gem</type>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/docs</directory>
+                        <!-- match the unpacked docs folder -->
+                        <targetPath>${docs.sources.directory}/docs</targetPath>
+                        <!-- gets filtered after docs generation -->
+                        <filtering>false</filtering>
+                    </resource>
+                </resources>
+
+                <plugins>
+                    <plugin>
+                        <!-- assemble licenses -->
+                        <groupId>org.jasig.maven</groupId>
+                        <artifactId>maven-notice-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-docs-sources</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <!--Allow a definition of the gem repo -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <configuration>
+                            <requireNoRepositories>
+                                <allowedRepositories>
+                                    <id>rubygems-proxy</id>
+                                </allowedRepositories>
+                            </requireNoRepositories>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>de.saumya.mojo</groupId>
+                        <artifactId>gem-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jekyll-build</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                    <execArgs>build --baseurl /${docs.context} --source ${docs.sources.directory}/docs
+                                        --destination ${docs.output.directory}</execArgs>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <!-- run me with: mvn compile gem:exec@jekyll-serve (maven version >= 3.3.1 required) -->
+                                <id>jekyll-serve</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${project.build.directory}/rubygems/bin/jekyll</file>
+                                    <execArgs>serve --trace --incremental --watch --port ${jekyll.port} --baseurl
+                                        /${docs.context} --source ${docs.sources.directory}/docs --destination
+                                        ${docs.output.directory}</execArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <!-- assemble licenses -->
+                            <groupId>org.jasig.maven</groupId>
+                            <artifactId>maven-notice-plugin</artifactId>
+                            <configuration>
+                                <licenseMapping>
+                                    <param>../etc/license-mappings.xml</param>
+                                    <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
+                                </licenseMapping>
+                                <generateChildNotices>true</generateChildNotices>
+                            </configuration>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>org.n52.series-api</groupId>
+                                        <artifactId>web-resources</artifactId>
+                                        <includes>docs/**</includes>
+                                        <excludes>docs/_config.yml</excludes>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${docs.sources.directory}</outputDirectory>
+                                    </artifactItem>
+                                    <artifactItem>
+                                        <groupId>org.n52.series-api</groupId>
+                                        <artifactId>web-resources</artifactId>
+                                        <includes>static/**</includes>
+                                        <overWrite>false</overWrite>
+                                        <outputDirectory>${webapp.workdir}</outputDirectory>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>de.saumya.mojo</groupId>
+                            <artifactId>gem-maven-plugin</artifactId>
+                            <version>1.1.5</version>
+                            <configuration>
+                                <supportNative>true</supportNative>
+                                <jrubyVersion>9.0.5.0</jrubyVersion>
+                                <addProjectClasspath>true</addProjectClasspath>
+                                <jrubyVerbose>false</jrubyVerbose>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>
+    

@@ -45,7 +45,6 @@ import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
-import org.hibernate.spatial.GeometryType.Type;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.Interval;
@@ -79,6 +78,8 @@ public class DbQuery {
     private static final String PROPERTY_TRANSLATIONS = "translations";
 
     private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity.geometry";
+
+    private static final int DEFAULT_LIMIT = 10000;
 
     private IoParameters parameters = IoParameters.createDefaults();
 
@@ -254,7 +255,10 @@ public class DbQuery {
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            criteria.setFirstResult(getParameters().getOffset());
+            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
+                                                                              : DEFAULT_LIMIT;
+            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
+            criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
             criteria.setMaxResults(getParameters().getLimit());
@@ -267,7 +271,7 @@ public class DbQuery {
         addDetachedFilters(seriesProperty, criteria);
         addPlatformTypeFilter(seriesProperty, criteria);
         addDatasetTypeFilter(seriesProperty, criteria);
-        return addSpatialFilterTo(criteria, this);
+        return addSpatialFilterTo(criteria);
     }
 
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
@@ -287,41 +291,43 @@ public class DbQuery {
                                Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
     }
 
-    public Criteria addSpatialFilterTo(Criteria criteria, DbQuery query) {
-        BoundingBox spatialFilter = parameters.getSpatialFilter();
-        if (spatialFilter != null) {
-            try {
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
+    public Criteria addSpatialFilterTo(Criteria criteria) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
+            BoundingBox spatialFilter = parameters.getSpatialFilter();
+            if (spatialFilter != null) {
+                try {
+                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
-                criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
+                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
 
-                // TODO intersect with linestring
-                // XXX do sampling filter only on generated line strings stored in FOI table,
-                // otherwise we would have to check each observation row
-            } catch (FactoryException e) {
-                LOGGER.error("Could not create transformation facilities.", e);
-            } catch (TransformException e) {
-                LOGGER.error("Could not perform transformation.", e);
+                    // TODO intersect with linestring
+                    // XXX do sampling filter only on generated line strings stored in FOI table,
+                    // otherwise we would have to check each observation row
+                } catch (FactoryException e) {
+                    LOGGER.error("Could not create transformation facilities.", e);
+                } catch (TransformException e) {
+                    LOGGER.error("Could not perform transformation.", e);
+                }
             }
-        }
 
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                Type type = getGeometryType(geometryType);
-                if (type != null) {
-                    criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
+            Set<String> geometryTypes = parameters.getGeometryTypes();
+            for (String geometryType : geometryTypes) {
+                if (!geometryType.isEmpty()) {
+                    GeometryType.Type type = getGeometryType(geometryType);
+                    if (type != null) {
+                        criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
+                    }
                 }
             }
         }
         return criteria;
     }
 
-    private Type getGeometryType(String geometryType) {
+    private GeometryType.Type getGeometryType(String geometryType) {
         for (GeometryType.Type type : GeometryType.Type.values()) {
             if (type.name()
                     .equalsIgnoreCase(geometryType)) {
@@ -330,14 +336,21 @@ public class DbQuery {
         }
         return null;
     }
-    
-    public DetachedCriteria createDatasetFilter() {
+
+    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        Set<String> features = parameters.getFeatures();
+        Set<String> procedures = parameters.getProcedures();
+
+        if (hasValues(parameters.getPlatforms())) {
+            features.addAll(getStationaryIds(parameters.getPlatforms()));
+            procedures.addAll(getMobileIds(parameters.getPlatforms()));
+        }
 
         addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(parameters.getProcedures(), DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
         addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(parameters.getFeatures(), DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(parameters.getSeries(), filter);
 
@@ -346,22 +359,6 @@ public class DbQuery {
                                        .map(e -> ValueType.extractId(e))
                                        .collect(Collectors.toSet()),
                              filter);
-
-        if (hasValues(parameters.getPlatforms())) {
-            Set<String> stationaryIds = getStationaryIds(parameters.getPlatforms());
-            Set<String> mobileIds = getMobileIds(parameters.getPlatforms());
-            if (!stationaryIds.isEmpty()) {
-                addFilterRestriction(stationaryIds, DatasetEntity.PROPERTY_FEATURE, filter);
-            }
-            if (!mobileIds.isEmpty()) {
-                addFilterRestriction(mobileIds, DatasetEntity.PROPERTY_PROCEDURE, filter);
-            }
-        }
-        return filter;
-    }
-
-    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
-        DetachedCriteria filter = createDatasetFilter();
 
         // TODO refactory/simplify projection
         String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
