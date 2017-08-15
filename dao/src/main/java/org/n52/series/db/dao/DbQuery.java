@@ -186,7 +186,7 @@ public class DbQuery {
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
-        if (!parameters.getResultTimes().isEmpty()) {
+        if (!parameters.shallClassifyByResultTimes()) {
             Disjunction or = Restrictions.disjunction();
             for (String resultTime : parameters.getResultTimes()) {
                 Instant instant = Instant.parse(resultTime);
