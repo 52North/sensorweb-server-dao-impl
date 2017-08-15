@@ -129,7 +129,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_SERIES_PKID, pkid);
         Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
         query.addTimespanTo(criteria);
-        return criteria.list();
+        return query.addSpatialFilterTo(criteria).list();
     }
 
     @Override

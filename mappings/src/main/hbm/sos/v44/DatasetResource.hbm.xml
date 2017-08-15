@@ -46,37 +46,33 @@
                 <property column="lastnumericvalue" name="value" type="double" />
             </component>
             <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
-            <list fetch="select" inverse="true" name="observations" table="observation">
+            <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
-                <index column="seriesid" />
-                <one-to-many class="DataEntity" />
-            </list>
+                <one-to-many class="QuantityDataEntity" />
+            </bag>
         </subclass>
 
         <subclass discriminator-value="text" name="TextDatasetEntity">
-            <list fetch="select" inverse="true" name="observations" table="observation">
+            <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
-                <index column="seriesid" />
-                <one-to-many class="DataEntity" />
-            </list>
+                <one-to-many class="TextDataEntity" />
+            </bag>
         </subclass>
 
         <subclass discriminator-value="count" name="CountDatasetEntity">
-            <list fetch="select" inverse="true" name="observations" table="observation">
+            <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
-                <index column="seriesid" />
-                <one-to-many class="DataEntity" />
-            </list>
+                <one-to-many class="CountDataEntity" />
+            </bag>
         </subclass>
 
         <subclass discriminator-value="quantity-profile" name="ProfileDatasetEntity">
             <property name="verticalParameterName" formula="'depth'" type="string" />
             <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
-            <list fetch="select" inverse="true" name="observations" table="observation">
+            <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
-                <index column="seriesid" />
-                <one-to-many class="DataEntity" />
-            </list>
+                <one-to-many class="ProfileDataEntity" />
+            </bag>
         </subclass>
     </class>
 </hibernate-mapping>
