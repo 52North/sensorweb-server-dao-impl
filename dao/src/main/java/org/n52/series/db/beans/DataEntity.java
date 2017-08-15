@@ -39,14 +39,12 @@ import org.n52.series.db.beans.parameter.Parameter;
 
 public abstract class DataEntity<T> {
 
-    public static final String SERIES_PKID = "seriesPkid";
-
     public static final String PROPERTY_TIMESTART = "timestart";
 
     public static final String PROPERTY_TIMEEND = "timeend";
 
     public static final String PROPERTY_RESULTTIME = "resultTime";
-    
+
     public static final String PROPERTY_SERIES_PKID = "seriesPkid";
 
     private Long pkid;

@@ -115,7 +115,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
         // TODO move to appropriate location
         addResultTime(observation, value);
-        
+
         if (query.isExpanded()) {
             addValidTime(observation, value);
             addParameters(observation, value, query);
