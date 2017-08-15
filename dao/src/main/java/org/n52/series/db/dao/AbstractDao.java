@@ -118,11 +118,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
 
-    protected Criteria getDefaultCriteria(DbQuery query) {
+    public Criteria getDefaultCriteria(DbQuery query) {
         return getDefaultCriteria((String) null, query);
     }
 
-    protected Criteria getDefaultCriteria(String alias, DbQuery query) {
+    public Criteria getDefaultCriteria(String alias, DbQuery query) {
         return getDefaultCriteria(alias, query, getEntityClass());
     }
 

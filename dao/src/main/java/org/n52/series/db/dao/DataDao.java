@@ -146,7 +146,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery query) {
+    public Criteria getDefaultCriteria(DbQuery query) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(COLUMN_TIMEEND))
