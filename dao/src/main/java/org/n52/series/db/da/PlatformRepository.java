@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -171,10 +172,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(query);
         result.setDatasets(datasets);
 
-        Geometry geometry = entity.getGeometry();
-        result.setGeometry(geometry == null
+        Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, query, session)
-                : geometry);
+                : entity.getGeometry();
+
+        if (geometry == null) {
+            // spatial filter does not match
+            return null;
+        }
+
+        result.setGeometry(geometry);
         if (entity.hasParameters()) {
             String locale = parameters.getLocale();
             for (Parameter< ? > parameter : entity.getParameters()) {
@@ -191,9 +198,14 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         DatasetEntity lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
-            GeometryEntity lastValueGeometry = dataRepository.getLastValueGeometry(lastDataset, session, query);
-            return lastValueGeometry != null && lastValueGeometry.isSetGeometry()
-                    ? lastValueGeometry.getGeometry()
+            GeometryEntity lastGeometryEntity = dataRepository.getLastValueGeometry(lastDataset, session, query);
+
+            Envelope filter = query.createSpatialFilter();
+            return lastGeometryEntity != null
+                    && lastGeometryEntity.isSetGeometry()
+                    && filter != null
+                    && filter.contains(lastGeometryEntity.getGeometry().getEnvelopeInternal())
+                    ? lastGeometryEntity.getGeometry()
                     : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",

@@ -128,7 +128,16 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
             throws DataAccessException {
         List<O> results = new ArrayList<>();
         for (E entity : allInstances) {
-            results.add(createExpanded(entity, query, session));
+            O instance = createExpanded(entity, query, session);
+            if (instance != null) {
+                /*
+                 *  there are cases where entities does not match a filter
+                 *  which could not be added to a db criteria, e.g. spatial
+                 *  filters on mobile platforms (last location is calculated
+                 *  after db query has been finished already)
+                 */
+                results.add(instance);
+            }
         }
         return results;
     }

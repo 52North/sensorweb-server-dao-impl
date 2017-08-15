@@ -40,9 +40,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
-import org.joda.time.Instant;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -141,17 +139,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    public Criteria getDefaultCriteria(DbQuery parameters) {
+    public Criteria getDefaultCriteria(DbQuery query) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
                                    .add(Restrictions.eq(COLUMN_DELETED, Boolean.FALSE));
 
-        if (parameters != null && parameters.getResultTime() != null) {
-            criteria = criteria.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, parameters.getResultTime()));
-        }
+        query.addResultTimeFilter(criteria);
 
-        criteria = parameters != null && parameters.isComplexParent()
+        criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(COLUMN_PARENT, true))
                 : criteria.add(Restrictions.eq(COLUMN_PARENT, false));
 
@@ -188,10 +184,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                 .add(Restrictions.eq(dsId, dataset.getPkid()));
 
         IoParameters parameters = query.getParameters();
-        if (parameters.containsParameter(Parameters.RESULTTIME)) {
-            Instant resultTime = parameters.getResultTime();
-            criteria.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, resultTime.toDate()));
+        if (parameters.isAllResultTimes()) {
+            // no filter needed
             return criteria;
+        } else if (!parameters.getResultTimes()
+                              .isEmpty()) {
+            // filter based on given result times
+            return query.addResultTimeFilter(criteria);
         } else {
             // project on oldest result time
             String rtAlias = "rt";
