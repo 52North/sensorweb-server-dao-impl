@@ -47,6 +47,7 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
+import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
@@ -147,13 +148,6 @@ public class DbQuery {
                           .isEmpty();
     }
 
-    public Date getResultTime() {
-        return parameters.containsParameter(Parameters.RESULTTIME)
-                ? parameters.getResultTime()
-                            .toDate()
-                : null;
-    }
-
     public String getHandleAsValueTypeFallback() {
         return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
                 ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
@@ -189,6 +183,18 @@ public class DbQuery {
                                .toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
                                          Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
+        }
+        return criteria;
+    }
+
+    public Criteria addResultTimeFilter(Criteria criteria) {
+        if (!parameters.shallClassifyByResultTimes()) {
+            Disjunction or = Restrictions.disjunction();
+            for (String resultTime : parameters.getResultTimes()) {
+                Instant instant = Instant.parse(resultTime);
+                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULTTIME, instant.toDate()));
+            }
+            criteria.add(or);
         }
         return criteria;
     }
@@ -257,9 +263,12 @@ public class DbQuery {
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
-                                                                              : DEFAULT_LIMIT;
-            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
+            int limit = (getParameters().containsParameter(Parameters.LIMIT))
+                    ? getParameters().getLimit()
+                    : DEFAULT_LIMIT;
+            limit = (limit > 1)
+                    ? limit
+                    : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -328,7 +337,7 @@ public class DbQuery {
         }
         return criteria;
     }
-    
+
     public Envelope createSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
@@ -390,7 +399,8 @@ public class DbQuery {
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
                                                               String entity,
-                                                              DetachedCriteria filter, String prefix) {
+                                                              DetachedCriteria filter,
+                                                              String prefix) {
         if (hasValues(values)) {
             filter.createCriteria(entity, prefix + "e")
                   // join the parents to enable filtering via parent ids

@@ -39,11 +39,13 @@ import org.n52.series.db.beans.parameter.Parameter;
 
 public abstract class DataEntity<T> {
 
-    public static final String SERIES_PKID = "seriesPkid";
-
     public static final String PROPERTY_TIMESTART = "timestart";
 
     public static final String PROPERTY_TIMEEND = "timeend";
+
+    public static final String PROPERTY_RESULTTIME = "resultTime";
+
+    public static final String PROPERTY_SERIES_PKID = "seriesPkid";
 
     private Long pkid;
 
@@ -73,7 +75,7 @@ public abstract class DataEntity<T> {
 
     private boolean child;
 
-    private Set<Parameter> parameters = new HashSet<>(0);
+    private Set<Parameter< ? >> parameters = new HashSet<>(0);
 
     public Long getPkid() {
         return pkid;
@@ -234,17 +236,12 @@ public abstract class DataEntity<T> {
         this.child = child;
     }
 
-    public Set<Parameter> getParameters() {
+    public Set<Parameter< ? >> getParameters() {
         return parameters;
     }
 
-    @SuppressWarnings(value = "unchecked")
-    public void setParameters(Object parameters) {
-        if (parameters instanceof Set<?>) {
-            this.parameters = (Set<Parameter>) parameters;
-        } else {
-            getParameters().add((Parameter) parameters);
-        }
+    public void setParameters(Set<Parameter<?>> parameters) {
+        this.parameters = parameters;
     }
 
     public boolean hasParameters() {

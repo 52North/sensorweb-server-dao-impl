@@ -61,7 +61,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     }
 
     @Override
-    protected Criteria getDefaultCriteria(DbQuery query) {
+    public Criteria getDefaultCriteria(DbQuery query) {
         return getDefaultCriteria(true, query);
     }
 

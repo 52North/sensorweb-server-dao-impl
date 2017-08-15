@@ -172,12 +172,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, query, session)
                 : entity.getGeometry();
-                
+
         if (geometry == null) {
             // spatial filter does not match
             return null;
         }
-                
+
         result.setGeometry(geometry);
         if (entity.hasParameters()) {
             String locale = parameters.getLocale();
@@ -196,7 +196,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastGeometryEntity = dataRepository.getLastValueGeometry(lastDataset, session, query);
-            
+
             Envelope filter = query.createSpatialFilter();
             return lastGeometryEntity != null
                     && lastGeometryEntity.isSetGeometry()

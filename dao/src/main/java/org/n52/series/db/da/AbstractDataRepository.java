@@ -40,7 +40,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
@@ -114,13 +113,15 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     }
 
     protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
-        PlatformEntity platform = dataset.getPlatform();
+        // TODO move to appropriate location
+        addResultTime(observation, value);
+
         if (query.isExpanded()) {
             addValidTime(observation, value);
             addParameters(observation, value, query);
             addGeometry(observation, value, query);
         } else {
-            if (platform.isMobile()) {
+            if (dataset.getPlatform().isMobile()) {
                 addGeometry(observation, value, query);
             }
         }
@@ -145,6 +146,12 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
                                  .getTime()
                     : null;
             value.setValidTime(new ValidTime(validFrom, validUntil));
+        }
+    }
+
+    protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+        if (observation.getResultTime() != null) {
+            value.setResultTime(observation.getResultTime().getTime());
         }
     }
 
