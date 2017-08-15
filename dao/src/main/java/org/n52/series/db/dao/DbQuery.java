@@ -261,9 +261,12 @@ public class DbQuery {
 
     Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit()
-                                                                              : DEFAULT_LIMIT;
-            limit = (limit > 1) ? limit : DEFAULT_LIMIT;
+            int limit = (getParameters().containsParameter(Parameters.LIMIT))
+                    ? getParameters().getLimit()
+                    : DEFAULT_LIMIT;
+            limit = (limit > 1)
+                    ? limit
+                    : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -377,7 +380,8 @@ public class DbQuery {
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
                                                               String entity,
-                                                              DetachedCriteria filter, String prefix) {
+                                                              DetachedCriteria filter,
+                                                              String prefix) {
         if (hasValues(values)) {
             filter.createCriteria(entity, prefix + "e")
                   // join the parents to enable filtering via parent ids
