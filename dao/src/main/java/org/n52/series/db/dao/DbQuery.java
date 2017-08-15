@@ -47,6 +47,7 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
+import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
@@ -145,13 +146,6 @@ public class DbQuery {
                           .isEmpty();
     }
 
-    public Date getResultTime() {
-        return parameters.containsParameter(Parameters.RESULTTIME)
-                ? parameters.getResultTime()
-                            .toDate()
-                : null;
-    }
-
     public String getHandleAsValueTypeFallback() {
         return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
                 ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
@@ -187,6 +181,18 @@ public class DbQuery {
                                .toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
                                          Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
+        }
+        return criteria;
+    }
+
+    public Criteria addResultTimeFilter(Criteria criteria) {
+        if (!parameters.getResultTimes().isEmpty()) {
+            Disjunction or = Restrictions.disjunction();
+            for (String resultTime : parameters.getResultTimes()) {
+                Instant instant = Instant.parse(resultTime);
+                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULTTIME, instant.toDate()));
+            }
+            criteria.add(or);
         }
         return criteria;
     }

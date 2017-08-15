@@ -45,6 +45,8 @@ public abstract class DataEntity<T> {
 
     public static final String PROPERTY_TIMEEND = "timeend";
 
+    public static final String PROPERTY_RESULTTIME = "resultTime";
+
     private Long pkid;
 
     // optional
