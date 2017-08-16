@@ -53,7 +53,7 @@ public class DefaultConfig extends WebMvcConfigurerAdapter {
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
                   .mediaType("json", MediaType.APPLICATION_JSON)
-                  .useJaf(false);
+                  .useJaf(true);
     }
 
     @Override
