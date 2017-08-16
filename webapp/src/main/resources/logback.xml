@@ -13,6 +13,9 @@
             <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
 
         <encoder>
             <pattern>
@@ -32,10 +35,8 @@
     <logger name="org.n52" level="${logger.org.n52.level:-WARN}" />
 
     <logger name="org.springframework" level="${logger.org.springframework.level:-INFO}" />
-    <logger name="org.springframework.web.servlet.mvc.method.annotation"
-            level="${logger.org.springframework.web.servlet.mvc.method.annotation.level:-WARN}" />
-    <logger name="org.springframework.core.env.PropertySourcesPropertyResolver"
-            level="${logger.org.springframework.core.env.PropertySourcesPropertyResolver.level:-INFO}" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation" level="${logger.org.springframework.web.servlet.mvc.method.annotation.level:-WARN}" />
+    <logger name="org.springframework.core.env.PropertySourcesPropertyResolver" level="${logger.org.springframework.core.env.PropertySourcesPropertyResolver.level:-INFO}" />
 
     <logger name="org.hibernate" level="${logger.org.hibernate.level:-WARN}" />
     <logger name="org.hibernate.type" level="${logger.org.hibernate.type.level:-WARN}" />
