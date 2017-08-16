@@ -122,6 +122,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final Long pkid = series.getPkid();
         LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
+        criteria = query.addSpatialFilterTo(criteria);
         return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
                        .add(Restrictions.eq(DataEntity.PROPERTY_PKID, pkid))
                        .list();
