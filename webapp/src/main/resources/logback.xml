@@ -3,11 +3,10 @@
     <!-- refer to http://logback.qos.ch/manual/appenders.html -->
 
     <property file="${local.configFile:-src/main/resources/application.properties}" />
-
-<!--     <property name="logFile" value="${config.logger.fileappender.filepath}" /> -->
+    <property name="logFile" value="${logger.fileappender.filepath}" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logger.fileappender.filepath}</file>
+        <file>${logFile}.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logFile}/%d{yyyy-MM-dd}.log</fileNamePattern>
