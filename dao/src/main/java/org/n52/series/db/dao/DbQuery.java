@@ -469,8 +469,8 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria) ||
-            DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)
+                || DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
                 Envelope envelope = createSpatialFilter();
