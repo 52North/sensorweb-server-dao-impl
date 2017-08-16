@@ -14,11 +14,12 @@ This describes an example configuration via Spring. There are lots of variants a
 alternatives which may end in the same result. This example splits Spring configuration 
 files into two main files:
 
-* `/WEB-INF/spring/dispatcher-servlet.xml` contains Web controllers and views
-* `/WEB-INF/spring/application-context.xml` contains SPI implementations
+* `/WEB-INF/spring/dispatcher-servlet.xml` the dispatcher's config file
+* `/WEB-INF/spring/api_mvc.xml` the Web controllers configuration
+* `/WEB-INF/spring/application-context.xml` SPI configuration
 
-However, everything starts by adding Spring's `DispatcherServlet` within the `web.xml`, 
-put both configuration files, and relate it to some context path like so:
+However, everything starts by configuring Spring's `DispatcherServlet` within the `web.xml` 
+and relate it to some context path like so:
 
 {::options parse_block_html="true" /}
 {: .n52-example-block}
@@ -32,7 +33,7 @@ Example configuration of the dispatcher servlet
   <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
   <init-param>
      <param-name>contextConfigLocation</param-name>
-     <param-value>/WEB-INF/spring/dispatcher-servlet.xml,/WEB-INF/spring/application-context.xml</param-value>
+     <param-value>/WEB-INF/spring/dispatcher-servlet.xml</param-value>
   </init-param>
   <load-on-startup>1</load-on-startup>
 </servlet>
@@ -45,14 +46,16 @@ Example configuration of the dispatcher servlet
 </div>
 
 #### Content Negotiation
-To support proper content negotiation and JSON serialization the following should be 
-added to the `/WEB-INF/spring/dispatcher-servlet.xml`:
+Content Negotiation is configured by `org.n52.series.dao.spring.DefaultConfig` class 
+and read by `<ctx:component-scan base-package="org.n52.series.dao.spring" />`. If you 
+need to change config, replace `<ctx:component-scan ... />` with `<ctx:annotation-config />`
+and add the following which you can modify depending on your needs.
 
 {::options parse_block_html="true" /}
 {: .n52-example-block}
 <div>
 <div class="btn n52-example-caption n52-example-toggler active" type="button" data-toggle="button">
-Content negotiation example
+Content negotiation configuration
 </div>
 ```xml
 <mvc:annotation-driven />
@@ -118,8 +121,6 @@ Example how to configure Web MVC controllers
 
 <!-- a parent controller configuration -->
 <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
-    <!-- ${external.url} property is configured in an external properties file (see above) -->
-    <property name="externalUrl" value="${external.url}" />
     <property name="metadataExtensions">
         <list>
             <bean class="org.n52.io.response.extension.LicenseExtension" />

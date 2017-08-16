@@ -1,5 +1,51 @@
 <configuration scan="true">
 
-    <include resource="logback-${env}.xml"/>
+    <!-- refer to http://logback.qos.ch/manual/appenders.html -->
+
+    <property file="${local.configFile:-src/main/resources/application.properties}" />
+    <property name="logFile" value="${logger.fileappender.filepath}" />
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logFile}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logFile}/%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder>
+            <pattern>
+                %date %level [%thread] [%file:%line] %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.n52" level="${logger.org.n52.level:-WARN}" />
+
+    <logger name="org.springframework" level="${logger.org.springframework.level:-INFO}" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation" level="${logger.org.springframework.web.servlet.mvc.method.annotation.level:-WARN}" />
+    <logger name="org.springframework.core.env.PropertySourcesPropertyResolver" level="${logger.org.springframework.core.env.PropertySourcesPropertyResolver.level:-INFO}" />
+
+    <logger name="org.hibernate" level="${logger.org.hibernate.level:-WARN}" />
+    <logger name="org.hibernate.type" level="${logger.org.hibernate.type.level:-WARN}" />
+    <logger name="org.hibernate.SQL" level="${logger.org.hibernate.SQL.level:-WARN}" />
+
+    <logger name="org.apache" level="${logger.org.apache.level:-WARN}" />
+    <logger name="org.geotools" level="${logger.org.geotools.level:-INFO}" />
+    <logger name="com.sun.xml" level="${logger.com.sun.xml:-ERROR}" />
+
+    <include resource="logback-appender-${env}.xml" />
 
 </configuration>
