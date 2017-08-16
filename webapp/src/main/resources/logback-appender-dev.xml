@@ -1,0 +1,5 @@
+<included>
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+</included>

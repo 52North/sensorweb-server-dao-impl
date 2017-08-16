@@ -15,7 +15,6 @@
     <properties>
 
         <!-- optional properties file -->
-        <!-- <local.configFile>file:${user.home}/${project.build.finalName}.properties</local.configFile> -->
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <postgis.version>2.2.0</postgis.version>
@@ -26,7 +25,7 @@
 
         <finalName>${project.artifactId}</finalName>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
-        <config.logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</config.logger.fileappender.filepath>
+<!--         <logger.fileappender.filepath>${catalina.base:-.}/logs/${finalName}</logger.fileappender.filepath> -->
     </properties>
 
     <dependencies>
