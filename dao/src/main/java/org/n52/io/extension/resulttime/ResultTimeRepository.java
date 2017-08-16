@@ -57,10 +57,12 @@ class ResultTimeRepository extends SessionAwareRepository {
     Set<String> getExtras(String datasetId, IoParameters parameters) {
         Session session = getSession();
         try {
-            DataDao< ? > dao = new DataDao<>(session);
             String alias = "datasets";
+            DataDao< ? > dao = new DataDao<>(session);
             String datasetMember = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_PKID);
             List<Date> resultTimes = dao.getDefaultCriteria(getDbQuery(parameters))
+                                        .add(Restrictions.neProperty(DataEntity.PROPERTY_RESULT_TIME,
+                                                                     DataEntity.PROPERTY_PHENOMENON_TIME_END))
                                         .setProjection(Projections.property(DataEntity.PROPERTY_RESULT_TIME))
                                         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                                         .createCriteria(DataEntity.PROPERTY_DATASETS, alias)

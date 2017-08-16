@@ -29,6 +29,7 @@
 
 package org.n52.series.db.dao;
 
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;

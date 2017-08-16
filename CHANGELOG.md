@@ -20,6 +20,9 @@
 - [#266](https://github.com/52North/series-rest-api/issues/266) observations having time intervals
 - [#320](https://github.com/52North/series-rest-api/issues/320) register configurable timezone type
 - [#31](https://github.com/52North/dao-series-api/issues/31) support for profile observations
+- [#391](https://github.com/52North/series-rest-api/issues/391] support spatial filter for data requests
+- [#161](https://github.com/52North/series-rest-api/issues/161] support alternative GeoJSON `bbox` format
+- 
 
 ### Issues 
 - [#246](https://github.com/52North/series-rest-api/issues/246) no use of deleted flag in `series` table

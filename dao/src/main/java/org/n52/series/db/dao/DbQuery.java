@@ -41,10 +41,10 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
-import org.hibernate.spatial.GeometryType.Type;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
+import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
@@ -78,7 +78,9 @@ public class DbQuery {
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
 
-    private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity.geometry";
+    private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
+
+    private static final String PROPERTY_OBSERVATIONS = "observations";
 
     private static final int DEFAULT_LIMIT = 10000;
 
@@ -144,13 +146,6 @@ public class DbQuery {
     public boolean isSetValueTypeFilter() {
         return !parameters.getValueTypes()
                           .isEmpty();
-    }
-
-    public Date getResultTime() {
-        return parameters.containsParameter(Parameters.RESULTTIME)
-                ? parameters.getResultTime()
-                            .toDate()
-                : null;
     }
 
     public String getHandleAsValueTypeFallback() {
@@ -359,6 +354,18 @@ public class DbQuery {
                         .collect(Collectors.toSet());
     }
 
+    public Criteria addResultTimeFilter(Criteria criteria) {
+        if (!parameters.shallClassifyByResultTimes()) {
+            Disjunction or = Restrictions.disjunction();
+            for (String resultTime : parameters.getResultTimes()) {
+                Instant instant = Instant.parse(resultTime);
+                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, instant.toDate()));
+            }
+            criteria.add(or);
+        }
+        return criteria;
+    }
+
     /**
      * Adds an platform type filter to the query.
      *
@@ -462,32 +469,32 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)) {
+        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria) ||
+            DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
             BoundingBox spatialFilter = parameters.getSpatialFilter();
             if (spatialFilter != null) {
-                try {
-                    CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                    int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                    Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                    Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                    Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-
-                    criteria.add(SpatialRestrictions.filter(PROPERTY_GEOMETRY_ENTITY, envelope, databaseSrid));
-
-                    // TODO intersect with linestring
-                    // XXX do sampling filter only on generated line strings stored in FOI table,
-                    // otherwise we would have to check each observation row
-                } catch (FactoryException e) {
-                    LOGGER.error("Could not create transformation facilities.", e);
-                } catch (TransformException e) {
-                    LOGGER.error("Could not perform transformation.", e);
+                Envelope envelope = createSpatialFilter();
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+                String geometryMember = PROPERTY_GEOMETRY_ENTITY + ".geometry";
+                if (DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
+                    // in case of dataset entities
+                    criteria.createCriteria(PROPERTY_OBSERVATIONS)
+                            .add(SpatialRestrictions.filter(geometryMember, envelope, databaseSrid));
+                } else {
+                    // all other entities
+                    criteria.add(SpatialRestrictions.filter(geometryMember, envelope, databaseSrid));
                 }
+
+                // TODO intersect with linestring
+                // XXX do sampling filter only on generated line strings stored in FOI table,
+                // otherwise we would have to check each observation row
             }
 
             Set<String> geometryTypes = parameters.getGeometryTypes();
             for (String geometryType : geometryTypes) {
                 if (!geometryType.isEmpty()) {
-                    Type type = getGeometryType(geometryType);
+                    GeometryType.Type type = getGeometryType(geometryType);
                     if (type != null) {
                         criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
                     }
@@ -497,7 +504,24 @@ public class DbQuery {
         return criteria;
     }
 
-    private Type getGeometryType(String geometryType) {
+    public Envelope createSpatialFilter() {
+        BoundingBox spatialFilter = parameters.getSpatialFilter();
+        if (spatialFilter != null) {
+            try {
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            } catch (FactoryException e) {
+                LOGGER.error("Could not create transformation facilities.", e);
+            } catch (TransformException e) {
+                LOGGER.error("Could not perform transformation.", e);
+            }
+        }
+        return null;
+    }
+
+    private GeometryType.Type getGeometryType(String geometryType) {
         for (GeometryType.Type type : GeometryType.Type.values()) {
             if (type.name()
                     .equalsIgnoreCase(geometryType)) {
