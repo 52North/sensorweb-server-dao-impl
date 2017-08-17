@@ -8,8 +8,10 @@ sudo apt-get -qq update && sudo apt-get -qq install \
 
 cd
 gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+# get and install ruby
 sudo curl -sSL https://get.rvm.io | bash -s stable
 
+# setup environment in current shell
 sudo . /etc/profile.d/rvm.sh
 sudo rvm requirements
 sudo rvm list known
