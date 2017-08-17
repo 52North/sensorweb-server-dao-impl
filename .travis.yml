@@ -2,7 +2,8 @@ language: java
 jdk:
 - oraclejdk8
 before_install:
-- gem update --system 2.2.2 
+- sudo apt-get update && sudo apt-get -qq install ruby2.2
+#- gem update --system 2.2.2 
 - gem install bundler jekyll html-proofer
 script: mvn -fae -U -B clean install -Pwith-docs -P check
 after_success: 
