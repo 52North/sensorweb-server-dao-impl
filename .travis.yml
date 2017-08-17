@@ -1,7 +1,6 @@
 language: java
 jdk:
 - oraclejdk8
-rvm: 2.2.2
 before_install:
 - gem update --system 2.2.2 
 - gem install bundler jekyll html-proofer
