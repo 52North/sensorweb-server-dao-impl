@@ -82,7 +82,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return platformRepository.getEntity(dataset.getPlatformId(), query, session);
+        return platformRepository.getEntity(getPlatformId(dataset), query, session);
     }
 
     @Override

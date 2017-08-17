@@ -302,7 +302,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     private PlatformOutput getCondensedPlatform(DatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return platformRepository.createCondensed(series, query, session);
+        return platformRepository.createCondensedPlatform(series, query, session);
     }
 
     public IDataRepositoryFactory getDataRepositoryFactory() {

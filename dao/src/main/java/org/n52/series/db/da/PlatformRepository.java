@@ -86,10 +86,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareOutput(PlatformEntity entity) {
-        boolean mobile = entity.getPlatformType()
-                               .isMobile();
-        boolean insitu = entity.getPlatformType()
-                               .isInsitu();
+        boolean mobile = entity.isMobile();
+        boolean insitu = entity.isInsitu();
         return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
     }
 
@@ -122,13 +120,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensed(DatasetEntity dataset, DbQuery query, Session session)
+    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformEntity entity = getEntity(dataset.getPlatformId(), query, session);
+        PlatformEntity entity = getEntity(getPlatformId(dataset), query, session);
         return createCondensed(entity, query, session);
     }
 
-    PlatformOutput createCondensed(String id, DbQuery query, Session session) throws DataAccessException {
+    PlatformOutput createCondensedPlatform(String id, DbQuery query, Session session) throws DataAccessException {
         PlatformEntity entity = getEntity(id, query, session);
         return createCondensed(entity, query, session);
     }
@@ -204,9 +202,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return lastGeometryEntity != null
                     && lastGeometryEntity.isSetGeometry()
                     && filter != null
-                    && filter.contains(lastGeometryEntity.getGeometry().getEnvelopeInternal())
-                    ? lastGeometryEntity.getGeometry()
-                    : null;
+                    && filter.contains(lastGeometryEntity.getGeometry()
+                                                         .getEnvelopeInternal())
+                                                                 ? lastGeometryEntity.getGeometry()
+                                                                 : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                          lastDataset.getPkid());
@@ -366,7 +365,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return getEntity(dataset.getPlatformId(), query, session);
+        return getEntity(getPlatformId(dataset), query, session);
     }
 
     private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {
