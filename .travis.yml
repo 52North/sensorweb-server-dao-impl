@@ -1,6 +1,7 @@
 language: java
 jdk:
 - oraclejdk8
+before_install: gem install bundler jekyll html-proofer
 script: mvn -fae -U -B clean install -Pwith-docs -P check
 after_success: 
 - chmod +x .travis/deploy-docs.sh && .travis/deploy-docs.sh
@@ -8,6 +9,7 @@ after_success:
 env:
   global:
   - SNAPSHOT_BRANCH: "version/v3.x"
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # gh-pages: speeds up installation of html-proofer
 cache:
   directories:
   - $HOME/.m2
