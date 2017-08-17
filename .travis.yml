@@ -1,7 +1,10 @@
 language: java
 jdk:
 - oraclejdk8
-before_install: gem install bundler jekyll html-proofer
+rvm: 2.2.2
+before_install:
+- gem update --system 2.2.2 
+- gem install bundler jekyll html-proofer
 script: mvn -fae -U -B clean install -Pwith-docs -P check
 after_success: 
 - chmod +x .travis/deploy-docs.sh && .travis/deploy-docs.sh
