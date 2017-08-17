@@ -3,9 +3,6 @@ jdk:
 - oraclejdk8
 dist: trusty
 before_install:
-#- sudo apt-get update && sudo apt-get -qq install ruby2.2
-#- gem update --system 2.2.2
-#- chmod +x .travis/install-ruby.sh && .travis/install-ruby.sh
 - gem install jekyll html-proofer
 script: mvn -fae -U -B clean install -Pwith-docs -P check
 after_success: 
