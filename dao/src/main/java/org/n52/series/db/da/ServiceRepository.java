@@ -179,7 +179,10 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                         : "2.0";
             result.setValue(ServiceOutput.VERSION, version, params, result::setVersion);
 
-            result.setValue(ServiceOutput.SUPPORTEDMIMETYPES, getSupportedDatasets(result), params, result::addSupportedDatasets);
+            result.setValue(ServiceOutput.SUPPORTEDMIMETYPES,
+                            getSupportedDatasets(result),
+                            params,
+                            result::addSupportedDatasets);
             // TODO add features
             // TODO different counts
         }
