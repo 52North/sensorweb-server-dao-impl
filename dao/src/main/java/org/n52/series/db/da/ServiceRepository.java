@@ -155,27 +155,35 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery parameters, Session session) {
-        ServiceOutput service = getCondensedService(entity, parameters);
-        service.setQuantities(countParameters(service, parameters));
-        service.setSupportsFirstLatest(entity.isSupportsFirstLatest());
-        service.setServiceUrl(entity.getUrl());
-        service.setType(getServiceType(entity));
+    protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
+        ServiceOutput result = getCondensedService(entity, query);
+        IoParameters params = query.getParameters();
 
-        FilterResolver filterResolver = parameters.getFilterResolver();
+        ParameterCount quantities = countParameters(result, query);
+        boolean supportsFirstLatest = entity.isSupportsFirstLatest();
+        String serviceUrl = entity.getUrl();
+        String type = getServiceType(entity);
+
+        result.setValue(ServiceOutput.QUANTITIES, quantities, params, result::setQuantities);
+        result.setValue(ServiceOutput.SUPPORTSFIRSTLATEST, supportsFirstLatest, params, result::setSupportsFirstLatest);
+        result.setValue(ServiceOutput.SERVICEURL, serviceUrl, params, result::setServiceUrl);
+        result.setValue(ServiceOutput.TYPE, type, params, result::setType);
+
+        FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallBehaveBackwardsCompatible()) {
             // ensure backwards compatibility
-            service.setVersion("1.0.0");
+            result.setValue(ServiceOutput.VERSION, "1.0.0", params, result::setVersion);
         } else {
-            service.setVersion(entity.getVersion() != null
-                    ? entity.getVersion()
-                    : "2.0");
-            addSupportedDatasetsTo(service);
+            String version = (entity.getVersion() != null)
+                        ? entity.getVersion()
+                        : "2.0";
+            result.setValue(ServiceOutput.VERSION, version, params, result::setVersion);
 
+            result.setValue(ServiceOutput.SUPPORTEDMIMETYPES, getSupportedDatasets(result), params, result::addSupportedDatasets);
             // TODO add features
             // TODO different counts
         }
-        return service;
+        return result;
     }
 
     private String getServiceType(ServiceEntity entity) {
@@ -184,7 +192,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                 : SERVICE_TYPE;
     }
 
-    private void addSupportedDatasetsTo(ServiceOutput service) {
+    private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
@@ -194,7 +202,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
             }
         }
-        service.addSupportedDatasets(mimeTypesByDatasetTypes);
+        return mimeTypesByDatasetTypes;
     }
 
     private ParameterCount countParameters(ServiceOutput service, DbQuery query) {

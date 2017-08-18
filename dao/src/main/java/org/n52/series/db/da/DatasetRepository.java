@@ -38,6 +38,7 @@ import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -60,7 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  * @param <T>
- *        the dataset's type this repository is responsible for.
+ *        the datasets type this repository is responsible for.
  */
 public class DatasetRepository<T extends Data> extends SessionAwareRepository
         implements OutputAssembler<DatasetOutput> {
@@ -157,6 +158,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         return createDataAccessRepository(valueType, session);
     }
 
+    private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
+        return new DatasetDao<>(session, clazz);
+    }
+
     private DatasetDao< ? extends DatasetEntity> createDataAccessRepository(String valueType, Session session)
             throws DataAccessException {
         try {
@@ -165,10 +170,6 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
-    }
-
-    private DatasetDao< ? extends DatasetEntity> getSeriesDao(Class< ? extends DatasetEntity> clazz, Session session) {
-        return new DatasetDao<>(session, clazz);
     }
 
     @Override
@@ -265,33 +266,45 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     // XXX refactor generics
     protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetOutput output = new DatasetOutput(series.getValueType()) {};
-        output.setLabel(createSeriesLabel(series, query.getLocale()));
-        output.setId(series.getPkid()
-                           .toString());
-        output.setDomainId(series.getDomainId());
-        output.setHrefBase(urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
-        PlatformOutput platform = getCondensedPlatform(series, query, session);
-        output.setPlatformType(platform.getPlatformType());
-        return output;
+        DatasetOutput result = new DatasetOutput(series.getValueType()) {};
+        IoParameters parameters = query.getParameters();
+        String id = series.getPkid()
+                           .toString();
+        String label = createSeriesLabel(series, query.getLocale());
+        String domainId = series.getDomainId();
+        String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
+        String platformtype = getCondensedPlatform(series, query, session).getPlatformType();
+
+
+        result.setId(id);
+        result.setValue(DatasetOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(DatasetOutput.DOMAINID, domainId, parameters, result::setDomainId);
+        result.setValue(DatasetOutput.HREFBASE, hrefBase, parameters, result::setHrefBase);
+        result.setValue(DatasetOutput.PLATFORMTYPE, platformtype, parameters, result::setPlatformType);
+        return result;
     }
 
     // XXX refactor generics
     protected DatasetOutput createExpanded(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
         try {
+            IoParameters params = query.getParameters();
             DatasetOutput result = createCondensed(series, query, session);
             DatasetParameters seriesParameters = createDatasetParameters(series, query, session);
             seriesParameters.setPlatform(getCondensedPlatform(series, query, session));
-            result.setDatasetParameters(seriesParameters);
-
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
-            result.setUom(series.getUnitI18nName(query.getLocale()));
+            String uom = series.getUnitI18nName(query.getLocale());
+
             DataRepository dataRepository = dataRepositoryFactory.create(series.getValueType());
-            result.setFirstValue(dataRepository.getFirstValue(series, session, query));
-            result.setLastValue(dataRepository.getLastValue(series, session, query));
+            AbstractValue firstValue = dataRepository.getFirstValue(series, session, query);
+            AbstractValue lastValue = dataRepository.getLastValue(series, session, query);
+
+            result.setValue(DatasetOutput.UOM, uom, params, result::setUom);
+            result.setValue(DatasetOutput.DATASETPARAMETERS, seriesParameters, params, result::setDatasetParameters);
+            result.setValue(DatasetOutput.FIRSTVALUE, firstValue, params, result::setFirstValue);
+            result.setValue(DatasetOutput.LASTVALUE, lastValue, params, result::setLastValue);
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);

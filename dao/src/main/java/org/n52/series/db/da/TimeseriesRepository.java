@@ -37,10 +37,12 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityReferenceValueOutput;
+import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -182,14 +184,20 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
-        TimeseriesMetadataOutput output = createCondensed(series, query, session);
-        output.setDatasetParameters (createTimeseriesOutput(series, query));
+        TimeseriesMetadataOutput result = createCondensed(series, query, session);
+        IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        output.setReferenceValues(createReferenceValueOutputs(series, query, repository));
-        output.setFirstValue(repository.getFirstValue(series, session, query));
-        output.setLastValue(repository.getLastValue(series, session, query));
-        return output;
+        QuantityReferenceValueOutput[] referenceValues = createReferenceValueOutputs(series, query, repository);
+        DatasetParameters timeseries = createTimeseriesOutput(series, query);
+        QuantityValue firstValue = repository.getFirstValue(series, session, query);
+        QuantityValue lastValue = repository.getLastValue(series, session, query);
+
+        result.setValue(TimeseriesMetadataOutput.REFERENCEVALUES, referenceValues, params, result::setReferenceValues);
+        result.setValue(TimeseriesMetadataOutput.DATASETPARAMETERS, timeseries, params, result::setDatasetParameters);
+        result.setValue(TimeseriesMetadataOutput.FIRSTVALUE, firstValue, params, result::setFirstValue);
+        result.setValue(TimeseriesMetadataOutput.LASTVALUE, lastValue, params, result::setLastValue);
+        return result;
     }
 
     private QuantityDataRepository createRepository(String valueType) throws DataAccessException {
@@ -229,8 +237,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
     private TimeseriesMetadataOutput createCondensed(QuantityDatasetEntity entity, DbQuery query, Session session)
             throws DataAccessException {
-        TimeseriesMetadataOutput output = new TimeseriesMetadataOutput();
+        TimeseriesMetadataOutput result = new TimeseriesMetadataOutput();
         String locale = query.getLocale();
+        IoParameters params = query.getParameters();
         String phenomenonLabel = entity.getPhenomenon()
                                        .getLabelFrom(locale);
         String procedureLabel = entity.getProcedure()
@@ -239,24 +248,30 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                                     .getLabelFrom(locale);
         String offeringLabel = entity.getOffering()
                                      .getLabelFrom(locale);
-        output.setLabel(createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel));
-        output.setId(entity.getPkid()
-                           .toString());
-        output.setUom(entity.getUnitI18nName(locale));
-        output.setStation(createCondensedStation(entity, query, session));
-        return output;
+        String id = entity.getPkid()
+                   .toString();
+        String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
+        String uom = entity.getUnitI18nName(locale);
+        StationOutput station = createCondensedStation(entity, query, session);
+
+        result.setId(id);
+        result.setValue(TimeseriesMetadataOutput.LABEL, label, params, result::setLabel);
+        result.setValue(TimeseriesMetadataOutput.UOM, uom, params, result::setUom);
+        result.setValue(TimeseriesMetadataOutput.STATION, station, params, result::setStation);
+
+        return result;
     }
 
     private String createTimeseriesLabel(String phenomenon, String procedure, String station, String offering) {
         StringBuilder sb = new StringBuilder();
         sb.append(phenomenon)
-          .append(" ");
+            .append(" ");
         sb.append(procedure)
-          .append(", ");
+            .append(", ");
         sb.append(station)
-          .append(", ");
+            .append(", ");
         return sb.append(offering)
-                 .toString();
+                   .toString();
     }
 
     private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session)

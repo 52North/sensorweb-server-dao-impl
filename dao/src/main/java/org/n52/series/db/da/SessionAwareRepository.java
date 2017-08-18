@@ -215,12 +215,14 @@ public abstract class SessionAwareRepository {
         return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
-    protected <T extends ParameterOutput> T createCondensed(T outputvalue,
+    protected <T extends ParameterOutput> T createCondensed(T result,
                                                             DescribableEntity entity,
                                                             DbQuery parameters) {
-        outputvalue.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        outputvalue.setId(Long.toString(entity.getPkid()));
-        return outputvalue;
+        String id = Long.toString(entity.getPkid());
+        String label = entity.getLabelFrom(parameters.getLocale());
+        result.setId(id);
+        result.setValue(T.LABEL, label, parameters.getParameters(), result::setLabel);
+        return result;
     }
 
     private <T extends ParameterOutput> T createCondensed(T outputvalue,
