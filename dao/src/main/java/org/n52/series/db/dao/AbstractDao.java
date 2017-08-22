@@ -103,8 +103,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
-        return ((Long) query.addFilters(criteria, getDatasetProperty())
-                            .uniqueResult()).intValue();
+        return ((Long) criteria.uniqueResult()).intValue();
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
@@ -134,12 +133,15 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         String nonNullAlias = alias != null
                 ? alias
                 : getDefaultAlias();
-        DetachedCriteria filter = createSeriesSubQueryViaExplicitJoin(query);
-        return session.createCriteria(clazz, nonNullAlias)
-                      .add(Subqueries.propertyIn("pkid", filter));
+        DetachedCriteria filter = createDatasetSubqueryViaExplicitJoin(query);
+        Criteria criteria = session.createCriteria(clazz, nonNullAlias)
+                                   .add(Subqueries.propertyIn("pkid", filter));
+        query.addPlatformTypeFilter(getDatasetProperty(), criteria);
+        query.addValueTypeFilter(getDatasetProperty(), criteria);
+        return criteria;
     }
 
-    private DetachedCriteria createSeriesSubQueryViaExplicitJoin(DbQuery query) {
+    private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
         return DetachedCriteria.forClass(DatasetEntity.class)
                                .add(createPublishedDatasetFilter())
                                .createAlias(getDatasetProperty(), "ref")

@@ -122,7 +122,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         if (filterResolver.shallIncludeAllDatasetTypes()) {
             addCondensedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String valueType : query.getDatasetTypes()) {
+            for (String valueType : query.getValueTypes()) {
                 addCondensedResults(getSeriesDao(valueType, session), query, results, session);
             }
         }
@@ -195,7 +195,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         if (filterResolver.shallIncludeAllDatasetTypes()) {
             addExpandedResults(getSeriesDao(DatasetEntity.class, session), query, results, session);
         } else {
-            for (String valueType : query.getDatasetTypes()) {
+            for (String valueType : query.getValueTypes()) {
                 addExpandedResults(getSeriesDao(valueType, session), query, results, session);
             }
         }
