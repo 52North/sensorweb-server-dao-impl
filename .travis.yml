@@ -1,8 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
+dist: trusty
 before_install:
-- gem update --system 2.2.2 
 - gem install bundler jekyll html-proofer
 script: mvn -fae -U -B clean install -Pwith-docs -Pcheck
 after_success:
