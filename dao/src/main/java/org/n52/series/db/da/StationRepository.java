@@ -181,7 +181,7 @@ public class StationRepository extends SessionAwareRepository
             throws DataAccessException {
         IoParameters parameters = query.getParameters();
         StationOutput result = createCondensed(feature, query);
-        
+
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
         DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);

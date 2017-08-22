@@ -163,10 +163,13 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return getDefaultCriteria(alias, ignoreReferenceSeries, query, getEntityClass());
     }
 
-    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class<?> clazz) {
+    private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = session.createCriteria(clazz)
                                    .add(createPublishedDatasetFilter())
                                    .createAlias("procedure", "p");
+
+        query.addValueTypeFilter("", criteria);
+        query.addPlatformTypeFilter("", criteria);
         return ignoreReferenceSeries
                 ? criteria.add(Restrictions.eq("p.reference", Boolean.FALSE))
                 : criteria;
