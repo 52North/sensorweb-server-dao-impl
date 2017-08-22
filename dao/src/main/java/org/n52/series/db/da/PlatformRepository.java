@@ -46,7 +46,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
@@ -192,23 +191,30 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
+        DatasetEntity lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
-            GeometryEntity lastGeometryEntity = dataRepository.getLastValueGeometry(lastDataset, session, query);
+            GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
 
-            Envelope filter = query.createSpatialFilter();
-            return lastGeometryEntity != null
-                    && lastGeometryEntity.isSetGeometry()
-                    && filter != null
-                    && filter.contains(lastGeometryEntity.getGeometry().getEnvelopeInternal())
-                    ? lastGeometryEntity.getGeometry()
-                    : null;
+            return isValidGeometry(lastKnownGeometry)
+                    && matchesSpatialFilter(lastKnownGeometry, query)
+                            ? lastKnownGeometry.getGeometry()
+                            : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                          lastDataset.getPkid());
         }
         return null;
+    }
+
+    private boolean isValidGeometry(GeometryEntity geometry) {
+        return geometry != null && geometry.isSetGeometry();
+    }
+
+    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+        Envelope filter = query.createSpatialFilter();
+        Geometry geometry = geometryEntity.getGeometry();
+        return filter == null || filter.contains(geometry.getEnvelopeInternal());
     }
 
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
