@@ -190,8 +190,6 @@ public class DbQuery {
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
-        addPlatformTypeFilter(datasetProperty, criteria);
-        addValueTypeFilter(datasetProperty, criteria);
         return addSpatialFilterTo(criteria);
     }
 
@@ -375,10 +373,9 @@ public class DbQuery {
      *        the criteria to add the filter to.
      * @return the criteria to chain.
      */
-    private Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
+    Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
         FilterResolver filterResolver = getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
-
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
                 criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_ALIAS, filterResolver));
@@ -409,11 +406,11 @@ public class DbQuery {
                                 createInsituExpression(alias, filterResolver));
     }
 
-    private Criteria addValueTypeFilter(String parameter, Criteria criteria) {
+    Criteria addValueTypeFilter(String parameter, Criteria criteria) {
         Set<String> valueTypes = getParameters().getValueTypes();
         if (!valueTypes.isEmpty()) {
-            FilterResolver filterResolver = getFilterResolver();
-            if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
+            FilterResolver filterResolver = parameters.getFilterResolver();
+            if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
                 if (parameter == null || parameter.isEmpty()) {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));

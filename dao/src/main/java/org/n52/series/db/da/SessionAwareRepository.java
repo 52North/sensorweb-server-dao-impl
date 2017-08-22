@@ -41,6 +41,7 @@ import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.PlatformType;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -51,6 +52,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -113,6 +115,20 @@ public abstract class SessionAwareRepository {
         geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
         return geometryEntity.getGeometry();
     }
+
+    // XXX a bit misplaced here
+    protected String getPlatformId(DatasetEntity dataset) {
+        ObservationConstellationEntity constellation = dataset.getObservationConstellation();
+        ProcedureEntity procedure = constellation.getProcedure();
+        boolean mobile = procedure.isMobile();
+        boolean insitu = procedure.isInsitu();
+        PlatformType type = PlatformType.toInstance(mobile, insitu);
+        DescribableEntity entity = type.isStationary()
+                ? dataset.getFeature()
+                : procedure;
+        return type.createId(entity.getPkid());
+    }
+
 
     protected Long parseId(String id) throws BadRequestException {
         try {
