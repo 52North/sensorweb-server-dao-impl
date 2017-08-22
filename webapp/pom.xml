@@ -216,6 +216,14 @@
                             <artifactItem>
                                 <groupId>org.n52.series-api</groupId>
                                 <artifactId>web-resources</artifactId>
+                                <includes>docs/**</includes>
+                                <excludes>docs/_config.yml</excludes>
+                                <overWrite>false</overWrite>
+                                <outputDirectory>${docs.sources.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
                                 <includes>static/**</includes>
                                 <overWrite>false</overWrite>
                                 <outputDirectory>${webapp.workdir}</outputDirectory>
@@ -546,20 +554,6 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>unpack-docs-sources</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
                         <!--Allow a definition of the gem repo -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
@@ -618,30 +612,6 @@
                                     <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
                                 </licenseMapping>
                                 <generateChildNotices>true</generateChildNotices>
-                            </configuration>
-                        </plugin>
-
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-dependency-plugin</artifactId>
-                            <configuration>
-                                <artifactItems>
-                                    <artifactItem>
-                                        <groupId>org.n52.series-api</groupId>
-                                        <artifactId>web-resources</artifactId>
-                                        <includes>docs/**</includes>
-                                        <excludes>docs/_config.yml</excludes>
-                                        <overWrite>false</overWrite>
-                                        <outputDirectory>${docs.sources.directory}</outputDirectory>
-                                    </artifactItem>
-                                    <artifactItem>
-                                        <groupId>org.n52.series-api</groupId>
-                                        <artifactId>web-resources</artifactId>
-                                        <includes>static/**</includes>
-                                        <overWrite>false</overWrite>
-                                        <outputDirectory>${webapp.workdir}</outputDirectory>
-                                    </artifactItem>
-                                </artifactItems>
                             </configuration>
                         </plugin>
 
