@@ -10,8 +10,8 @@
     "phenomenonStyles": [
         {
             "id": "7",
-            "title": "Title of a Timeseries (without legend)",
-            "chartQualifier": "without_legend",
+            "title": "Dataset quantity_7 from phenomenonStyles config (without legend)",
+            "chartQualifier": "phenomenonStyles_without_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"
@@ -27,8 +27,8 @@
         },
         {
             "id": "7",
-            "title": "Title of a Timeseries (with legend)",
-            "chartQualifier": "with_legend",
+            "title": "Dataset quantity_7 from phenomenonStyles config (with legend)",
+            "chartQualifier": "phenomenonStyles_with_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"
@@ -46,9 +46,49 @@
             }
         }
     ],
+    "timeseriesStyles": [
+        {
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "timeseriesStyles_without_legend",
+            "interval": [
+                "lastWeek",
+                "lastMonth"
+            ],
+            "style": {
+                "chartType": "bar",
+                "properties": {
+                    "interval": "byDay",
+                    "width": 0.8,
+                    "color": "#0000ff"
+                }
+            }
+        }
+    ],
     "seriesStyles": [
         {
-            "id": "quantity_8",
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "seriesStyles_without_legend",
+            "interval": [
+                "lastWeek",
+                "lastMonth"
+            ],
+            "style": {
+                "chartType": "bar",
+                "properties": {
+                    "interval": "byDay",
+                    "width": 0.8,
+                    "color": "#0000ff"
+                }
+            }
+        }
+    ],
+    "datasetStyles": [
+        {
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "datasetStyles_with_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"

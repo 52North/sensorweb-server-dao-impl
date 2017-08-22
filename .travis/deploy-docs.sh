@@ -6,7 +6,7 @@ stop() {
 }
 
 DOCUMENTATION_BRANCHES=(
-  "develop",
+  "develop" \
   "master"
 )
 

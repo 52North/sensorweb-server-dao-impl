@@ -40,7 +40,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.DefaultIoFactory;
 import org.n52.io.IoFactory;
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
@@ -155,15 +154,15 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery parameters, Session session) {
-        ServiceOutput service = getCondensedService(entity, parameters);
-        service.setQuantities(countParameters(service, parameters));
+    protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
+        ServiceOutput service = getCondensedService(entity, query);
+        service.setQuantities(countParameters(service, query));
         service.setSupportsFirstLatest(entity.isSupportsFirstLatest());
         service.setServiceUrl(entity.getUrl());
         service.setType(getServiceType(entity));
 
-        FilterResolver filterResolver = parameters.getFilterResolver();
-        if (filterResolver.shallBehaveBackwardsCompatible()) {
+        IoParameters parameters = query.getParameters();
+        if (parameters.shallBehaveBackwardsCompatible()) {
             // ensure backwards compatibility
             service.setVersion("1.0.0");
         } else {
@@ -209,13 +208,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
             quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
             quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-            quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-            quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
 
-            FilterResolver filterResolver = query.getFilterResolver();
-            if (filterResolver.shallBehaveBackwardsCompatible()) {
+            IoParameters parameters = query.getParameters();
+            if (parameters.shallBehaveBackwardsCompatible()) {
                 quantities.setTimeseriesSize(counter.countTimeseries());
                 quantities.setStationsSize(counter.countStations());
+            } else {
+                quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+                quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
             }
             return quantities;
         } catch (DataAccessException e) {
