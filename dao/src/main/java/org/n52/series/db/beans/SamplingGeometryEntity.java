@@ -36,7 +36,7 @@ import org.n52.series.db.DataModelUtil;
 public class SamplingGeometryEntity {
 
     private Long pkid;
-    
+
     private Date timestamp;
 
     private GeometryEntity geometryEntity;

@@ -43,7 +43,7 @@ import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.SamplingGeometryEntity;
 
 public class SamplingGeometryDao {
-    
+
     private static final String COLUMN_PKID = "pkid";
 
     private static final String COLUMN_SERIES_PKID = "seriesPkid";
@@ -65,7 +65,7 @@ public class SamplingGeometryDao {
         query.addSpatialFilterTo(criteria);
         return toGeometryEntities(criteria.list());
     }
-    
+
     @SuppressWarnings("unchecked")
     private List<Long> getDatasetIds(DbQuery query) {
         Criteria criteria = session.createCriteria(DatasetEntity.class);
