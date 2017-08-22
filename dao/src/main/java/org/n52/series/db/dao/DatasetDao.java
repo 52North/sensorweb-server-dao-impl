@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@SuppressWarnings("rawtypes")
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
     public static final String PROCEDURE_ALIAS = "proc";
@@ -82,13 +81,13 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public List<T> find(DbQuery query) {
         LOGGER.debug("find entities: {}", query);
+
         String searchTerm = "%" + query.getSearchTerm() + "%";
 
         /*
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
          * to join tables and search for given pattern on any of the stored labels.
          */
-
         Criteria criteria = getDefaultCriteria(query);
         // default criteria performs join on procedure table
         constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
@@ -172,11 +171,13 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                                    .add(createPublishedDatasetFilter());
         criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                 .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS);
-        if (ignoreReferenceSeries) {
-            String refMember = QueryUtils.createAssociation(PROCEDURE_ALIAS, "reference");
-            criteria.add(Restrictions.eq(refMember, Boolean.FALSE));
-        }
-        return criteria;
+
+        query.addValueTypeFilter("", criteria);
+        query.addPlatformTypeFilter("", criteria);
+        String refMember = QueryUtils.createAssociation(PROCEDURE_ALIAS, ProcedureEntity.PROPERTY_REFERENCE);
+        return ignoreReferenceSeries
+                ? criteria.add(Restrictions.eq(refMember, Boolean.FALSE))
+                : criteria;
     }
 
 }

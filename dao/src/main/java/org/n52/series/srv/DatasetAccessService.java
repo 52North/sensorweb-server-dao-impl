@@ -32,7 +32,6 @@ package org.n52.series.srv;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.io.request.RequestParameterSet;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
@@ -65,7 +64,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     }
 
     @Override
-    public DataCollection<Data<AbstractValue< ? >>> getData(RequestParameterSet parameters) {
+    public DataCollection<Data<AbstractValue< ? >>> getData(IoParameters parameters) {
         try {
             TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
             for (String seriesId : parameters.getDatasets()) {
@@ -80,10 +79,11 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         }
     }
 
-    private Data<AbstractValue< ? >> getDataFor(String datasetId, RequestParameterSet parameters)
+    private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters)
             throws DataAccessException {
-        DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+
+        DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
+        String handleAsDatasetFallback = parameters.getOther(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
         DataRepository dataRepository = createRepository(valueType);
         return dataRepository.getData(datasetId, dbQuery);

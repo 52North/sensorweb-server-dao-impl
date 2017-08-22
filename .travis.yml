@@ -3,9 +3,10 @@ jdk:
 - oraclejdk8
 dist: trusty
 before_install:
-- gem install jekyll html-proofer
-script: mvn -fae -U -B clean install -Pwith-docs -P check
-after_success: 
+- gem install bundler jekyll html-proofer
+#script: mvn -fae -U -B clean install -Pwith-docs -Pcheck
+script: mvn -fae -U -B clean install -Pcheck
+after_success:
 - chmod +x .travis/deploy-docs.sh && .travis/deploy-docs.sh
 - curl -Ls https://git.io/deploy-maven-snapshot | bash
 env:
@@ -18,5 +19,5 @@ cache:
 notifications:
   irc:
     channels:
-    - "chat.freenode.net#52north"
+    - chat.freenode.net#52north
     on_failure: always

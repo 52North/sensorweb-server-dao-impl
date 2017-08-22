@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
@@ -86,8 +85,7 @@ public class Search implements SearchService {
         results.addAll(platformRepository.searchFor(parameters));
         results.addAll(datasetRepository.searchFor(parameters));
 
-        FilterResolver filterResolver = new FilterResolver(parameters);
-        if (filterResolver.shallBehaveBackwardsCompatible()) {
+        if (parameters.shallBehaveBackwardsCompatible()) {
             results.addAll(timeseriesRepository.searchFor(parameters));
             results.addAll(stationRepository.searchFor(parameters));
         }

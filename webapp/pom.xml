@@ -22,6 +22,10 @@
         <postgresql.version>9.4.1208.jre7</postgresql.version>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
+        
+        <docs.context>docs</docs.context>
+        <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
+        <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
 
         <finalName>${project.artifactId}</finalName>
         <webappDirectory>${project.build.directory}/${finalName}</webappDirectory>
@@ -164,6 +168,14 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+
+            <resource>
+                <directory>src/main/docs</directory>
+                <!-- match the unpacked docs folder -->
+                <targetPath>${docs.sources.directory}/docs</targetPath>
+                <!-- gets filtered after docs generation -->
+                <filtering>false</filtering>
+            </resource>
         </resources>
 
         <filters>
@@ -201,6 +213,14 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                     <configuration>
                         <artifactItems>
+                            <artifactItem>
+                                <groupId>org.n52.series-api</groupId>
+                                <artifactId>web-resources</artifactId>
+                                <includes>docs/**</includes>
+                                <excludes>docs/_config.yml</excludes>
+                                <overWrite>false</overWrite>
+                                <outputDirectory>${docs.sources.directory}</outputDirectory>
+                            </artifactItem>
                             <artifactItem>
                                 <groupId>org.n52.series-api</groupId>
                                 <artifactId>web-resources</artifactId>
@@ -284,9 +304,6 @@
             </activation>
 
             <properties>
-                <docs.context>docs</docs.context>
-                <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
-                <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
                 <jekyll.port>4000</jekyll.port>
             </properties>
 
@@ -522,16 +539,6 @@
             </dependencies>
 
             <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/docs</directory>
-                        <!-- match the unpacked docs folder -->
-                        <targetPath>${docs.sources.directory}/docs</targetPath>
-                        <!-- gets filtered after docs generation -->
-                        <filtering>false</filtering>
-                    </resource>
-                </resources>
-
                 <plugins>
                     <plugin>
                         <!-- assemble licenses -->
@@ -542,20 +549,6 @@
                                 <phase>generate-resources</phase>
                                 <goals>
                                     <goal>generate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>unpack-docs-sources</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -620,30 +613,6 @@
                                     <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
                                 </licenseMapping>
                                 <generateChildNotices>true</generateChildNotices>
-                            </configuration>
-                        </plugin>
-
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-dependency-plugin</artifactId>
-                            <configuration>
-                                <artifactItems>
-                                    <artifactItem>
-                                        <groupId>org.n52.series-api</groupId>
-                                        <artifactId>web-resources</artifactId>
-                                        <includes>docs/**</includes>
-                                        <excludes>docs/_config.yml</excludes>
-                                        <overWrite>false</overWrite>
-                                        <outputDirectory>${docs.sources.directory}</outputDirectory>
-                                    </artifactItem>
-                                    <artifactItem>
-                                        <groupId>org.n52.series-api</groupId>
-                                        <artifactId>web-resources</artifactId>
-                                        <includes>static/**</includes>
-                                        <overWrite>false</overWrite>
-                                        <outputDirectory>${webapp.workdir}</outputDirectory>
-                                    </artifactItem>
-                                </artifactItems>
                             </configuration>
                         </plugin>
 
