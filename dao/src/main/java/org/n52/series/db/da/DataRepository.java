@@ -47,7 +47,7 @@ public interface DataRepository<E extends DatasetEntity, V extends AbstractValue
 
     V getLastValue(E entity, Session session, DbQuery query);
 
-    GeometryEntity getLastValueGeometry(E lastDataset, Session session, DbQuery query);
+    GeometryEntity getLastKnownGeometry(E lastDataset, Session session, DbQuery query);
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
