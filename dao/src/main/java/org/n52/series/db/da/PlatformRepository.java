@@ -196,21 +196,27 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         DatasetEntity lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
-            GeometryEntity lastGeometryEntity = dataRepository.getLastValueGeometry(lastDataset, session, query);
+            GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
 
-            Envelope filter = query.createSpatialFilter();
-            return lastGeometryEntity != null
-                    && lastGeometryEntity.isSetGeometry()
-                    && filter != null
-                    && filter.contains(lastGeometryEntity.getGeometry()
-                                                         .getEnvelopeInternal())
-                                                                 ? lastGeometryEntity.getGeometry()
-                                                                 : null;
+            return isValidGeometry(lastKnownGeometry)
+                    && matchesSpatialFilter(lastKnownGeometry, query)
+                            ? lastKnownGeometry.getGeometry()
+                            : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                          lastDataset.getId());
         }
         return null;
+    }
+
+    private boolean isValidGeometry(GeometryEntity geometry) {
+        return geometry != null && geometry.isSetGeometry();
+    }
+
+    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+        Envelope filter = query.createSpatialFilter();
+        Geometry geometry = geometryEntity.getGeometry();
+        return filter == null || filter.contains(geometry.getEnvelopeInternal());
     }
 
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
