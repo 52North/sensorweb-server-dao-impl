@@ -266,17 +266,18 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     // XXX refactor generics
     protected DatasetOutput createCondensed(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetOutput result = new DatasetOutput(series.getValueType()) {};
         IoParameters parameters = query.getParameters();
-        String id = series.getPkid()
-                           .toString();
-        String label = createSeriesLabel(series, query.getLocale());
+
+        String valueType = series.getValueType();
+        DatasetOutput< ? , ? > result = DatasetOutput.create(valueType, parameters);
+
+        Long id = series.getPkid();
         String domainId = series.getDomainId();
+        String label = createSeriesLabel(series, query.getLocale());
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         String platformtype = getCondensedPlatform(series, query, session).getPlatformType();
 
-
-        result.setId(id);
+        result.setId(id.toString());
         result.setValue(DatasetOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(DatasetOutput.DOMAINID, domainId, parameters, result::setDomainId);
         result.setValue(DatasetOutput.HREFBASE, hrefBase, parameters, result::setHrefBase);
