@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
@@ -48,6 +47,7 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("deprecation")
 public class Search implements SearchService {
 
     @Autowired
@@ -83,13 +83,12 @@ public class Search implements SearchService {
         results.addAll(procedureRepository.searchFor(parameters));
         results.addAll(featureRepository.searchFor(parameters));
         results.addAll(categoryRepository.searchFor(parameters));
-        results.addAll(platformRepository.searchFor(parameters));
-        results.addAll(datasetRepository.searchFor(parameters));
+        results.addAll(timeseriesRepository.searchFor(parameters));
+        results.addAll(stationRepository.searchFor(parameters));
 
-        FilterResolver filterResolver = new FilterResolver(parameters);
-        if (filterResolver.shallBehaveBackwardsCompatible()) {
-            results.addAll(timeseriesRepository.searchFor(parameters));
-            results.addAll(stationRepository.searchFor(parameters));
+        if (!parameters.shallBehaveBackwardsCompatible()) {
+            results.addAll(platformRepository.searchFor(parameters));
+            results.addAll(datasetRepository.searchFor(parameters));
         }
         return results;
     }

@@ -230,10 +230,10 @@ public class DbQuery {
     }
 
     Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
-        Set<String> valueTypes = getParameters().getValueTypes();
+        Set<String> valueTypes = parameters.getValueTypes();
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = getFilterResolver();
-            if (filterResolver.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
+            if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
                 Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
                     // series table itself
