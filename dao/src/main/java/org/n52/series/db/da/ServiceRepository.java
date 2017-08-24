@@ -40,7 +40,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.DefaultIoFactory;
 import org.n52.io.IoFactory;
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
@@ -115,7 +114,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     private boolean isConfiguredServiceInstance(Long id) {
         return serviceEntity != null
-                && serviceEntity.getPkid().equals(id);
+                && serviceEntity.getPkid()
+                                .equals(id);
     }
 
     @Override
@@ -157,34 +157,36 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
         ServiceOutput result = getCondensedService(entity, query);
-        IoParameters params = query.getParameters();
+        IoParameters parameters = query.getParameters();
 
         ParameterCount quantities = countParameters(result, query);
         boolean supportsFirstLatest = entity.isSupportsFirstLatest();
+
         String serviceUrl = entity.getUrl();
         String type = getServiceType(entity);
 
-        result.setValue(ServiceOutput.QUANTITIES, quantities, params, result::setQuantities);
-        result.setValue(ServiceOutput.SUPPORTSFIRSTLATEST, supportsFirstLatest, params, result::setSupportsFirstLatest);
-        result.setValue(ServiceOutput.SERVICEURL, serviceUrl, params, result::setServiceUrl);
-        result.setValue(ServiceOutput.TYPE, type, params, result::setType);
+        result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
+        result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
 
-        FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallBehaveBackwardsCompatible()) {
-            // ensure backwards compatibility
-            result.setValue(ServiceOutput.VERSION, "1.0.0", params, result::setVersion);
+        if (parameters.shallBehaveBackwardsCompatible()) {
+            result.setValue(ServiceOutput.VERSION, "1.0.0", parameters, result::setVersion);
+            result.setValue(ServiceOutput.QUANTITIES, quantities, parameters, result::setQuantities);
+            result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
+                            supportsFirstLatest,
+                            parameters,
+                            result::setSupportsFirstLatest);
         } else {
-            String version = (entity.getVersion() != null)
-                        ? entity.getVersion()
-                        : "2.0";
-            result.setValue(ServiceOutput.VERSION, version, params, result::setVersion);
+            Map<String, Object> features = new HashMap<>();
+            features.put(ServiceOutput.QUANTITIES, quantities);
+            features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
+            features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
-            result.setValue(ServiceOutput.SUPPORTEDMIMETYPES,
-                            getSupportedDatasets(result),
-                            params,
-                            result::addSupportedDatasets);
-            // TODO add features
-            // TODO different counts
+            String version = (entity.getVersion() != null)
+                    ? entity.getVersion()
+                    : "2.0";
+
+            result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
+            result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
         }
         return result;
     }
@@ -210,23 +212,22 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     private ParameterCount countParameters(ServiceOutput service, DbQuery query) {
         try {
+            IoParameters parameters = query.getParameters();
             ParameterCount quantities = new ServiceOutput.ParameterCount();
-            DbQuery serviceQuery = getDbQuery(query.getParameters()
-                                                   .extendWith(IoParameters.SERVICES, service.getId())
-                                                   .removeAllOf("offset")
-                                                   .removeAllOf("limit"));
+            DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
+                                                        .removeAllOf("offset")
+                                                        .removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
             quantities.setProceduresSize(counter.countProcedures(serviceQuery));
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
             quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
             quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-            quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-            quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
+            quantities.setTimeseriesSize(counter.countTimeseries());
+            quantities.setStationsSize(counter.countStations());
 
-            FilterResolver filterResolver = query.getFilterResolver();
-            if (filterResolver.shallBehaveBackwardsCompatible()) {
-                quantities.setTimeseriesSize(counter.countTimeseries());
-                quantities.setStationsSize(counter.countStations());
+            if (!parameters.shallBehaveBackwardsCompatible()) {
+                quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+                quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
             }
             return quantities;
         } catch (DataAccessException e) {

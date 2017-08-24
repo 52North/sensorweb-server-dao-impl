@@ -230,7 +230,8 @@ public abstract class SessionAwareRepository {
                                                           DbQuery parameters,
                                                           String hrefBase) {
         createCondensed(outputvalue, entity, parameters);
-        outputvalue.setHref(hrefBase + "/" + outputvalue.getId());
+        String href = hrefBase + "/" + outputvalue.getId();
+        outputvalue.setValue(ParameterOutput.HREF, href, parameters.getParameters(), outputvalue::setHref);
         return outputvalue;
     }
 
