@@ -30,7 +30,6 @@
 package org.n52.series.db.dao;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,8 +46,10 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
+import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
@@ -78,9 +79,9 @@ public class DbQuery {
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
 
-    private static final String PROPERTY_OBSERVATIONS = "observations";
-
     private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
+
+    private static final String PROPERTY_OBSERVATIONS = "observations";
 
     private static final int DEFAULT_LIMIT = 10000;
 
@@ -139,11 +140,11 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public Set<String> getDatasetTypes() {
+    public Set<String> getValueTypes() {
         return parameters.getValueTypes();
     }
 
-    public boolean isSetDatasetTypeFilter() {
+    public boolean isSetValueTypeFilter() {
         return !parameters.getValueTypes()
                           .isEmpty();
     }
@@ -174,17 +175,161 @@ public class DbQuery {
     }
 
     public Criteria addTimespanTo(Criteria criteria) {
-        if (parameters.getTimespan() != null) {
-            Interval interval = parameters.getTimespan()
-                                          .toInterval();
-            Date start = interval.getStart()
-                                 .toDate();
-            Date end = interval.getEnd()
-                               .toDate();
+        IntervalWithTimeZone timespan = parameters.getTimespan();
+        if (timespan != null) {
+            Interval interval = timespan.toInterval();
+            DateTime startDate = interval.getStart();
+            DateTime endDate = interval.getEnd();
+            Date start = startDate.toDate();
+            Date end = endDate.toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
                                          Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
         }
         return criteria;
+    }
+
+    public Criteria addFilters(Criteria criteria, String datasetProperty) {
+        addLimitAndOffsetFilter(criteria);
+        addDetachedFilters(datasetProperty, criteria);
+        return addSpatialFilterTo(criteria);
+    }
+
+    private Criteria addLimitAndOffsetFilter(Criteria criteria) {
+        if (getParameters().containsParameter(Parameters.OFFSET)) {
+            int limit = (getParameters().containsParameter(Parameters.LIMIT))
+                    ? getParameters().getLimit()
+                    : DEFAULT_LIMIT;
+            limit = (limit > 1)
+                    ? limit
+                    : DEFAULT_LIMIT;
+            criteria.setFirstResult(getParameters().getOffset() * limit);
+        }
+        if (getParameters().containsParameter(Parameters.LIMIT)) {
+            criteria.setMaxResults(getParameters().getLimit());
+        }
+        return criteria;
+    }
+
+    public Criteria addDetachedFilters(String datasetName, Criteria criteria) {
+        Set<String> categories = parameters.getCategories();
+        Set<String> procedures = parameters.getProcedures();
+        Set<String> phenomena = parameters.getPhenomena();
+        Set<String> offerings = parameters.getOfferings();
+        Set<String> platforms = parameters.getPlatforms();
+        Set<String> features = parameters.getFeatures();
+        Set<String> datasets = parameters.getDatasets();
+
+        if (!(hasValues(platforms)
+                || hasValues(phenomena)
+                || hasValues(procedures)
+                || hasValues(offerings)
+                || hasValues(features)
+                || hasValues(categories)
+                || hasValues(datasets))) {
+            // no subquery neccessary
+            return criteria;
+        }
+
+        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        if (hasValues(platforms)) {
+            features.addAll(getStationaryIds(platforms));
+            procedures.addAll(getMobileIds(platforms));
+        }
+
+        addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(parameters.getSeries(), filter);
+
+        addFilterRestriction(parameters.getDatasets()
+                                       .stream()
+                                       .map(e -> ValueType.extractId(e))
+                                       .collect(Collectors.toSet()),
+                             filter);
+
+        // TODO refactory/simplify projection
+        String projectionProperty = QueryUtils.createAssociation(datasetName, PROPERTY_PKID);
+        filter.setProjection(Property.forName(projectionProperty));
+
+        String filterProperty = QueryUtils.createAssociation(datasetName, PROPERTY_PKID);
+        criteria.add(Subqueries.propertyIn(filterProperty, filter));
+        return criteria;
+    }
+
+    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
+                                                              String entity,
+                                                              DetachedCriteria filter,
+                                                              String prefix) {
+        if (hasValues(values)) {
+            filter.createCriteria(entity, prefix + "e")
+                  // join the parents to enable filtering via parent ids
+                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
+        }
+        return filter;
+    }
+
+    private DetachedCriteria addFilterRestriction(Set<String> values, DetachedCriteria filter) {
+        return addFilterRestriction(values, null, filter);
+    }
+
+    private DetachedCriteria addFilterRestriction(Set<String> values, String entity, DetachedCriteria filter) {
+        if (hasValues(values)) {
+            Criterion restriction = createIdCriterion(values);
+            if (entity == null || entity.isEmpty()) {
+                return filter.add(restriction);
+            } else {
+                // return subquery for further chaining
+                return filter.createCriteria(entity)
+                             .add(restriction);
+            }
+        }
+        return filter;
+    }
+
+    private Criterion createIdCriterion(Set<String> values) {
+        return createIdCriterion(values, null);
+    }
+
+    private Criterion createIdCriterion(Set<String> values, String alias) {
+        return parameters.isMatchDomainIds()
+                ? createDomainIdFilter(values, alias)
+                : createIdFilter(values, alias);
+    }
+
+    private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
+        String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
+        Disjunction disjunction = Restrictions.disjunction();
+        for (String filter : filterValues) {
+            disjunction.add(Restrictions.ilike(column, filter));
+        }
+        return disjunction;
+    }
+
+    private Criterion createIdFilter(Set<String> filterValues, String alias) {
+        String column = QueryUtils.createAssociation(alias, PROPERTY_PKID);
+        return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
+    }
+
+    private boolean hasValues(Set<String> values) {
+        return values != null && !values.isEmpty();
+    }
+
+    private Set<String> getStationaryIds(Set<String> platforms) {
+        return platforms.stream()
+                        .filter(e -> PlatformType.isStationaryId(e))
+                        .map(e -> PlatformType.extractId(e))
+                        .collect(Collectors.toSet());
+    }
+
+    private Set<String> getMobileIds(Set<String> platforms) {
+        return platforms.stream()
+                        .filter(e -> PlatformType.isMobileId(e))
+                        .map(e -> PlatformType.extractId(e))
+                        .collect(Collectors.toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
@@ -209,10 +354,10 @@ public class DbQuery {
      * @return the criteria to chain.
      */
     Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
-        FilterResolver filterResolver = getFilterResolver();
+        FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
-                // series table itself
+                // join starts from dataset table
                 criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
                         .add(createMobileExpression(filterResolver))
                         .add(createInsituExpression(filterResolver));
@@ -229,10 +374,10 @@ public class DbQuery {
         return criteria;
     }
 
-    Criteria addDatasetTypeFilter(String parameter, Criteria criteria) {
+    Criteria addValueTypeFilter(String parameter, Criteria criteria) {
         Set<String> valueTypes = parameters.getValueTypes();
         if (!valueTypes.isEmpty()) {
-            FilterResolver filterResolver = getFilterResolver();
+            FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
                 Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
                 if (parameter == null || parameter.isEmpty()) {
@@ -259,30 +404,6 @@ public class DbQuery {
 
     private Criterion matchPropertyPkids(String property, DetachedCriteria c) {
         return Subqueries.propertyIn(QueryUtils.createAssociation(property, PROPERTY_PKID), c);
-    }
-
-    Criteria addLimitAndOffsetFilter(Criteria criteria) {
-        if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT))
-                    ? getParameters().getLimit()
-                    : DEFAULT_LIMIT;
-            limit = (limit > 1)
-                    ? limit
-                    : DEFAULT_LIMIT;
-            criteria.setFirstResult(getParameters().getOffset() * limit);
-        }
-        if (getParameters().containsParameter(Parameters.LIMIT)) {
-            criteria.setMaxResults(getParameters().getLimit());
-        }
-        return criteria;
-    }
-
-    public Criteria addFilters(Criteria criteria, String seriesProperty) {
-        addLimitAndOffsetFilter(criteria);
-        addDetachedFilters(seriesProperty, criteria);
-        addPlatformTypeFilter(seriesProperty, criteria);
-        addDatasetTypeFilter(seriesProperty, criteria);
-        return addSpatialFilterTo(criteria);
     }
 
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
@@ -363,118 +484,6 @@ public class DbQuery {
             }
         }
         return null;
-    }
-
-    public Criteria addDetachedFilters(String propertyName, Criteria criteria) {
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        Set<String> features = parameters.getFeatures();
-        Set<String> procedures = parameters.getProcedures();
-
-        if (hasValues(parameters.getPlatforms())) {
-            features.addAll(getStationaryIds(parameters.getPlatforms()));
-            procedures.addAll(getMobileIds(parameters.getPlatforms()));
-        }
-
-        addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
-        addFilterRestriction(parameters.getSeries(), filter);
-
-        addFilterRestriction(parameters.getDatasets()
-                                       .stream()
-                                       .map(e -> ValueType.extractId(e))
-                                       .collect(Collectors.toSet()),
-                             filter);
-
-        // TODO refactory/simplify projection
-        String projectionProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
-        filter.setProjection(Property.forName(projectionProperty));
-
-        String filterProperty = QueryUtils.createAssociation(propertyName, PROPERTY_PKID);
-        criteria.add(Subqueries.propertyIn(filterProperty, filter));
-        return criteria;
-    }
-
-    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String entity,
-                                                              DetachedCriteria filter,
-                                                              String prefix) {
-        if (hasValues(values)) {
-            filter.createCriteria(entity, prefix + "e")
-                  // join the parents to enable filtering via parent ids
-                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
-                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
-        }
-        return filter;
-    }
-
-    private DetachedCriteria addFilterRestriction(Set<String> values, DetachedCriteria filter) {
-        return addFilterRestriction(values, null, filter);
-    }
-
-    private DetachedCriteria addFilterRestriction(Set<String> values, String entity, DetachedCriteria filter) {
-        if (hasValues(values)) {
-            Criterion restriction = createIdCriterion(values);
-            if (entity == null || entity.isEmpty()) {
-                return filter.add(restriction);
-            } else {
-                // return subquery for further chaining
-                return filter.createCriteria(entity)
-                             .add(restriction);
-            }
-        }
-        return filter;
-    }
-
-    private Criterion createIdCriterion(Set<String> values) {
-        return createIdCriterion(values, null);
-    }
-
-    private Criterion createIdCriterion(Set<String> values, String alias) {
-        return parameters.isMatchDomainIds()
-                ? createDomainIdFilter(values, alias)
-                : createIdFilter(values, alias);
-    }
-
-    private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        Disjunction disjunction = Restrictions.disjunction();
-        for (String filter : filterValues) {
-            disjunction.add(Restrictions.ilike(column, filter));
-        }
-        return disjunction;
-    }
-
-    private Criterion createIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, PROPERTY_PKID);
-        return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
-    }
-
-    private boolean hasValues(Set<String> values) {
-        return values != null && !values.isEmpty();
-    }
-
-    private Set<String> getStationaryIds(Set<String> platforms) {
-        Set<String> set = new HashSet<>();
-        for (String platform : platforms) {
-            if (PlatformType.isStationaryId(platform)) {
-                set.add(PlatformType.extractId(platform));
-            }
-        }
-        return set;
-    }
-
-    private Set<String> getMobileIds(Set<String> platforms) {
-        Set<String> set = new HashSet<>();
-        for (String platform : platforms) {
-            if (!PlatformType.isStationaryId(platform)) {
-                set.add(PlatformType.extractId(platform));
-            }
-        }
-        return set;
     }
 
     public IoParameters getParameters() {

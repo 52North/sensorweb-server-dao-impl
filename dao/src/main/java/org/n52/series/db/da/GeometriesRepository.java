@@ -198,9 +198,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
         FeatureDao dao = createFeatureDao(session);
         DbQuery siteQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
-                                                                .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                            "stationary"));
+                                                                .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
+                                                                             "stationary"));
         for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
             GeometryInfo geometryInfo = createSite(featureEntity, parameters, expanded);
             if (geometryInfo != null) {
@@ -223,9 +222,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                 .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
-                                                                 .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                             "mobile"));
+                                                                 .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
+                                                                              "mobile"));
         for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
             geometryInfoList.add(createTrack(featureEntity, parameters, expanded, session));
         }

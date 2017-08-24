@@ -105,7 +105,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         String label = entity.getLabelFrom(query.getLocale());
         String domainId = entity.getDomainId();
         String hrefBase = query.getHrefBase();
-        
+
         result.setId(Long.toString(pkid));
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);

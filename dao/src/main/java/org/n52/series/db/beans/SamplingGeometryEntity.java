@@ -33,8 +33,8 @@ import java.util.Date;
 
 import org.n52.series.db.DataModelUtil;
 
-public class SamplingGeometryEntity extends GeometryEntity {
-    
+public class SamplingGeometryEntity {
+
     private Long pkid;
 
     private Date timestamp;

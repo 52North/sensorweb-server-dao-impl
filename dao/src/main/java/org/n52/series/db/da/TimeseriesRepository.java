@@ -250,7 +250,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String stationLabel = feature.getLabelFrom(locale);
         OfferingEntity offering = entity.getOffering();
         String offeringLabel = offering.getLabelFrom(locale);
-        
+
         Long pkid = entity.getPkid();
         String uom = entity.getUnitI18nName(locale);
         String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);

@@ -222,10 +222,11 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
             quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
             quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-            quantities.setTimeseriesSize(counter.countTimeseries());
-            quantities.setStationsSize(counter.countStations());
 
-            if (!parameters.shallBehaveBackwardsCompatible()) {
+            if (parameters.shallBehaveBackwardsCompatible()) {
+                quantities.setTimeseriesSize(counter.countTimeseries());
+                quantities.setStationsSize(counter.countStations());
+            } else {
                 quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
                 quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
             }

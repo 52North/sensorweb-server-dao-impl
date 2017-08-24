@@ -315,8 +315,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private DbQuery createPlatformFilter(DbQuery parameters, String... filterValues) {
         return getDbQuery(parameters.getParameters()
-                                    .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
-                                    .extendWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
+                                    .replaceWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
     }
 
     private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities) {

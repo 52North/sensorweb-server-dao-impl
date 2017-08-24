@@ -83,10 +83,11 @@ public class Search implements SearchService {
         results.addAll(procedureRepository.searchFor(parameters));
         results.addAll(featureRepository.searchFor(parameters));
         results.addAll(categoryRepository.searchFor(parameters));
-        results.addAll(timeseriesRepository.searchFor(parameters));
-        results.addAll(stationRepository.searchFor(parameters));
 
-        if (!parameters.shallBehaveBackwardsCompatible()) {
+        if (parameters.shallBehaveBackwardsCompatible()) {
+            results.addAll(timeseriesRepository.searchFor(parameters));
+            results.addAll(stationRepository.searchFor(parameters));
+        } else {
             results.addAll(platformRepository.searchFor(parameters));
             results.addAll(datasetRepository.searchFor(parameters));
         }

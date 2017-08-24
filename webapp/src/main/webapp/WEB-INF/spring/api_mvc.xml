@@ -24,7 +24,6 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
-<!--         <property name="externalUrl" value="${external.url}" /> -->
         <property name="metadataExtensions">
             <list>
                 <bean class="org.n52.io.response.extension.LicenseExtension" />
@@ -143,6 +142,10 @@
         <property name="timeseriesMetadataService" ref="timeseriesService" />
         <property name="timeseriesDataService" ref="timeseriesService" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction}" />
+        <!-- reference task here so that controller is able to serve prerendered charts -->
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <!-- Prerendering is being controlled by a JobScheduler -->
+        <property name="handlingPreRenderingTask" value="false" />
     </bean>
 
 
