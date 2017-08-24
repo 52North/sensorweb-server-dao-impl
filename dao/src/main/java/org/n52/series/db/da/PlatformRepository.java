@@ -31,11 +31,14 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -47,7 +50,6 @@ import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
@@ -159,18 +161,18 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery parameters, Session session)
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformOutput result = createCondensed(entity, parameters, session);
-        DbQuery query = getDbQuery(parameters.getParameters()
-                                             .extendWith(Parameters.PLATFORMS, result.getId())
-                                             .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        PlatformOutput result = createCondensed(entity, query, session);
+        DbQuery platformQuery = getDbQuery(query.getParameters()
+                                                .extendWith(Parameters.PLATFORMS, result.getId())
+                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(query);
+        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(platformQuery);
         result.setDatasets(datasets);
 
         Geometry geometry = entity.getGeometry() == null
-                ? getLastSamplingGeometry(datasets, query, session)
+                ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
 
         if (geometry == null) {
@@ -197,9 +199,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return lastGeometryEntity != null
                     && lastGeometryEntity.isSetGeometry()
                     && filter != null
-                    && filter.contains(lastGeometryEntity.getGeometry().getEnvelopeInternal())
-                    ? lastGeometryEntity.getGeometry()
-                    : null;
+                    && filter.contains(lastGeometryEntity.getGeometry()
+                                                         .getEnvelopeInternal())
+                                                                 ? lastGeometryEntity.getGeometry()
+                                                                 : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                          lastDataset.getPkid());

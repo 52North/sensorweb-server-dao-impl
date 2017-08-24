@@ -30,10 +30,15 @@
 package org.n52.series.db.dao;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.SamplingGeometryEntity;
 
@@ -52,11 +57,25 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery query) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        query.addDetachedFilters(COLUMN_SERIES_PKID, criteria);
+        criteria.add(Restrictions.in(COLUMN_SERIES_PKID, getDatasetIds(query)));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
         query.addSpatialFilterTo(criteria);
+        return toGeometryEntities(criteria.list());
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Long> getDatasetIds(DbQuery query) {
+        Criteria criteria = session.createCriteria(DatasetEntity.class);
+        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+        query.addDetachedFilters("", criteria);
         return criteria.list();
     }
 
+
+    private List<GeometryEntity> toGeometryEntities(List<SamplingGeometryEntity> entities) {
+        return entities.stream()
+                       .map(e -> e.getGeometryEntity())
+                       .collect(Collectors.toList());
+    }
 }

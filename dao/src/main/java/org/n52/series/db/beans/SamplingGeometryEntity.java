@@ -34,17 +34,21 @@ import java.util.Date;
 import org.n52.series.db.DataModelUtil;
 
 public class SamplingGeometryEntity extends GeometryEntity {
+    
+    private Long pkid;
 
     private Date timestamp;
 
+    private GeometryEntity geometryEntity;
+
     private Long seriesPkid;
 
-    public Date getTimestamp() {
-        return DataModelUtil.createUnmutableTimestamp(timestamp);
+    public Long getPkid() {
+        return pkid;
     }
 
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = DataModelUtil.createUnmutableTimestamp(timestamp);
+    public void setPkid(Long pkid) {
+        this.pkid = pkid;
     }
 
     public Long getSeriesPkid() {
@@ -54,4 +58,22 @@ public class SamplingGeometryEntity extends GeometryEntity {
     public void setSeriesPkid(Long seriesPkid) {
         this.seriesPkid = seriesPkid;
     }
+
+    public Date getTimestamp() {
+        return DataModelUtil.createUnmutableTimestamp(timestamp);
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = DataModelUtil.createUnmutableTimestamp(timestamp);
+    }
+
+    public GeometryEntity getGeometryEntity() {
+        return geometryEntity;
+    }
+
+    public void setGeometryEntity(GeometryEntity geometryEntity) {
+        this.geometryEntity = geometryEntity;
+    }
+
+
 }
