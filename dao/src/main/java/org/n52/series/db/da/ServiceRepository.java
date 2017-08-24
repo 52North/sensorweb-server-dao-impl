@@ -184,9 +184,11 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             String version = (entity.getVersion() != null)
                     ? entity.getVersion()
                     : "2.0";
-
+            
+            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
+            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         }
         return result;
     }
