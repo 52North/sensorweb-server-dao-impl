@@ -90,7 +90,7 @@ public class StationRepository extends SessionAwareRepository
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String pkid = Long.toString(searchResult.getPkid());
+            String pkid = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
             results.add(new StationSearchResult(pkid, label));
         }
@@ -188,7 +188,7 @@ public class StationRepository extends SessionAwareRepository
     private StationOutput createCondensed(FeatureEntity entity, DbQuery query) {
         StationOutput stationOutput = new StationOutput();
         stationOutput.setGeometry(createPoint(entity, query));
-        stationOutput.setId(Long.toString(entity.getPkid()));
+        stationOutput.setId(Long.toString(entity.getId()));
         stationOutput.setLabel(entity.getLabelFrom(query.getLocale()));
         return stationOutput;
     }

@@ -66,7 +66,7 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     private List<Long> getDatasetIds(DbQuery query) {
         Criteria criteria = session.createCriteria(DatasetEntity.class);
-        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         query.addDetachedFilters("", criteria);
         return criteria.list();
     }

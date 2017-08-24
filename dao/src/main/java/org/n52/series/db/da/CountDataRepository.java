@@ -79,7 +79,7 @@ public class CountDataRepository
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
-                referenceSeries.put(referenceSeriesEntity.getPkid()
+                referenceSeries.put(referenceSeriesEntity.getId()
                                                          .toString(),
                                     referenceSeriesData);
             }

@@ -126,7 +126,7 @@ public abstract class SessionAwareRepository {
         DescribableEntity entity = type.isStationary()
                 ? dataset.getFeature()
                 : procedure;
-        return type.createId(entity.getPkid());
+        return type.createId(entity.getId());
     }
 
 
@@ -158,7 +158,7 @@ public abstract class SessionAwareRepository {
         for (QuantityDatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
                            .isReference()) {
-                String timeseriesId = Long.toString(timeseries.getPkid());
+                String timeseriesId = Long.toString(timeseries.getId());
                 timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
             }
         }
@@ -248,7 +248,7 @@ public abstract class SessionAwareRepository {
                                                             DescribableEntity entity,
                                                             DbQuery parameters) {
         outputvalue.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        outputvalue.setId(Long.toString(entity.getPkid()));
+        outputvalue.setId(Long.toString(entity.getId()));
         return outputvalue;
     }
 

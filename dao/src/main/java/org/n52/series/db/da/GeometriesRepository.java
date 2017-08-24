@@ -262,7 +262,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         final List<Coordinate> coordinates = new ArrayList<>();
         if (DataModelUtil.isNamedQuerySupported(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE, session)) {
             Query query = session.getNamedQuery(NAMED_QUERY_GET_SAMPLING_GEOMETRIES_FOR_FEATURE);
-            query.setLong(NAMED_QUERY_PARAMETER_FEATURE_ID, featureEntity.getPkid());
+            query.setLong(NAMED_QUERY_PARAMETER_FEATURE_ID, featureEntity.getId());
             for (Object entity : query.list()) {
                 Object[] row = (Object[]) entity;
                 // phenomenonTime is needed for ordering only
@@ -280,7 +280,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             // when named query not configured --> bad performance
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
-                                             .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getPkid()));
+                                             .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getId()));
             List<GeometryEntity> samplingGeometries = dao.getGeometriesOrderedByTimestamp(getDbQuery(parameters));
             return createLineString(samplingGeometries, dbQuery);
         }
@@ -321,7 +321,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     private GeometryInfo addCondensedValues(GeometryInfo geometryInfo, FeatureEntity featureEntity, DbQuery parameters)
             throws DataAccessException {
-        geometryInfo.setId(Long.toString(featureEntity.getPkid()));
+        geometryInfo.setId(Long.toString(featureEntity.getId()));
         geometryInfo.setHrefBase(urlHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
         geometryInfo.setPlatform(getPlatfom(featureEntity, parameters));
         return geometryInfo;
@@ -329,7 +329,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     private PlatformOutput getPlatfom(FeatureEntity entity, DbQuery parameters) throws DataAccessException {
         DbQuery platformQuery = getDbQuery(parameters.getParameters()
-                                                     .extendWith(Parameters.FEATURES, String.valueOf(entity.getPkid()))
+                                                     .extendWith(Parameters.FEATURES, String.valueOf(entity.getId()))
                                                      .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all"));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()

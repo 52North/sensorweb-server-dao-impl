@@ -96,7 +96,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         Criteria criteria = getDefaultCriteria(query, clazz);
         criteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
         return clazz.cast(criteria.uniqueResult());
     }
 
@@ -139,7 +139,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         filter = projectOnDatasetParameterId(filter);
 
         Criteria criteria = session.createCriteria(clazz, nonNullAlias)
-                                   .add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
+                                   .add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         query.addPlatformTypeFilter(getDatasetProperty(), criteria);
         query.addValueTypeFilter(getDatasetProperty(), criteria);
         return criteria;

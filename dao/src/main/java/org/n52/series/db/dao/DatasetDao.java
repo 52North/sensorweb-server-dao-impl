@@ -137,7 +137,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
         return criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
-                       .add(Restrictions.eq(COLUMN_PKID, feature.getPkid()))
+                       .add(Restrictions.eq(COLUMN_PKID, feature.getId()))
                        .list();
     }
 

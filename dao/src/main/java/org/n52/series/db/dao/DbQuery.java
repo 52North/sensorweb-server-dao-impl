@@ -269,7 +269,7 @@ public class DbQuery {
             addFilterRestriction(datasets, filter);
         }
 
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
     }
 
@@ -391,7 +391,7 @@ public class DbQuery {
                  .add(createPlatformTypeRestriction(filterResolver));
 
                 setFilterProjectionOn(alias, parameter, c);
-                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
+                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
             }
         }
         return criteria;
@@ -421,7 +421,7 @@ public class DbQuery {
                      .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
                      .createCriteria(ObservationConstellationEntity.PROCEDURE);
                     setFilterProjectionOn(alias, parameter, c);
-                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
+                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }
             }
         }

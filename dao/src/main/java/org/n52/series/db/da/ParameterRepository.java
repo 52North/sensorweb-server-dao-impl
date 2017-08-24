@@ -96,7 +96,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
         O result = prepareOutput(entity);
-        result.setId(Long.toString(entity.getPkid()));
+        result.setId(Long.toString(entity.getId()));
         result.setLabel(entity.getLabelFrom(query.getLocale()));
         result.setDomainId(entity.getDomainId());
         if (query.getHrefBase() != null) {
@@ -195,7 +195,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String label = searchResult.getLabelFrom(locale);
-            String pkid = Long.toString(searchResult.getPkid());
+            String pkid = Long.toString(searchResult.getId());
             results.add(createEmptySearchResult(pkid, label, hrefBase));
         }
         return results;

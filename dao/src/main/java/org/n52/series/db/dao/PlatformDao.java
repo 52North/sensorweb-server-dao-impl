@@ -89,7 +89,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
         return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                        .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     @Override

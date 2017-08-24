@@ -35,9 +35,9 @@ import java.util.Properties;
 
 import org.hibernate.Session;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.sos.ds.hibernate.HibernateSessionHolder;
 import org.n52.sos.ds.hibernate.SessionFactoryProvider;
-import org.n52.sos.ogc.ows.OwsExceptionReport;
 import org.n52.sos.service.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

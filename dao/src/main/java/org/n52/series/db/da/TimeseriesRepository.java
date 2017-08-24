@@ -107,7 +107,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private List<SearchResult> convertToResults(List<QuantityDatasetEntity> found, String locale) {
         List<SearchResult> results = new ArrayList<>();
         for (QuantityDatasetEntity searchResult : found) {
-            String pkid = searchResult.getPkid()
+            String pkid = searchResult.getId()
                                       .toString();
             String phenomenonLabel = searchResult.getPhenomenon()
                                                  .getLabelFrom(locale);
@@ -221,7 +221,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 QuantityReferenceValueOutput refenceValueOutput = new QuantityReferenceValueOutput();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
-                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
+                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId()
                                                                             .toString());
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
@@ -247,7 +247,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String offeringLabel = entity.getOffering()
                                      .getLabelFrom(locale);
         output.setLabel(createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel));
-        output.setId(entity.getPkid()
+        output.setId(entity.getId()
                            .toString());
         output.setUom(entity.getUnitI18nName(locale));
         output.setStation(createCondensedStation(entity, query, session));
@@ -269,7 +269,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         FeatureEntity feature = entity.getFeature();
-        String featurePkid = Long.toString(feature.getPkid());
+        String featurePkid = Long.toString(feature.getId());
 
         // XXX explicit cast here
         return ((StationRepository) stationRepository).getCondensedInstance(featurePkid, query, session);

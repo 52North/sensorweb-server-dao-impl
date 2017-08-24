@@ -254,7 +254,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String pkid = searchResult.getPkid()
+            String pkid = searchResult.getId()
                                       .toString();
             String label = searchResult.getLabelFrom(locale);
             results.add(new DatasetSearchResult(pkid, label, hrefBase));
@@ -267,7 +267,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throws DataAccessException {
         DatasetOutput output = new DatasetOutput(dataset.getValueType()) {};
         output.setLabel(dataset.getLabelFrom(query.getLocale()));
-        output.setId(dataset.getPkid()
+        output.setId(dataset.getId()
                            .toString());
         output.setDomainId(dataset.getDomainId());
         output.setHrefBase(urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase()));
