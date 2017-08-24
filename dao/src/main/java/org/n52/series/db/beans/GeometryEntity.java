@@ -29,26 +29,24 @@
 
 package org.n52.series.db.beans;
 
-import org.n52.io.crs.CRSUtils;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * TODO: JavaDoc
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class GeometryEntity {
+public class GeometryEntity implements Serializable {
 
     public static final String PROPERTY_GEOMETRY = "geometry";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeometryEntity.class);
+    private static final long serialVersionUID = -1411829809704409439L;
 
-    private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+    private GeometryFactory geometryFactory;
 
     private Geometry geometry;
 
@@ -57,6 +55,8 @@ public class GeometryEntity {
     private Double lat;
 
     private Double alt;
+
+    private int srid;
 
     public boolean isSetGeometry() {
         return geometry != null && !geometry.isEmpty();
@@ -68,35 +68,23 @@ public class GeometryEntity {
     }
 
     /**
-     * Returns the {@link Geometry}. Expects that a geometry with a valid SRID is available. Otherwise use
-     * {@link #getGeometry(String)} to obtain a geometry with spatial reference.
-     *
-     * @return the geometry
-     */
-    public Geometry getGeometry() {
-        return getGeometry((String) null);
-    }
-
-    /**
      * Returns the {@link Geometry} or creates a {@link Geometry} with the given srid in case of geometry has
      * been set via lat/lon.
      *
-     * @param srid
-     *        the spatial reference
      * @return the geometry or a created geometry (with given srid)
      */
-    public Geometry getGeometry(String srid) {
+    public Geometry getGeometry() {
         Geometry builtGeometry = isSetLonLat()
-                ? crsUtils.createPoint(lon, lat, alt, srid)
+                ? createPoint()
                 : geometry;
-        try {
-            return builtGeometry != null && srid != null
-                    ? crsUtils.transformOuterToInner(builtGeometry, srid)
-                    : builtGeometry;
-        } catch (FactoryException | TransformException e) {
-            LOGGER.warn("Invalid srid '{}'. Could not transform geometry.", e);
-            return builtGeometry;
-        }
+        return builtGeometry;
+    }
+
+    private Geometry createPoint() {
+        Coordinate coordinate = alt != null && !alt.isNaN()
+                ? new Coordinate(lon, lat, alt)
+                : new Coordinate(lon, lat);
+        return geometryFactory.createPoint(coordinate);
     }
 
     public boolean isSetLonLat() {
@@ -127,8 +115,25 @@ public class GeometryEntity {
         this.alt = alt;
     }
 
+    public int getSrid() {
+        return srid;
+    }
+
+    public GeometryEntity setSrid(final int srid) {
+        this.srid = srid;
+        return this;
+    }
+
     public boolean isEmpty() {
         return !isSetGeometry() && !isSetLonLat();
+    }
+
+    public GeometryFactory getGeometryFactory() {
+        return geometryFactory;
+    }
+
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
     }
 
     @Override

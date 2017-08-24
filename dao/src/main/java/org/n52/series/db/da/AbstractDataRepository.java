@@ -84,7 +84,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     }
 
     @Override
-    public GeometryEntity getLastValueGeometry(S entity, Session session, DbQuery query) {
+    public GeometryEntity getLastKnownGeometry(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
         return dao.getValueGeometryViaTimeend(entity, query);
     }
@@ -131,7 +131,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
         if (dataEntity.isSetGeometry()) {
             GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(geometry.getGeometry(query.getDatabaseSridCode()));
+            value.setGeometry(geometry.getGeometry());
         }
     }
 
