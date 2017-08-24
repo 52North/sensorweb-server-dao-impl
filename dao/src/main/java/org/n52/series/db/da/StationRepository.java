@@ -194,9 +194,8 @@ public class StationRepository extends SessionAwareRepository
     }
 
     private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
-        String srid = query.getDatabaseSridCode();
         return featureEntity.isSetGeometry()
-                ? featureEntity.getGeometry(srid)
+                ? getGeometry(featureEntity.getGeometryEntity(), query)
                 : null;
     }
 

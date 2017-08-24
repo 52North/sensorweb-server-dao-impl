@@ -38,27 +38,17 @@ public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
      */
     private GeometryEntity geometryEntity;
 
-    public Geometry getGeometry() {
-        return getGeometry(null);
-    }
-
-    public Geometry getGeometry(String srid) {
-        return geometryEntity != null
-                ? geometryEntity.getGeometry(srid)
-                : null;
-    }
-
-    public void setGeometry(Geometry geometry) {
-        this.geometryEntity = new GeometryEntity();
-        this.geometryEntity.setGeometry(geometry);
-    }
-
     public GeometryEntity getGeometryEntity() {
         return geometryEntity;
     }
 
     public void setGeometryEntity(GeometryEntity geometryEntity) {
         this.geometryEntity = geometryEntity;
+    }
+
+    public void setGeometry(Geometry geometry) {
+        this.geometryEntity = new GeometryEntity();
+        this.geometryEntity.setGeometry(geometry);
     }
 
     public boolean isSetGeometry() {

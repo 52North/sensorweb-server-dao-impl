@@ -41,6 +41,7 @@ import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.PlatformType;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -50,6 +51,7 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -64,6 +66,8 @@ import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class SessionAwareRepository {
 
@@ -104,7 +108,25 @@ public abstract class SessionAwareRepository {
     protected CRSUtils getCrsUtils() {
         return crsUtils;
     }
-
+    
+    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
+        String srid = query.getDatabaseSridCode();
+        geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+        return geometryEntity.getGeometry();
+    }
+    
+    // XXX a bit misplaced here
+    protected String getPlatformId(DatasetEntity dataset) {
+        ProcedureEntity procedure = dataset.getProcedure();
+        boolean mobile = procedure.isMobile();
+        boolean insitu = procedure.isInsitu();
+        PlatformType type = PlatformType.toInstance(mobile, insitu);
+        DescribableEntity entity = type.isStationary()
+                ? dataset.getFeature()
+                : procedure;
+        return type.createId(entity.getPkid());
+    }
+    
     protected Long parseId(String id) throws BadRequestException {
         try {
             return Long.parseLong(id);
