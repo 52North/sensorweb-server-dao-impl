@@ -99,17 +99,17 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
         O result = prepareEmptyParameterOutput(entity);
-        IoParameters params = query.getParameters();
+        IoParameters parameters = query.getParameters();
 
-        String id = Long.toString(entity.getPkid());
+        Long pkid = entity.getPkid();
         String label = entity.getLabelFrom(query.getLocale());
         String domainId = entity.getDomainId();
-        result.setId(id);
-        result.setValue(O.LABEL, label, params, result::setLabel);
-        result.setValue(O.DOMAINID, domainId, params, result::setDomainId);
-        if (query.getHrefBase() != null) {
-            result.setValue(O.HREFBASE, createHref(query.getHrefBase()), params, result::setHrefBase);
-        }
+        String hrefBase = query.getHrefBase();
+        
+        result.setId(Long.toString(pkid));
+        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
+        result.setValue(ParameterOutput.HREF_BASE, createHref(hrefBase), parameters, result::setHrefBase);
         return result;
     }
 
