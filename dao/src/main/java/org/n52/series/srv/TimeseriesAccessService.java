@@ -81,7 +81,7 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private DataRepository createRepository() throws DataAccessException {
         try {
-            return factory.create(QuantityDatasetOutput.VALUE_TYPE);
+            return factory.create(QuantityValue.TYPE);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
