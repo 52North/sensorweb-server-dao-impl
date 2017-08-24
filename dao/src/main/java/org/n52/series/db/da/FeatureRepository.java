@@ -30,11 +30,12 @@
 package org.n52.series.db.da;
 
 import java.util.Map;
+import java.util.Set;
+
 import org.hibernate.Session;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -74,13 +75,9 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query)
                 : getCondensedService(getServiceEntity(entity), query);
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
         result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
-        if (entity.hasParameters()) {
-            for (Parameter< ? > parameter : entity.getParameters()) {
-                Map<String, Object> paramMap = parameter.toValueMap(query.getLocale());
-                result.setValue(FeatureOutput.PARAMETERS, paramMap, query.getParameters(), result::addParameter);
-            }
-        }
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

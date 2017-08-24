@@ -179,12 +179,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         }
 
         result.setGeometry(geometry);
-        if (entity.hasParameters()) {
-            String locale = parameters.getLocale();
-            for (Parameter< ? > parameter : entity.getParameters()) {
-                result.addParameter(parameter.toValueMap(locale));
-            }
-        }
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 
