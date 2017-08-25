@@ -98,8 +98,16 @@
         <property name="parameterService" ref="datasetService" />
         <property name="metadataExtensions">
             <list merge="true">
+                
+                <!-- 
+                    refactor out rendering_hints && status_intervals and autowire them
+                    in TimeseriesMetadataController to set them in case of 
+                    rendering_hints=true or status_intervals=true
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
                 <bean class="org.n52.io.extension.StatusIntervalsExtension" />
+                 -->
+                <ref bean="renderingHintsExtension" />
+                <ref bean="statusIntervalsExtension" />
                 <bean class="org.n52.io.extension.resulttime.ResultTimeExtension">
                     <property name="service" ref="resultTimeService" />
                 </bean>
@@ -120,6 +128,9 @@
     <!-- ################################################################ -->
     <!-- ################# LEGACY CONTROLLER INJECTIONS ################# -->
     <!-- ################################################################ -->
+    
+    <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
+    <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
     <bean class="org.n52.web.ctrl.StationsParameterController">
         <property name="parameterService" ref="stationParameterService" />
