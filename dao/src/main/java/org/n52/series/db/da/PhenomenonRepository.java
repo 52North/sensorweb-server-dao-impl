@@ -31,6 +31,7 @@ package org.n52.series.db.da;
 
 import org.hibernate.Session;
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
@@ -42,7 +43,7 @@ import org.n52.series.spi.search.SearchResult;
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
     @Override
-    protected PhenomenonOutput prepareOutput(PhenomenonEntity entity) {
+    protected PhenomenonOutput prepareEmptyParameterOutput(PhenomenonEntity entity) {
         return new PhenomenonOutput();
     }
 
@@ -67,13 +68,12 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
     }
 
     @Override
-    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery parameters, Session session) {
-        PhenomenonOutput result = createCondensed(entity, parameters, session);
-        if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
-        } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
-        }
+    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
+        PhenomenonOutput result = createCondensed(entity, query, session);
+        ServiceOutput service = (query.getHrefBase() != null)
+                ? getCondensedExtendedService(getServiceEntity(entity), query)
+                : getCondensedService(getServiceEntity(entity), query);
+        result.setValue(PhenomenonOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

@@ -374,7 +374,7 @@ public class DbQuery {
      * @return the criteria to chain.
      */
     Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
-        FilterResolver filterResolver = getFilterResolver();
+        FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
@@ -407,7 +407,7 @@ public class DbQuery {
     }
 
     Criteria addValueTypeFilter(String parameter, Criteria criteria) {
-        Set<String> valueTypes = getParameters().getValueTypes();
+        Set<String> valueTypes = parameters.getValueTypes();
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {

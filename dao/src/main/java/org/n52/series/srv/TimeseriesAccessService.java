@@ -34,7 +34,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityData;
-import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
+import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
@@ -74,13 +74,13 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private QuantityData getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        DataRepository dataRepository = createRepository();
+        DataRepository< ? , ? > dataRepository = createRepository();
         return (QuantityData) dataRepository.getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository createRepository() throws DataAccessException {
+    private DataRepository< ? , ? > createRepository() throws DataAccessException {
         try {
-            return factory.create(QuantityDatasetOutput.VALUE_TYPE);
+            return factory.create(QuantityValue.TYPE);
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }

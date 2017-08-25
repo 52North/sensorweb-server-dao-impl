@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.response.ProcedureOutput;
+import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.ProcedureDao;
@@ -46,7 +47,7 @@ import org.n52.series.spi.search.SearchResult;
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
     @Override
-    protected ProcedureOutput prepareOutput(ProcedureEntity entity) {
+    protected ProcedureOutput prepareEmptyParameterOutput(ProcedureEntity entity) {
         return new ProcedureOutput();
     }
 
@@ -71,15 +72,14 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     }
 
     @Override
-    protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery parameters, Session session) {
-        ProcedureOutput result = createCondensed(entity, parameters, session);
-        if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
-        } else {
-            result.setService(getCondensedService(getServiceEntity(entity), parameters));
-        }
-        result.setParents(createCondensed(entity.getParents(), parameters, session));
-        result.setChildren(createCondensed(entity.getChildren(), parameters, session));
+    protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
+        ProcedureOutput result = createCondensed(entity, query, session);
+        ServiceOutput service = (query.getHrefBase() != null)
+                ? getCondensedExtendedService(getServiceEntity(entity), query)
+                : getCondensedService(getServiceEntity(entity), query);
+        result.setValue(ProcedureOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setParents(createCondensed(entity.getParents(), query, session));
+        result.setChildren(createCondensed(entity.getChildren(), query, session));
         return result;
     }
 

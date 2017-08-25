@@ -81,9 +81,8 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
 
     private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters)
             throws DataAccessException {
-
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        String handleAsDatasetFallback = parameters.getOther(Parameters.HANDLE_AS_VALUE_TYPE);
+        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
         DataRepository dataRepository = createRepository(valueType);
         return dataRepository.getData(datasetId, dbQuery);

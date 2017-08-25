@@ -29,10 +29,13 @@
 
 package org.n52.series.db.da;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.hibernate.Session;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -42,7 +45,7 @@ import org.n52.series.spi.search.SearchResult;
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
     @Override
-    protected FeatureOutput prepareOutput(FeatureEntity entity) {
+    protected FeatureOutput prepareEmptyParameterOutput(FeatureEntity entity) {
         return new FeatureOutput();
     }
 
@@ -67,18 +70,14 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     }
 
     @Override
-    protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery parameters, Session session) {
-        FeatureOutput result = createCondensed(entity, parameters, session);
-        if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
-        } else {
-            result.setService(getCondensedService(getServiceEntity(entity), parameters));
-        }
-        if (entity.hasParameters()) {
-            for (Parameter< ? > parameter : entity.getParameters()) {
-                result.addParameter(parameter.toValueMap(parameters.getLocale()));
-            }
-        }
+    protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
+        FeatureOutput result = createCondensed(entity, query, session);
+        ServiceOutput service = (query.getHrefBase() != null)
+                ? getCondensedExtendedService(getServiceEntity(entity), query)
+                : getCondensedService(getServiceEntity(entity), query);
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

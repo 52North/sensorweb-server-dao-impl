@@ -36,7 +36,8 @@ import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository> implements IDataRepositoryFactory {
+public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ? >>
+        implements IDataRepositoryFactory {
 
     private static final String DEFAULT_CONFIG_FILE = "dataset-repository-factory.properties";
 
@@ -60,7 +61,7 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
     }
 
     @Override
-    protected DataRepository initInstance(DataRepository instance) {
+    protected DataRepository< ? , ? > initInstance(DataRepository< ? , ? > instance) {
         instance.setSessionStore(sessionStore);
         instance.setPlatformRepository(platformRepository);
         if (serviceEntity != null) {
@@ -76,6 +77,7 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Class<DataRepository> getTargetType() {
         return DataRepository.class;
     }
