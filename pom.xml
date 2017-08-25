@@ -66,6 +66,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.n52.shetland</groupId>
+                <artifactId>shetland</artifactId>
+                <version>1-SNAPSHOT</version>
+            </dependency>
+        
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>dao</artifactId>
                 <version>${project.version}</version>

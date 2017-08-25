@@ -29,49 +29,55 @@
 
 package org.n52.series.db.da.sos;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import javax.inject.Inject;
 
 import org.hibernate.Session;
+import org.n52.iceland.ds.ConnectionProvider;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.sos.ds.hibernate.HibernateSessionHolder;
-import org.n52.sos.ds.hibernate.SessionFactoryProvider;
-import org.n52.sos.service.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SOSHibernateSessionHolder implements HibernateSessionStore {
+public class SOSHibernateSessionHolder
+        implements
+        HibernateSessionStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SOSHibernateSessionHolder.class);
 
     private static final String DATASOURCE_PROPERTIES = "/datasource.properties";
 
-    private static SessionFactoryProvider provider;
-
     private HibernateSessionHolder sessionHolder;
 
-    public static HibernateSessionHolder createSessionHolder() {
-        if (Configurator.getInstance() == null) {
-            try (InputStream inputStream = SOSHibernateSessionHolder.class.getResourceAsStream(DATASOURCE_PROPERTIES)) {
-                LOGGER.debug("SOS Configurator not present, trying to load DB config from '{}'", DATASOURCE_PROPERTIES);
-                if (inputStream == null) {
-                    LOGGER.error("DB config '{}' is missing!", DATASOURCE_PROPERTIES);
-                    throwNewDatabaseConnectionException();
-                }
-                Properties connectionProviderConfig = new Properties();
-                connectionProviderConfig.load(inputStream);
-                provider = new SessionFactoryProvider();
-                provider.initialize(connectionProviderConfig);
-                return new HibernateSessionHolder(provider);
-            } catch (IOException e) {
-                LOGGER.error("Could not establish database connection. Check '{}'", DATASOURCE_PROPERTIES, e);
-                throwNewDatabaseConnectionException();
-            }
-        }
-        return new HibernateSessionHolder();
+    @Inject
+    public void setConnectionProvider(ConnectionProvider connectionProvider) {
+        this.sessionHolder = new HibernateSessionHolder(connectionProvider);
     }
+
+    // public static HibernateSessionHolder createSessionHolder() {
+    // if (Configurator.getInstance() == null) {
+    // try (InputStream inputStream =
+    // SOSHibernateSessionHolder.class.getResourceAsStream(DATASOURCE_PROPERTIES))
+    // {
+    // LOGGER.debug("SOS Configurator not present, trying to load DB config from
+    // '{}'", DATASOURCE_PROPERTIES);
+    // if (inputStream == null) {
+    // LOGGER.error("DB config '{}' is missing!", DATASOURCE_PROPERTIES);
+    // throwNewDatabaseConnectionException();
+    // }
+    // Properties connectionProviderConfig = new Properties();
+    // connectionProviderConfig.load(inputStream);
+    // provider = new SessionFactoryProvider();
+    // provider.initialize(connectionProviderConfig);
+    // return new HibernateSessionHolder(provider);
+    // } catch (IOException e) {
+    // LOGGER.error("Could not establish database connection. Check '{}'",
+    // DATASOURCE_PROPERTIES, e);
+    // throwNewDatabaseConnectionException();
+    // }
+    // }
+    // return new HibernateSessionHolder(provider);
+    // }
 
     private static void throwNewDatabaseConnectionException() {
         throw new RuntimeException("Could not establish database connection.");
@@ -84,9 +90,9 @@ public class SOSHibernateSessionHolder implements HibernateSessionStore {
 
     @Override
     public Session getSession() {
-        if (sessionHolder == null) {
-            sessionHolder = createSessionHolder();
-        }
+        // if (sessionHolder == null) {
+        // sessionHolder = createSessionHolder();
+        // }
         try {
             return sessionHolder.getSession();
         } catch (OwsExceptionReport e) {
@@ -96,10 +102,8 @@ public class SOSHibernateSessionHolder implements HibernateSessionStore {
 
     @Override
     public void shutdown() {
-        LOGGER.info("shutdown '{}'", getClass().getSimpleName());
-        if (provider != null) {
-            provider.cleanup();
-        }
+        // TODO Auto-generated method stub
+
     }
 
 }

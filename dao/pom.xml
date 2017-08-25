@@ -38,7 +38,6 @@
         <dependency>
             <groupId>org.n52.shetland</groupId>
             <artifactId>shetland</artifactId>
-            <version>1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
