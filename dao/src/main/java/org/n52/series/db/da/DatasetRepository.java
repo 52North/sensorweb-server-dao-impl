@@ -290,22 +290,22 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput< ? , ? > createExpanded(DatasetEntity series, DbQuery query, Session session)
+    protected DatasetOutput< ? , ? > createExpanded(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         try {
             IoParameters params = query.getParameters();
-            DatasetOutput result = createCondensed(series, query, session);
+            DatasetOutput result = createCondensed(dataset, query, session);
 
-            DatasetParameters datasetParameters = createDatasetParameters(series, query, session);
-            datasetParameters.setPlatform(getCondensedPlatform(series, query, session));
-            if (series.getService() == null) {
-                series.setService(getServiceEntity());
+            DatasetParameters datasetParameters = createDatasetParameters(dataset, query, session);
+            datasetParameters.setPlatform(getCondensedPlatform(dataset, query, session));
+            if (dataset.getService() == null) {
+                dataset.setService(getServiceEntity());
             }
 
-            String uom = series.getUnitI18nName(query.getLocale());
-            DataRepository dataRepository = dataRepositoryFactory.create(series.getValueType());
-            AbstractValue firstValue = dataRepository.getFirstValue(series, session, query);
-            AbstractValue lastValue = dataRepository.getLastValue(series, session, query);
+            String uom = dataset.getUnitI18nName(query.getLocale());
+            DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
+            AbstractValue firstValue = dataRepository.getFirstValue(dataset, session, query);
+            AbstractValue lastValue = dataRepository.getLastValue(dataset, session, query);
 
             result.setValue(DatasetOutput.UOM, uom, params, result::setUom);
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
@@ -318,17 +318,17 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
-    private PlatformOutput getCondensedPlatform(DatasetEntity series, DbQuery query, Session session)
+    private PlatformOutput getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         // platform has to be handled dynamically (see #309)
-        return platformRepository.createCondensedPlatform(series, query, session);
+        return platformRepository.createCondensedPlatform(dataset, query, session);
     }
 
-    private String createDatasetLabel(DatasetEntity series, String locale) {
-        PhenomenonEntity phenomenon = series.getPhenomenon();
-        ProcedureEntity procedure = series.getProcedure();
-        OfferingEntity offering = series.getOffering();
-        FeatureEntity feature = series.getFeature();
+    private String createDatasetLabel(DatasetEntity dataset, String locale) {
+        PhenomenonEntity phenomenon = dataset.getPhenomenon();
+        ProcedureEntity procedure = dataset.getProcedure();
+        OfferingEntity offering = dataset.getOffering();
+        FeatureEntity feature = dataset.getFeature();
 
         String procedureLabel = procedure.getLabelFrom(locale);
         String phenomenonLabel = phenomenon.getLabelFrom(locale);
