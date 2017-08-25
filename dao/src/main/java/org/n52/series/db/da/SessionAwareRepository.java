@@ -129,7 +129,6 @@ public abstract class SessionAwareRepository {
         return type.createId(entity.getId());
     }
 
-
     protected Long parseId(String id) throws BadRequestException {
         try {
             return Long.parseLong(id);
