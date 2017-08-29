@@ -126,18 +126,16 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                                                               .add(Projections.groupProperty(rtDatasetId))
                                                               .add(Projections.max(rtResultTime)));
 
-            // TODO equal dataset ids
-
             String[] matchProperties = new String[] {
                 DatasetEntity.PROPERTY_PKID,
                 // DataEntity.PROPERTY_SERIES_PKID,
                 DataEntity.PROPERTY_RESULT_TIME
             };
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
-                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID))
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId))
-                                                        .createCriteria(DataEntity.PROPERTY_DATASETS);
+                                                        .createCriteria(DataEntity.PROPERTY_DATASETS)
+                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID));
 
             criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
         }
