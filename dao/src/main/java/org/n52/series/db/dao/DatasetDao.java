@@ -34,7 +34,6 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
@@ -58,6 +57,10 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
     private static final String COLUMN_PKID = "pkid";
+
+    private static final String FEATURE_PATH_ALIAS = "dsFeature";
+    
+    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private final Class<T> entityType;
 
@@ -85,16 +88,19 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          */
         Criteria criteria = getDefaultCriteria("s", query);
 
-        Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                           JoinType.LEFT_OUTER_JOIN);
+//        Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN);
+        Criteria featureCriteria = criteria;
         featureCriteria = i18n(I18nFeatureEntity.class, featureCriteria, query);
-        featureCriteria.add(Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm));
+        String featureName = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, FeatureEntity.PROPERTY_NAME);
+        featureCriteria.add(Restrictions.ilike(featureName, searchTerm));
         series.addAll(featureCriteria.list());
 
-        Criteria procedureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE,
-                                                             JoinType.LEFT_OUTER_JOIN);
+//        Criteria procedureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE,
+//                                                             JoinType.LEFT_OUTER_JOIN);
+        Criteria procedureCriteria = criteria;
         procedureCriteria = i18n(I18nProcedureEntity.class, procedureCriteria, query);
-        procedureCriteria.add(Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm));
+        String procedureName = QueryUtils.createAssociation(PROCEDURE_PATH_ALIAS, ProcedureEntity.PROPERTY_NAME);
+        procedureCriteria.add(Restrictions.ilike(procedureName, searchTerm));
         series.addAll(procedureCriteria.list());
 
         Criteria offeringCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OFFERING,
@@ -133,8 +139,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        return criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
-                       .add(Restrictions.eq(COLUMN_PKID, feature.getPkid()))
+        String idColumn = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, COLUMN_PKID);
+        return criteria// .createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
+                       .add(Restrictions.eq(idColumn, feature.getPkid()))
                        .list();
     }
 
@@ -168,7 +175,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
         if (ignoreReferenceSeries) {
-            criteria.createCriteria("procedure")
+            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 
@@ -178,8 +185,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @Override
     protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
         // on dataset itself there is no explicit join neccessary
-        Conjunction filter = createPublishedDatasetFilter();
-        return query.addSpatialFilter(criteria.add(filter));
+        Criteria filter = criteria.add(createPublishedDatasetFilter());
+        query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
+                                                     FEATURE_PATH_ALIAS,
+                                                     JoinType.LEFT_OUTER_JOIN));
+        return criteria;
     }
 
 }
