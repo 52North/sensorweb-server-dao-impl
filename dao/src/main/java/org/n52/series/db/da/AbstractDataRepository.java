@@ -51,7 +51,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public abstract class AbstractDataRepository<D extends Data< ? >, S extends DatasetEntity, E extends DataEntity< ? >, V extends AbstractValue< ? >>
+public abstract class AbstractDataRepository<D extends Data< ? >,
+                                             S extends DatasetEntity,
+                                             E extends DataEntity< ? >,
+                                             V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
     @Autowired

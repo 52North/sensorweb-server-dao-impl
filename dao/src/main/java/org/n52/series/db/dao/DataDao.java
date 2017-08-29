@@ -138,7 +138,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
                                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
-        
+
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
 

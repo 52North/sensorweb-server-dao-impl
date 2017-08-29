@@ -144,7 +144,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-        
+
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -171,7 +171,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        
+
         // TODO
         return subquery.createCriteria(getDatasetProperty(), "ref")
                        .setProjection(Projections.property("ref.pkid"));
@@ -242,7 +242,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         }
         return criteria;
     }
-    
+
     private LogicalExpression createPlatformTypeRestriction(FilterResolver filterResolver) {
         return createPlatformTypeRestriction(null, filterResolver);
     }
@@ -251,7 +251,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return Restrictions.and(createMobileExpression(alias, filterResolver),
                                 createInsituExpression(alias, filterResolver));
     }
-    
+
     private LogicalExpression createMobileExpression(String alias, FilterResolver filterResolver) {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
