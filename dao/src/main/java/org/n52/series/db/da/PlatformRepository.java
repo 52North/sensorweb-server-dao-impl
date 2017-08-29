@@ -54,6 +54,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -93,8 +94,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        // TODO Auto-generated method stub
-        return null;
+        return new PlatformSearchResult(id, label, baseUrl);
     }
 
     @Override
