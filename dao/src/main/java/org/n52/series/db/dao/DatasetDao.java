@@ -155,7 +155,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
         // declare explicit alias here
         return getDefaultCriteria(alias, true, query, clazz);
     }

@@ -208,16 +208,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return null;
     }
 
-    private boolean isValidGeometry(GeometryEntity geometry) {
-        return geometry != null && geometry.isSetGeometry();
-    }
-
-    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
-        Envelope filter = query.createSpatialFilter();
-        Geometry geometry = geometryEntity.getGeometry();
-        return filter == null || filter.contains(geometry.getEnvelopeInternal());
-    }
-
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
         DatasetEntity< ? > currentLastDataset = null;
@@ -237,6 +227,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             }
         }
         return currentLastDataset;
+    }
+
+    private boolean isValidGeometry(GeometryEntity geometry) {
+        return geometry != null && geometry.isSetGeometry();
+    }
+
+    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+        Envelope filter = query.getSpatialFilter();
+        Geometry geometry = geometryEntity.getGeometry();
+        return filter == null || filter.contains(geometry.getEnvelopeInternal());
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {
