@@ -59,7 +59,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final String COLUMN_PKID = "pkid";
 
     private static final String FEATURE_PATH_ALIAS = "dsFeature";
-    
+
     private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private final Class<T> entityType;
@@ -140,8 +140,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
         String idColumn = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, COLUMN_PKID);
-        return criteria// .createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
-                       .add(Restrictions.eq(idColumn, feature.getPkid()))
+        return criteria.add(Restrictions.eq(idColumn, feature.getPkid()))
                        .list();
     }
 

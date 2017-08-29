@@ -60,7 +60,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             String id = ValueType.extractId(datasetId);
             DatasetDao<S> seriesDao = getSeriesDao(session);
             IoParameters parameters = dbQuery.getParameters();
-            // remove spatial filter on metadata 
+            // remove spatial filter on metadata
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
                                                                       .removeAllOf(Parameters.NEAR)));
             if (series.getService() == null) {

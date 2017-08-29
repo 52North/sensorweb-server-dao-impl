@@ -32,6 +32,7 @@ package org.n52.series.db.dao;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Subqueries;
 import org.n52.io.request.FilterResolver;
 import org.n52.series.db.beans.DataEntity;
@@ -91,8 +92,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                 DataEntity.PROPERTY_SERIES_PKID,
                 DataEntity.PROPERTY_RESULTTIME
             };
+            PropertyProjection seriesFKProjection = Projections.property(DataEntity.PROPERTY_SERIES_PKID);
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
-                                                        .setProjection(Projections.property(DataEntity.PROPERTY_SERIES_PKID))
+                                                        .setProjection(seriesFKProjection)
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId));
 

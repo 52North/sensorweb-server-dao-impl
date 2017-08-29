@@ -66,7 +66,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
 
 public class DbQuery {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
     private static final String PROPERTY_PKID = "pkid";
@@ -355,14 +355,14 @@ public class DbQuery {
                 ? criteria.add(filter)
                 : criteria;
     }
-    
+
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
         SpatialFilter filter = createSpatialFilter();
         return filter != null
                 ? criteria.add(filter)
                 : criteria;
     }
-    
+
     private SpatialFilter createSpatialFilter() {
         BoundingBox bbox = parameters.getSpatialFilter();
         if (bbox != null) {

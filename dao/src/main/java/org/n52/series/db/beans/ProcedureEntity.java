@@ -32,7 +32,7 @@ package org.n52.series.db.beans;
 import org.n52.io.response.PlatformType;
 
 public class ProcedureEntity extends HierarchicalEntity<ProcedureEntity> {
-    
+
     public static final String PROPERTY_REFERENCE = "reference";
 
     private boolean reference;
