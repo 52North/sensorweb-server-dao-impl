@@ -164,10 +164,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
-                                                .extendWith(Parameters.PLATFORMS, result.getId())
-                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                           .extendWith(Parameters.PLATFORMS, result.getId())
+                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
+                                                       .removeAllOf(Parameters.BBOX)
+                                                       .removeAllOf(Parameters.NEAR));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(platformQuery);
+        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         result.setDatasets(datasets);
 
         Geometry geometry = entity.getGeometry() == null
@@ -220,7 +223,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         DatasetEntity< ? > currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
-            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
+            DbQuery datasetQuery = getDbQuery(query.getParameters()
+                                              .removeAllOf(Parameters.BBOX)
+                                              .removeAllOf(Parameters.NEAR));
+            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {
