@@ -54,6 +54,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -93,8 +94,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        // TODO Auto-generated method stub
-        return null;
+        return new PlatformSearchResult(id, label, baseUrl);
     }
 
     @Override
@@ -164,10 +164,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
-                                                .extendWith(Parameters.PLATFORMS, result.getId())
-                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                           .extendWith(Parameters.PLATFORMS, result.getId())
+                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
+                                                       .removeAllOf(Parameters.BBOX)
+                                                       .removeAllOf(Parameters.NEAR));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(platformQuery);
+        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         result.setDatasets(datasets);
 
         Geometry geometry = entity.getGeometry() == null
@@ -205,22 +208,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return null;
     }
 
-    private boolean isValidGeometry(GeometryEntity geometry) {
-        return geometry != null && geometry.isSetGeometry();
-    }
-
-    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
-        Envelope filter = query.createSpatialFilter();
-        Geometry geometry = geometryEntity.getGeometry();
-        return filter == null || filter.contains(geometry.getEnvelopeInternal());
-    }
-
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
         DatasetEntity< ? > currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
-            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
+            DbQuery datasetQuery = getDbQuery(query.getParameters()
+                                              .removeAllOf(Parameters.BBOX)
+                                              .removeAllOf(Parameters.NEAR));
+            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {
@@ -231,6 +227,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             }
         }
         return currentLastDataset;
+    }
+
+    private boolean isValidGeometry(GeometryEntity geometry) {
+        return geometry != null && geometry.isSetGeometry();
+    }
+
+    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+        Envelope filter = query.getSpatialFilter();
+        Geometry geometry = geometryEntity.getGeometry();
+        return filter == null || filter.contains(geometry.getEnvelopeInternal());
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {

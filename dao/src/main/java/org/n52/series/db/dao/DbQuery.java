@@ -37,13 +37,10 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.LogicalExpression;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.spatial.GeometryType;
+import org.hibernate.spatial.criterion.SpatialFilter;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
@@ -60,7 +57,6 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.PlatformEntity;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -70,7 +66,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
 
 public class DbQuery {
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
     private static final String PROPERTY_PKID = "pkid";
@@ -78,10 +74,6 @@ public class DbQuery {
     private static final String PROPERTY_LOCALE = "locale";
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
-
-    private static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
-
-    private static final String PROPERTY_OBSERVATIONS = "observations";
 
     private static final int DEFAULT_LIMIT = 10000;
 
@@ -120,8 +112,21 @@ public class DbQuery {
                          .toInterval();
     }
 
-    public BoundingBox getSpatialFilter() {
-        return parameters.getSpatialFilter();
+    public Envelope getSpatialFilter() {
+        BoundingBox spatialFilter = parameters.getSpatialFilter();
+        if (spatialFilter != null) {
+            try {
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            } catch (FactoryException e) {
+                LOGGER.error("Could not create transformation facilities.", e);
+            } catch (TransformException e) {
+                LOGGER.error("Could not perform transformation.", e);
+            }
+        }
+        return null;
     }
 
     public boolean isExpanded() {
@@ -191,7 +196,7 @@ public class DbQuery {
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
-        return addSpatialFilterTo(criteria);
+        return criteria;
     }
 
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
@@ -344,144 +349,32 @@ public class DbQuery {
         return criteria;
     }
 
-    /**
-     * Adds an platform type filter to the query.
-     *
-     * @param parameter
-     *        the parameter to filter on.
-     * @param criteria
-     *        the criteria to add the filter to.
-     * @return the criteria to chain.
-     */
-    Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
-        FilterResolver filterResolver = parameters.getFilterResolver();
-        if (!filterResolver.shallIncludeAllPlatformTypes()) {
-            if (parameter == null || parameter.isEmpty()) {
-                // join starts from dataset table
-                criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
-                        .add(createMobileExpression(filterResolver))
-                        .add(createInsituExpression(filterResolver));
-            } else {
-                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                     .createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
-                                                     .add(createMobileExpression(filterResolver))
-                                                     .add(createInsituExpression(filterResolver))
-                                                     .setProjection(matchPropertyPkids(DatasetEntity.ENTITY_ALIAS,
-                                                                                       parameter));
-                criteria.add(matchPropertyPkids(parameter, c));
-            }
-        }
-        return criteria;
+    public Criteria addSpatialFilter(Criteria criteria) {
+        SpatialFilter filter = createSpatialFilter();
+        return filter != null
+                ? criteria.add(filter)
+                : criteria;
     }
-
-    Criteria addValueTypeFilter(String parameter, Criteria criteria) {
-        Set<String> valueTypes = parameters.getValueTypes();
-        if (!valueTypes.isEmpty()) {
-            FilterResolver filterResolver = parameters.getFilterResolver();
-            if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes);
-                if (parameter == null || parameter.isEmpty()) {
-                    // series table itself
-                    criteria.add(containsValueType);
-                } else {
-                    ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
-                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS)
-                                                         .add(containsValueType)
-                                                         .setProjection(onPkids);
-                    criteria.add(matchPropertyPkids(parameter, c));
-                }
-            }
-        }
-        return criteria;
+    
+    public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
+        SpatialFilter filter = createSpatialFilter();
+        return filter != null
+                ? criteria.add(filter)
+                : criteria;
     }
+    
+    private SpatialFilter createSpatialFilter() {
+        BoundingBox bbox = parameters.getSpatialFilter();
+        if (bbox != null) {
+            Envelope envelope = getSpatialFilter();
+            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+            int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+            String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
+            return SpatialRestrictions.filter(geometryMember, envelope, databaseSrid);
 
-    private ProjectionList matchPropertyPkids(String alias, String property) {
-        String member = QueryUtils.createAssociation(alias, property);
-        String association = QueryUtils.createAssociation(member, PROPERTY_PKID);
-        return Projections.projectionList()
-                          .add(Projections.property(association));
-    }
-
-    private Criterion matchPropertyPkids(String property, DetachedCriteria c) {
-        return Subqueries.propertyIn(QueryUtils.createAssociation(property, PROPERTY_PKID), c);
-    }
-
-    private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
-        boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
-        boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-        return Restrictions.or(
-                               // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile));
-    }
-
-    private LogicalExpression createInsituExpression(FilterResolver filterResolver) {
-        boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
-        boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
-        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
-                               // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
-    }
-
-    public Criteria addSpatialFilterTo(Criteria criteria) {
-        if (DataModelUtil.isPropertyNameSupported(PROPERTY_GEOMETRY_ENTITY, criteria)
-                || DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
-            BoundingBox spatialFilter = parameters.getSpatialFilter();
-            if (spatialFilter != null) {
-                Envelope envelope = createSpatialFilter();
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
-                String geometryMember = PROPERTY_GEOMETRY_ENTITY + ".geometry";
-                if (DataModelUtil.isPropertyNameSupported(PROPERTY_OBSERVATIONS, criteria)) {
-                    // in case of dataset entities
-                    criteria.createCriteria(PROPERTY_OBSERVATIONS)
-                            .add(SpatialRestrictions.filter(geometryMember, envelope, databaseSrid));
-                } else {
-                    // all other entities
-                    criteria.add(SpatialRestrictions.filter(geometryMember, envelope, databaseSrid));
-                }
-
-                // TODO intersect with linestring
-                // XXX do sampling filter only on generated line strings stored in FOI table,
-                // otherwise we would have to check each observation row
-            }
-
-            Set<String> geometryTypes = parameters.getGeometryTypes();
-            for (String geometryType : geometryTypes) {
-                if (!geometryType.isEmpty()) {
-                    GeometryType.Type type = getGeometryType(geometryType);
-                    if (type != null) {
-                        criteria.add(SpatialRestrictions.geometryType(PROPERTY_GEOMETRY_ENTITY, type));
-                    }
-                }
-            }
-        }
-        return criteria;
-    }
-
-    public Envelope createSpatialFilter() {
-        BoundingBox spatialFilter = parameters.getSpatialFilter();
-        if (spatialFilter != null) {
-            try {
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
-            } catch (FactoryException e) {
-                LOGGER.error("Could not create transformation facilities.", e);
-            } catch (TransformException e) {
-                LOGGER.error("Could not perform transformation.", e);
-            }
-        }
-        return null;
-    }
-
-    private GeometryType.Type getGeometryType(String geometryType) {
-        for (GeometryType.Type type : GeometryType.Type.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
+            // TODO intersect with linestring
+            // XXX do sampling filter only on generated line strings stored in FOI table,
+            // otherwise we would have to check each observation row
         }
         return null;
     }
