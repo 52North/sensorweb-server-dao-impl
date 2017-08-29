@@ -29,9 +29,9 @@
 
 package org.n52.series.srv;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -78,7 +78,7 @@ public class Search implements SearchService {
 
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
-        List<SearchResult> results = new ArrayList<>();
+        Set<SearchResult> results = new HashSet<>();
         results.addAll(phenomenonRepository.searchFor(parameters));
         results.addAll(procedureRepository.searchFor(parameters));
         results.addAll(featureRepository.searchFor(parameters));
