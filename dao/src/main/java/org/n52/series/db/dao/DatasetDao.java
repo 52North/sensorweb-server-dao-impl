@@ -174,6 +174,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         if (ignoreReferenceSeries) {
                     procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
+
         return criteria;
     }
 

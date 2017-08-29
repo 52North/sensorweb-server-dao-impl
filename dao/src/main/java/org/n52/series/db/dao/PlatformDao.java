@@ -106,7 +106,6 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
-
         /*
          * We do have to consider only mobile variants here (which filter has been set beforehand) as
          * repository decides already which DAO is used to query stationary (--> FeatureDao) and mobile
@@ -135,10 +134,10 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                 DataEntity.PROPERTY_RESULT_TIME
             };
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
+                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID))
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId))
-                                                        .createCriteria(DataEntity.PROPERTY_DATASETS)
-                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID));
+                                                        .createCriteria(DataEntity.PROPERTY_DATASETS);
 
             criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
         }
