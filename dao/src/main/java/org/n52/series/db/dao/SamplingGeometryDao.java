@@ -59,7 +59,8 @@ public class SamplingGeometryDao {
                 .add(Restrictions.in("datasets.pkid", getDatasetIds(query)));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
-        query.addSpatialFilterTo(criteria);
+        
+        query.addSpatialFilter(criteria);
         return toGeometryEntities(criteria.list());
     }
 

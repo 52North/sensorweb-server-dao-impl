@@ -74,6 +74,8 @@ public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
 
+    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
+
     protected UrlHelper urlHelper = new UrlHelper();
 
     // via xml or db
@@ -82,8 +84,6 @@ public abstract class SessionAwareRepository {
 
     @Autowired
     protected DbQueryFactory dbQueryFactory;
-
-    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     @Autowired
     private HibernateSessionStore sessionStore;
