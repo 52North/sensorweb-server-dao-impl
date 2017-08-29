@@ -32,6 +32,8 @@ package org.n52.series.db.da;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
@@ -55,9 +57,12 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
-            DatasetDao<S> seriesDao = getSeriesDao(session);
             String id = ValueType.extractId(datasetId);
-            S series = seriesDao.getInstance(id, dbQuery);
+            DatasetDao<S> seriesDao = getSeriesDao(session);
+            IoParameters parameters = dbQuery.getParameters();
+            // remove spatial filter on metadata
+            S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                                                      .removeAllOf(Parameters.NEAR)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
@@ -121,7 +126,8 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             addParameters(observation, value, query);
             addGeometry(observation, value, query);
         } else {
-            if (dataset.getPlatform().isMobile()) {
+            if (dataset.getPlatform()
+                       .isMobile()) {
                 addGeometry(observation, value, query);
             }
         }
@@ -151,7 +157,8 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
 
     protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
-            value.setResultTime(observation.getResultTime().getTime());
+            value.setResultTime(observation.getResultTime()
+                                           .getTime());
         }
     }
 

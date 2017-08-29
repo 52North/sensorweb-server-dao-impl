@@ -30,6 +30,13 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.PropertyProjection;
+import org.hibernate.criterion.Subqueries;
+import org.n52.io.request.FilterResolver;
+import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nPlatformEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +63,45 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     @Override
     protected Class<I18nPlatformEntity> getI18NEntityClass() {
         return I18nPlatformEntity.class;
+    }
+
+    @Override
+    protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
+        /*
+         * We do have to consider only mobile variants here (which filter has been set beforehand) as
+         * repository decides already which DAO is used to query stationary (--> FeatureDao) and mobile
+         * platforms
+         */
+        FilterResolver filterResolver = query.getFilterResolver();
+        if (filterResolver.isSetMobileFilter()) {
+
+            // values for oldest result time
+            String rtAlias = "rtAlias";
+            // String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_SERIES_PKID);
+            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULTTIME);
+
+            DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias);
+            maxResultTimeByDatasetId.setProjection(Projections.projectionList()
+                                                              // .add(Projections.groupProperty(rtColumn))
+                                                              .add(Projections.groupProperty(rtDatasetId))
+                                                              .add(Projections.max(rtResultTime)));
+
+            String[] matchProperties = new String[] {
+                // column,
+                DataEntity.PROPERTY_SERIES_PKID,
+                DataEntity.PROPERTY_RESULTTIME
+            };
+            PropertyProjection seriesFKProjection = Projections.property(DataEntity.PROPERTY_SERIES_PKID);
+            DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
+                                                        .setProjection(seriesFKProjection)
+                                                        .add(Subqueries.propertiesIn(matchProperties,
+                                                                                     maxResultTimeByDatasetId));
+
+            criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
+        }
+
+        return criteria;
     }
 
 }

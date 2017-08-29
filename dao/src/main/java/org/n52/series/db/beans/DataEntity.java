@@ -47,6 +47,12 @@ public abstract class DataEntity<T> {
 
     public static final String PROPERTY_SERIES_PKID = "seriesPkid";
 
+    public static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
+
+    public static final String PROPERTY_PARENT = "parent";
+
+    public static final String PROPERTY_DELETED = "deleted";
+
     private Long pkid;
 
     // optional

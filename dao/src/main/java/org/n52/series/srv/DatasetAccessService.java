@@ -89,7 +89,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     }
 
     private DataRepository createRepository(String valueType) throws DataAccessException {
-        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+        if (!("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {
