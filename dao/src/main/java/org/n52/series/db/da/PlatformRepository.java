@@ -31,11 +31,14 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -46,12 +49,12 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
+import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -85,7 +88,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private IDataRepositoryFactory factory;
 
     @Override
-    protected PlatformOutput prepareOutput(PlatformEntity entity) {
+    protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
         boolean mobile = entity.isMobile();
         boolean insitu = entity.isInsitu();
         return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
@@ -93,8 +96,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        // TODO Auto-generated method stub
-        return null;
+        return new PlatformSearchResult(id, label, baseUrl);
     }
 
     @Override
@@ -160,18 +162,21 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery parameters, Session session)
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformOutput result = createCondensed(entity, parameters, session);
-        DbQuery query = getDbQuery(parameters.getParameters()
-                                             .extendWith(Parameters.PLATFORMS, result.getId())
-                                             .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        PlatformOutput result = createCondensed(entity, query, session);
+        DbQuery platformQuery = getDbQuery(query.getParameters()
+                                           .extendWith(Parameters.PLATFORMS, result.getId())
+                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
+                                                       .removeAllOf(Parameters.BBOX)
+                                                       .removeAllOf(Parameters.NEAR));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(query);
+        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         result.setDatasets(datasets);
 
         Geometry geometry = entity.getGeometry() == null
-                ? getLastSamplingGeometry(datasets, query, session)
+                ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
 
         if (geometry == null) {
@@ -180,12 +185,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         }
 
         result.setGeometry(geometry);
-        if (entity.hasParameters()) {
-            String locale = parameters.getLocale();
-            for (Parameter< ? > parameter : entity.getParameters()) {
-                result.addParameter(parameter.toValueMap(locale));
-            }
-        }
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 
@@ -209,22 +210,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return null;
     }
 
-    private boolean isValidGeometry(GeometryEntity geometry) {
-        return geometry != null && geometry.isSetGeometry();
-    }
-
-    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
-        Envelope filter = query.createSpatialFilter();
-        Geometry geometry = geometryEntity.getGeometry();
-        return filter == null || filter.contains(geometry.getEnvelopeInternal());
-    }
-
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
         DatasetEntity currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
-            DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
+            DbQuery datasetQuery = getDbQuery(query.getParameters()
+                                              .removeAllOf(Parameters.BBOX)
+                                              .removeAllOf(Parameters.NEAR));
+            DatasetEntity entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {
@@ -235,6 +229,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             }
         }
         return currentLastDataset;
+    }
+
+    private boolean isValidGeometry(GeometryEntity geometry) {
+        return geometry != null && geometry.isSetGeometry();
+    }
+
+    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+        Envelope filter = query.getSpatialFilter();
+        Geometry geometry = geometryEntity.getGeometry();
+        return filter == null || filter.contains(geometry.getEnvelopeInternal());
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {

@@ -62,12 +62,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataDao.class);
 
-    private static final String COLUMN_DELETED = "deleted";
-
-    private static final String COLUMN_PARENT = "parent";
-
-    private static final String COLUMN_GEOMETRY_ENTITY = "geometryEntity";
-
     private final Class<T> entityType;
 
     @SuppressWarnings("unchecked")
@@ -122,7 +116,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final Long pkid = series.getPkid();
         LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
-        criteria = query.addSpatialFilterTo(criteria);
         return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
                        .add(Restrictions.eq(DataEntity.PROPERTY_PKID, pkid))
                        .list();
@@ -144,13 +137,14 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
-                                   .add(Restrictions.eq(COLUMN_DELETED, Boolean.FALSE));
+                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
 
+        query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
 
         criteria = query.isComplexParent()
-                ? criteria.add(Restrictions.eq(COLUMN_PARENT, true))
-                : criteria.add(Restrictions.eq(COLUMN_PARENT, false));
+                ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
+                : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
 
         return criteria;
     }
@@ -172,7 +166,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
         Date lastValueAt = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
-        criteria.setProjection(Projections.property(COLUMN_GEOMETRY_ENTITY));
+        criteria.setProjection(Projections.property(DataEntity.PROPERTY_GEOMETRY_ENTITY));
         return (GeometryEntity) criteria.uniqueResult();
     }
 

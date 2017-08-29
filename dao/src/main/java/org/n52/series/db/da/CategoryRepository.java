@@ -31,6 +31,7 @@ package org.n52.series.db.da;
 
 import org.hibernate.Session;
 import org.n52.io.response.CategoryOutput;
+import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
@@ -42,7 +43,7 @@ import org.n52.series.spi.search.SearchResult;
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
 
     @Override
-    protected CategoryOutput prepareOutput(CategoryEntity entity) {
+    protected CategoryOutput prepareEmptyParameterOutput(CategoryEntity entity) {
         return new CategoryOutput();
     }
 
@@ -67,13 +68,12 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     }
 
     @Override
-    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery parameters, Session session) {
-        CategoryOutput result = createCondensed(entity, parameters, session);
-        if (parameters.getHrefBase() != null) {
-            result.setService(getCondensedExtendedService(getServiceEntity(entity), parameters));
-        } else {
-            result.setService(getCondensedService(entity.getService(), parameters));
-        }
+    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
+        CategoryOutput result = createCondensed(entity, query, session);
+        ServiceOutput service = (query.getHrefBase() != null)
+                ? getCondensedExtendedService(getServiceEntity(entity), query)
+                : getCondensedService(getServiceEntity(entity), query);
+        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

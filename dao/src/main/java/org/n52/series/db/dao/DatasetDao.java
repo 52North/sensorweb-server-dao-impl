@@ -37,6 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -92,7 +93,6 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         // default criteria performs join on procedure table
         constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
         constellationJoin(ObservationConstellationEntity.OBSERVABLE_PROPERTY, PHENOMENON_ALIAS, criteria);
-        criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, FEATURE_ALIAS, JoinType.LEFT_OUTER_JOIN);
 
         String phenomenonName = QueryUtils.createAssociation(PHENOMENON_ALIAS, PhenomenonEntity.PROPERTY_NAME);
         String procedureName = QueryUtils.createAssociation(PROCEDURE_ALIAS, ProcedureEntity.PROPERTY_NAME);
@@ -136,8 +136,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        return criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN)
-                       .add(Restrictions.eq(COLUMN_PKID, feature.getPkid()))
+        String featureIdMember = QueryUtils.createAssociation(FEATURE_ALIAS, DescribableEntity.PROPERTY_PKID);
+        return criteria.add(Restrictions.eq(featureIdMember, feature.getPkid()))
                        .list();
     }
 
@@ -167,17 +167,25 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
-        Criteria criteria = session.createCriteria(clazz)
-                                   .add(createPublishedDatasetFilter());
-        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS);
+        Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        query.addValueTypeFilter("", criteria);
-        query.addPlatformTypeFilter("", criteria);
-        String refMember = QueryUtils.createAssociation(PROCEDURE_ALIAS, ProcedureEntity.PROPERTY_REFERENCE);
-        return ignoreReferenceSeries
-                ? criteria.add(Restrictions.eq(refMember, Boolean.FALSE))
-                : criteria;
+        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS, JoinType.LEFT_OUTER_JOIN);
+        if (ignoreReferenceSeries) {
+                    procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
+        }
+
+        return criteria;
+    }
+
+    @Override
+    protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
+        // on dataset itself there is no explicit join neccessary
+        Criteria filter = criteria.add(createPublishedDatasetFilter());
+        query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
+                                                     FEATURE_ALIAS,
+                                                     JoinType.LEFT_OUTER_JOIN));
+        return criteria;
     }
 
 }
