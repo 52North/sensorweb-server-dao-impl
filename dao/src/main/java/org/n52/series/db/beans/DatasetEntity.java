@@ -280,11 +280,9 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     }
 
     public String getUnitI18nName(String locale) {
-        String name = null;
-        if (unit != null) {
-            name = unit.getNameI18n(locale);
-        }
-        return name;
+        return unit != null
+            ? unit.getNameI18n(locale)
+            : "";
     }
 
     public void setObservationCount(long count) {
