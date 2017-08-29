@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
@@ -164,15 +165,21 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
-        Criteria criteria = session.createCriteria(clazz)
-                                   .add(createPublishedDatasetFilter())
-                                   .createAlias("procedure", "p");
+        Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        query.addValueTypeFilter("", criteria);
-        query.addPlatformTypeFilter("", criteria);
-        return ignoreReferenceSeries
-                ? criteria.add(Restrictions.eq("p.reference", Boolean.FALSE))
-                : criteria;
+        if (ignoreReferenceSeries) {
+            criteria.createCriteria("procedure")
+                    .add(Restrictions.eq("reference", Boolean.FALSE));
+        }
+
+        return criteria;
+    }
+
+    @Override
+    protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
+        // on dataset itself there is no explicit join neccessary
+        Conjunction filter = createPublishedDatasetFilter();
+        return query.addSpatialFilter(criteria.add(filter));
     }
 
 }
