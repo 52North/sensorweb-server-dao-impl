@@ -57,7 +57,7 @@ public class GeometryEntity implements Serializable {
     private Double alt;
 
     private int srid;
-    
+
     public boolean isSetGeometry() {
         return geometry != null && !geometry.isEmpty();
     }

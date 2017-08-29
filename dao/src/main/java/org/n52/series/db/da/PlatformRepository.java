@@ -31,11 +31,14 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -46,7 +49,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
@@ -118,7 +120,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
+    PlatformOutput createCondensedPlatform(DatasetEntity< ? > dataset, DbQuery query, Session session)
             throws DataAccessException {
         PlatformEntity entity = getEntity(getPlatformId(dataset), query, session);
         return createCondensed(entity, query, session);
@@ -158,18 +160,18 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery parameters, Session session)
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
-        PlatformOutput result = createCondensed(entity, parameters, session);
-        DbQuery query = getDbQuery(parameters.getParameters()
-                                             .extendWith(Parameters.PLATFORMS, result.getId())
-                                             .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+        PlatformOutput result = createCondensed(entity, query, session);
+        DbQuery platformQuery = getDbQuery(query.getParameters()
+                                                .extendWith(Parameters.PLATFORMS, result.getId())
+                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(query);
+        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(platformQuery);
         result.setDatasets(datasets);
 
         Geometry geometry = entity.getGeometry() == null
-                ? getLastSamplingGeometry(datasets, query, session)
+                ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
 
         if (geometry == null) {
@@ -178,12 +180,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         }
 
         result.setGeometry(geometry);
-        if (entity.hasParameters()) {
-            String locale = parameters.getLocale();
-            for (Parameter< ? > parameter : entity.getParameters()) {
-                result.addParameter(parameter.toValueMap(locale));
-            }
-        }
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 
@@ -191,7 +189,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-        DatasetEntity lastDataset = getLastDataset(datasets, query, session);
+        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
@@ -219,10 +217,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetEntity currentLastDataset = null;
+        DatasetEntity< ? > currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
-            DatasetEntity entity = seriesRepository.getInstanceEntity(id, query, session);
+            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, query, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {

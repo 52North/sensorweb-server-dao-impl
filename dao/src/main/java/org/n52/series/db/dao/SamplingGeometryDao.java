@@ -44,8 +44,6 @@ import org.n52.series.db.beans.SamplingGeometryEntity;
 
 public class SamplingGeometryDao {
 
-    private static final String COLUMN_PKID = "pkid";
-
     private static final String COLUMN_SERIES_PKID = "seriesPkid";
 
     private static final String COLUMN_TIMESTAMP = "timestamp";
@@ -80,5 +78,4 @@ public class SamplingGeometryDao {
                        .map(e -> e.getGeometryEntity())
                        .collect(Collectors.toList());
     }
-
 }

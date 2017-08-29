@@ -29,7 +29,9 @@
 
 package org.n52.series.db.beans;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.n52.series.db.beans.parameter.Parameter;
 
@@ -127,6 +129,14 @@ public class DescribableEntity {
 
     public boolean hasParameters() {
         return getParameters() != null && !getParameters().isEmpty();
+    }
+
+    public Set<Map<String, Object>> getMappedParameters(String locale) {
+        return hasParameters()
+                ? parameters.stream()
+                            .map(e -> e.toValueMap(locale))
+                            .collect(Collectors.toSet())
+                : null;
     }
 
     public ServiceEntity getService() {

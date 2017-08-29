@@ -333,7 +333,7 @@ public class DbQuery {
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
-        if (!parameters.shallClassifyByResultTimes()) {
+        if (parameters.shallClassifyByResultTimes()) {
             Disjunction or = Restrictions.disjunction();
             for (String resultTime : parameters.getResultTimes()) {
                 Instant instant = Instant.parse(resultTime);
@@ -356,7 +356,6 @@ public class DbQuery {
     Criteria addPlatformTypeFilter(String parameter, Criteria criteria) {
         FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
-
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
                 criteria.createCriteria(DatasetEntity.PROPERTY_PLATFORM)
@@ -375,8 +374,8 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addValueTypeFilter(String parameter, Criteria criteria) {
-        Set<String> valueTypes = getParameters().getValueTypes();
+    Criteria addValueTypeFilter(String parameter, Criteria criteria) {
+        Set<String> valueTypes = parameters.getValueTypes();
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {

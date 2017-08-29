@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.n52.io.response.dataset.quantity.QuantityDatasetOutput;
+import org.n52.io.response.dataset.quantity.QuantityValue;
 
 public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
 
@@ -42,7 +42,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
     private Set<QuantityDatasetEntity> referenceValues = new HashSet<>();
 
     public QuantityDatasetEntity() {
-        super(QuantityDatasetOutput.VALUE_TYPE);
+        super(QuantityValue.TYPE);
     }
 
     public Set<QuantityDatasetEntity> getReferenceValues() {

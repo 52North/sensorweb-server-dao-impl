@@ -108,13 +108,13 @@ public abstract class SessionAwareRepository {
     protected CRSUtils getCrsUtils() {
         return crsUtils;
     }
-    
+
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
         String srid = query.getDatabaseSridCode();
         geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
         return geometryEntity.getGeometry();
     }
-    
+
     // XXX a bit misplaced here
     protected String getPlatformId(DatasetEntity dataset) {
         ProcedureEntity procedure = dataset.getProcedure();
@@ -126,7 +126,7 @@ public abstract class SessionAwareRepository {
                 : procedure;
         return type.createId(entity.getPkid());
     }
-    
+
     protected Long parseId(String id) throws BadRequestException {
         try {
             return Long.parseLong(id);
@@ -175,16 +175,16 @@ public abstract class SessionAwareRepository {
         return metadata;
     }
 
-    protected DatasetParameters createDatasetParameters(DatasetEntity< ? > series, DbQuery parameters, Session session)
+    protected DatasetParameters createDatasetParameters(DatasetEntity< ? > series, DbQuery query, Session session)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(series);
-        metadata.setService(getCondensedExtendedService(service, parameters));
-        metadata.setOffering(getCondensedExtendedOffering(series.getOffering(), parameters));
-        metadata.setProcedure(getCondensedExtendedProcedure(series.getProcedure(), parameters));
-        metadata.setPhenomenon(getCondensedExtendedPhenomenon(series.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedExtendedFeature(series.getFeature(), parameters));
-        metadata.setCategory(getCondensedExtendedCategory(series.getCategory(), parameters));
+        metadata.setService(getCondensedExtendedService(service, query));
+        metadata.setOffering(getCondensedExtendedOffering(series.getOffering(), query));
+        metadata.setProcedure(getCondensedExtendedProcedure(series.getProcedure(), query));
+        metadata.setPhenomenon(getCondensedExtendedPhenomenon(series.getPhenomenon(), query));
+        metadata.setFeature(getCondensedExtendedFeature(series.getFeature(), query));
+        metadata.setCategory(getCondensedExtendedCategory(series.getCategory(), query));
         // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
         return metadata;
     }
@@ -237,12 +237,14 @@ public abstract class SessionAwareRepository {
         return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
-    protected <T extends ParameterOutput> T createCondensed(T outputvalue,
+    protected <T extends ParameterOutput> T createCondensed(T result,
                                                             DescribableEntity entity,
                                                             DbQuery parameters) {
-        outputvalue.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        outputvalue.setId(Long.toString(entity.getPkid()));
-        return outputvalue;
+        String id = Long.toString(entity.getPkid());
+        String label = entity.getLabelFrom(parameters.getLocale());
+        result.setId(id);
+        result.setValue(ParameterOutput.LABEL, label, parameters.getParameters(), result::setLabel);
+        return result;
     }
 
     private <T extends ParameterOutput> T createCondensed(T outputvalue,
@@ -250,7 +252,8 @@ public abstract class SessionAwareRepository {
                                                           DbQuery parameters,
                                                           String hrefBase) {
         createCondensed(outputvalue, entity, parameters);
-        outputvalue.setHref(hrefBase + "/" + outputvalue.getId());
+        String href = hrefBase + "/" + outputvalue.getId();
+        outputvalue.setValue(ParameterOutput.HREF, href, parameters.getParameters(), outputvalue::setHref);
         return outputvalue;
     }
 
