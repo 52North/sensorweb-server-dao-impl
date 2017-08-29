@@ -277,11 +277,13 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
         Long id = dataset.getPkid();
         String domainId = dataset.getDomainId();
+        String uom = dataset.getUnitI18nName(query.getLocale());
         String label = createDatasetLabel(dataset, query.getLocale());
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         String platformtype = getCondensedPlatform(dataset, query, session).getPlatformType();
 
         result.setId(id.toString());
+        result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
         result.setValue(DatasetOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(DatasetOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
         result.setValue(DatasetOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
@@ -302,12 +304,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                 dataset.setService(getServiceEntity());
             }
 
-            String uom = dataset.getUnitI18nName(query.getLocale());
             DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
             AbstractValue firstValue = dataRepository.getFirstValue(dataset, session, query);
             AbstractValue lastValue = dataRepository.getLastValue(dataset, session, query);
 
-            result.setValue(DatasetOutput.UOM, uom, params, result::setUom);
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
