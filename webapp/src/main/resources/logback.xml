@@ -44,7 +44,7 @@
 
     <logger name="org.apache" level="${logger.org.apache.level}" />
     <logger name="org.geotools" level="${logger.org.geotools.level}" />
-    <logger name="com.sun.xml" level="${logger.com.sun.xml}" />
+    <logger name="com.sun.xml" level="${logger.com.sun.xml.level}" />
 
     <include resource="logback-appender-${env}.xml" />
 
