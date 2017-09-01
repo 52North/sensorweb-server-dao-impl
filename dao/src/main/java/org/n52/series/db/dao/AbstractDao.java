@@ -166,15 +166,12 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         } else {
             addSpatialFilter(query, subquery);
             return projectOnDatasetParameterId(subquery);
-//                           .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         }
     }
 
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-
-        // TODO
-        return subquery.createCriteria(getDatasetProperty(), "ref")
-                       .setProjection(Projections.property("ref.pkid"));
+        return subquery.createCriteria(getDatasetProperty())
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     protected final Conjunction createPublishedDatasetFilter() {

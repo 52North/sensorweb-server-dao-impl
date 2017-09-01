@@ -113,11 +113,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @SuppressWarnings("unchecked")
     public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
-        final Long pkid = series.getId();
-        LOGGER.debug("get all instances for series '{}': {}", pkid, query);
+        final Long id = series.getId();
+        LOGGER.debug("get all instances for series '{}': {}", id, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
         return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
-                       .add(Restrictions.eq(DataEntity.PROPERTY_ID, pkid))
+                       .add(Restrictions.eq(DataEntity.PROPERTY_ID, id))
                        .list();
     }
 

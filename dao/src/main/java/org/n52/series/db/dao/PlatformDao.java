@@ -69,7 +69,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     private Long count(DetachedCriteria subquery, AbstractDao< ? > dao, DbQuery query) {
         Criteria criteria = dao.getDefaultCriteria(query);
-        Criteria elements = criteria.add(Subqueries.propertyIn("pkid", subquery));
+        Criteria elements = criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, subquery));
         return (Long) elements.setProjection(Projections.rowCount())
                               .uniqueResult();
     }

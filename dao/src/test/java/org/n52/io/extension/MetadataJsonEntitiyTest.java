@@ -44,7 +44,7 @@ public class MetadataJsonEntitiyTest {
     @Test
     public void givenMetadataJsonEntity_whenSerialize_ValueAsJsonNode() throws JsonProcessingException, IOException {
         MetadataJsonEntity entity = new MetadataJsonEntity();
-        entity.setPkid(1L);
+        entity.setId(1L);
         entity.setName("some_metadata");
         entity.setSeriesId(1L);
         entity.setType("json");

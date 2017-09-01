@@ -111,18 +111,18 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private List<SearchResult> convertToResults(List<QuantityDatasetEntity> found, String locale) {
         List<SearchResult> results = new ArrayList<>();
         for (QuantityDatasetEntity searchResult : found) {
-            String pkid = searchResult.getId()
-                                      .toString();
-            String phenomenonLabel = searchResult.getPhenomenon()
-                                                 .getLabelFrom(locale);
-            String procedureLabel = searchResult.getProcedure()
-                                                .getLabelFrom(locale);
-            String stationLabel = searchResult.getFeature()
-                                              .getLabelFrom(locale);
-            String offeringLabel = searchResult.getOffering()
-                                               .getLabelFrom(locale);
+            String id = searchResult.getId()
+                                    .toString();
+            AbstractFeatureEntity feature = searchResult.getFeature();
+            PhenomenonEntity phenomenon = searchResult.getPhenomenon();
+            ProcedureEntity procedure = searchResult.getProcedure();
+            OfferingEntity offering = searchResult.getOffering();
+            String phenomenonLabel = phenomenon.getLabelFrom(locale);
+            String procedureLabel = procedure.getLabelFrom(locale);
+            String stationLabel = feature.getLabelFrom(locale);
+            String offeringLabel = offering.getLabelFrom(locale);
             String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
-            results.add(new TimeseriesSearchResult(pkid, label));
+            results.add(new TimeseriesSearchResult(id, label));
         }
         return results;
     }
@@ -258,12 +258,12 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String stationLabel = feature.getLabelFrom(locale);
         String offeringLabel = offering.getLabelFrom(locale);
 
-        Long pkid = entity.getId();
+        Long id = entity.getId();
         String uom = entity.getUnitI18nName(locale);
         String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
         StationOutput station = createCondensedStation(entity, query, session);
 
-        result.setId(pkid.toString());
+        result.setId(id.toString());
         result.setValue(TimeseriesMetadataOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(TimeseriesMetadataOutput.UOM, uom, parameters, result::setUom);
         result.setValue(TimeseriesMetadataOutput.STATION, station, parameters, result::setStation);

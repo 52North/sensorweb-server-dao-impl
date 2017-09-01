@@ -58,8 +58,6 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
-    private static final String COLUMN_PKID = "pkid";
-
     private static final String OFFERING_ALIAS = "off";
 
     private static final String FEATURE_ALIAS = "feat";
@@ -119,7 +117,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public T getInstance(Long key, DbQuery query) throws DataAccessException {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
-        return (T) criteria.add(Restrictions.eq(COLUMN_PKID, key))
+        return (T) criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                            .uniqueResult();
     }
 

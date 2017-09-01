@@ -92,9 +92,9 @@ public class StationRepository extends SessionAwareRepository
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String pkid = Long.toString(searchResult.getId());
+            String id = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
-            results.add(new StationSearchResult(pkid, label));
+            results.add(new StationSearchResult(id, label));
         }
         return results;
     }

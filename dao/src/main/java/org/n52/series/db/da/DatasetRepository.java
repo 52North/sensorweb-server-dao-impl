@@ -259,10 +259,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String pkid = searchResult.getId()
+            String id = searchResult.getId()
                                       .toString();
             String label = searchResult.getLabelFrom(locale);
-            results.add(new DatasetSearchResult(pkid, label, hrefBase));
+            results.add(new DatasetSearchResult(id, label, hrefBase));
         }
         return results;
     }
