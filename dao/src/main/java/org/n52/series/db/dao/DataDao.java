@@ -124,7 +124,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
         criteria = query.addSpatialFilterTo(criteria);
         return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
-                       .add(Restrictions.eq(DataEntity.PROPERTY_PKID, pkid))
+                       .add(Restrictions.eq(DataEntity.PROPERTY_ID, pkid))
                        .list();
     }
 

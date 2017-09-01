@@ -29,27 +29,14 @@
 
 package org.n52.series.db.dao;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
-import org.n52.shetland.ogc.om.AbstractPhenomenon;
-import org.n52.shetland.ogc.om.OmCompositePhenomenon;
-import org.n52.shetland.ogc.om.OmObservableProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;

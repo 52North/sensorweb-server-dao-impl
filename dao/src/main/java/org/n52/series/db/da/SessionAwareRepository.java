@@ -47,10 +47,10 @@ import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -271,11 +271,11 @@ public abstract class SessionAwareRepository {
                                urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
     }
 
-    protected FeatureOutput getCondensedFeature(FeatureEntity entity, DbQuery parameters) {
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(), entity, parameters);
     }
 
-    protected FeatureOutput getCondensedExtendedFeature(FeatureEntity entity, DbQuery parameters) {
+    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(),
                                entity,
                                parameters,
