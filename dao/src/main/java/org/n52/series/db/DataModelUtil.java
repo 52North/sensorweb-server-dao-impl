@@ -29,9 +29,7 @@
 
 package org.n52.series.db;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -48,16 +46,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
-
-    public static Date createUnmutableTimestamp(Date value) {
-        if (value == null) {
-            return null;
-        }
-        return !(value instanceof Timestamp)
-                ? new Timestamp(value.getTime())
-                // keeps nano seconds if available
-                : Timestamp.class.cast(value);
-    }
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
         SessionFactoryImplementor factory = getSessionFactory(session);

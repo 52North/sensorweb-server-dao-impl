@@ -87,8 +87,8 @@ public class QuantityProfileDataRepository
     protected ProfileValue<Double> createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
                                                 DbQuery query) {
-        Date timeend = valueEntity.getTimeend();
-        Date timestart = valueEntity.getTimestart();
+        Date timeend = valueEntity.getPhenomenonTimeEnd();
+        Date timestart = valueEntity.getPhenomenonTimeStart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();

@@ -11,8 +11,9 @@ after_success:
 - curl -Ls https://git.io/deploy-maven-snapshot | bash
 env:
   global:
-  - SNAPSHOT_BRANCH: develop
-cache: 
+  - SNAPSHOT_BRANCH: "version/v3.x"
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # gh-pages: speeds up installation of html-proofer
+cache:
   directories:
   - $HOME/.m2
 notifications:

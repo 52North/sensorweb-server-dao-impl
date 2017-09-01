@@ -50,13 +50,12 @@ import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -67,24 +66,29 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Deprecated
 public class TimeseriesRepository extends SessionAwareRepository implements OutputAssembler<TimeseriesMetadataOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesRepository.class);
-
     @Autowired
     @Qualifier(value = "stationRepository")
     private OutputAssembler<StationOutput> stationRepository;
 
     @Autowired
+    private PlatformRepository platformRepository;
+
+    @Autowired
     private IDataRepositoryFactory factory;
 
-    private DatasetDao<QuantityDatasetEntity> createDao(Session session) {
+    private DatasetDao<QuantityDatasetEntity> createDatasetDao(Session session) {
         return new DatasetDao<>(session, QuantityDatasetEntity.class);
+    }
+
+    private DataDao<QuantityDataEntity> createDataDao(Session session) {
+        return new DataDao<>(session, QuantityDataEntity.class);
     }
 
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
-            DatasetDao<QuantityDatasetEntity> dao = createDao(session);
+            DatasetDao<QuantityDatasetEntity> dao = createDatasetDao(session);
             return dao.hasInstance(parseId(id), parameters, QuantityDatasetEntity.class);
         } finally {
             returnSession(session);
@@ -95,7 +99,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     public Collection<SearchResult> searchFor(IoParameters parameters) {
         Session session = getSession();
         try {
-            DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
+            DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
             DbQuery query = dbQueryFactory.createFrom(parameters);
             List<QuantityDatasetEntity> found = seriesDao.find(query);
             return convertToResults(found, query.getLocale());
@@ -136,7 +140,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Override
     public List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query, Session session) throws DataAccessException {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
+        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
             results.add(createCondensed(timeseries, query, session));
         }
@@ -156,7 +160,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Override
     public List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query, Session session) throws DataAccessException {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
+        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
             results.add(createExpanded(timeseries, query, session));
         }
@@ -174,14 +178,15 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery dbQuery, Session session)
+    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
-        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), dbQuery);
+        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
+        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + timeseriesId + "' could not be found.");
         }
-        return createExpanded(result, dbQuery, session);
+        result.setPlatform(platformRepository.getPlatformEntity(result, query, session));
+        return createExpanded(result, query, session);
     }
 
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
@@ -190,10 +195,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<QuantityReferenceValueOutput> referenceValues = createReferenceValueOutputs(series, query, repository);
-        DatasetParameters timeseries = createTimeseriesOutput(series, query);
+        List<QuantityReferenceValueOutput> referenceValues = getReferenceValues(series, query, repository, session);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
+        DatasetParameters timeseries = createTimeseriesOutput(series, query);
 
         result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, referenceValues, params, result::setReferenceValues);
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
@@ -213,12 +218,14 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    private List<QuantityReferenceValueOutput> createReferenceValueOutputs(QuantityDatasetEntity series,
-                                                                           DbQuery query,
-                                                                           QuantityDataRepository repository)
+    private List<QuantityReferenceValueOutput> getReferenceValues(QuantityDatasetEntity series,
+                                                                  DbQuery query,
+                                                                  QuantityDataRepository repository,
+                                                                  Session session)
             throws DataAccessException {
         List<QuantityReferenceValueOutput> outputs = new ArrayList<>();
         Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
+        DataDao<QuantityDataEntity> dataDao = createDataDao(session);
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 QuantityReferenceValueOutput refenceValueOutput = new QuantityReferenceValueOutput();
@@ -227,7 +234,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
                                                                             .toString());
 
-                QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
+                QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
                 refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
                                                                                 referenceSeriesEntity,
                                                                                 query));
@@ -242,13 +249,13 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
         String locale = query.getLocale();
-        PhenomenonEntity phenomenon = entity.getPhenomenon();
-        String phenomenonLabel = phenomenon.getLabelFrom(locale);
-        ProcedureEntity procedure = entity.getProcedure();
-        String procedureLabel = procedure.getLabelFrom(locale);
         FeatureEntity feature = entity.getFeature();
-        String stationLabel = feature.getLabelFrom(locale);
         OfferingEntity offering = entity.getOffering();
+        PhenomenonEntity phenomenon = entity.getPhenomenon();
+        ProcedureEntity procedure = entity.getProcedure();
+        String phenomenonLabel = phenomenon.getLabelFrom(locale);
+        String procedureLabel = procedure.getLabelFrom(locale);
+        String stationLabel = feature.getLabelFrom(locale);
         String offeringLabel = offering.getLabelFrom(locale);
 
         Long pkid = entity.getPkid();

@@ -52,6 +52,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -82,7 +83,7 @@ public abstract class SessionAwareRepository {
     @Autowired
     protected DbQueryFactory dbQueryFactory;
 
-    private final CRSUtils crsUtils = CRSUtils.createEpsgStrictAxisOrder();
+    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     @Autowired
     private HibernateSessionStore sessionStore;
@@ -106,7 +107,7 @@ public abstract class SessionAwareRepository {
     }
 
     protected CRSUtils getCrsUtils() {
-        return crsUtils;
+        return internalCrsUtils;
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
@@ -117,7 +118,8 @@ public abstract class SessionAwareRepository {
 
     // XXX a bit misplaced here
     protected String getPlatformId(DatasetEntity dataset) {
-        ProcedureEntity procedure = dataset.getProcedure();
+        ObservationConstellationEntity constellation = dataset.getObservationConstellation();
+        ProcedureEntity procedure = constellation.getProcedure();
         boolean mobile = procedure.isMobile();
         boolean insitu = procedure.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);
@@ -162,29 +164,33 @@ public abstract class SessionAwareRepository {
         return timeseriesOutputs;
     }
 
-    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity series, DbQuery parameters)
+    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity dataset, DbQuery parameters)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
-        ServiceEntity service = getServiceEntity(series);
+        ServiceEntity service = getServiceEntity(dataset);
         metadata.setService(getCondensedService(service, parameters));
-        metadata.setOffering(getCondensedOffering(series.getOffering(), parameters));
-        metadata.setProcedure(getCondensedProcedure(series.getProcedure(), parameters));
-        metadata.setPhenomenon(getCondensedPhenomenon(series.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedFeature(series.getFeature(), parameters));
-        metadata.setCategory(getCondensedCategory(series.getCategory(), parameters));
+        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+        metadata.setFeature(getCondensedFeature(dataset.getFeature(), parameters));
+        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
         return metadata;
     }
 
-    protected DatasetParameters createDatasetParameters(DatasetEntity< ? > series, DbQuery query, Session session)
+    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
-        ServiceEntity service = getServiceEntity(series);
+        ServiceEntity service = getServiceEntity(dataset);
         metadata.setService(getCondensedExtendedService(service, query));
-        metadata.setOffering(getCondensedExtendedOffering(series.getOffering(), query));
-        metadata.setProcedure(getCondensedExtendedProcedure(series.getProcedure(), query));
-        metadata.setPhenomenon(getCondensedExtendedPhenomenon(series.getPhenomenon(), query));
-        metadata.setFeature(getCondensedExtendedFeature(series.getFeature(), query));
-        metadata.setCategory(getCondensedExtendedCategory(series.getCategory(), query));
+        metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), query));
+        metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), query));
+        metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
+        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), query));
+
+        DescribableEntity category = dataset.getCategory() == null
+                ? dataset.getPhenomenon()
+                : dataset.getCategory();
+        metadata.setCategory(getCondensedExtendedCategory(category, query));
         // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
         return metadata;
     }
@@ -283,7 +289,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
-    protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
+    protected CategoryOutput getCondensedExtendedCategory(DescribableEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(),
                                entity,
                                parameters,

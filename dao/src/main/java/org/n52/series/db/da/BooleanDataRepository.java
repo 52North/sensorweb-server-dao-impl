@@ -37,86 +37,88 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.record.RecordData;
-import org.n52.io.response.dataset.record.RecordDatasetMetadata;
-import org.n52.io.response.dataset.record.RecordValue;
+import org.n52.io.response.dataset.bool.BooleanData;
+import org.n52.io.response.dataset.bool.BooleanDatasetMetadata;
+import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.RecordDataEntity;
-import org.n52.series.db.beans.RecordDatasetEntity;
+import org.n52.series.db.beans.BooleanDataEntity;
+import org.n52.series.db.beans.BooleanDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class RecordDataRepository
-        extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
+public class BooleanDataRepository
+        extends AbstractDataRepository<BooleanData, BooleanDatasetEntity, BooleanDataEntity, BooleanValue> {
 
     @Override
-    public Class<RecordDatasetEntity> getDatasetEntityType() {
-        return RecordDatasetEntity.class;
+    public Class<BooleanDatasetEntity> getDatasetEntityType() {
+        return BooleanDatasetEntity.class;
     }
 
     @Override
-    protected RecordData assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
-                                                         DbQuery dbQuery,
-                                                         Session session)
+    protected BooleanData assembleDataWithReferenceValues(BooleanDatasetEntity timeseries,
+                                                          DbQuery dbQuery,
+                                                          Session session)
             throws DataAccessException {
-        RecordData result = assembleData(timeseries, dbQuery, session);
-        Set<RecordDatasetEntity> referenceValues = timeseries.getReferenceValues();
+        BooleanData result = assembleData(timeseries, dbQuery, session);
+        Set<BooleanDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
-            RecordDatasetMetadata metadata = new RecordDatasetMetadata();
+            BooleanDatasetMetadata metadata = new BooleanDatasetMetadata();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
             result.setMetadata(metadata);
         }
         return result;
     }
 
-    private Map<String, RecordData> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
-                                                            DbQuery query,
-                                                            Session session)
+    private Map<String, BooleanData> assembleReferenceSeries(Set<BooleanDatasetEntity> referenceValues,
+                                                             DbQuery query,
+                                                             Session session)
             throws DataAccessException {
-        Map<String, RecordData> referenceSeries = new HashMap<>();
-        for (RecordDatasetEntity referenceSeriesEntity : referenceValues) {
+        Map<String, BooleanData> referenceSeries = new HashMap<>();
+        for (BooleanDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                RecordData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
+                BooleanData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
-                referenceSeries.put(Long.toString(referenceSeriesEntity.getPkid()), referenceSeriesData);
+                referenceSeries.put(referenceSeriesEntity.getPkid()
+                                                         .toString(),
+                                    referenceSeriesData);
             }
         }
         return referenceSeries;
     }
 
-    private boolean haveToExpandReferenceData(RecordData referenceSeriesData) {
+    private boolean haveToExpandReferenceData(BooleanData referenceSeriesData) {
         return referenceSeriesData.getValues()
                                   .size() <= 1;
     }
 
-    private RecordData expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    private BooleanData expandReferenceDataIfNecessary(BooleanDatasetEntity seriesEntity,
+                                                       DbQuery query,
+                                                       Session session)
             throws DataAccessException {
-        RecordData result = new RecordData();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        BooleanData result = new BooleanData();
+        DataDao<BooleanDataEntity> dao = createDataDao(session);
+        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            RecordValue lastValidValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValidValue.getValue(), seriesEntity, query));
+            BooleanValue lastValue = getLastValue(seriesEntity, session, query);
+            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
         }
-
         if (hasSingleValidReferenceValue(observations)) {
-            RecordDataEntity entity = observations.get(0);
+            BooleanDataEntity entity = observations.get(0);
             result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
         }
         return result;
     }
 
     @Override
-    protected RecordData assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected BooleanData assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        RecordData result = new RecordData();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (RecordDataEntity observation : observations) {
-            // XXX n times same object?
+        BooleanData result = new BooleanData();
+        DataDao<BooleanDataEntity> dao = createDataDao(session);
+        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (BooleanDataEntity observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -124,10 +126,9 @@ public class RecordDataRepository
         return result;
     }
 
-    // XXX
-    private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity() {};
-        RecordDataEntity referenceEnd = new RecordDataEntity() {};
+    private BooleanValue[] expandToInterval(Boolean value, BooleanDatasetEntity series, DbQuery query) {
+        BooleanDataEntity referenceStart = new BooleanDataEntity();
+        BooleanDataEntity referenceEnd = new BooleanDataEntity();
         referenceStart.setPhenomenonTimeEnd(query.getTimespan()
                                                  .getStart()
                                                  .toDate());
@@ -136,7 +137,7 @@ public class RecordDataRepository
                                                .toDate());
         referenceStart.setValue(value);
         referenceEnd.setValue(value);
-        return new RecordValue[] {
+        return new BooleanValue[] {
             createSeriesValueFor(referenceStart, series, query),
             createSeriesValueFor(referenceEnd, series, query),
         };
@@ -144,25 +145,28 @@ public class RecordDataRepository
     }
 
     @Override
-    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
+                                             BooleanDatasetEntity series,
+                                             DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Map<String, Object> observationValue = !service.isNoDataValue(observation)
+        Boolean observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
+        IoParameters parameters = query.getParameters();
         Date timeend = observation.getPhenomenonTimeEnd();
         Date timestart = observation.getPhenomenonTimeStart();
         long end = timeend.getTime();
         long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        RecordValue value = parameters.isShowTimeIntervals()
-                ? new RecordValue(start, end, observationValue)
-                : new RecordValue(end, observationValue);
+        BooleanValue value = parameters.isShowTimeIntervals()
+                ? new BooleanValue(start, end, observationValue)
+                : new BooleanValue(end, observationValue);
+
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

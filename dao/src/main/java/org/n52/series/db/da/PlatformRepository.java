@@ -89,7 +89,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        return new PlatformOutput(entity.getPlatformType());
+        boolean mobile = entity.isMobile();
+        boolean insitu = entity.isInsitu();
+        return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
     }
 
     @Override
@@ -120,7 +122,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensedPlatform(DatasetEntity< ? > dataset, DbQuery query, Session session)
+    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         PlatformEntity entity = getEntity(getPlatformId(dataset), query, session);
         return createCondensed(entity, query, session);
@@ -192,7 +194,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-        DatasetEntity< ? > lastDataset = getLastDataset(datasets, query, session);
+        DatasetEntity lastDataset = getLastDataset(datasets, query, session);
         try {
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
@@ -210,13 +212,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
-        DatasetEntity< ? > currentLastDataset = null;
+        DatasetEntity currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
             DbQuery datasetQuery = getDbQuery(query.getParameters()
                                               .removeAllOf(Parameters.BBOX)
                                               .removeAllOf(Parameters.NEAR));
-            DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
+            DatasetEntity entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {

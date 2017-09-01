@@ -8,14 +8,13 @@
     </parent>
     <groupId>org.n52.series-api.db</groupId>
     <artifactId>series-dao</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>Series DAO REST API</name>
     <packaging>pom</packaging>
 
     <modules>
         <module>dao</module>
         <module>sos-integration</module>
-        <module>mappings</module>
         <module>webapp</module>
     </modules>
 
@@ -49,10 +48,11 @@
         <logback.version>1.1.3</logback.version>
         <jackson.version>2.7.3</jackson.version>
         <geotools.version>14.0</geotools.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.22</slf4j.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hibernate.version>4.3.11.Final</hibernate.version>
         <series.api.version>2.0.0-SNAPSHOT</series.api.version>
+        <series.hibernate.version>1-SNAPSHOT</series.hibernate.version>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -73,11 +73,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sos-integration</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>mappings</artifactId>
                 <version>${project.version}</version>
             </dependency>
             
@@ -101,11 +96,21 @@
                 <artifactId>web-resources</artifactId>
                 <version>${series.api.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.n52.series.db</groupId>
+                <artifactId>entities</artifactId>
+                <version>${series.hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.series.db</groupId>
+                <artifactId>mappings</artifactId>
+                <version>${series.hibernate.version}</version>
+            </dependency>
             
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.8.2</version>
+                <version>2.9.7</version>
             </dependency>
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
@@ -472,28 +477,22 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.10</version>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <configuration>
+                        <excludeFilterFile>etc/findbugs-exclude.xml</excludeFilterFile>
+                        <!--<includeFilterFile>etc/findbugs-include.xml</includeFilterFile>-->
+                        <!--<visitors></visitors>-->
+                        <!--<omitVisitors></omitVisitors>-->
+                        <!--<maxRank></maxRank>-->
+                        <failOnError>true</failOnError>
+                    </configuration>
                 </plugin>
 
                 <plugin>
                     <!-- license headers -->
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.11</version>
                     <configuration>
                         <header>etc/license-header.txt</header>
                         <properties>
@@ -520,7 +519,6 @@
                     <!-- dependencies' licenses -->
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.8</version>
                     <configuration>
                         <useMissingFile>true</useMissingFile>
                         <fileTemplate>etc/license-as-csv.ftl</fileTemplate>
@@ -541,7 +539,6 @@
                     <!-- assemble licenses -->
                     <groupId>org.jasig.maven</groupId>
                     <artifactId>maven-notice-plugin</artifactId>
-                    <version>1.0.6.1</version>
                     <configuration>
                         <noticeTemplate>etc/NOTICE.template</noticeTemplate>
                         <licenseMapping>
@@ -567,45 +564,8 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>pl.project13.maven</groupId>
-                    <artifactId>git-commit-id-plugin</artifactId>
-                    <version>2.2.1</version>
-                    <configuration>
-                        <dateFormat>yyyy-MM-dd HH:mm:ssZ</dateFormat>
-                        <gitDescribe>
-                            <!-- Faster to get just branch if skip = true -->
-                            <skip>false</skip>
-                        </gitDescribe>
-                        <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
-                        <timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
-                    <configuration>
-                        <source>${java.compiler.source}</source>
-                        <target>${java.compiler.target}</target>
-                        <meminitial>256m</meminitial>
-                        <maxmem>512m</maxmem>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.2</version>
-                    <configuration>
-                        <preparationGoals>clean</preparationGoals>
-                        <autoVersionSubmodules>true</autoVersionSubmodules>
-                    </configuration>
-                </plugin>
-
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.6</version>
                     <configuration>
                         <descriptors>
                             <descriptor>src/main/assembly/release.xml</descriptor>
@@ -631,14 +591,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav-jackrabbit</artifactId>
-                <version>2.10</version>
-            </extension>
-        </extensions>
-        
     </build>
     
     <profiles>

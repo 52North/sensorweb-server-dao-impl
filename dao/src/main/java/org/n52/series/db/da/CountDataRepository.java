@@ -125,10 +125,10 @@ public class CountDataRepository
     private CountValue[] expandToInterval(Integer value, CountDatasetEntity series, DbQuery query) {
         CountDataEntity referenceStart = new CountDataEntity();
         CountDataEntity referenceEnd = new CountDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
+        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
                                          .getStart()
                                          .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
+        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
                                        .getEnd()
                                        .toDate());
         referenceStart.setValue(value);
@@ -153,8 +153,8 @@ public class CountDataRepository
                 : null;
 
         IoParameters parameters = query.getParameters();
-        Date timeend = observation.getTimeend();
-        Date timestart = observation.getTimestart();
+        Date timeend = observation.getPhenomenonTimeEnd();
+        Date timestart = observation.getPhenomenonTimeStart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         CountValue value = parameters.isShowTimeIntervals()

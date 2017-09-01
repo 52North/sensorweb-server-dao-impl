@@ -42,8 +42,10 @@ import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.SessionAwareRepository;
 import org.n52.series.db.dao.DataDao;
+import org.n52.series.db.dao.QueryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +57,16 @@ class ResultTimeRepository extends SessionAwareRepository {
     Set<String> getExtras(String datasetId, IoParameters parameters) {
         Session session = getSession();
         try {
-            long id = Long.parseLong(datasetId);
+            String alias = "datasets";
             DataDao< ? > dao = new DataDao<>(session);
+            String datasetMember = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_PKID);
             List<Date> resultTimes = dao.getDefaultCriteria(getDbQuery(parameters))
-                                        .add(Restrictions.neProperty(DataEntity.PROPERTY_RESULTTIME,
-                                                                     DataEntity.PROPERTY_TIMEEND))
-                                        .setProjection(Projections.property(DataEntity.PROPERTY_RESULTTIME))
+                                        .add(Restrictions.neProperty(DataEntity.PROPERTY_RESULT_TIME,
+                                                                     DataEntity.PROPERTY_PHENOMENON_TIME_END))
+                                        .setProjection(Projections.property(DataEntity.PROPERTY_RESULT_TIME))
                                         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                                        .add(Restrictions.eq(DataEntity.PROPERTY_SERIES_PKID, id))
+                                        .createCriteria(DataEntity.PROPERTY_DATASETS, alias)
+                                        .add(Restrictions.eq(datasetMember, Long.parseLong(datasetId)))
                                         .list();
             return resultTimes.stream()
                               .map(i -> new DateTime(i).toString())

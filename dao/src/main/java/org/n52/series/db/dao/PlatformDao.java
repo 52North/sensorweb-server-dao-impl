@@ -29,30 +29,69 @@
 
 package org.n52.series.db.dao;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.PropertyProjection;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.n52.io.request.FilterResolver;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.I18nPlatformEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.i18n.I18nPlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity> {
-
-    private static final String SERIES_PROPERTY = "platform";
 
     public PlatformDao(Session session) {
         super(session);
     }
 
     @Override
+    public Integer getCount(DbQuery query) throws DataAccessException {
+        String alias = "const";
+        String procedure = QueryUtils.createAssociation(alias, ObservationConstellationEntity.PROCEDURE);
+        DetachedCriteria mobile = QueryUtils.projectionOn(procedure, createMobileSubquery(alias, true));
+        DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
+                                                              createMobileSubquery(alias, false));
+
+        FeatureDao featureDao = new FeatureDao(session);
+        ProcedureDao procedureDao = new ProcedureDao(session);
+        return (int) Long.sum(count(stationary, featureDao, query),
+                              count(mobile, procedureDao, query));
+    }
+
+    private Long count(DetachedCriteria subquery, AbstractDao< ? > dao, DbQuery query) {
+        Criteria criteria = dao.getDefaultCriteria(query);
+        Criteria elements = criteria.add(Subqueries.propertyIn("pkid", subquery));
+        return (Long) elements.setProjection(Projections.rowCount())
+                              .uniqueResult();
+    }
+
+    private DetachedCriteria createMobileSubquery(String constellationAlias, boolean mobile) {
+        DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
+        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, constellationAlias)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
+        return criteria;
+    }
+
+    @Override
     protected String getDatasetProperty() {
-        return SERIES_PROPERTY;
+        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.PROCEDURE;
+    }
+
+    @Override
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                       .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
 
     @Override
@@ -78,8 +117,8 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
             // values for oldest result time
             String rtAlias = "rtAlias";
             // String rtColumn = QueryUtils.createAssociation(rtAlias, column);
-            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_SERIES_PKID);
-            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULTTIME);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DatasetEntity.PROPERTY_PKID);
+            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
 
             DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias);
             maxResultTimeByDatasetId.setProjection(Projections.projectionList()
@@ -88,15 +127,15 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                                                               .add(Projections.max(rtResultTime)));
 
             String[] matchProperties = new String[] {
-                // column,
-                DataEntity.PROPERTY_SERIES_PKID,
-                DataEntity.PROPERTY_RESULTTIME
+                DatasetEntity.PROPERTY_PKID,
+                // DataEntity.PROPERTY_SERIES_PKID,
+                DataEntity.PROPERTY_RESULT_TIME
             };
-            PropertyProjection seriesFKProjection = Projections.property(DataEntity.PROPERTY_SERIES_PKID);
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
-                                                        .setProjection(seriesFKProjection)
                                                         .add(Subqueries.propertiesIn(matchProperties,
-                                                                                     maxResultTimeByDatasetId));
+                                                                                     maxResultTimeByDatasetId))
+                                                        .createCriteria(DataEntity.PROPERTY_DATASETS)
+                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID));
 
             criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
         }

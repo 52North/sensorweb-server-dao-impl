@@ -29,7 +29,6 @@
 
 package org.n52.series.db.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -38,29 +37,34 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.I18nFeatureEntity;
-import org.n52.series.db.beans.I18nOfferingEntity;
-import org.n52.series.db.beans.I18nPhenomenonEntity;
-import org.n52.series.db.beans.I18nProcedureEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.i18n.I18nFeatureEntity;
+import org.n52.series.db.beans.i18n.I18nOfferingEntity;
+import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
+import org.n52.series.db.beans.i18n.I18nProcedureEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@SuppressWarnings("rawtypes")
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
+
+    public static final String PROCEDURE_ALIAS = "proc";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
     private static final String COLUMN_PKID = "pkid";
 
-    private static final String FEATURE_PATH_ALIAS = "dsFeature";
+    private static final String OFFERING_ALIAS = "off";
 
-    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
+    private static final String FEATURE_ALIAS = "feat";
+
+    private static final String PHENOMENON_ALIAS = "phen";
 
     private final Class<T> entityType;
 
@@ -79,43 +83,36 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> find(DbQuery query) {
         LOGGER.debug("find entities: {}", query);
 
-        List<T> series = new ArrayList<>();
         String searchTerm = "%" + query.getSearchTerm() + "%";
 
         /*
          * Timeseries labels are constructed from labels of related feature and phenomenon. Therefore we have
-         * to join both tables and search for given pattern on any of the stored labels.
+         * to join tables and search for given pattern on any of the stored labels.
          */
-        Criteria criteria = getDefaultCriteria("s", query);
+        Criteria criteria = getDefaultCriteria(query);
+        // default criteria performs join on procedure table
+        constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
+        constellationJoin(ObservationConstellationEntity.OBSERVABLE_PROPERTY, PHENOMENON_ALIAS, criteria);
 
-//        Criteria featureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE, JoinType.LEFT_OUTER_JOIN);
-        Criteria featureCriteria = criteria;
-        featureCriteria = i18n(I18nFeatureEntity.class, featureCriteria, query);
-        String featureName = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, FeatureEntity.PROPERTY_NAME);
-        featureCriteria.add(Restrictions.ilike(featureName, searchTerm));
-        series.addAll(featureCriteria.list());
+        String phenomenonName = QueryUtils.createAssociation(PHENOMENON_ALIAS, PhenomenonEntity.PROPERTY_NAME);
+        String procedureName = QueryUtils.createAssociation(PROCEDURE_ALIAS, ProcedureEntity.PROPERTY_NAME);
+        String offeringName = QueryUtils.createAssociation(OFFERING_ALIAS, OfferingEntity.PROPERTY_NAME);
+        String featureName = QueryUtils.createAssociation(FEATURE_ALIAS, FeatureEntity.PROPERTY_NAME);
+        criteria.add(Restrictions.or(Restrictions.ilike(procedureName, searchTerm),
+                                     Restrictions.ilike(offeringName, searchTerm),
+                                     Restrictions.ilike(phenomenonName, searchTerm),
+                                     Restrictions.ilike(featureName, searchTerm)));
 
-//        Criteria procedureCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE,
-//                                                             JoinType.LEFT_OUTER_JOIN);
-        Criteria procedureCriteria = criteria;
-        procedureCriteria = i18n(I18nProcedureEntity.class, procedureCriteria, query);
-        String procedureName = QueryUtils.createAssociation(PROCEDURE_PATH_ALIAS, ProcedureEntity.PROPERTY_NAME);
-        procedureCriteria.add(Restrictions.ilike(procedureName, searchTerm));
-        series.addAll(procedureCriteria.list());
+        i18n(I18nOfferingEntity.class, criteria, query);
+        i18n(I18nPhenomenonEntity.class, criteria, query);
+        i18n(I18nProcedureEntity.class, criteria, query);
+        i18n(I18nFeatureEntity.class, criteria, query);
+        return criteria.list();
+    }
 
-        Criteria offeringCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OFFERING,
-                                                            JoinType.LEFT_OUTER_JOIN);
-        offeringCriteria = i18n(I18nOfferingEntity.class, offeringCriteria, query);
-        offeringCriteria.add(Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm));
-        series.addAll(offeringCriteria.list());
-
-        Criteria phenomenonCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PHENOMENON,
-                                                              JoinType.LEFT_OUTER_JOIN);
-        phenomenonCriteria = i18n(I18nPhenomenonEntity.class, phenomenonCriteria, query);
-        phenomenonCriteria.add(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm));
-        series.addAll(phenomenonCriteria.list());
-
-        return series;
+    private Criteria constellationJoin(String accosiationPath, String targetAlias, Criteria criteria) {
+        String member = QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, accosiationPath);
+        return criteria.createCriteria(member, targetAlias, JoinType.LEFT_OUTER_JOIN);
     }
 
     @Override
@@ -139,8 +136,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        String idColumn = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, COLUMN_PKID);
-        return criteria.add(Restrictions.eq(idColumn, feature.getPkid()))
+        String featureIdMember = QueryUtils.createAssociation(FEATURE_ALIAS, DescribableEntity.PROPERTY_PKID);
+        return criteria.add(Restrictions.eq(featureIdMember, feature.getPkid()))
                        .list();
     }
 
@@ -161,8 +158,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
-        // declare explicit alias here
+    public Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
         return getDefaultCriteria(alias, true, query, clazz);
     }
 
@@ -173,9 +169,10 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
+        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS, JoinType.LEFT_OUTER_JOIN);
         if (ignoreReferenceSeries) {
-            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
-                    .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
+                    procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 
         return criteria;
@@ -186,7 +183,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         // on dataset itself there is no explicit join neccessary
         Criteria filter = criteria.add(createPublishedDatasetFilter());
         query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                     FEATURE_PATH_ALIAS,
+                                                     FEATURE_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));
         return criteria;
     }

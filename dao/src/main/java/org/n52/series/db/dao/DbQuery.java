@@ -37,7 +37,6 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.criterion.SpatialFilter;
@@ -57,6 +56,8 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -187,8 +188,8 @@ public class DbQuery {
             DateTime endDate = interval.getEnd();
             Date start = startDate.toDate();
             Date end = endDate.toDate();
-            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
+            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_START, start, end),
+                                         Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_END, start, end)));
         }
         return criteria;
     }
@@ -235,44 +236,65 @@ public class DbQuery {
             return criteria;
         }
 
+        String alias = "constellation";
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter, alias);
+        QueryUtils.setFilterProjectionOn(alias, datasetName, filter);
+
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
             procedures.addAll(getMobileIds(platforms));
         }
 
-        addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
-        addFilterRestriction(parameters.getSeries(), filter);
+        if (hasValues(phenomena)) {
+            addHierarchicalFilterRestriction(phenomena,
+                                             ObservationConstellationEntity.OBSERVABLE_PROPERTY,
+                                             observationConstellationFilter);
+        }
 
-        addFilterRestriction(parameters.getDatasets()
-                                       .stream()
-                                       .map(e -> ValueType.extractId(e))
-                                       .collect(Collectors.toSet()),
-                             filter);
+        if (hasValues(procedures)) {
+            addHierarchicalFilterRestriction(procedures,
+                                             ObservationConstellationEntity.PROCEDURE,
+                                             observationConstellationFilter);
+        }
 
-        // TODO refactory/simplify projection
-        String projectionProperty = QueryUtils.createAssociation(datasetName, PROPERTY_PKID);
-        filter.setProjection(Property.forName(projectionProperty));
+        if (hasValues(offerings)) {
+            addHierarchicalFilterRestriction(offerings,
+                                             ObservationConstellationEntity.OFFERING,
+                                             observationConstellationFilter);
+        }
 
-        String filterProperty = QueryUtils.createAssociation(datasetName, PROPERTY_PKID);
-        criteria.add(Subqueries.propertyIn(filterProperty, filter));
+        if (hasValues(features)) {
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        }
+
+        if (hasValues(categories)) {
+            addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        }
+
+        if (hasValues(datasets)) {
+            addFilterRestriction(datasets, filter);
+        }
+
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
         return criteria;
     }
 
+    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter, String alias) {
+        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
+    }
+
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String entity,
-                                                              DetachedCriteria filter,
-                                                              String prefix) {
+                                                              String property,
+                                                              DetachedCriteria filter) {
         if (hasValues(values)) {
-            filter.createCriteria(entity, prefix + "e")
+            String itemAlias = property + "_filter";
+            String parentAlias = property + "_parent";
+            filter.createCriteria(property, itemAlias)
                   // join the parents to enable filtering via parent ids
-                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
-                                       Restrictions.in(prefix + "p.pkid", QueryUtils.parseToIds(values))));
+                  .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, itemAlias),
+                                       Restrictions.in(parentAlias + ".pkid", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -342,7 +364,7 @@ public class DbQuery {
             Disjunction or = Restrictions.disjunction();
             for (String resultTime : parameters.getResultTimes()) {
                 Instant instant = Instant.parse(resultTime);
-                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULTTIME, instant.toDate()));
+                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, instant.toDate()));
             }
             criteria.add(or);
         }

@@ -7,7 +7,8 @@ stop() {
 
 DOCUMENTATION_BRANCHES=(
   "develop" \
-  "master"
+  "master" \
+  "version/v3.x"
 )
 
 deploy_on_ghpages() {

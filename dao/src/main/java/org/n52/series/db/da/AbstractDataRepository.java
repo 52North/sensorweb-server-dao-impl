@@ -32,7 +32,6 @@ package org.n52.series.db.da;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
@@ -42,36 +41,57 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.web.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity< ? >,
+                                             S extends DatasetEntity,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
+    @Autowired
+    private PlatformRepository platformRepository;
+
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
             DatasetDao<S> seriesDao = getSeriesDao(session);
-            IoParameters parameters = dbQuery.getParameters();
+
             // remove spatial filter on metadata
-            S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)));
+            DbQuery spatialLessQuery = getDbQuery(query.getParameters()
+                                                       .removeAllOf(Parameters.BBOX)
+                                                       .removeAllOf(Parameters.NEAR));
+            if (!seriesDao.hasInstance(id, spatialLessQuery)) {
+                throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
+            }
+            S series = seriesDao.getInstance(id, spatialLessQuery);
+
+            series.setPlatform(getCondensedPlatform(series, spatialLessQuery, session));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
-            return dbQuery.isExpanded()
-                    ? assembleDataWithReferenceValues(series, dbQuery, session)
-                    : assembleData(series, dbQuery, session);
+            return query.isExpanded()
+                    ? assembleDataWithReferenceValues(series, query, session)
+                    : assembleData(series, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
+            throws DataAccessException {
+        // platform has to be handled dynamically (see #309)
+        return platformRepository.getEntity(getPlatformId(dataset), query, session);
     }
 
     @Override
@@ -135,9 +155,10 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     }
 
     protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
-        if (dataEntity.isSetGeometry()) {
-            GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(geometry.getGeometry());
+        if (dataEntity.isSetGeometryEntity()) {
+            GeometryEntity geometryEntity = dataEntity.getGeometryEntity();
+            Geometry geometry = getGeometry(geometryEntity, query);
+            value.setGeometry(geometry);
         }
     }
 

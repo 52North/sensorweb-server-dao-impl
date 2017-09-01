@@ -32,11 +32,15 @@ package org.n52.series.db.dao;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.I18nProcedureEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.i18n.I18nProcedureEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,17 +59,17 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     @Override
     public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
         LOGGER.debug("get instance '{}': {}", key, query);
-        Criteria criteria = getDefaultCriteria(true, query);
+        Criteria criteria = getDefaultCriteria(query);
         return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
                                              .uniqueResult());
     }
 
     @Override
     public Criteria getDefaultCriteria(DbQuery query) {
-        return getDefaultCriteria(true, query);
+        return getDefaultCriteria(query, true);
     }
 
-    private Criteria getDefaultCriteria(boolean ignoreReferenceProcedures, DbQuery query) {
+    private Criteria getDefaultCriteria(DbQuery query, boolean ignoreReferenceProcedures) {
         return ignoreReferenceProcedures
                 ? super.getDefaultCriteria(query).add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
                 : super.getDefaultCriteria(query);
@@ -73,7 +77,15 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_PROCEDURE;
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
+                                            ObservationConstellationEntity.PROCEDURE);
+    }
+
+    @Override
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
 
     @Override

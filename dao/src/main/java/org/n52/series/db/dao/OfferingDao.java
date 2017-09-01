@@ -30,9 +30,13 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.I18nOfferingEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -44,7 +48,15 @@ public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OFFERING;
+        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
+                                            ObservationConstellationEntity.OFFERING);
+    }
+
+    @Override
+    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
+        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
+                       .createCriteria(ObservationConstellationEntity.OFFERING)
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
     }
 
     @Override
