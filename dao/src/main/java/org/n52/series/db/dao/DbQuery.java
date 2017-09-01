@@ -70,8 +70,6 @@ public class DbQuery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
-    private static final String PROPERTY_PKID = "pkid";
-
     private static final String PROPERTY_LOCALE = "locale";
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
@@ -276,7 +274,7 @@ public class DbQuery {
             addFilterRestriction(datasets, filter);
         }
 
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
     }
 
@@ -290,11 +288,12 @@ public class DbQuery {
         if (hasValues(values)) {
             String itemAlias = property + "_filter";
             String parentAlias = property + "_parent";
+            String parentId = QueryUtils.createAssociation(parentAlias, DescribableEntity.PROPERTY_ID);
             filter.createCriteria(property, itemAlias)
                   // join the parents to enable filtering via parent ids
                   .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
                   .add(Restrictions.or(createIdCriterion(values, itemAlias),
-                                       Restrictions.in(parentAlias + ".pkid", QueryUtils.parseToIds(values))));
+                                       Restrictions.in(parentId, QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -337,7 +336,7 @@ public class DbQuery {
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, PROPERTY_PKID);
+        String column = QueryUtils.createAssociation(alias, DescribableEntity.PROPERTY_ID);
         return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
     }
 

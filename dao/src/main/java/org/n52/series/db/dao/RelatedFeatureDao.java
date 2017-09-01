@@ -26,36 +26,36 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+package org.n52.series.db.dao;
 
-package org.n52.io.extension;
+import java.util.List;
 
-import java.io.IOException;
+import org.hibernate.Session;
+import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.RelatedFeatureEntity;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.n52.io.extension.metadata.MetadataJsonEntity;
+public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+    private static final String SERIES_PROPERTY = "relatedFeature";
 
-public class MetadataJsonEntitiyTest {
+    public RelatedFeatureDao(Session session) {
+        super(session);
+    }
 
-    @Test
-    public void givenMetadataJsonEntity_whenSerialize_ValueAsJsonNode() throws JsonProcessingException, IOException {
-        MetadataJsonEntity entity = new MetadataJsonEntity();
-        entity.setId(1L);
-        entity.setName("some_metadata");
-        entity.setSeriesId(1L);
-        entity.setType("json");
-        entity.setValue("{\"key\":\"value\",\"object\":{\"key1\":\"string\",\"key2\":42}}");
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<RelatedFeatureEntity> getAllInstances(DbQuery query) throws DataAccessException {
+        return getDefaultCriteria(query).list();
+    }
 
-        ObjectMapper om = new ObjectMapper();
-        String jsonString = om.writeValueAsString(entity);
-        JsonNode jsonNode = om.readTree(jsonString);
-        JsonNode at = jsonNode.path("value")
-                              .path("object");
-        Assert.assertTrue(at.isObject());
+    @Override
+    protected String getDatasetProperty() {
+        return SERIES_PROPERTY;
+    }
+
+    @Override
+    protected Class<RelatedFeatureEntity> getEntityClass() {
+        return RelatedFeatureEntity.class;
     }
 
 }

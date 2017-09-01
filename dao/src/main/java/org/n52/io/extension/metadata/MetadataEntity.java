@@ -38,7 +38,7 @@ public abstract class MetadataEntity<T> {
 
     static final String PROPERTY_SERIES_ID = "seriesId";
 
-    private Long pkid;
+    private Long id;
 
     private Long seriesId;
 
@@ -50,12 +50,12 @@ public abstract class MetadataEntity<T> {
 
     private Date lastUpdate;
 
-    public Long getPkid() {
-        return pkid;
+    public Long getId() {
+        return id;
     }
 
-    public void setPkid(Long pkid) {
-        this.pkid = pkid;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getSeriesId() {

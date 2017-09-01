@@ -46,6 +46,8 @@ public class SamplingGeometryDao {
 
     private static final String COLUMN_TIMESTAMP = "timestamp";
 
+    private static final String PROPERTY_DATASETS_IDS = "datasetIds";
+
     private final Session session;
 
     public SamplingGeometryDao(Session session) {
@@ -55,8 +57,8 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery query) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        criteria.createCriteria("datasetIds", "datasets")
-                .add(Restrictions.in("datasets.pkid", getDatasetIds(query)));
+        criteria.createCriteria(PROPERTY_DATASETS_IDS)
+                .add(Restrictions.in(DescribableEntity.PROPERTY_ID, getDatasetIds(query)));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
 
@@ -67,7 +69,7 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     private List<Long> getDatasetIds(DbQuery query) {
         Criteria criteria = session.createCriteria(DatasetEntity.class);
-        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         query.addDetachedFilters("", criteria);
         return criteria.list();
     }

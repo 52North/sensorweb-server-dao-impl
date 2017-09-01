@@ -37,10 +37,14 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhenomenonDao.class);
 
     public PhenomenonDao(Session session) {
         super(session);
@@ -56,7 +60,7 @@ public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenon
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
         return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                        .createCriteria(ObservationConstellationEntity.OBSERVABLE_PROPERTY)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     @Override

@@ -60,7 +60,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
         LOGGER.debug("get instance '{}': {}", key, query);
         Criteria criteria = getDefaultCriteria(query);
-        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
+        return getEntityClass().cast(criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                                              .uniqueResult());
     }
 
@@ -85,7 +85,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
         return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                 .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+                .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     @Override

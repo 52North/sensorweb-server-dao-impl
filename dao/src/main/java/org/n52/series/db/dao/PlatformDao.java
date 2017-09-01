@@ -69,7 +69,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     private Long count(DetachedCriteria subquery, AbstractDao< ? > dao, DbQuery query) {
         Criteria criteria = dao.getDefaultCriteria(query);
-        Criteria elements = criteria.add(Subqueries.propertyIn("pkid", subquery));
+        Criteria elements = criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, subquery));
         return (Long) elements.setProjection(Projections.rowCount())
                               .uniqueResult();
     }
@@ -91,7 +91,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
         return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
                        .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
             // values for oldest result time
             String rtAlias = "rtAlias";
             // String rtColumn = QueryUtils.createAssociation(rtAlias, column);
-            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DatasetEntity.PROPERTY_PKID);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DatasetEntity.PROPERTY_ID);
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
 
             DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias);
@@ -127,7 +127,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                                                               .add(Projections.max(rtResultTime)));
 
             String[] matchProperties = new String[] {
-                DatasetEntity.PROPERTY_PKID,
+                DatasetEntity.PROPERTY_ID,
                 // DataEntity.PROPERTY_SERIES_PKID,
                 DataEntity.PROPERTY_RESULT_TIME
             };
@@ -135,9 +135,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId))
                                                         .createCriteria(DataEntity.PROPERTY_DATASETS)
-                                                        .setProjection(Projections.property(DataEntity.PROPERTY_PKID));
+                                                        .setProjection(Projections.property(DataEntity.PROPERTY_ID));
 
-            criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
+            criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_ID, observationCriteria));
         }
 
         return criteria;

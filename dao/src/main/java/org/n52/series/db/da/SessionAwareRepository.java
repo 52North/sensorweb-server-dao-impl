@@ -47,10 +47,10 @@ import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -126,7 +126,7 @@ public abstract class SessionAwareRepository {
         DescribableEntity entity = type.isStationary()
                 ? dataset.getFeature()
                 : procedure;
-        return type.createId(entity.getPkid());
+        return type.createId(entity.getId());
     }
 
     protected Long parseId(String id) throws BadRequestException {
@@ -157,7 +157,7 @@ public abstract class SessionAwareRepository {
         for (QuantityDatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
                            .isReference()) {
-                String timeseriesId = Long.toString(timeseries.getPkid());
+                String timeseriesId = Long.toString(timeseries.getId());
                 timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
             }
         }
@@ -246,7 +246,7 @@ public abstract class SessionAwareRepository {
     protected <T extends ParameterOutput> T createCondensed(T result,
                                                             DescribableEntity entity,
                                                             DbQuery parameters) {
-        String id = Long.toString(entity.getPkid());
+        String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(parameters.getLocale());
         result.setId(id);
         result.setValue(ParameterOutput.LABEL, label, parameters.getParameters(), result::setLabel);
@@ -274,11 +274,11 @@ public abstract class SessionAwareRepository {
                                urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
     }
 
-    protected FeatureOutput getCondensedFeature(FeatureEntity entity, DbQuery parameters) {
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(), entity, parameters);
     }
 
-    protected FeatureOutput getCondensedExtendedFeature(FeatureEntity entity, DbQuery parameters) {
+    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(),
                                entity,
                                parameters,

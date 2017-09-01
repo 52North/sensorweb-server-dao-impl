@@ -37,10 +37,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
+import org.n52.series.db.beans.DescribableEntity;
 
 public class QueryUtils {
-
-    static final String PROPERTY_PKID = "pkid";
 
     public static String createAssociation(String alias, String property) {
         return alias != null && !alias.isEmpty()
@@ -84,7 +83,7 @@ public class QueryUtils {
     }
 
     public static PropertyProjection projectionOnPkid(String alias, String member) {
-        return projectionOn(alias, member, PROPERTY_PKID);
+        return projectionOn(alias, member, DescribableEntity.PROPERTY_ID);
     }
 
     public static PropertyProjection projectionOn(String property) {
@@ -124,8 +123,8 @@ public class QueryUtils {
                   .collect(Collectors.toSet());
     }
 
-    public static SimpleExpression matchesPkid(String pkid) {
-        return Restrictions.eq(PROPERTY_PKID, QueryUtils.parseToId(pkid));
+    public static SimpleExpression matchesPkid(String id) {
+        return Restrictions.eq(DescribableEntity.PROPERTY_ID, QueryUtils.parseToId(id));
     }
 
     /**
