@@ -13,7 +13,7 @@
     <url>http://52north.org/communities/sensorweb/</url>
 
     <properties>
-        <sos.version>5.0.2-SNAPSHOT</sos.version>
+        <sos.version>5.0.0-SNAPSHOT</sos.version>
         <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
     </properties>
     
