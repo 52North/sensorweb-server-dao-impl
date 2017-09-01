@@ -32,10 +32,12 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.StationOutput;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -177,20 +179,30 @@ public class StationRepository extends SessionAwareRepository
 
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
             throws DataAccessException {
+        IoParameters parameters = query.getParameters();
+        StationOutput result = createCondensed(feature, query);
+
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
         DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
-        StationOutput stationOutput = createCondensed(feature, query);
-        stationOutput.setTimeseries(createTimeseriesList(series, query));
-        return stationOutput;
+
+        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+        result.setValue(StationOutput.TIMESERIES, timeseriesList, parameters, result ::setTimeseries);
+
+        return result;
     }
 
     private StationOutput createCondensed(FeatureEntity entity, DbQuery query) {
-        StationOutput stationOutput = new StationOutput();
-        stationOutput.setGeometry(createPoint(entity, query));
-        stationOutput.setId(Long.toString(entity.getId()));
-        stationOutput.setLabel(entity.getLabelFrom(query.getLocale()));
-        return stationOutput;
+        StationOutput result = new StationOutput();
+        IoParameters parameters = query.getParameters();
+
+        String id = Long.toString(entity.getId());
+        String label = entity.getLabelFrom(query.getLocale());
+        Geometry geometry = createPoint(entity, query);
+        result.setId(id);
+        result.setValue(StationOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
+        return result;
     }
 
     private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {

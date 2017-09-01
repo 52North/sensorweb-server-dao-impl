@@ -75,7 +75,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                              AbstractValue< ? >> ioFactoryCreator;
 
     @Override
-    protected ServiceOutput prepareOutput(ServiceEntity entity) {
+    protected ServiceOutput prepareEmptyParameterOutput(ServiceEntity entity) {
         return new ServiceOutput();
     }
 
@@ -114,7 +114,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     private boolean isConfiguredServiceInstance(Long id) {
         return serviceEntity != null
-                && serviceEntity.getId().equals(id);
+                && serviceEntity.getId()
+                                .equals(id);
     }
 
     @Override
@@ -155,26 +156,41 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
-        ServiceOutput service = getCondensedService(entity, query);
-        service.setQuantities(countParameters(service, query));
-        service.setSupportsFirstLatest(entity.isSupportsFirstLatest());
-        service.setServiceUrl(entity.getUrl());
-        service.setType(getServiceType(entity));
-
+        ServiceOutput result = getCondensedService(entity, query);
         IoParameters parameters = query.getParameters();
-        if (parameters.shallBehaveBackwardsCompatible()) {
-            // ensure backwards compatibility
-            service.setVersion("1.0.0");
-        } else {
-            service.setVersion(entity.getVersion() != null
-                    ? entity.getVersion()
-                    : "2.0");
-            addSupportedDatasetsTo(service);
 
-            // TODO add features
-            // TODO different counts
+        ParameterCount quantities = countParameters(result, query);
+        boolean supportsFirstLatest = entity.isSupportsFirstLatest();
+
+        String serviceUrl = entity.getUrl();
+        String type = getServiceType(entity);
+
+        result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
+        result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
+
+        if (parameters.shallBehaveBackwardsCompatible()) {
+            result.setValue(ServiceOutput.VERSION, "1.0.0", parameters, result::setVersion);
+            result.setValue(ServiceOutput.QUANTITIES, quantities, parameters, result::setQuantities);
+            result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
+                            supportsFirstLatest,
+                            parameters,
+                            result::setSupportsFirstLatest);
+        } else {
+            Map<String, Object> features = new HashMap<>();
+            features.put(ServiceOutput.QUANTITIES, quantities);
+            features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
+            features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
+
+            String version = (entity.getVersion() != null)
+                    ? entity.getVersion()
+                    : "2.0";
+
+            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
+            result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
+            result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
+            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         }
-        return service;
+        return result;
     }
 
     private String getServiceType(ServiceEntity entity) {
@@ -183,7 +199,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                 : SERVICE_TYPE;
     }
 
-    private void addSupportedDatasetsTo(ServiceOutput service) {
+    private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
@@ -193,23 +209,22 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
             }
         }
-        service.addSupportedDatasets(mimeTypesByDatasetTypes);
+        return mimeTypesByDatasetTypes;
     }
 
     private ParameterCount countParameters(ServiceOutput service, DbQuery query) {
         try {
+            IoParameters parameters = query.getParameters();
             ParameterCount quantities = new ServiceOutput.ParameterCount();
-            DbQuery serviceQuery = getDbQuery(query.getParameters()
-                                                   .extendWith(IoParameters.SERVICES, service.getId())
-                                                   .removeAllOf("offset")
-                                                   .removeAllOf("limit"));
+            DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
+                                                        .removeAllOf("offset")
+                                                        .removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
             quantities.setProceduresSize(counter.countProcedures(serviceQuery));
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
             quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
             quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
 
-            IoParameters parameters = query.getParameters();
             if (parameters.shallBehaveBackwardsCompatible()) {
                 quantities.setTimeseriesSize(counter.countTimeseries());
                 quantities.setStationsSize(counter.countStations());

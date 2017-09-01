@@ -177,20 +177,20 @@ public abstract class SessionAwareRepository {
         return metadata;
     }
 
-    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery parameters, Session session)
+    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);
-        metadata.setService(getCondensedExtendedService(service, parameters));
-        metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), parameters));
-        metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), parameters));
-        metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), parameters));
+        metadata.setService(getCondensedExtendedService(service, query));
+        metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), query));
+        metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), query));
+        metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
+        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), query));
 
         DescribableEntity category = dataset.getCategory() == null
                 ? dataset.getPhenomenon()
                 : dataset.getCategory();
-        metadata.setCategory(getCondensedExtendedCategory(category, parameters));
+        metadata.setCategory(getCondensedExtendedCategory(category, query));
         // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
         return metadata;
     }
@@ -243,12 +243,14 @@ public abstract class SessionAwareRepository {
         return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
-    protected <T extends ParameterOutput> T createCondensed(T outputvalue,
+    protected <T extends ParameterOutput> T createCondensed(T result,
                                                             DescribableEntity entity,
                                                             DbQuery parameters) {
-        outputvalue.setLabel(entity.getLabelFrom(parameters.getLocale()));
-        outputvalue.setId(Long.toString(entity.getId()));
-        return outputvalue;
+        String id = Long.toString(entity.getId());
+        String label = entity.getLabelFrom(parameters.getLocale());
+        result.setId(id);
+        result.setValue(ParameterOutput.LABEL, label, parameters.getParameters(), result::setLabel);
+        return result;
     }
 
     private <T extends ParameterOutput> T createCondensed(T outputvalue,
@@ -256,7 +258,8 @@ public abstract class SessionAwareRepository {
                                                           DbQuery parameters,
                                                           String hrefBase) {
         createCondensed(outputvalue, entity, parameters);
-        outputvalue.setHref(hrefBase + "/" + outputvalue.getId());
+        String href = hrefBase + "/" + outputvalue.getId();
+        outputvalue.setValue(ParameterOutput.HREF, href, parameters.getParameters(), outputvalue::setHref);
         return outputvalue;
     }
 

@@ -36,7 +36,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
@@ -50,12 +49,6 @@ public interface DataRepository<E extends DatasetEntity, V extends AbstractValue
     GeometryEntity getLastKnownGeometry(E lastDataset, Session session, DbQuery query);
 
     void setSessionStore(HibernateSessionStore sessionStore);
-
-    void setPlatformRepository(PlatformRepository platformRepository);
-
-    default void setServiceEntity(ServiceEntity serviceEntity) {
-        // void
-    }
 
     Class<E> getDatasetEntityType();
 

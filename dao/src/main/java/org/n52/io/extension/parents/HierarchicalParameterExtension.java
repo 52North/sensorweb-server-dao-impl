@@ -50,11 +50,6 @@ public class HierarchicalParameterExtension extends MetadataExtension<PlatformOu
         return wrapSingleIntoMap(service.getExtras(output.getId(), parameters));
     }
 
-    @Override
-    public void addExtraMetadataFieldNames(PlatformOutput output) {
-        output.addExtra(EXTENSION_NAME);
-    }
-
     public HierarchicalParameterService getService() {
         return service;
     }

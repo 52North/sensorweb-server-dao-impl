@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
@@ -46,6 +47,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -55,19 +57,26 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
+    @Autowired
     private PlatformRepository platformRepository;
 
     @Override
     public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
-            DatasetDao<S> seriesDao = getSeriesDao(session);
             String id = ValueType.extractId(datasetId);
-            if (!seriesDao.hasInstance(id, query)) {
+            DatasetDao<S> seriesDao = getSeriesDao(session);
+
+            // remove spatial filter on metadata
+            DbQuery spatialLessQuery = getDbQuery(query.getParameters()
+                                                       .removeAllOf(Parameters.BBOX)
+                                                       .removeAllOf(Parameters.NEAR));
+            if (!seriesDao.hasInstance(id, spatialLessQuery)) {
                 throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
             }
-            S series = seriesDao.getInstance(id, query);
-            series.setPlatform(getCondensedPlatform(series, query, session));
+            S series = seriesDao.getInstance(id, spatialLessQuery);
+
+            series.setPlatform(getCondensedPlatform(series, spatialLessQuery, session));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
@@ -137,7 +146,8 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
             addParameters(observation, value, query);
             addGeometry(observation, value, query);
         } else {
-            if (dataset.getPlatform().isMobile()) {
+            if (dataset.getPlatform()
+                       .isMobile()) {
                 addGeometry(observation, value, query);
             }
         }
@@ -168,7 +178,8 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
 
     protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
-            value.setResultTime(observation.getResultTime().getTime());
+            value.setResultTime(observation.getResultTime()
+                                           .getTime());
         }
     }
 
@@ -178,11 +189,6 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
         }
-    }
-
-    @Override
-    public void setPlatformRepository(PlatformRepository platformRepository) {
-        this.platformRepository = platformRepository;
     }
 
 }

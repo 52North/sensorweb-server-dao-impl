@@ -32,6 +32,7 @@ package org.n52.io.extension.resulttime;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,12 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
     }
 
     @Override
-    public void addExtraMetadataFieldNames(DatasetOutput output) {
-        final ParameterOutput serviceOutput = output.getDatasetParameters()
+    public Collection<String> getExtraMetadataFieldNames(DatasetOutput output) {
+        final ParameterOutput serviceOutput = output.getDatasetParameters(true)
                                                     .getService();
-        if (isAvailableFor(serviceOutput.getId())) {
-            output.addExtra(EXTENSION_NAME);
-        }
+        return isAvailableFor(serviceOutput.getId())
+                ? Collections.singleton(EXTENSION_NAME)
+                : Collections.emptySet();
     }
 
     private boolean isAvailableFor(String serviceId) {

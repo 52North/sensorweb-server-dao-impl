@@ -48,9 +48,12 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
-    protected abstract O prepareOutput(E entity);
+    protected abstract O prepareEmptyParameterOutput(E entity);
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
+
+    protected abstract O createExpanded(E instance, DbQuery query, Session session)
+            throws DataAccessException;
 
     protected abstract String createHref(String hrefBase);
 
@@ -95,13 +98,18 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
-        O result = prepareOutput(entity);
-        result.setId(Long.toString(entity.getId()));
-        result.setLabel(entity.getLabelFrom(query.getLocale()));
-        result.setDomainId(entity.getDomainId());
-        if (query.getHrefBase() != null) {
-            result.setHrefBase(createHref(query.getHrefBase()));
-        }
+        O result = prepareEmptyParameterOutput(entity);
+        IoParameters parameters = query.getParameters();
+
+        Long pkid = entity.getId();
+        String label = entity.getLabelFrom(query.getLocale());
+        String domainId = entity.getDomainId();
+        String hrefBase = query.getHrefBase();
+
+        result.setId(Long.toString(pkid));
+        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
+        result.setValue(ParameterOutput.HREF_BASE, createHref(hrefBase), parameters, result::setHrefBase);
         return result;
     }
 
@@ -120,9 +128,6 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<E> allInstances = getAllInstances(query, session);
         return createExpanded(allInstances, query, session);
     }
-
-    protected abstract O createExpanded(E instance, DbQuery query, Session session)
-            throws DataAccessException;
 
     protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {

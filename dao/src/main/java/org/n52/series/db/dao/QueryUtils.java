@@ -101,6 +101,23 @@ public class QueryUtils {
         return Projections.property(association);
     }
 
+    public static void setFilterProjectionOn(String alias, String parameter, DetachedCriteria c) {
+        String[] associationPathElements = parameter.split("\\.", 2);
+        if (associationPathElements.length == 2) {
+            // other observationconstellation members
+            String member = associationPathElements[1];
+            projectionOnPkid(alias, member, c);
+        } else {
+            if (!parameter.isEmpty()) {
+                // feature case only
+                projectionOn(parameter, c);
+            } else {
+                // dataset case
+                projectionOnPkid(c);
+            }
+        }
+    }
+
     public static Set<Long> parseToIds(Set<String> ids) {
         return ids.stream()
                   .map(e -> parseToId(e))

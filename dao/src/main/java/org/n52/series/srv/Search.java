@@ -29,9 +29,9 @@
 
 package org.n52.series.srv;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -47,6 +47,7 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("deprecation")
 public class Search implements SearchService {
 
     @Autowired
@@ -77,17 +78,18 @@ public class Search implements SearchService {
 
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
-        List<SearchResult> results = new ArrayList<>();
+        Set<SearchResult> results = new HashSet<>();
         results.addAll(phenomenonRepository.searchFor(parameters));
         results.addAll(procedureRepository.searchFor(parameters));
         results.addAll(featureRepository.searchFor(parameters));
         results.addAll(categoryRepository.searchFor(parameters));
-        results.addAll(platformRepository.searchFor(parameters));
-        results.addAll(datasetRepository.searchFor(parameters));
 
         if (parameters.shallBehaveBackwardsCompatible()) {
             results.addAll(timeseriesRepository.searchFor(parameters));
             results.addAll(stationRepository.searchFor(parameters));
+        } else {
+            results.addAll(platformRepository.searchFor(parameters));
+            results.addAll(datasetRepository.searchFor(parameters));
         }
         return results;
     }

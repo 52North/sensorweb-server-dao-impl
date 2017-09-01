@@ -193,15 +193,15 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return dao.getInstance(geometryId, parameters);
     }
 
-    private List<GeometryInfo> getAllSites(DbQuery parameters, Session session, boolean expanded)
+    private List<GeometryInfo> getAllSites(DbQuery query, Session session, boolean expanded)
             throws DataAccessException {
+        IoParameters parameters = query.getParameters();
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
+        DbQuery siteQuery = getDbQuery(parameters.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "stationary"));
+
         FeatureDao dao = createFeatureDao(session);
-        DbQuery siteQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                             "stationary"));
         for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
-            GeometryInfo geometryInfo = createSite(featureEntity, parameters, expanded);
+            GeometryInfo geometryInfo = createSite(featureEntity, query, expanded);
             if (geometryInfo != null) {
                 geometryInfoList.add(geometryInfo);
             }
@@ -209,18 +209,12 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return geometryInfoList;
     }
 
-    private GeometryInfo createSite(FeatureEntity featureEntity, DbQuery query, boolean expanded)
+    private GeometryInfo createSite(FeatureEntity entity, DbQuery query, boolean expanded)
             throws DataAccessException {
-        final GeometryInfo geomInfo = new GeometryInfo(GeometryType.PLATFORM_SITE);
-        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, query);
-        if (expanded) {
-            GeometryEntity geometryEntity = featureEntity.getGeometryEntity();
-            Geometry geometry = getGeometry(geometryEntity, query);
-            if (geometry != null) {
-                geometryInfo.setGeometry(geometry);
-            }
-        }
-        return geometryInfo;
+        GeometryInfo geometryInfo = createGeometryInfo(GeometryType.PLATFORM_SITE, entity, query);
+        return expanded
+                ? addGeometry(geometryInfo, entity, query)
+                : geometryInfo;
     }
 
     private Collection<GeometryInfo> getAllTracks(DbQuery parameters, Session session, boolean expanded)
@@ -236,23 +230,27 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return geometryInfoList;
     }
 
-    private GeometryInfo createTrack(FeatureEntity featureEntity, DbQuery query, boolean expanded, Session session)
+    private GeometryInfo createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session)
             throws DataAccessException {
-        final GeometryInfo geomInfo = new GeometryInfo(GeometryType.PLATFORM_TRACK);
-        GeometryInfo geometryInfo = addCondensedValues(geomInfo, featureEntity, query);
+        GeometryInfo geometryInfo = createGeometryInfo(GeometryType.PLATFORM_TRACK, entity, query);
         if (expanded) {
-            if (featureEntity.isSetGeometry()) {
+            if (entity.isSetGeometry()) {
                 // track available from feature table
-                GeometryEntity geometryEntity = featureEntity.getGeometryEntity();
-                Geometry geometry = getGeometry(geometryEntity, query);
-                geometryInfo.setGeometry(geometry);
-                return geometryInfo;
+                return addGeometry(geometryInfo, entity, query);
             } else {
-                Geometry lineString = createTrajectory(featureEntity, query, session);
-                geometryInfo.setGeometry(lineString);
+                IoParameters parameters = query.getParameters();
+                Geometry lineString = createTrajectory(entity, query, session);
+                geometryInfo.setValue(GeometryInfo.GEOMETRY, lineString, parameters, geometryInfo::setGeometry);
                 return geometryInfo;
             }
         }
+        return geometryInfo;
+    }
+
+    private GeometryInfo addGeometry(GeometryInfo geometryInfo, FeatureEntity entity, DbQuery query) {
+        IoParameters parameters = query.getParameters();
+        Geometry geometry = getGeometry(entity.getGeometryEntity(), query);
+        geometryInfo.setValue(GeometryInfo.GEOMETRY, geometry, parameters, geometryInfo::setGeometry);
         return geometryInfo;
     }
 
@@ -319,11 +317,17 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         return null;
     }
 
-    private GeometryInfo addCondensedValues(GeometryInfo geometryInfo, FeatureEntity featureEntity, DbQuery parameters)
+    private GeometryInfo createGeometryInfo(GeometryType type, FeatureEntity featureEntity, DbQuery query)
             throws DataAccessException {
+        GeometryInfo geometryInfo = new GeometryInfo();
+        IoParameters parameters = query.getParameters();
+        String hrefBase = urlHelper.getGeometriesHrefBaseUrl(query.getHrefBase());
+        PlatformOutput platfom = getPlatfom(featureEntity, query);
+
         geometryInfo.setId(Long.toString(featureEntity.getId()));
-        geometryInfo.setHrefBase(urlHelper.getGeometriesHrefBaseUrl(parameters.getHrefBase()));
-        geometryInfo.setPlatform(getPlatfom(featureEntity, parameters));
+        geometryInfo.setValue(GeometryInfo.GEOMETRY_TYPE, type, parameters, geometryInfo::setGeometryType);
+        geometryInfo.setValue(GeometryInfo.HREF_BASE, hrefBase, parameters, geometryInfo::setHrefBase);
+        geometryInfo.setValue(GeometryInfo.PLATFORM, platfom, parameters, geometryInfo::setPlatform);
         return geometryInfo;
     }
 
