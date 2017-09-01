@@ -101,7 +101,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         O result = prepareEmptyParameterOutput(entity);
         IoParameters parameters = query.getParameters();
 
-        Long pkid = entity.getPkid();
+        Long pkid = entity.getId();
         String label = entity.getLabelFrom(query.getLocale());
         String domainId = entity.getDomainId();
         String hrefBase = query.getHrefBase();
@@ -200,7 +200,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String label = searchResult.getLabelFrom(locale);
-            String pkid = Long.toString(searchResult.getPkid());
+            String pkid = Long.toString(searchResult.getId());
             results.add(createEmptySearchResult(pkid, label, hrefBase));
         }
         return results;

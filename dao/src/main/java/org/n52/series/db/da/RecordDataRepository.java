@@ -81,7 +81,7 @@ public class RecordDataRepository
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
-                referenceSeries.put(Long.toString(referenceSeriesEntity.getPkid()), referenceSeriesData);
+                referenceSeries.put(Long.toString(referenceSeriesEntity.getId()), referenceSeriesData);
             }
         }
         return referenceSeries;

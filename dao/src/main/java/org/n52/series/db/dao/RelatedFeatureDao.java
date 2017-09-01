@@ -26,49 +26,36 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.i18n.I18nEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.n52.series.db.beans.RelatedFeatureEntity;
 
-public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity> extends AbstractDescribaleDao<T>
-        implements SearchableDao<T> {
+public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParameterDao.class);
+    private static final String SERIES_PROPERTY = "relatedFeature";
 
-    public ParameterDao(Session session) {
+    public RelatedFeatureDao(Session session) {
         super(session);
     }
 
-    protected abstract Class<I> getI18NEntityClass();
-
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
-        criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+    public List<RelatedFeatureEntity> getAllInstances(DbQuery query) throws DataAccessException {
+        return getDefaultCriteria(query).list();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+    protected String getDatasetProperty() {
+        return SERIES_PROPERTY;
     }
+
+    @Override
+    protected Class<RelatedFeatureEntity> getEntityClass() {
+        return RelatedFeatureEntity.class;
+    }
+
 }

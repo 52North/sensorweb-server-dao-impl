@@ -113,11 +113,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @SuppressWarnings("unchecked")
     public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
-        final Long pkid = series.getPkid();
+        final Long pkid = series.getId();
         LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
         return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
-                       .add(Restrictions.eq(DataEntity.PROPERTY_PKID, pkid))
+                       .add(Restrictions.eq(DataEntity.PROPERTY_ID, pkid))
                        .list();
     }
 
@@ -171,12 +171,12 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity dataset, DbQuery query) {
-        LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getPkid());
+        LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getId());
         String dsAlias = DatasetEntity.ENTITY_ALIAS;
-        String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_PKID);
+        String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_ID);
         Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(column, timestamp));
         criteria.createCriteria(DataEntity.PROPERTY_DATASETS, dsAlias)
-                .add(Restrictions.eq(dsId, dataset.getPkid()));
+                .add(Restrictions.eq(dsId, dataset.getId()));
 
         IoParameters parameters = query.getParameters();
         if (parameters.isAllResultTimes()) {
@@ -192,10 +192,10 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             String rtDatasetAlias = "rtDataset";
             String rtColumn = QueryUtils.createAssociation(rtAlias, column);
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
-            String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_PKID);
+            String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_ID);
             DetachedCriteria resultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
             resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASETS, rtDatasetAlias)
-                           .add(Restrictions.eq(rtDatasetId, dataset.getPkid()))
+                           .add(Restrictions.eq(rtDatasetId, dataset.getId()))
                            .setProjection(Projections.projectionList()
                                                      .add(Projections.groupProperty(rtColumn))
                                                      .add(Projections.groupProperty(rtDatasetId))

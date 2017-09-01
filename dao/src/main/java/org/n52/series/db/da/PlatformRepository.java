@@ -205,7 +205,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                             : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                         lastDataset.getPkid());
+                         lastDataset.getId());
         }
         return null;
     }
@@ -362,7 +362,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private PlatformEntity convertToPlatform(FeatureEntity entity, DbQuery query) {
         PlatformEntity result = new PlatformEntity();
         result.setDomainId(entity.getDomainId());
-        result.setPkid(entity.getPkid());
+        result.setId(entity.getId());
         result.setName(entity.getName());
         result.setParameters(entity.getParameters());
         result.setTranslations(entity.getTranslations());

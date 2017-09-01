@@ -44,7 +44,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -111,7 +111,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private List<SearchResult> convertToResults(List<QuantityDatasetEntity> found, String locale) {
         List<SearchResult> results = new ArrayList<>();
         for (QuantityDatasetEntity searchResult : found) {
-            String pkid = searchResult.getPkid()
+            String pkid = searchResult.getId()
                                       .toString();
             String phenomenonLabel = searchResult.getPhenomenon()
                                                  .getLabelFrom(locale);
@@ -231,7 +231,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 QuantityReferenceValueOutput refenceValueOutput = new QuantityReferenceValueOutput();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
-                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
+                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId()
                                                                             .toString());
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
@@ -249,7 +249,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
         String locale = query.getLocale();
-        FeatureEntity feature = entity.getFeature();
+        AbstractFeatureEntity feature = entity.getFeature();
         OfferingEntity offering = entity.getOffering();
         PhenomenonEntity phenomenon = entity.getPhenomenon();
         ProcedureEntity procedure = entity.getProcedure();
@@ -258,7 +258,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String stationLabel = feature.getLabelFrom(locale);
         String offeringLabel = offering.getLabelFrom(locale);
 
-        Long pkid = entity.getPkid();
+        Long pkid = entity.getId();
         String uom = entity.getUnitI18nName(locale);
         String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
         StationOutput station = createCondensedStation(entity, query, session);
@@ -285,8 +285,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
     private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session)
             throws DataAccessException {
-        FeatureEntity feature = entity.getFeature();
-        String featurePkid = Long.toString(feature.getPkid());
+        AbstractFeatureEntity feature = entity.getFeature();
+        String featurePkid = Long.toString(feature.getId());
 
         // XXX explicit cast here
         return ((StationRepository) stationRepository).getCondensedInstance(featurePkid, query, session);

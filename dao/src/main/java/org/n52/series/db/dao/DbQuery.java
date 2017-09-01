@@ -276,7 +276,7 @@ public class DbQuery {
             addFilterRestriction(datasets, filter);
         }
 
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
+        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
     }
 
