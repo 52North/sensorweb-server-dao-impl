@@ -44,9 +44,9 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -328,7 +328,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         PhenomenonEntity phenomenon = dataset.getPhenomenon();
         ProcedureEntity procedure = dataset.getProcedure();
         OfferingEntity offering = dataset.getOffering();
-        FeatureEntity feature = dataset.getFeature();
+        AbstractFeatureEntity feature = dataset.getFeature();
 
         String procedureLabel = procedure.getLabelFrom(locale);
         String phenomenonLabel = phenomenon.getLabelFrom(locale);

@@ -249,7 +249,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
         String locale = query.getLocale();
-        FeatureEntity feature = entity.getFeature();
+        AbstractFeatureEntity feature = entity.getFeature();
         OfferingEntity offering = entity.getOffering();
         PhenomenonEntity phenomenon = entity.getPhenomenon();
         ProcedureEntity procedure = entity.getProcedure();

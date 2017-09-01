@@ -154,7 +154,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
         DetachedCriteria filter = createDatasetSubqueryViaExplicitJoin(query);
-        return criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, filter));
+        return criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
     }
 
     private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
@@ -162,11 +162,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                                                     .add(createPublishedDatasetFilter());
         if (getDatasetProperty().equalsIgnoreCase(DatasetEntity.PROPERTY_FEATURE)) {
             DetachedCriteria featureCriteria = addSpatialFilter(query, subquery);
-            return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+            return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         } else {
             addSpatialFilter(query, subquery);
             return projectOnDatasetParameterId(subquery);
-//                           .setProjection(Projections.property(DescribableEntity.PROPERTY_PKID));
+//                           .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         }
     }
 
@@ -211,7 +211,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                      .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
                      .createCriteria(ObservationConstellationEntity.PROCEDURE);
                     QueryUtils.setFilterProjectionOn(alias, parameter, c);
-                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
+                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }
             }
         }
@@ -237,7 +237,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                  .add(createPlatformTypeRestriction(filterResolver));
 
                 QueryUtils.setFilterProjectionOn(alias, parameter, c);
-                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_PKID, c));
+                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
             }
         }
         return criteria;

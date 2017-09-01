@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,13 +18,13 @@
  *
  * Therefore the distribution of the program linked with libraries licensed
  * under the aforementioned licenses, is permitted by the copyright holders
- * if the distribution is compliant with both the GNU General Public
- * License version 2 and the aforementioned licenses.
+ * if the distribution is compliant with both the GNU General Public License
+ * version 2 and the aforementioned licenses.
  *
  * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
  */
 package org.n52.series.db.dao;
 
@@ -43,11 +43,11 @@ public class CodespaceDao
         extends
         AbstractDao<CodespaceEntity> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CodespaceDao.class);
+
     public CodespaceDao(Session session) {
         super(session);
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodespaceDao.class);
 
     /**
      * Get codespace object for identifier
@@ -57,8 +57,7 @@ public class CodespaceDao
      * @return CodespaceEntity object
      */
     public CodespaceEntity get(String codespace) {
-        Criteria criteria =
-                getDefaultCriteria().add(Restrictions.eq(CodespaceEntity.PROPERTY_CODESPACE, codespace));
+        Criteria criteria = getDefaultCriteria().add(Restrictions.eq(CodespaceEntity.PROPERTY_CODESPACE, codespace));
         LOGGER.debug("QUERY get(codespace): {}", DataModelUtil.getSqlString(criteria));
         return (CodespaceEntity) criteria.uniqueResult();
     }
@@ -82,23 +81,23 @@ public class CodespaceDao
         return result;
     }
 
-   @Override
+    @Override
     public List<CodespaceEntity> getAllInstances(DbQuery parameters)
             throws DataAccessException {
         Criteria criteria = getDefaultCriteria();
-        LOGGER.debug("QUERY get(codespace): {}", DataModelUtil.getSqlString(criteria));
+        LOGGER.debug("QUERY getAllInstances(parameters): {}", DataModelUtil.getSqlString(criteria));
         return criteria.list();
     }
 
-   protected Criteria getDefaultCriteria() {
-       return session.createCriteria(CodespaceEntity.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-   }
+    protected Criteria getDefaultCriteria() {
+        return session.createCriteria(CodespaceEntity.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+    }
 
     @Override
     protected Class<CodespaceEntity> getEntityClass() {
         return CodespaceEntity.class;
     }
-    
+
     @Override
     protected String getDatasetProperty() {
         return "";
