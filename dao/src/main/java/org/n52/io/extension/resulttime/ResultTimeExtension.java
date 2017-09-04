@@ -64,7 +64,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
             ObjectMapper om = new ObjectMapper();
             return Arrays.asList(om.readValue(taskConfig, String[].class));
         } catch (IOException e) {
-            LOGGER.error("Could not load {}. Using empty config.", CONFIG_FILE, e);
+            LOGGER.info("Could not load '{}'. Using empty config.", CONFIG_FILE);
             return Collections.emptyList();
         }
     }
