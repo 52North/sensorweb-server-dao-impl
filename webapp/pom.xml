@@ -22,7 +22,7 @@
         <postgresql.version>9.4.1208.jre7</postgresql.version>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
-        
+
         <docs.context>docs</docs.context>
         <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
         <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
@@ -241,8 +241,15 @@
                         <webappDirectory>${webappDirectory}</webappDirectory>
                         <webResources>
                             <resource>
+                                <directory>src/main/resources</directory>
+                                <filtering>true</filtering>
+                            </resource>
+                            <resource>
                                 <directory>src/main/webapp</directory>
                                 <filtering>true</filtering>
+                                <excludes>
+                                    <exclude>WEB-INF/spring/**</exclude>
+                                </excludes>
                             </resource>
                             <resource>
                                 <directory>${webapp.workdir}</directory>
