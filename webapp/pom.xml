@@ -22,7 +22,7 @@
         <postgresql.version>9.4.1208.jre7</postgresql.version>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
-        
+
         <docs.context>docs</docs.context>
         <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
         <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
@@ -241,8 +241,25 @@
                         <webappDirectory>${webappDirectory}</webappDirectory>
                         <webResources>
                             <resource>
+                                <directory>src/main/resources</directory>
+                                <targetPath>WEB-INF/classes</targetPath>
+                                <filtering>true</filtering>
+                            </resource>
+                            <resource>
                                 <directory>src/main/webapp</directory>
                                 <filtering>true</filtering>
+                                <excludes>
+                                    <!-- spring beans are filtered via properties -->
+                                    <exclude>WEB-INF/spring/**</exclude>
+                                </excludes>
+                            </resource>
+                            <resource>
+                                <directory>src/main/webapp</directory>
+                                <filtering>true</filtering>
+                                <includes>
+                                    <!-- sets the properties file being used for filtering -->
+                                    <include>WEB-INF/spring/dispatcher-servlet.xml</include>
+                                </includes>
                             </resource>
                             <resource>
                                 <directory>${webapp.workdir}</directory>
@@ -265,19 +282,9 @@
                         <scanIntervalSeconds>0</scanIntervalSeconds>
                         <reload>manual</reload>
                         <webAppConfig>
-                            <resourceBases>
-                                <resourceBase>${webappDirectory}</resourceBase>
-                                <resourceBase>src/main/webapp</resourceBase>
-                            </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../dao/target/classes</extraClasspath>
                         </webAppConfig>
-                        <scanTargets>
-                            <scanTarget>/target/classes/</scanTarget>
-                            <scanTarget>${project.build.outputDirectory}</scanTarget>
-                            <scanTarget>../dao/target/classes</scanTarget>
-                        </scanTargets>
                         <systemProperties>
                             <systemProperty>
                                 <name>catalina.base</name>

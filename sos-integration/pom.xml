@@ -14,7 +14,6 @@
 
     <properties>
         <sos.version>5.0.0-SNAPSHOT</sos.version>
-        <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
     </properties>
     
     <dependencies>
@@ -23,11 +22,11 @@
             <artifactId>dao</artifactId>
         </dependency>
         
-         <dependency>
+        <dependency>
             <groupId>org.n52.shetland</groupId>
             <artifactId>shetland</artifactId>
+            <version>1-SNAPSHOT</version>
         </dependency>
-        
         <dependency>
             <groupId>org.n52.iceland</groupId>
             <artifactId>iceland</artifactId>
@@ -37,8 +36,8 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
-        </dependency>    
-            
+        </dependency>
+        
         <dependency>
             <groupId>org.n52.sensorweb.sos</groupId>
             <artifactId>hibernate-session-factory</artifactId>
@@ -54,7 +53,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${hibernate.spatial.version}</version>
              <exclusions>
                 <exclusion>
                     <groupId>org.postgis</groupId>

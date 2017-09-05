@@ -47,21 +47,6 @@ public class QueryUtils {
                 : property;
     }
 
-    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
-        return projectionOn(null, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
-        return projectionOn(null, member, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String alias,
-                                                String member,
-                                                String property,
-                                                DetachedCriteria criteria) {
-        return criteria.setProjection(projectionOn(alias, member, property));
-    }
-
     public static DetachedCriteria projectionOnPkid(DetachedCriteria criteria) {
         return projectionOnPkid(null, criteria);
     }
@@ -84,6 +69,21 @@ public class QueryUtils {
 
     public static PropertyProjection projectionOnPkid(String alias, String member) {
         return projectionOn(alias, member, DescribableEntity.PROPERTY_ID);
+    }
+
+    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
+        return projectionOn(null, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
+        return projectionOn(null, member, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String alias,
+                                                String member,
+                                                String property,
+                                                DetachedCriteria criteria) {
+        return criteria.setProjection(projectionOn(alias, member, property));
     }
 
     public static PropertyProjection projectionOn(String property) {

@@ -144,6 +144,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
+    private DatasetDao< ? extends DatasetEntity> getDatasetDao(Class< ? extends DatasetEntity> clazz, Session session) {
+        return new DatasetDao<>(session, clazz);
+    }
+
     private DatasetDao< ? extends DatasetEntity> getDatasetDao(String valueType, Session session)
             throws DataAccessException {
         if (!("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
@@ -160,10 +164,6 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         return createDataAccessRepository(valueType, session);
-    }
-
-    private DatasetDao< ? extends DatasetEntity> getDatasetDao(Class< ? extends DatasetEntity> clazz, Session session) {
-        return new DatasetDao<>(session, clazz);
     }
 
     private DatasetDao< ? extends DatasetEntity> createDataAccessRepository(String valueType, Session session)
