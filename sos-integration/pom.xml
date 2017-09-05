@@ -14,7 +14,7 @@
 
     <properties>
         <sos.version>4.4.0</sos.version>
-        <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
+        <hibernate.spatial.version>4.3.2-52N</hibernate.spatial.version>
     </properties>
     
     <dependencies>
