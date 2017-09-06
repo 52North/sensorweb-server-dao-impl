@@ -13,8 +13,7 @@
     <url>http://52north.org/communities/sensorweb/</url>
 
     <properties>
-        <sos.version>4.4.0-M12</sos.version>
-        <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
+        <sos.version>4.4.0</sos.version>
     </properties>
     
     <dependencies>
@@ -38,7 +37,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${hibernate.spatial.version}</version>
              <exclusions>
                 <exclusion>
                     <groupId>org.postgis</groupId>

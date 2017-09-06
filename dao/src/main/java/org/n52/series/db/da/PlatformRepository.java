@@ -38,7 +38,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -89,7 +88,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        return new PlatformOutput(entity.getPlatformType());
+        return new PlatformOutput();
     }
 
     @Override
@@ -160,6 +159,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        PlatformOutput output = super.createCondensed(entity, query, session);
+        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
+        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
+        // re-set ID after platformtype has been determined
+        output.setId(Long.toString(entity.getPkid()));
+        return output;
+    }
+
+    @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
@@ -171,7 +180,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                                        .removeAllOf(Parameters.NEAR));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setDatasets(datasets);
+        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
 
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, platformQuery, session)
@@ -182,9 +191,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return null;
         }
 
-        result.setGeometry(geometry);
+        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

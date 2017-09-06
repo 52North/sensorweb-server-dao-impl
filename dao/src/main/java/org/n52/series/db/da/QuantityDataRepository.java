@@ -105,7 +105,12 @@ public class QuantityDataRepository extends
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             QuantityValue lastValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
+            Double value = lastValue.getValue() != null
+                    ? lastValue.getValue().doubleValue()
+                    : null;
+            if (value != null) {
+                result.addValues(expandToInterval(value, seriesEntity, query));
+            }
         }
 
         if (hasSingleValidReferenceValue(observations)) {
@@ -175,8 +180,8 @@ public class QuantityDataRepository extends
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
         return parameters.isShowTimeIntervals()
-                ? new QuantityValue(start, end, observationValue)
-                : new QuantityValue(end, observationValue);
+                ? new QuantityValue(start, end, new BigDecimal(observationValue))
+                : new QuantityValue(end, new BigDecimal(observationValue));
     }
 
     private Double format(QuantityDataEntity observation, QuantityDatasetEntity series) {
