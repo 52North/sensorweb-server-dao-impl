@@ -20,6 +20,6 @@
         <key column="parentsensorid" not-null="true" />
         <many-to-many class="ProcedureEntity" column="childsensorid" />
     </set>
-    <property column="proceduredescriptionformat" name="procedureDescriptionFormat" type=string"/>
+    <property column="proceduredescriptionformat" name="procedureDescriptionFormat" type="string"/>
   </class>
 </hibernate-mapping>
