@@ -87,6 +87,10 @@ public class QuantityProfileDataRepository
     protected ProfileValue<Double> createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
                                                 DbQuery query) {
+        if (valueEntity == null) {
+            // do not fail on empty observations
+            return null;
+        }
         Date timeend = valueEntity.getPhenomenonTimeEnd();
         Date timestart = valueEntity.getPhenomenonTimeStart();
         long end = timeend.getTime();
