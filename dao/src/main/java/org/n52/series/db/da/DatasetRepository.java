@@ -65,7 +65,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  * @param <T>
- *        the dataset's type this repository is responsible for.
+ *        the datasets type this repository is responsible for.
  */
 public class DatasetRepository<T extends Data> extends SessionAwareRepository
         implements OutputAssembler<DatasetOutput> {
@@ -140,7 +140,9 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                                      Session session)
             throws DataAccessException {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            results.add(createCondensed(series, query, session));
+            if (dataRepositoryFactory.isKnown(series.getValueType())) {            
+                results.add(createCondensed(series, query, session));
+            }
         }
     }
 
@@ -213,7 +215,9 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                                     Session session)
             throws DataAccessException {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            results.add(createExpanded(series, query, session));
+            if (dataRepositoryFactory.isKnown(series.getValueType())) {
+                results.add(createExpanded(series, query, session));
+            }
         }
     }
 
