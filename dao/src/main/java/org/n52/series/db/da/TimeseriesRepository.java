@@ -191,7 +191,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
         List<QuantityReferenceValueOutput> referenceValues = createReferenceValueOutputs(series, query, repository);
-        DatasetParameters timeseries = createTimeseriesOutput(series, query);
+        DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
 
@@ -254,7 +254,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         Long pkid = entity.getPkid();
         String uom = entity.getUnitI18nName(locale);
         String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
-        StationOutput station = createCondensedStation(entity, query, session);
+        StationOutput station = createCondensedStation(entity, query.withoutFieldsFilter(), session);
 
         result.setId(pkid.toString());
         result.setValue(TimeseriesMetadataOutput.LABEL, label, parameters, result::setLabel);
