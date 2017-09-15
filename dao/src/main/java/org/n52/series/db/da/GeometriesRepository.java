@@ -335,7 +335,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         DbQuery platformQuery = getDbQuery(parameters.getParameters()
                                                      .extendWith(Parameters.FEATURES, String.valueOf(entity.getId()))
                                                      .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all")
-                                                     .removeAllOf("fields"));
+                                                     .removeAllOf(Parameters.FILTER_FIELDS));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()
                         .next();

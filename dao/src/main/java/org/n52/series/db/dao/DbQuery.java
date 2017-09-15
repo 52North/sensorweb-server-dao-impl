@@ -414,6 +414,6 @@ public class DbQuery {
     }
 
     public DbQuery withoutFieldsFilter() {
-        return new DbQuery(parameters.removeAllOf("fields"));
+        return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
 }
