@@ -140,7 +140,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                                      Session session)
             throws DataAccessException {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getValueType())) {            
+            if (dataRepositoryFactory.isKnown(series.getValueType())) {
                 results.add(createCondensed(series, query, session));
             }
         }

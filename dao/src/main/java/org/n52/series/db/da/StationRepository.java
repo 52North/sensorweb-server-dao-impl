@@ -179,7 +179,6 @@ public class StationRepository extends SessionAwareRepository
 
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
             throws DataAccessException {
-        IoParameters parameters = query.getParameters();
         StationOutput result = createCondensed(feature, query);
 
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
@@ -187,8 +186,7 @@ public class StationRepository extends SessionAwareRepository
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        result.setValue(StationOutput.TIMESERIES, timeseriesList, parameters, result ::setTimeseries);
-
+        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
         return result;
     }
 
