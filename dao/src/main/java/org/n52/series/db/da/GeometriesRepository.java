@@ -334,7 +334,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private PlatformOutput getPlatfom(FeatureEntity entity, DbQuery parameters) throws DataAccessException {
         DbQuery platformQuery = getDbQuery(parameters.getParameters()
                                                      .extendWith(Parameters.FEATURES, String.valueOf(entity.getId()))
-                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all"));
+                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all")
+                                                     .removeAllOf("fields"));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()
                         .next();
