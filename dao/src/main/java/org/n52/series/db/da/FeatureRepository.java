@@ -73,8 +73,8 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
         FeatureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query)
-                : getCondensedService(getServiceEntity(entity), query);
+                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
         result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
         result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);

@@ -321,12 +321,12 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         GeometryInfo geometryInfo = new GeometryInfo();
         IoParameters parameters = query.getParameters();
         String hrefBase = urlHelper.getGeometriesHrefBaseUrl(query.getHrefBase());
-        PlatformOutput platfom = getPlatfom(featureEntity, query);
+        PlatformOutput platform = getPlatfom(featureEntity, query);
 
         geometryInfo.setId(Long.toString(featureEntity.getPkid()));
         geometryInfo.setValue(GeometryInfo.GEOMETRY_TYPE, type, parameters, geometryInfo::setGeometryType);
-        geometryInfo.setValue(GeometryInfo.HREF_BASE, hrefBase, parameters, geometryInfo::setHrefBase);
-        geometryInfo.setValue(GeometryInfo.PLATFORM, platfom, parameters, geometryInfo::setPlatform);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, hrefBase, parameters, geometryInfo::setHrefBase);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, platform, parameters, geometryInfo::setPlatform);
         return geometryInfo;
     }
 
@@ -335,7 +335,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                                                                     .extendWith(Parameters.FEATURES,
                                                                                 String.valueOf(entity.getPkid()))
                                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                                "all"));
+                                                                                "all")
+                                                                    .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()

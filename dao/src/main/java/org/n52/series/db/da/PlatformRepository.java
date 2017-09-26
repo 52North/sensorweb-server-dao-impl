@@ -89,7 +89,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        return new PlatformOutput(entity.getPlatformType());
+        return new PlatformOutput();
     }
 
     @Override
@@ -158,6 +158,19 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return getPlatform(id, parameters, session);
         }
     }
+    
+    @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        PlatformOutput result = super.createCondensed(entity, query, session);
+        boolean mobile = entity.isMobile();
+        boolean insitu = entity.isInsitu();
+        result.setValue(PlatformOutput.PLATFORMTYPE,
+                PlatformType.toInstance(mobile, insitu),
+                query.getParameters(),
+                result::setPlatformType);
+        result.setId(Long.toString(entity.getPkid()));
+        return result;
+    }
 
     @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
@@ -165,13 +178,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
                                            .extendWith(Parameters.PLATFORMS, result.getId())
-                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
+                                           .removeAllOf(Parameters.FILTER_FIELDS));
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
-                                                       .removeAllOf(Parameters.NEAR));
+                                                       .removeAllOf(Parameters.NEAR)
+                                                       .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setDatasets(datasets);
+        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets); 
 
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, platformQuery, session)
@@ -182,7 +197,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return null;
         }
 
-        result.setGeometry(geometry);
+        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
         result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
