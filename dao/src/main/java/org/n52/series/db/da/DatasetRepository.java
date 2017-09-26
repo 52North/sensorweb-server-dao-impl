@@ -34,6 +34,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -56,9 +60,6 @@ import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * TODO: JavaDoc
@@ -117,8 +118,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     public List<DatasetOutput> getAllCondensed(DbQuery query, Session session) throws DataAccessException {
         List<DatasetOutput> results = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
-        if (query.getParameters()
-                 .isMatchDomainIds()) {
+        if (query.getParameters().isMatchDomainIds()) {
             String valueType = query.getHandleAsValueTypeFallback();
             addCondensedResults(getDatasetDao(valueType, session), query, results, session);
             return results;
@@ -134,7 +134,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         return results;
     }
 
-    private void addCondensedResults(DatasetDao< ? extends DatasetEntity> dao,
+    private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao,
                                      DbQuery query,
                                      List<DatasetOutput> results,
                                      Session session)

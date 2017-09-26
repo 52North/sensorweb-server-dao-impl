@@ -29,6 +29,8 @@
 
 package org.n52.series.db.dao;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -43,6 +45,9 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
@@ -51,14 +56,12 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
-    protected Session session;
+    protected final Session session;
 
     public AbstractDao(Session session) {
         if (session == null) {
@@ -237,8 +240,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-        return Restrictions.or(
-                               // inverse to match filter
+
+        return Restrictions.or(// inverse to match filter
                                Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
                                Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile));
     }
@@ -263,27 +266,21 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-        IoParameters parameters = query.getParameters();
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                GeometryType.Type type = getGeometryType(geometryType);
-                if (type != null) {
-                    criteria.add(SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type));
-                }
-            }
-        }
+        query.getParameters()
+                .getGeometryTypes()
+                .stream()
+                .filter(geometryType -> !geometryType.isEmpty())
+                .map(this::getGeometryType)
+                .filter(Objects::nonNull)
+                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+                .forEach(criteria::add);
         return criteria;
     }
 
     private GeometryType.Type getGeometryType(String geometryType) {
-        for (GeometryType.Type type : GeometryType.Type.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
-        }
-        return null;
+        return Arrays.stream(GeometryType.Type.values())
+                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+                .findAny().orElse(null);
     }
 
 }

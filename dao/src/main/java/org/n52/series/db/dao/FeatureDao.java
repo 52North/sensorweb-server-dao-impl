@@ -30,10 +30,11 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.I18nFeatureEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
