@@ -124,7 +124,8 @@ public class EntityCounter {
                         "valueTypes",
                         dataRepositoryFactory.getKnownTypes().toArray(new String[0])
                 );
-                query = dbQueryFactory.createFrom(parameters);
+                return getCount(new DatasetDao<>(session, DatasetEntity.class),
+                                dbQueryFactory.createFrom(parameters));
             }
             return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
         } finally {
