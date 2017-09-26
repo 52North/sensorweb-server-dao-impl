@@ -325,8 +325,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         PlatformOutput platform = getPlatfom(featureEntity, query);
 
         geometryInfo.setId(Long.toString(featureEntity.getId()));
-        geometryInfo.setValue(GeometryInfo.GEOMETRY_TYPE, type, parameters, geometryInfo::setGeometryType);
-        geometryInfo.setValue(GeometryInfo.HREF_BASE, hrefBase, parameters, geometryInfo::setHrefBase);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, type, parameters, geometryInfo::setGeometryType);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, hrefBase, parameters, geometryInfo::setHrefBase);
         geometryInfo.setValue(GeometryInfo.PROPERTIES, platform, parameters, geometryInfo::setPlatform);
         return geometryInfo;
     }

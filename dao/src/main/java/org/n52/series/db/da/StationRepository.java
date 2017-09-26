@@ -183,7 +183,7 @@ public class StationRepository extends SessionAwareRepository
 
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
         DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
         result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
@@ -198,7 +198,7 @@ public class StationRepository extends SessionAwareRepository
         String label = entity.getLabelFrom(query.getLocale());
         Geometry geometry = createPoint(entity, query);
         result.setId(id);
-        result.setValue(StationOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
         return result;
     }
