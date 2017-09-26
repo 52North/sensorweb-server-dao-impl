@@ -413,4 +413,7 @@ public class DbQuery {
         return "DbQuery{ parameters=" + getParameters().toString() + "'}'";
     }
 
+    public DbQuery withoutFieldsFilter() {
+        return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
+    }
 }

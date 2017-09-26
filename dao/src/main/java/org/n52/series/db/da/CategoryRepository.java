@@ -71,8 +71,8 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
         CategoryOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query)
-                : getCondensedService(getServiceEntity(entity), query);
+                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
