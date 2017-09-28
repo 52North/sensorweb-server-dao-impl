@@ -240,9 +240,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-
-        return Restrictions.or(// inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
+        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
                                Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile));
     }
 
@@ -250,7 +248,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
         boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
         return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
-                               // inverse to match filter
                                Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
     }
 
