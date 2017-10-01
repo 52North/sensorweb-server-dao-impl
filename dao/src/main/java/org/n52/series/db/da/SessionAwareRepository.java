@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.hibernate.Session;
 import org.n52.io.crs.CRSUtils;
@@ -296,4 +297,22 @@ public abstract class SessionAwareRepository {
         }
     }
 
+    protected <T extends DescribableEntity> List<T> withServiceFilter(List<T> allInstances, DbQuery query) {
+        Predicate<T> serviceFilter =
+            entity -> !query.getParameters().getServices().isEmpty() &&
+                      !query.getParameters().getServices()
+                            .contains(Long.toString(getServiceEntity(entity).getPkid()));
+        allInstances.removeIf(serviceFilter);
+        return allInstances;
+    }
+    
+    protected <T extends DescribableEntity> T withServiceFilter(T instance, DbQuery query) {
+        if (!query.getParameters().getServices().isEmpty() &&
+            !query.getParameters().getServices()
+                  .contains(Long.toString(getServiceEntity(instance).getPkid()))) {
+            return null;
+        } else {
+            return instance;
+        }
+    }
 }
