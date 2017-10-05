@@ -30,10 +30,11 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nOfferingEntity;
 import org.n52.series.db.beans.OfferingEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity> {
