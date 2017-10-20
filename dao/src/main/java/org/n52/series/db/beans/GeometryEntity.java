@@ -58,6 +58,13 @@ public class GeometryEntity implements Serializable {
 
     private int srid;
 
+    public GeometryEntity(Geometry geometry) {
+        this.geometry = geometry;
+    }
+
+    public GeometryEntity() {
+    }
+
     public boolean isSetGeometry() {
         return geometry != null && !geometry.isEmpty();
     }
