@@ -153,9 +153,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     PlatformEntity getEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
         if (PlatformType.isStationaryId(id)) {
-            return getStation(id, parameters, session);
+            return addServiceFilter(getStation(id, parameters, session), parameters);
         } else {
-            return getPlatform(id, parameters, session);
+            return addServiceFilter(getPlatform(id, parameters, session), parameters);
         }
     }
 
@@ -266,10 +266,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         List<PlatformEntity> platforms = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeStationaryPlatformTypes()) {
-            platforms.addAll(getAllStationary(query, session));
+            platforms.addAll(addServiceFilter(getAllStationary(query, session), query));
         }
         if (filterResolver.shallIncludeMobilePlatformTypes()) {
-            platforms.addAll(getAllMobile(query, session));
+            platforms.addAll(addServiceFilter(getAllMobile(query, session), query));
         }
         return platforms;
     }

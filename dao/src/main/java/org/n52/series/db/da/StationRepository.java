@@ -81,7 +81,7 @@ public class StationRepository extends SessionAwareRepository
         try {
             FeatureDao stationDao = createDao(session);
             DbQuery query = addPointLocationOnlyRestriction(getDbQuery(parameters));
-            List<FeatureEntity> found = withServiceFilter(stationDao.find(query), query);
+            List<FeatureEntity> found = addServiceFilter(stationDao.find(query), query);
             return convertToSearchResults(found, query);
         } finally {
             returnSession(session);
@@ -142,7 +142,7 @@ public class StationRepository extends SessionAwareRepository
 
     private List<FeatureEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
         FeatureDao featureDao = createDao(session);
-        return withServiceFilter(featureDao.getAllInstances(addPointLocationOnlyRestriction(parameters)), parameters);
+        return addServiceFilter(featureDao.getAllInstances(addPointLocationOnlyRestriction(parameters)), parameters);
     }
 
     @Override
@@ -167,13 +167,13 @@ public class StationRepository extends SessionAwareRepository
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session)
             throws DataAccessException, BadRequestException {
         DbQuery query = addPointLocationOnlyRestriction(parameters);
-        return withServiceFilter(createDao(session).getInstance(parseId(id), query), parameters);
+        return addServiceFilter(createDao(session).getInstance(parseId(id), query), parameters);
     }
 
     public StationOutput getCondensedInstance(String id, DbQuery parameters, Session session)
             throws DataAccessException {
         FeatureDao featureDao = createDao(session);
-        FeatureEntity result = withServiceFilter(
+        FeatureEntity result = addServiceFilter(
                 featureDao.getInstance(parseId(id), getDbQuery(IoParameters.createDefaults())),
                 parameters
         );

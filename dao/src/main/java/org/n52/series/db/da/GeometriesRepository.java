@@ -190,7 +190,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
         FeatureDao dao = createFeatureDao(session);
         long geometryId = Long.parseLong(GeometryType.extractId(id));
-        return dao.getInstance(geometryId, parameters);
+        return addServiceFilter(dao.getInstance(geometryId, parameters), parameters);
     }
 
     private List<GeometryInfo> getAllSites(DbQuery parameters, Session session, boolean expanded)
@@ -200,7 +200,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         DbQuery siteQuery = dbQueryFactory.createFrom(parameters.getParameters()
                                                                 .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
                                                                              "stationary"));
-        for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
+        Iterable<FeatureEntity> entities = addServiceFilter(dao.getAllInstances(siteQuery), parameters);
+        for (FeatureEntity featureEntity : entities) {
             GeometryInfo geometryInfo = createSite(featureEntity, parameters, expanded);
             if (geometryInfo != null) {
                 geometryInfoList.add(geometryInfo);
@@ -224,7 +225,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
                                                                  .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
                                                                               "mobile"));
-        for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+        List<FeatureEntity> entities = addServiceFilter(featureDao.getAllInstances(trackQuery), parameters);
+        for (FeatureEntity featureEntity : entities) {
             geometryInfoList.add(createTrack(featureEntity, parameters, expanded, session));
         }
         return geometryInfoList;
@@ -335,8 +337,9 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                                                                     .extendWith(Parameters.FEATURES,
                                                                                 String.valueOf(entity.getPkid()))
                                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                                "all"));
-
+                                                                                "all")
+                                                                    .removeAllOf(Parameters.SERVICES)
+                                                                    .removeAllOf(Parameters.SERVICE));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         return platforms.iterator()
                         .next();

@@ -46,7 +46,8 @@ public abstract class HierarchicalParameterRepository<E extends HierarchicalEnti
     @Override
     protected List<O> createExpanded(Iterable<E> entities, DbQuery query, Session session) throws DataAccessException {
         Set<O> results = new HashSet<>();
-        if (entities != null) {
+        if (entities != null && entities.iterator().hasNext()) {
+            addServiceFilter(entities, query);
             for (E entity : entities) {
                 O result = createExpanded(entity, query, session);
                 results.add(result);
@@ -58,7 +59,8 @@ public abstract class HierarchicalParameterRepository<E extends HierarchicalEnti
     @Override
     protected List<O> createCondensed(Iterable<E> entities, DbQuery query, Session session) {
         Set<O> results = new HashSet<>();
-        if (entities != null) {
+        if (entities != null && entities.iterator().hasNext()) {
+            addServiceFilter(entities, query);
             for (E entity : entities) {
                 O result = createCondensed(entity, query, session);
                 results.add(result);

@@ -137,7 +137,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     public List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query, Session session) throws DataAccessException {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
         DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
-        for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
+        Iterable<QuantityDatasetEntity> entities = addServiceFilter(seriesDao.getAllInstances(query), query);
+        for (QuantityDatasetEntity timeseries : entities) {
             results.add(createCondensed(timeseries, query, session));
         }
         return results;
@@ -157,7 +158,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     public List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query, Session session) throws DataAccessException {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
         DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
-        for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
+        Iterable<QuantityDatasetEntity> entities = addServiceFilter(seriesDao.getAllInstances(query), query);
+        for (QuantityDatasetEntity timeseries : entities) {
             results.add(createExpanded(timeseries, query, session));
         }
         return results;
@@ -174,14 +176,14 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery dbQuery, Session session)
+    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session)
             throws DataAccessException {
         DatasetDao<QuantityDatasetEntity> seriesDao = createDao(session);
-        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), dbQuery);
+        QuantityDatasetEntity result = addServiceFilter(seriesDao.getInstance(parseId(timeseriesId), query), query);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + timeseriesId + "' could not be found.");
         }
-        return createExpanded(result, dbQuery, session);
+        return createExpanded(result, query, session);
     }
 
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
