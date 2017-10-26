@@ -309,8 +309,7 @@ public abstract class SessionAwareRepository {
             if (!query.getParameters().getServices().isEmpty() &&
                 !query.getParameters()
                       .getServices()
-                      .contains(Long.toString(getServiceEntity(element)
-                      .getPkid()))) {
+                      .contains(Long.toString(getServiceEntity(element).getPkid()))) {
                 iterator.remove();
             }
         }
