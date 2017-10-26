@@ -29,9 +29,8 @@
 
 package org.n52.series.db.da;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +138,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
         return serviceEntity != null
-                ? new ArrayList<ServiceEntity>(Arrays.asList(serviceEntity))
+                ? Collections.singletonList(serviceEntity)
                 : createDao(session).getAllInstances(parameters);
     }
 
@@ -149,7 +148,6 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         ServiceEntity result = !isConfiguredServiceInstance(id)
                 ? dao.getInstance(id, query)
                 : serviceEntity;
-        addServiceFilter(result, query);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }
