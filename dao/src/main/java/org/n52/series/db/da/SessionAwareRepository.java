@@ -310,7 +310,11 @@ public abstract class SessionAwareRepository {
                 !query.getParameters()
                       .getServices()
                       .contains(Long.toString(getServiceEntity(element).getPkid()))) {
-                iterator.remove();
+                try {
+                    iterator.remove();
+                } catch (UnsupportedOperationException e) {
+                    // dao returning immutable list does not want serviceFilter to be added
+                }
             }
         }
         return allInstances;
