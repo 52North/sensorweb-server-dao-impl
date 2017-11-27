@@ -35,30 +35,30 @@ import java.util.Map;
 
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
-import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
-import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<Double> {
+public class TextProfileDataRepository extends ProfileDataRepository<String> {
 
-    private final QuantityDataRepository quantityRepository;
+    private final TextDataRepository textRepository;
 
-    public QuantityProfileDataRepository() {
-        this.quantityRepository = new QuantityDataRepository();
+    public TextProfileDataRepository() {
+        this.textRepository = new TextDataRepository();
     }
 
     @Override
-    protected ProfileValue<Double> createValue(ProfileDataEntity observation,
+    protected ProfileValue<String> createValue(ProfileDataEntity observation,
                                                ProfileDatasetEntity dataset,
                                                DbQuery query) {
-        ProfileValue<Double> profile = createProfileValue(observation, query);
-        List<ProfileDataItem<Double>> dataItems = new ArrayList<>();
+        ProfileValue<String> profile = createProfileValue(observation, query);
+        List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
-            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
+            TextDataEntity quantityEntity = (TextDataEntity) dataEntity;
+            TextValue valueItem = textRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
             for (Map<String, Object> parameterObject : valueItem.getParameters()) {
                 String verticalName = dataset.getVerticalParameterName();

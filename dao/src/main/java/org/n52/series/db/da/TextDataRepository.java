@@ -151,16 +151,32 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
                 ? observation.getValue()
                 : null;
 
+        TextValue value = createValue(observation, series, query, observationValue);
+        return addMetadatasIfNeeded(observation, value, series, query);
+    }
+
+    private TextValue createValue(TextDataEntity observation,
+                                  TextDatasetEntity series,
+                                  DbQuery query,
+                                  String observationValue) {
+        ServiceEntity service = getServiceEntity(series);
+        String textValue = !service.isNoDataValue(observation)
+                ? observation.getValue()
+                : null;
+        return createValue(textValue, observation, query);
+    }
+
+    TextValue createValue(String observationValue,
+                          TextDataEntity observation,
+                          DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        TextValue value = parameters.isShowTimeIntervals()
+        return parameters.isShowTimeIntervals()
                 ? new TextValue(start, end, observationValue)
                 : new TextValue(end, observationValue);
-
-        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }

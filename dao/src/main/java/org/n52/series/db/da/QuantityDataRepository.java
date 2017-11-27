@@ -149,15 +149,15 @@ public class QuantityDataRepository extends
 
     @Override
     public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
-                                              QuantityDatasetEntity series,
+                                              QuantityDatasetEntity dataset,
                                               DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
-        QuantityValue value = createValue(observation, series, query);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        QuantityValue value = createValue(observation, dataset, query);
+        return addMetadatasIfNeeded(observation, value, dataset, query);
     }
 
     private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {
