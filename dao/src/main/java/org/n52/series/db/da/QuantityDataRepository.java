@@ -151,11 +151,6 @@ public class QuantityDataRepository extends
     public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
                                               QuantityDatasetEntity dataset,
                                               DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
         QuantityValue value = createValue(observation, dataset, query);
         return addMetadatasIfNeeded(observation, value, dataset, query);
     }

@@ -142,11 +142,6 @@ public class CountDataRepository
 
     @Override
     public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
         ServiceEntity service = getServiceEntity(series);
         Integer observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
