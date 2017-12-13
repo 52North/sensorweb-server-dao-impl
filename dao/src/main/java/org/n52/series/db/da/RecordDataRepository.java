@@ -37,8 +37,8 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.record.RecordData;
-import org.n52.io.response.dataset.record.RecordDatasetMetadata;
+import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.RecordDataEntity;
@@ -48,7 +48,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
     @Override
     public Class<RecordDatasetEntity> getDatasetEntityType() {
@@ -56,28 +56,28 @@ public class RecordDataRepository
     }
 
     @Override
-    protected RecordData assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
+    protected Data<RecordValue> assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
                                                          DbQuery dbQuery,
                                                          Session session)
             throws DataAccessException {
-        RecordData result = assembleData(timeseries, dbQuery, session);
+        Data<RecordValue> result = assembleData(timeseries, dbQuery, session);
         Set<RecordDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
-            RecordDatasetMetadata metadata = new RecordDatasetMetadata();
+            DatasetMetadata<Data<RecordValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
             result.setMetadata(metadata);
         }
         return result;
     }
 
-    private Map<String, RecordData> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
+    private Map<String, Data<RecordValue>> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
                                                             DbQuery query,
                                                             Session session)
             throws DataAccessException {
-        Map<String, RecordData> referenceSeries = new HashMap<>();
+        Map<String, Data<RecordValue>> referenceSeries = new HashMap<>();
         for (RecordDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                RecordData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
+                Data<RecordValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
@@ -87,14 +87,14 @@ public class RecordDataRepository
         return referenceSeries;
     }
 
-    private boolean haveToExpandReferenceData(RecordData referenceSeriesData) {
+    private boolean haveToExpandReferenceData(Data<RecordValue> referenceSeriesData) {
         return referenceSeriesData.getValues()
                                   .size() <= 1;
     }
 
-    private RecordData expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<RecordValue> expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        RecordData result = new RecordData();
+        Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
@@ -110,9 +110,9 @@ public class RecordDataRepository
     }
 
     @Override
-    protected RecordData assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        RecordData result = new RecordData();
+        Data<RecordValue> result = new Data<RecordValue>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (RecordDataEntity observation : observations) {

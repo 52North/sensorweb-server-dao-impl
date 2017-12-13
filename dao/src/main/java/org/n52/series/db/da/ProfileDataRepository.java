@@ -35,7 +35,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.profile.ProfileData;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.DataAccessException;
@@ -46,7 +46,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public abstract class ProfileDataRepository<T>
-        extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue<T>> {
+        extends AbstractDataRepository<ProfileDatasetEntity, ProfileDataEntity, ProfileValue<T>> {
 
     @Override
     public ProfileValue<T> getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
@@ -75,10 +75,10 @@ public abstract class ProfileDataRepository<T>
     }
 
     @Override
-    protected ProfileData assembleData(ProfileDatasetEntity datasetEntity, DbQuery query, Session session)
+    protected Data<ProfileValue<T>> assembleData(ProfileDatasetEntity datasetEntity, DbQuery query, Session session)
             throws DataAccessException {
         query.setComplexParent(true);
-        ProfileData result = new ProfileData();
+        Data<ProfileValue<T>> result = new Data<>();
         DataDao<ProfileDataEntity> dao = createDataDao(session);
         List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
         for (ProfileDataEntity observation : observations) {
@@ -90,9 +90,9 @@ public abstract class ProfileDataRepository<T>
     }
 
     @Override
-    protected ProfileData assembleDataWithReferenceValues(ProfileDatasetEntity datasetEntity,
-                                                          DbQuery dbQuery,
-                                                          Session session)
+    protected Data<ProfileValue<T>> assembleDataWithReferenceValues(ProfileDatasetEntity datasetEntity,
+                                                                    DbQuery dbQuery,
+                                                                    Session session)
             throws DataAccessException {
 
         // TODO handle reference values

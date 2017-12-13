@@ -39,6 +39,12 @@
             <property name="valueType" formula="'text'" />
         </joined-subclass>
 
+        <joined-subclass extends="DataEntity" name="CategoryDataEntity" table="categoryvalue">
+            <key column="observationid"/>
+            <property column="value" name="value" type="string"/>
+            <property name="valueType" formula="'category'" />
+        </joined-subclass>
+
         <joined-subclass extends="DataEntity" name="CountDataEntity" table="countvalue">
             <key column="observationid"/>
             <property column="value" name="value" type="integer"/>

@@ -47,8 +47,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity< ? >,
+public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
@@ -108,9 +107,9 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract D assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected abstract D assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+    protected abstract Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
             throws DataAccessException;
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {

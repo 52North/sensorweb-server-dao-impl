@@ -59,6 +59,13 @@
             </bag>
         </subclass>
 
+        <subclass discriminator-value="category" name="CategoryDatasetEntity">
+            <bag fetch="select" inverse="true" name="observations" table="observation">
+                <key column="observationid" />
+                <one-to-many class="CategoryDataEntity" />
+            </bag>
+        </subclass>
+
         <subclass discriminator-value="count" name="CountDatasetEntity">
             <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />

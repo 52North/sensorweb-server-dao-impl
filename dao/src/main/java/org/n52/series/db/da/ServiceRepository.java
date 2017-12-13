@@ -44,7 +44,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
@@ -70,9 +69,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     private EntityCounter counter;
 
     @Autowired
-    private DefaultIoFactory<Data<AbstractValue< ? >>,
-                             DatasetOutput<AbstractValue< ? >, ? >,
-                             AbstractValue< ? >> ioFactoryCreator;
+    private DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
 
     @Override
     protected ServiceOutput prepareEmptyParameterOutput(ServiceEntity entity) {
@@ -203,7 +200,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
