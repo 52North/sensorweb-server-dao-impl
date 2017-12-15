@@ -31,7 +31,7 @@
             <element column="resulttime" type="timestamp" />
         </set>
 
-        <subclass discriminator-value="quantity" name="QuantityDatasetEntity">
+        <subclass discriminator-value="sos/" name="QuantityDatasetEntity">
             <property formula="3" name="numberOfDecimals" type="int" />
             <!-- first value for backwards compatibility -->
             <component class="ObservationEntity" name="firstValue">
@@ -73,8 +73,32 @@
             </bag>
         </subclass>
 
-        <subclass discriminator-value="quantity-profile" name="ProfileDatasetEntity">
+        <subclass discriminator-value="sos/-profile" name="QuantityProfileDatasetEntity">
             <property name="verticalParameterName" formula="'depth'" type="string" />
+            <property name="verticalFromParameterName" formula="'fromDepth'" type="string" />
+            <property name="verticalToParameterName" formula="'toDepth'" type="string" />
+            <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
+            <bag fetch="select" inverse="true" name="observations" table="observation">
+                <key column="observationid" />
+                <one-to-many class="ProfileDataEntity" />
+            </bag>
+        </subclass>
+
+        <subclass discriminator-value="category-profile" name="CategoryProfileDatasetEntity">
+            <property name="verticalParameterName" formula="'depth'" type="string" />
+            <property name="verticalFromParameterName" formula="'fromDepth'" type="string" />
+            <property name="verticalToParameterName" formula="'toDepth'" type="string" />
+            <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
+            <bag fetch="select" inverse="true" name="observations" table="observation">
+                <key column="observationid" />
+                <one-to-many class="ProfileDataEntity" />
+            </bag>
+        </subclass>
+
+        <subclass discriminator-value="text-profile" name="TextProfileDatasetEntity">
+            <property name="verticalParameterName" formula="'depth'" type="string" />
+            <property name="verticalFromParameterName" formula="'fromDepth'" type="string" />
+            <property name="verticalToParameterName" formula="'toDepth'" type="string" />
             <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
             <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
