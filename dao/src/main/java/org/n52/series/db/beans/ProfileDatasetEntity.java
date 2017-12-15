@@ -31,6 +31,8 @@ package org.n52.series.db.beans;
 public class ProfileDatasetEntity extends DatasetEntity<ProfileDataEntity> {
 
     private String verticalParameterName;
+    private String verticalFromParameterName;
+    private String verticalToParameterName;
 
     public String getVerticalParameterName() {
         return verticalParameterName;
@@ -38,6 +40,22 @@ public class ProfileDatasetEntity extends DatasetEntity<ProfileDataEntity> {
 
     public void setVerticalParameterName(String verticalParameterName) {
         this.verticalParameterName = verticalParameterName;
+    }
+
+    public String getVerticalFromParameterName() {
+        return verticalFromParameterName;
+    }
+
+    public void setVerticalFromParameterName(String verticalFromParameterName) {
+        this.verticalFromParameterName = verticalFromParameterName;
+    }
+
+    public String getVerticalToParameterName() {
+        return verticalToParameterName;
+    }
+
+    public void setVerticalToParameterName(String verticalToParameterName) {
+        this.verticalToParameterName = verticalToParameterName;
     }
 
 }
