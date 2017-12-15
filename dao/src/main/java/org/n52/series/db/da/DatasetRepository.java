@@ -306,7 +306,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
             DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
             AbstractValue firstValue = dataRepository.getFirstValue(dataset, session, query);
-            AbstractValue lastValue = dataRepository.getLastValue(dataset, session, query);
+            AbstractValue lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
+                    : dataRepository.getLastValue(dataset, session, query);
 
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
