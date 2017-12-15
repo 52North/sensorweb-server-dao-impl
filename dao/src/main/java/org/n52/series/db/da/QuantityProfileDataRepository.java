@@ -31,7 +31,6 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -40,15 +39,21 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<Double> {
+public class QuantityProfileDataRepository extends ProfileDataRepository<Double, QuantityProfileDatasetEntity> {
 
     private final QuantityDataRepository quantityRepository;
 
     public QuantityProfileDataRepository() {
         this.quantityRepository = new QuantityDataRepository();
     }
+
+  @Override
+  public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
+      return QuantityProfileDatasetEntity.class;
+  }
 
     @Override
     protected ProfileValue<Double> createValue(ProfileDataEntity observation,
@@ -60,12 +65,7 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<Double>
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
-            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
-                String verticalName = dataset.getVerticalParameterName();
-                if (isVertical(parameterObject, verticalName)) {
-                    dataItems.add(assembleDataItem(quantityEntity, profile, parameterObject));
-                }
-            }
+            dataItems.add(assembleDataItem(quantityEntity, profile, valueItem.getParameters(), dataset));
         }
         profile.setValue(dataItems);
         return profile;
