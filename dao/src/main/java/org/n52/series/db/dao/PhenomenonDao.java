@@ -30,9 +30,10 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.beans.I18nPhenomenonEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {

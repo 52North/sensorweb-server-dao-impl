@@ -30,6 +30,7 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+
 import org.n52.series.db.beans.I18nServiceEntity;
 import org.n52.series.db.beans.ServiceEntity;
 
