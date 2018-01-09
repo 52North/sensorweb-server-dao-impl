@@ -53,6 +53,8 @@ public abstract class DataEntity<T> {
 
     public static final String PROPERTY_DELETED = "deleted";
 
+    public static final String PROPERTY_VALUE = "value";
+
     private Long pkid;
 
     // optional
