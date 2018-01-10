@@ -276,7 +276,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         DatasetOutput< ? , ? > result = DatasetOutput.create(valueType, parameters);
 
         Long id = dataset.getId();
-        String domainId = dataset.getDomainId();
+        String domainId = dataset.getIdentifier();
         String uom = dataset.getUnitI18nName(query.getLocale());
         String label = createDatasetLabel(dataset, query.getLocale());
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());

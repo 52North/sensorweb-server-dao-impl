@@ -134,7 +134,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId))
-                                                        .createCriteria(DataEntity.PROPERTY_DATASETS)
+                                                        .createCriteria(DataEntity.PROPERTY_DATASET)
                                                         .setProjection(Projections.property(DataEntity.PROPERTY_ID));
 
             criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_ID, observationCriteria));

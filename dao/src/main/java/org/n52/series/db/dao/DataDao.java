@@ -116,7 +116,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final Long id = series.getId();
         LOGGER.debug("get all instances for series '{}': {}", id, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
-        return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
+        return criteria.createCriteria(DataEntity.PROPERTY_DATASET)
                        .add(Restrictions.eq(DataEntity.PROPERTY_ID, id))
                        .list();
     }
@@ -175,7 +175,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         String dsAlias = DatasetEntity.ENTITY_ALIAS;
         String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_ID);
         Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(column, timestamp));
-        criteria.createCriteria(DataEntity.PROPERTY_DATASETS, dsAlias)
+        criteria.createCriteria(DataEntity.PROPERTY_DATASET, dsAlias)
                 .add(Restrictions.eq(dsId, dataset.getId()));
 
         IoParameters parameters = query.getParameters();
@@ -194,7 +194,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
             String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_ID);
             DetachedCriteria resultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
-            resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASETS, rtDatasetAlias)
+            resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASET, rtDatasetAlias)
                            .add(Restrictions.eq(rtDatasetId, dataset.getId()))
                            .setProjection(Projections.projectionList()
                                                      .add(Projections.groupProperty(rtColumn))

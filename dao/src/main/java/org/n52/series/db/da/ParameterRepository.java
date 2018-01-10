@@ -100,7 +100,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
         Long id = entity.getId();
         String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getDomainId();
+        String domainId = entity.getIdentifier();
         String hrefBase = query.getHrefBase();
 
         result.setId(Long.toString(id));
