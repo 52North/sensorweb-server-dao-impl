@@ -1,28 +1,36 @@
 package org.n52.series.db.dao;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Date;
-import java.util.function.Function;
-import java.util.stream.Collector;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MoreRestrictions;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
+import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ProfileDataEntity;
+import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.TextDataEntity;
 import org.n52.shetland.ogc.filter.BinaryLogicFilter;
 import org.n52.shetland.ogc.filter.ComparisonFilter;
 import org.n52.shetland.ogc.filter.Filter;
@@ -36,6 +44,8 @@ import org.n52.shetland.ogc.gml.time.Time;
 import org.n52.shetland.ogc.gml.time.TimeInstant;
 import org.n52.shetland.ogc.gml.time.TimePeriod;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -58,6 +68,7 @@ public class FESCriterionGenerator {
     private static final String VR_RESULT = "om:result";
     private final boolean unsupportedIsTrue;
     private final boolean matchDomainIds;
+    private final boolean complexParent;
 
     /**
      * Creates a new {@code FESCriterionGenerator}.
@@ -66,10 +77,12 @@ public class FESCriterionGenerator {
      *                          criterion that is always {@code true} or always {@code false} depending on this flag
      * @param matchDomainIds    if filter on observation parameters like feature, offering or procedure should match on
      *                          their respective domain identifiers or on the primary keys in the database
+     * @param complexParent     if the queries should result in the parent observation and hide the child observations
      */
-    public FESCriterionGenerator(boolean unsupportedIsTrue, boolean matchDomainIds) {
+    public FESCriterionGenerator(boolean unsupportedIsTrue, boolean matchDomainIds, boolean complexParent) {
         this.unsupportedIsTrue = unsupportedIsTrue;
         this.matchDomainIds = matchDomainIds;
+        this.complexParent = complexParent;
     }
 
     /**
@@ -84,17 +97,17 @@ public class FESCriterionGenerator {
         Filter<?> f = simplify(filter);
 
         if (f instanceof ComparisonFilter) {
-            return create((ComparisonFilter) f);
+            return createComparisonCriterion((ComparisonFilter) f);
         } else if (f instanceof BinaryLogicFilter) {
-            return create((BinaryLogicFilter) f);
+            return createBinaryLogicCriterion((BinaryLogicFilter) f);
         } else if (f instanceof UnaryLogicFilter) {
-            return create((UnaryLogicFilter) f);
+            return createUnaryLogicCriterion((UnaryLogicFilter) f);
         } else if (f instanceof SpatialFilter) {
-            return create((SpatialFilter) f);
+            return createSpatialCriterion((SpatialFilter) f);
         } else if (f instanceof TemporalFilter) {
-            return create((TemporalFilter) f);
+            return createTemporalCriterion((TemporalFilter) f);
         } else if (f == null) {
-            return alwaysTrue();
+            return MoreRestrictions.alwaysTrue();
         } else {
             return unsupported(filter);
         }
@@ -107,7 +120,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion create(UnaryLogicFilter filter) {
+    private Criterion createUnaryLogicCriterion(UnaryLogicFilter filter) {
         switch (filter.getOperator()) {
             case Not:
                 Criterion criterion = create(filter.getFilterPredicate());
@@ -124,13 +137,13 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion create(BinaryLogicFilter filter) {
+    private Criterion createBinaryLogicCriterion(BinaryLogicFilter filter) {
         Stream<Criterion> predicates = filter.getFilterPredicates().stream().map(this::create);
         switch (filter.getOperator()) {
             case And:
-                return predicates.collect(toConjunction());
+                return predicates.collect(MoreRestrictions.toConjunction());
             case Or:
-                return predicates.collect(toDisjunction());
+                return predicates.collect(MoreRestrictions.toDisjunction());
             default:
                 return unsupported(filter);
         }
@@ -157,26 +170,22 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion create(ComparisonFilter filter) {
-
-        ComparisonOperator op = filter.getOperator();
-        String value = filter.getValue();
-
+    private Criterion createComparisonCriterion(ComparisonFilter filter) {
         switch (filter.getValueReference()) {
             case VR_RESULT:
-                return create(op, DataEntity.PROPERTY_VALUE, value);
+                return createResultCriterion(filter);
             case VR_PHENOMENON_TIME:
-                return FESCriterionGenerator.this.createPhenomenonTimeCriterion(op, value);
+                return createPhenomenonTimeCriterion(filter);
             case VR_RESULT_TIME:
-                return createResultTimeCriterion(op, value);
+                return createResultTimeCriterion(filter);
             case VR_PROCEDURE:
-                return createProcedureCriterion(op, value);
+                return createProcedureCriterion(filter);
             case VR_FEATURE:
-                return createFeatureCriterion(op, value);
+                return createFeatureCriterion(filter);
             case VR_OFFERING:
-                return createOfferingCriterion(op, value);
+                return createOfferingCriterion(filter);
             case VR_PHENOMENON:
-                return createPhenomenonCriterion(op, value);
+                return createPhenomenonCriterion(filter);
             case VR_VALID_TIME:
             case VR_IDENTIFIER:
             case VR_FEATURE_SHAPE:
@@ -189,21 +198,24 @@ public class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for a property of the associated {@linkplain DatasetEntity data set}.
      *
-     * @param operator the comparison operator
+     * @param filter   the comparison filter
      * @param property the property of the data set to compare
-     * @param value    the value to compare with
      *
      * @return the criterion
      */
-    private Criterion createDatasetCriterion(ComparisonOperator operator, String property, Object value) {
-        Criterion criterion = create(operator,
-                                     matchDomainIds ? DescribableEntity.PROPERTY_DOMAIN_ID
-                                             : DescribableEntity.PROPERTY_PKID,
-                                     value);
+    private Criterion createDatasetCriterion(ComparisonFilter filter, String property) {
+
+        if (matchDomainIds) {
+            filter.setValueReference(DescribableEntity.PROPERTY_DOMAIN_ID);
+        } else {
+            filter.setValueReference(DescribableEntity.PROPERTY_PKID);
+        }
 
         DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class)
                 .setProjection(Property.forName(DatasetEntity.PROPERTY_PKID))
-                .createCriteria(property).add(criterion);
+                .add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, Boolean.FALSE))
+                .add(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED, Boolean.TRUE))
+                .createCriteria(property).add(createComparison(filter));
 
         return Subqueries.propertyIn(DataEntity.PROPERTY_SERIES_PKID, subquery);
     }
@@ -211,33 +223,50 @@ public class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for the supplied operator, property and value.
      *
-     * @param operator the comparison operator
-     * @param property the property to compare
-     * @param value    the value to compare with
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion create(ComparisonOperator operator, String property, Object value) {
-        switch (operator) {
+    private Criterion createComparison(ComparisonFilter filter) {
+        return createComparison(filter, null);
+    }
+
+    /**
+     * Create a {@code Criterion} for the supplied filter. {@code value} may hold a typed value to be used instead of
+     * the filter's string value.
+     *
+     * @param filter the filter
+     * @param value  a optional object to be used instead of the filter's string value
+     *
+     * @return the criterion
+     */
+    private Criterion createComparison(ComparisonFilter filter, Object value) {
+        Object v = Optional.ofNullable(value).orElseGet(filter::getValue);
+
+        switch (filter.getOperator()) {
             case PropertyIsEqualTo:
-                return Restrictions.eq(property, value);
+                return Restrictions.eq(filter.getValueReference(), v);
             case PropertyIsGreaterThan:
-                return Restrictions.gt(property, value);
+                return Restrictions.gt(filter.getValueReference(), v);
             case PropertyIsGreaterThanOrEqualTo:
-                return Restrictions.ge(property, value);
+                return Restrictions.ge(filter.getValueReference(), v);
             case PropertyIsLessThan:
-                return Restrictions.lt(property, value);
+                return Restrictions.lt(filter.getValueReference(), v);
             case PropertyIsLessThanOrEqualTo:
-                return Restrictions.le(property, value);
+                return Restrictions.le(filter.getValueReference(), v);
             case PropertyIsLike:
-                return Restrictions.like(property, value);
+                if (!(v instanceof String)) {
+                    throw new Error("Could not apply PropertyIsLike to non string value");
+                }
+                filter.setValue((String) v);
+                return createLike(filter);
             case PropertyIsNull:
             case PropertyIsNil:
-                return Restrictions.isNull(property);
+                return Restrictions.isNull(filter.getValueReference());
             case PropertyIsNotEqualTo:
-                return Restrictions.ne(property, value);
+                return Restrictions.ne(filter.getValueReference(), v);
             default:
-                return unsupported(operator);
+                return unsupported(filter);
 
         }
     }
@@ -249,7 +278,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion create(SpatialFilter filter) {
+    private Criterion createSpatialCriterion(SpatialFilter filter) {
 
         String property = QueryUtils.createAssociation(DataEntity.PROPERTY_GEOMETRY_ENTITY,
                                                        GeometryEntity.PROPERTY_GEOMETRY);
@@ -257,7 +286,7 @@ public class FESCriterionGenerator {
         Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
 
         if (geom.isEmpty()) {
-            return unsupported(filter);
+            return SpatialRestrictions.isEmpty(property);
         }
 
         switch (filter.getOperator()) {
@@ -293,7 +322,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion create(TemporalFilter filter) {
+    private Criterion createTemporalCriterion(TemporalFilter filter) {
         Time time = filter.getTime();
 
         if (time.isReferenced() ||
@@ -317,15 +346,28 @@ public class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for the specified temporal relation.
      *
-     * @param op    the temporal relation type
-     * @param start the column holding the start time time
-     * @param end   the column holding the end time
-     * @param time  the time instant or period to compare against
+     * @param operator the temporal relation type
+     * @param property the column holding the time
+     * @param time     the time instant or period to compare against
      *
      * @return the criterion
      */
-    private Criterion create(TimeOperator op, String start, String end, Time time) {
-        switch (op) {
+    private Criterion createTemporalCriterion(TimeOperator operator, String property, Time time) {
+        return createTemporalCriterion(operator, property, property, time);
+    }
+
+    /**
+     * Create a {@code Criterion} for the specified temporal relation.
+     *
+     * @param operator the temporal relation type
+     * @param start    the column holding the start time
+     * @param end      the column holding the end time
+     * @param time     the time instant or period to compare against
+     *
+     * @return the criterion
+     */
+    private Criterion createTemporalCriterion(TimeOperator operator, String start, String end, Time time) {
+        switch (operator) {
             case TM_After:
                 return createAfter(time, start, end);
             case TM_Before:
@@ -353,7 +395,78 @@ public class FESCriterionGenerator {
             case TM_OverlappedBy:
                 return createOverlappedBy(time, start, end);
             default:
-                return unsupported(op);
+                return unsupported(operator);
+        }
+    }
+
+    /**
+     * Create a {@code Criterion} for the specified comparison filter. The respective time value is parsed from the
+     * filter's string value.
+     *
+     * @param filter   the comparison filter
+     * @param property the column holding the time
+     *
+     * @return the criterion
+     */
+    private Criterion createTemporalCriterion(ComparisonFilter filter, String property) {
+        return createTemporalCriterion(filter, property, property);
+    }
+
+    /**
+     * Create a {@code Criterion} for the specified comparison filter. The respective time value is parsed from the
+     * filter's string value.
+     *
+     * @param filter the comparison filter
+     * @param start  the column holding the start time
+     * @param end    the column holding the end time
+     *
+     * @return the criterion
+     */
+    private Criterion createTemporalCriterion(ComparisonFilter filter, String start, String end) {
+        Time time;
+        try {
+            time = parseTime(filter.getValue());
+        } catch (IllegalArgumentException ex) {
+            return unparsableTime(filter.getValue(), ex);
+        }
+
+        switch (filter.getOperator()) {
+            case PropertyIsBetween:
+                if (time instanceof TimePeriod) {
+                    return unsupported(filter);
+                }
+                Time time2;
+                try {
+                    time2 = parseTime(filter.getValueUpper());
+                } catch (IllegalArgumentException ex) {
+                    return unparsableTime(filter.getValueUpper(), ex);
+                }
+                if (time2 instanceof TimePeriod) {
+                    return unsupported(filter);
+                }
+                TimePeriod period = new TimePeriod(time, time2);
+                return createDuringEquals(period, start, end);
+            case PropertyIsEqualTo:
+                return createEquals(time, start, end);
+            case PropertyIsGreaterThan:
+                return createAfter(time, start, end);
+            case PropertyIsGreaterThanOrEqualTo:
+                return createAfterEquals(time, start, end);
+            case PropertyIsLessThan:
+                return createBefore(time, start, end);
+            case PropertyIsLessThanOrEqualTo:
+                return createBeforeEquals(time, start, end);
+            case PropertyIsNotEqualTo:
+                return Restrictions.not(createEquals(time, start, end));
+            case PropertyIsNil:
+                // time phenomenon time is never nil
+                return MoreRestrictions.alwaysFalse();
+            case PropertyIsNull:
+                // time phenomenon time is never null
+                return MoreRestrictions.alwaysFalse();
+            case PropertyIsLike:
+            default:
+                return unsupported(filter);
         }
     }
 
@@ -366,7 +479,7 @@ public class FESCriterionGenerator {
      */
     private Criterion unsupported(Filter<?> filter) {
         LOG.warn("Unsupported filter: {}", filter);
-        return unsupportedIsTrue ? alwaysTrue() : alwaysFalse();
+        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
     }
 
     /**
@@ -378,7 +491,7 @@ public class FESCriterionGenerator {
      */
     private Criterion unsupported(Enum<?> filter) {
         LOG.warn("Unsupported operator: {}", filter);
-        return unsupportedIsTrue ? alwaysTrue() : alwaysFalse();
+        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
     }
 
     /**
@@ -390,7 +503,7 @@ public class FESCriterionGenerator {
      */
     private Criterion unsupported(Object o) {
         LOG.warn("Unsupported: {}", o);
-        return unsupportedIsTrue ? alwaysTrue() : alwaysFalse();
+        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
     }
 
     /**
@@ -401,8 +514,8 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion unparsableDateTime(String value, IllegalArgumentException ex) {
-        LOG.warn("Could not parse date time " + value, ex);
+    private Criterion unparsableTime(String value, IllegalArgumentException ex) {
+        LOG.warn("Could not parse time value " + value, ex);
         return unsupported(value);
     }
 
@@ -432,7 +545,8 @@ public class FESCriterionGenerator {
         String valueReference = filter.getValueReference();
         String lower = filter.getValue();
         String upper = filter.getValueUpper();
-        return Filters.and(Filters.ge(valueReference, lower), Filters.le(valueReference, upper));
+        return Filters.and(Filters.ge(valueReference, lower),
+                           Filters.le(valueReference, upper));
     }
 
     /**
@@ -457,6 +571,27 @@ public class FESCriterionGenerator {
     }
 
     /**
+     * Create a {@code Criterion} for the {@code AfterEquals} relation.
+     *
+     * @param time  the time to compare against
+     * @param start the property holding the start time
+     * @param end   the property holding the end time
+     *
+     * @return the criterion
+     */
+    private Criterion createAfterEquals(Time time, String start, String end) {
+        DateTime dt;
+        if (time instanceof TimeInstant) {
+            dt = ((TimeInstant) time).getValue();
+        } else if (time instanceof TimePeriod) {
+            dt = ((TimePeriod) time).getEnd();
+        } else {
+            return unsupported(time);
+        }
+        return Restrictions.ge(end, dt.toDate());
+    }
+
+    /**
      * Create a {@code Criterion} for the {@code Before} relation.
      *
      * @param time  the time to compare against
@@ -475,6 +610,27 @@ public class FESCriterionGenerator {
             return unsupported(time);
         }
         return Restrictions.lt(start, dt.toDate());
+    }
+
+    /**
+     * Create a {@code Criterion} for the {@code BeforeEquals} relation.
+     *
+     * @param time  the time to compare against
+     * @param start the property holding the start time
+     * @param end   the property holding the end time
+     *
+     * @return the criterion
+     */
+    private Criterion createBeforeEquals(Time time, String start, String end) {
+        DateTime dt;
+        if (time instanceof TimeInstant) {
+            dt = ((TimeInstant) time).getValue();
+        } else if (time instanceof TimePeriod) {
+            dt = ((TimePeriod) time).getStart();
+        } else {
+            return unsupported(time);
+        }
+        return Restrictions.le(start, dt.toDate());
     }
 
     /**
@@ -539,6 +695,29 @@ public class FESCriterionGenerator {
     }
 
     /**
+     * Create a {@code Criterion} for the {@code ContainsEquals} relation.
+     *
+     * @param time  the time to compare against
+     * @param start the property holding the start time
+     * @param end   the property holding the end time
+     *
+     * @return the criterion
+     */
+    private Criterion createContainsEquals(Time time, String start, String end) {
+        if (time instanceof TimeInstant) {
+            Date date = ((TimeInstant) time).getValue().toDate();
+            return Restrictions.and(Restrictions.le(start, date),
+                                    Restrictions.ge(end, date));
+        } else if (time instanceof TimePeriod) {
+            TimePeriod period = (TimePeriod) time;
+            return Restrictions.and(Restrictions.le(start, period.getStart().toDate()),
+                                    Restrictions.ge(end, period.getEnd().toDate()));
+        } else {
+            return unsupported(time);
+        }
+    }
+
+    /**
      * Create a {@code Criterion} for the {@code During} relation.
      *
      * @param time  the time to compare against
@@ -552,6 +731,25 @@ public class FESCriterionGenerator {
             TimePeriod period = (TimePeriod) time;
             return Restrictions.and(Restrictions.gt(start, period.getStart().toDate()),
                                     Restrictions.lt(end, period.getEnd().toDate()));
+        } else {
+            return unsupported(time);
+        }
+    }
+
+    /**
+     * Create a {@code Criterion} for the {@code DuringEquals} relation.
+     *
+     * @param time  the time to compare against
+     * @param start the property holding the start time
+     * @param end   the property holding the end time
+     *
+     * @return the criterion
+     */
+    private Criterion createDuringEquals(Time time, String start, String end) {
+        if (time instanceof TimePeriod) {
+            TimePeriod period = (TimePeriod) time;
+            return Restrictions.and(Restrictions.ge(start, period.getStart().toDate()),
+                                    Restrictions.le(end, period.getEnd().toDate()));
         } else {
             return unsupported(time);
         }
@@ -719,87 +917,67 @@ public class FESCriterionGenerator {
     /**
      * Create a new {@code Criterion} for the procedure.
      *
-     * @param operator the filter operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createProcedureCriterion(ComparisonOperator operator, String value) {
-        return createDatasetCriterion(operator, DatasetEntity.PROPERTY_PROCEDURE, value);
+    private Criterion createProcedureCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_PROCEDURE);
     }
 
     /**
      * Create a new {@code Criterion} for the feature.
      *
-     * @param operator the filter operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createFeatureCriterion(ComparisonOperator operator, String value) {
-        return createDatasetCriterion(operator, DatasetEntity.PROPERTY_FEATURE, value);
+    private Criterion createFeatureCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_FEATURE);
     }
 
     /**
      * Create a new {@code Criterion} for the offering.
      *
-     * @param operator the filter operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createOfferingCriterion(ComparisonOperator operator, String value) {
-        return createDatasetCriterion(operator, DatasetEntity.PROPERTY_OFFERING, value);
+    private Criterion createOfferingCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_OFFERING);
     }
 
     /**
      * Create a new {@code Criterion} for the phenomenon.
      *
-     * @param operator the filter operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createPhenomenonCriterion(ComparisonOperator operator, String value) {
-        return createDatasetCriterion(operator, DatasetEntity.PROPERTY_PHENOMENON, value);
+    private Criterion createPhenomenonCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_PHENOMENON);
     }
 
     /**
      * Creates a new {@code Criterion} for the result time.
      *
-     * @param operator the temporal operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createResultTimeCriterion(ComparisonOperator operator, String value) {
-        Date date;
-        try {
-            date = Instant.parse(value).toDate();
-        } catch (IllegalArgumentException ex) {
-            return unparsableDateTime(value, ex);
-        }
-        return create(operator, DataEntity.PROPERTY_RESULTTIME, date);
+    private Criterion createResultTimeCriterion(ComparisonFilter filter) {
+        return createTemporalCriterion(filter, DataEntity.PROPERTY_RESULTTIME);
     }
 
     /**
      * Creates a new {@code Criterion} for the phenomenon time.
      *
-     * @param operator the temporal operator
-     * @param value    the filter value
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createPhenomenonTimeCriterion(ComparisonOperator operator, String value) {
-        Date date;
-        try {
-            date = Instant.parse(value).toDate();
-        } catch (IllegalArgumentException ex) {
-            return unparsableDateTime(value, ex);
-        }
-
-        return Restrictions.or(create(operator, DataEntity.PROPERTY_TIMESTART, date),
-                               create(operator, DataEntity.PROPERTY_TIMEEND, date));
+    private Criterion createPhenomenonTimeCriterion(ComparisonFilter filter) {
+        return createTemporalCriterion(filter, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND);
     }
 
     /**
@@ -811,7 +989,7 @@ public class FESCriterionGenerator {
      * @return the criterion
      */
     private Criterion createPhenomenonTimeCriterion(TimeOperator operator, Time time) {
-        return create(operator, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND, time);
+        return createTemporalCriterion(operator, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND, time);
     }
 
     /**
@@ -823,54 +1001,155 @@ public class FESCriterionGenerator {
      * @return the criterion
      */
     private Criterion createResultTimeCriterion(TimeOperator operator, Time time) {
-        return create(operator, DataEntity.PROPERTY_RESULTTIME, DataEntity.PROPERTY_RESULTTIME, time);
+        return createTemporalCriterion(operator, DataEntity.PROPERTY_RESULTTIME, time);
     }
 
     /**
-     * Creates a criterion that is always {@code true}.
+     * Create a {@code Criterion} for the specified {@code PropertyIsLike} comparison filter.
+     *
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private static Criterion alwaysTrue() {
-        return Restrictions.sqlRestriction("1=1");
+    private Criterion createLike(ComparisonFilter filter) {
+
+        if (filter.isSetEscapeString()) {
+            if (filter.getEscapeString().length() != 1) {
+                filter.setValue(filter.getValue().replaceAll("\\\\", "\\\\"));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getEscapeString()), "\\"));
+                filter.setEscapeString("\\");
+            }
+        } else {
+            filter.setEscapeString("\\");
+        }
+
+        if (filter.isSetSingleChar()) {
+            if (!filter.getSingleChar().equals("_")) {
+                filter.setValue(filter.getValue().replaceAll("_", filter.getEscapeString() + "_"));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getSingleChar()), "_"));
+            }
+        }
+
+        if (filter.isSetWildCard()) {
+            if (!filter.getWildCard().equals("%")) {
+                filter.setValue(filter.getValue().replaceAll("%", filter.getEscapeString() + "%"));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getWildCard()), "%"));
+            }
+        }
+        return MoreRestrictions.like(filter.getValueReference(),
+                                     filter.getValue(),
+                                     filter.getEscapeString(),
+                                     !filter.isMatchCase());
     }
 
     /**
-     * Creates a criterion that is always {@code false}.
+     * Create a {@code Criterion} for the specified result filter.
+     *
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private static Criterion alwaysFalse() {
-        return Restrictions.sqlRestriction("0=1");
+    private Criterion createResultCriterion(ComparisonFilter filter) {
+        filter.setValueReference(DataEntity.PROPERTY_VALUE);
+
+        Optional<DetachedCriteria> count = parseLong(filter.getValue())
+                // we can't apply PropertyIsLike to count values
+                .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
+                .map(lv -> DetachedCriteria.forClass(CountDataEntity.class)
+                .add(createComparison(filter, lv)));
+        Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
+                // we can't apply PropertyIsLike to numeric values
+                .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
+                .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
+                .add(createComparison(filter, dv)));
+        Optional<DetachedCriteria> text = Optional.of(DetachedCriteria.forClass(TextDataEntity.class)
+                .add(createComparison(filter)));
+        Optional<DetachedCriteria> category = Optional.of(DetachedCriteria.forClass(CategoryDataEntity.class)
+                .add(createComparison(filter)));
+
+        // subqueries resulting in the ids of matching observations
+        List<DetachedCriteria> primitives = Stream.of(count, quantity, text, category)
+                .filter(Optional::isPresent).map(Optional::get)
+                .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_PKID)))
+                .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE)))
+                .collect(toList());
+
+        if (complexParent) {
+            // we are only returning top-level observations
+            DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
+                    .setProjection(Projections.property(DataEntity.PROPERTY_PKID))
+                    .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
+                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
+                    .add(primitives.stream()
+                            // restrict the subqueries to observations that are children
+                            .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.FALSE)))
+                            // create a property IN expression for each query
+                            .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
+                            // and wrap everything into a disjunction
+                            .collect(MoreRestrictions.toDisjunction()));
+
+            // restrict subqueries to observations that are not children
+            Stream<DetachedCriteria> topLevelPrimitives = primitives.stream()
+                    .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE)));
+
+            return Stream.concat(Stream.of(profile), topLevelPrimitives)
+                    // create a property IN expression for each query
+                    .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
+                    // and wrap everything into a disjunction
+                    .collect(MoreRestrictions.toDisjunction());
+        } else {
+
+            // we are not returning top-level observations but the children,
+            // no need to query profile observation
+            return primitives.stream()
+                    // create a property IN expression for each query
+                    .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
+                    // and wrap everything into a disjunction
+                    .collect(MoreRestrictions.toDisjunction());
+
+        }
+    }
+    /**
+     * Parse the {@code value} either as a {@link TimeInstant} or as a {@link TimePeriod}.
+     *
+     * @param value the string value
+     *
+     * @return the time
+     *
+     * @throws IllegalArgumentException if the {@code value} does not represent a valud time instant or period
+     */
+    private static Time parseTime(String value) throws IllegalArgumentException {
+        try {
+            return new TimeInstant(Instant.parse(value));
+        } catch (IllegalArgumentException ex1) {
+            try {
+                return new TimePeriod(Interval.parse(value));
+            } catch (IllegalArgumentException ex2) {
+                ex2.addSuppressed(ex1);
+                throw ex2;
+            }
+        }
     }
 
     /**
-     * Create a {@code Collector} that collects criterions to a conjunction.
+     * Trys to parse {@code value} as a {@code long}.
      *
-     * @return the collector
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
      */
-    private static Collector<Criterion, ?, Criterion> toConjunction() {
-        return toCriterion(Restrictions::conjunction);
+    private static Optional<Long> parseLong(String value) {
+        return Optional.ofNullable(Longs.tryParse(value));
     }
 
     /**
-     * Create a {@code Collector} that collects criterions to a disjunction.
+     * Trys to parse {@code value} as a {@code double}.
      *
-     * @return the collector
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
      */
-    private static Collector<Criterion, ?, Criterion> toDisjunction() {
-        return toCriterion(Restrictions::disjunction);
+    private static Optional<Double> parseDouble(String value) {
+        return Optional.ofNullable(Doubles.tryParse(value));
     }
-
-    /**
-     * Creates a {@code Collector} that collects criterions to a single criterion.
-     *
-     * @param finisher the finishing function to a create a single criterion from an criterion array
-     *
-     * @return the collector
-     */
-    private static Collector<Criterion, ?, Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
-        return collectingAndThen(collectingAndThen(toSet(), s -> s.stream().toArray(Criterion[]::new)), finisher);
-    }
-
 }

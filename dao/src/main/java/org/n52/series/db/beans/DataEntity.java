@@ -39,6 +39,8 @@ import org.n52.series.db.beans.parameter.Parameter;
 
 public abstract class DataEntity<T> {
 
+    public static final String PROPERTY_PKID = "pkid";
+
     public static final String PROPERTY_TIMESTART = "timestart";
 
     public static final String PROPERTY_TIMEEND = "timeend";

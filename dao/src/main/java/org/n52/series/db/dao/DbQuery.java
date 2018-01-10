@@ -197,7 +197,7 @@ public class DbQuery {
     }
 
     public Criteria addOdataFilter(Criteria criteria) {
-        FESCriterionGenerator generator = new FESCriterionGenerator(true, isMatchDomainIds());
+        FESCriterionGenerator generator = new FESCriterionGenerator(true, isMatchDomainIds(), isComplexParent());
         return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
     }
 
