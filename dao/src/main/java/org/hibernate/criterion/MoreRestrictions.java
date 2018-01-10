@@ -1,5 +1,8 @@
 package org.hibernate.criterion;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
