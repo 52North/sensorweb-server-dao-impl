@@ -144,6 +144,8 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
+        query.addOdataFilter(criteria);
+
         criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
                 : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
