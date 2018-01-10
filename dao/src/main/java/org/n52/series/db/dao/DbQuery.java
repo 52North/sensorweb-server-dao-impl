@@ -223,6 +223,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
+        Set<String> series = parameters.getSeries();
 
         if (!(hasValues(platforms)
                 || hasValues(phenomena)
@@ -230,7 +231,8 @@ public class DbQuery {
                 || hasValues(offerings)
                 || hasValues(features)
                 || hasValues(categories)
-                || hasValues(datasets))) {
+                || hasValues(datasets)
+                || hasValues(series))) {
             // no subquery neccessary
             return criteria;
         }
@@ -241,17 +243,14 @@ public class DbQuery {
             procedures.addAll(getMobileIds(platforms));
         }
 
-        addFilterRestriction(parameters.getPhenomena(), DatasetEntity.PROPERTY_PHENOMENON, filter);
+        addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        addHierarchicalFilterRestriction(parameters.getOfferings(), DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
         addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        addFilterRestriction(parameters.getCategories(), DatasetEntity.PROPERTY_CATEGORY, filter);
-        addFilterRestriction(parameters.getSeries(), filter);
+        addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(series, filter);
 
-        addFilterRestriction(parameters.getDatasets()
-                                       .stream()
-                                       .map(ValueType::extractId)
-                                       .collect(toSet()),
+        addFilterRestriction(datasets.stream().map(ValueType::extractId).collect(toSet()),
                              filter);
 
         // TODO refactory/simplify projection
