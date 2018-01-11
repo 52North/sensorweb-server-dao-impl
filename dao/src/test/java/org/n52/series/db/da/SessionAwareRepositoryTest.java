@@ -74,7 +74,7 @@ public class SessionAwareRepositoryTest {
         DatasetEntity dataset = new DatasetEntity();
         dataset.setProcedure(procedure);
         dataset.setFeature(feature);
-        
+
         SessionAwareRepository repo = new SessionAwareRepository() {};
         return repo.getPlatformId(dataset);
     }

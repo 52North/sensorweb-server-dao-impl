@@ -48,6 +48,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
+    // TODO check if passing entity is still neccessary
     protected abstract O prepareEmptyParameterOutput(E entity);
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);

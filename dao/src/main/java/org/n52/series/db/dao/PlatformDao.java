@@ -40,7 +40,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
@@ -55,11 +54,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        String alias = "const";
-        String procedure = QueryUtils.createAssociation(alias, ObservationConstellationEntity.PROCEDURE);
-        DetachedCriteria mobile = QueryUtils.projectionOn(procedure, createMobileSubquery(alias, true));
+        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROCEDURE, createMobileSubquery(true));
         DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
-                                                              createMobileSubquery(alias, false));
+                                                              createMobileSubquery(false));
 
         FeatureDao featureDao = new FeatureDao(session);
         ProcedureDao procedureDao = new ProcedureDao(session);
@@ -74,23 +71,21 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                               .uniqueResult();
     }
 
-    private DetachedCriteria createMobileSubquery(String constellationAlias, boolean mobile) {
+    private DetachedCriteria createMobileSubquery(boolean mobile) {
         DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, constellationAlias)
-                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+        criteria.createCriteria(DatasetEntity.PROCEDURE)
                 .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
         return criteria;
     }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.PROCEDURE;
+        return DatasetEntity.PROCEDURE;
     }
 
     @Override
     protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                       .createCriteria(ObservationConstellationEntity.PROCEDURE)
+        return subquery.createCriteria(DatasetEntity.PROCEDURE)
                        .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 

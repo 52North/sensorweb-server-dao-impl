@@ -47,7 +47,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
@@ -202,12 +201,10 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
-                    String alias = "valueTypeFilter";
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
                     c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
-                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
-                     .createCriteria(ObservationConstellationEntity.PROCEDURE);
-                    QueryUtils.setFilterProjectionOn(alias, parameter, c);
+                     .createCriteria(DatasetEntity.PROCEDURE);
+                    QueryUtils.setFilterProjectionOn(parameter, c);
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }
             }
@@ -221,19 +218,18 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
-                criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_ALIAS, filterResolver));
-            } else if (parameter.endsWith(ObservationConstellationEntity.PROCEDURE)) {
+                criteria.createCriteria(DatasetEntity.PROCEDURE)
+                        .add(createPlatformTypeRestriction(filterResolver));
+            } else if (parameter.endsWith(DatasetEntity.PROCEDURE)) {
                 // restrict directly on procedure table
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
-                String alias = "platformTypeFilter";
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
-                 .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                c.createCriteria(DatasetEntity.PROCEDURE)
                  .add(createPlatformTypeRestriction(filterResolver));
 
-                QueryUtils.setFilterProjectionOn(alias, parameter, c);
+                QueryUtils.setFilterProjectionOn(parameter, c);
                 criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
             }
         }
