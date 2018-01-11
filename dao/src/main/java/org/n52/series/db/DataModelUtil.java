@@ -37,7 +37,7 @@ import org.hibernate.Session;
 import org.hibernate.engine.spi.NamedQueryDefinition;
 import org.hibernate.engine.spi.NamedSQLQueryDefinition;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
@@ -82,7 +82,7 @@ public final class DataModelUtil {
 
     public static String getSqlString(Criteria criteria) {
         CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-        SessionImplementor session = criteriaImpl.getSession();
+        SharedSessionContractImplementor session = criteriaImpl.getSession();
         SessionFactoryImplementor factory = extractSessionFactory(criteria);
         CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory,
                                                                          criteriaImpl,
@@ -113,14 +113,14 @@ public final class DataModelUtil {
     }
 
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
-        SessionImplementor session = getSessionImplementor(criteria);
+        SharedSessionContractImplementor session = getSessionImplementor(criteria);
         return session != null
                 ? session.getFactory()
                 : null;
     }
 
-    private static SessionImplementor getSessionImplementor(Criteria criteria) {
-        SessionImplementor session = null;
+    private static SharedSessionContractImplementor getSessionImplementor(Criteria criteria) {
+        SharedSessionContractImplementor session = null;
         if (criteria instanceof CriteriaImpl) {
             session = ((CriteriaImpl) criteria).getSession();
         } else if (criteria instanceof CriteriaImpl.Subcriteria) {

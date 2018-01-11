@@ -17,9 +17,9 @@
         <!-- optional properties file -->
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
-        <postgis.version>2.2.0</postgis.version>
-        <aspectj.version>1.8.9</aspectj.version>
-        <postgresql.version>9.4.1208.jre7</postgresql.version>
+        <version.postgis>2.2.0</version.postgis>
+        <version.aspectj>1.8.9</version.aspectj>
+        <version.postgresql>9.4.1208.jre7</version.postgresql>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
 
@@ -52,6 +52,11 @@
             <artifactId>entities</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.n52.series.db</groupId>
+            <artifactId>types</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -82,13 +87,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${version.spring}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${version.spring}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -104,7 +109,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjtools</artifactId>
-            <version>${aspectj.version}</version>
+            <version>${version.aspectj}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -116,13 +121,13 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <version>${version.postgresql}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.postgis</groupId>
             <artifactId>postgis-jdbc</artifactId>
-            <version>${postgis.version}</version>
+            <version>${version.postgis}</version>
             <exclusions>
                 <exclusion>
                     <groupId>postgresql</groupId>
@@ -138,7 +143,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate.version}</version>
+            <version>${version.hibernate}</version>
             <scope>runtime</scope>
         </dependency>
 
