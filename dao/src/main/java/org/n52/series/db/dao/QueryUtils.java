@@ -47,21 +47,6 @@ public class QueryUtils {
                 : property;
     }
 
-    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
-        return projectionOn(null, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
-        return projectionOn(null, member, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String alias,
-                                                String member,
-                                                String property,
-                                                DetachedCriteria criteria) {
-        return criteria.setProjection(projectionOn(alias, member, property));
-    }
-
     public static DetachedCriteria projectionOnPkid(DetachedCriteria criteria) {
         return projectionOnPkid(null, criteria);
     }
@@ -86,6 +71,21 @@ public class QueryUtils {
         return projectionOn(alias, member, DescribableEntity.PROPERTY_ID);
     }
 
+    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
+        return projectionOn(null, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
+        return projectionOn(null, member, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String alias,
+                                                String member,
+                                                String property,
+                                                DetachedCriteria criteria) {
+        return criteria.setProjection(projectionOn(alias, member, property));
+    }
+
     public static PropertyProjection projectionOn(String property) {
         return projectionOn(null, property);
     }
@@ -100,13 +100,13 @@ public class QueryUtils {
         return Projections.property(association);
     }
 
-    public static void setFilterProjectionOn(String alias, String parameter, DetachedCriteria c) {
-        String[] associationPathElements = parameter.split("\\.", 2);
-        if (associationPathElements.length == 2) {
-            // other observationconstellation members
-            String member = associationPathElements[1];
-            projectionOnPkid(alias, member, c);
-        } else {
+    public static void setFilterProjectionOn(String parameter, DetachedCriteria c) {
+//        String[] associationPathElements = parameter.split("\\.", 2);
+//        if (associationPathElements.length == 2) {
+//            // other observationconstellation members
+//            String member = associationPathElements[1];
+//            projectionOnPkid(alias, member, c);
+//        } else {
             if (!parameter.isEmpty()) {
                 // feature case only
                 projectionOn(parameter, c);
@@ -114,7 +114,7 @@ public class QueryUtils {
                 // dataset case
                 projectionOnPkid(c);
             }
-        }
+//        }
     }
 
     public static Set<Long> parseToIds(Set<String> ids) {

@@ -52,7 +52,6 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -118,8 +117,7 @@ public abstract class SessionAwareRepository {
 
     // XXX a bit misplaced here
     protected String getPlatformId(DatasetEntity dataset) {
-        ObservationConstellationEntity constellation = dataset.getObservationConstellation();
-        ProcedureEntity procedure = constellation.getProcedure();
+        ProcedureEntity procedure = dataset.getProcedure();
         boolean mobile = procedure.isMobile();
         boolean insitu = procedure.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);

@@ -96,6 +96,14 @@ public final class ZonalTimestampTypeDescriptor extends TimestampTypeDescriptor 
                 final Timestamp unwrapped = javaTypeDescriptor.unwrap(value, Timestamp.class, opts);
                 st.setTimestamp(index, unwrapped, zonalCalendar);
             }
+
+            @Override
+            protected void doBind(CallableStatement st, X value, String name, WrapperOptions opts)
+                    throws SQLException {
+                final Timestamp unwrapped = javaTypeDescriptor.unwrap(value, Timestamp.class, opts);
+                st.setTimestamp(name, unwrapped, zonalCalendar);
+                
+            }
         };
     }
 

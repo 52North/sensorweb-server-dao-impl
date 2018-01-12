@@ -17,12 +17,12 @@
         <!-- optional properties file -->
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
-        <postgis.version>2.2.0</postgis.version>
-        <aspectj.version>1.8.9</aspectj.version>
-        <postgresql.version>9.4.1208.jre7</postgresql.version>
+        <version.postgis>2.2.0</version.postgis>
+        <version.aspectj>1.8.9</version.aspectj>
+        <version.postgresql>9.4.1208.jre7</version.postgresql>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
-        
+
         <docs.context>docs</docs.context>
         <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
         <docs.output.directory>${webapp.workdir}/static/${docs.context}</docs.output.directory>
@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.n52.series.db</groupId>
-            <artifactId>mappings</artifactId>
+            <artifactId>types</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -87,13 +87,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${version.spring}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${version.spring}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjtools</artifactId>
-            <version>${aspectj.version}</version>
+            <version>${version.aspectj}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -121,13 +121,13 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <version>${version.postgresql}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.postgis</groupId>
             <artifactId>postgis-jdbc</artifactId>
-            <version>${postgis.version}</version>
+            <version>${version.postgis}</version>
             <exclusions>
                 <exclusion>
                     <groupId>postgresql</groupId>
@@ -143,7 +143,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate.version}</version>
+            <version>${version.hibernate}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -247,14 +247,24 @@
                         <webResources>
                             <resource>
                                 <directory>src/main/resources</directory>
+                                <targetPath>WEB-INF/classes</targetPath>
                                 <filtering>true</filtering>
                             </resource>
                             <resource>
                                 <directory>src/main/webapp</directory>
                                 <filtering>true</filtering>
                                 <excludes>
+                                    <!-- spring beans are filtered via properties -->
                                     <exclude>WEB-INF/spring/**</exclude>
                                 </excludes>
+                            </resource>
+                            <resource>
+                                <directory>src/main/webapp</directory>
+                                <filtering>true</filtering>
+                                <includes>
+                                    <!-- sets the properties file being used for filtering -->
+                                    <include>WEB-INF/spring/dispatcher-servlet.xml</include>
+                                </includes>
                             </resource>
                             <resource>
                                 <directory>${webapp.workdir}</directory>
@@ -277,19 +287,9 @@
                         <scanIntervalSeconds>0</scanIntervalSeconds>
                         <reload>manual</reload>
                         <webAppConfig>
-                            <resourceBases>
-                                <resourceBase>${webappDirectory}</resourceBase>
-                                <resourceBase>src/main/webapp</resourceBase>
-                            </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../dao/target/classes</extraClasspath>
                         </webAppConfig>
-                        <scanTargets>
-                            <scanTarget>/target/classes/</scanTarget>
-                            <scanTarget>${project.build.outputDirectory}</scanTarget>
-                            <scanTarget>../dao/target/classes</scanTarget>
-                        </scanTargets>
                         <systemProperties>
                             <systemProperty>
                                 <name>catalina.base</name>

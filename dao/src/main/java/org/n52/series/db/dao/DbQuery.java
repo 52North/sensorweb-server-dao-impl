@@ -57,7 +57,6 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -234,10 +233,8 @@ public class DbQuery {
             return criteria;
         }
 
-        String alias = "constellation";
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter, alias);
-        QueryUtils.setFilterProjectionOn(alias, datasetName, filter);
+        QueryUtils.setFilterProjectionOn(datasetName, filter);
 
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
@@ -245,21 +242,15 @@ public class DbQuery {
         }
 
         if (hasValues(phenomena)) {
-            addHierarchicalFilterRestriction(phenomena,
-                                             ObservationConstellationEntity.OBSERVABLE_PROPERTY,
-                                             observationConstellationFilter);
+            addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         }
 
         if (hasValues(procedures)) {
-            addHierarchicalFilterRestriction(procedures,
-                                             ObservationConstellationEntity.PROCEDURE,
-                                             observationConstellationFilter);
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROCEDURE, filter);
         }
 
         if (hasValues(offerings)) {
-            addHierarchicalFilterRestriction(offerings,
-                                             ObservationConstellationEntity.OFFERING,
-                                             observationConstellationFilter);
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.OFFERING, filter);
         }
 
         if (hasValues(features)) {
@@ -276,10 +267,6 @@ public class DbQuery {
 
         criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
-    }
-
-    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter, String alias) {
-        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,

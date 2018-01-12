@@ -65,7 +65,7 @@ class ResultTimeRepository extends SessionAwareRepository {
                                                                      DataEntity.PROPERTY_PHENOMENON_TIME_END))
                                         .setProjection(Projections.property(DataEntity.PROPERTY_RESULT_TIME))
                                         .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                                        .createCriteria(DataEntity.PROPERTY_DATASETS, alias)
+                                        .createCriteria(DataEntity.PROPERTY_DATASET, alias)
                                         .add(Restrictions.eq(datasetMember, Long.parseLong(datasetId)))
                                         .list();
             return resultTimes.stream()

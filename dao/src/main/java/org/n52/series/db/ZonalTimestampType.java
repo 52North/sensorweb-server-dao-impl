@@ -35,7 +35,7 @@ import java.util.TimeZone;
 
 import org.hibernate.HibernateException;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.type.LiteralType;
 import org.hibernate.type.TimestampType;
@@ -87,13 +87,13 @@ public class ZonalTimestampType extends AbstractSingleColumnStandardBasicType<Da
     }
 
     @Override
-    public Date next(Date current, SessionImplementor session) {
-        return TimestampType.INSTANCE.next(current, session);
+    public Date seed(SharedSessionContractImplementor session) {
+        return TimestampType.INSTANCE.seed(session);
     }
 
     @Override
-    public Date seed(SessionImplementor session) {
-        return TimestampType.INSTANCE.seed(session);
+    public Date next(Date current, SharedSessionContractImplementor session) {
+        return TimestampType.INSTANCE.next(current, session);
     }
 
     @Override
@@ -110,4 +110,5 @@ public class ZonalTimestampType extends AbstractSingleColumnStandardBasicType<Da
     public Date fromStringValue(String xml) throws HibernateException {
         return TimestampType.INSTANCE.fromStringValue(xml);
     }
+
 }

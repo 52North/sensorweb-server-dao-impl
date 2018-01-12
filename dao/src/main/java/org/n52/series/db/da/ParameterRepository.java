@@ -48,12 +48,10 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
+    // TODO check if passing entity is still neccessary
     protected abstract O prepareEmptyParameterOutput(E entity);
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
-
-    protected abstract O createExpanded(E instance, DbQuery query, Session session)
-            throws DataAccessException;
 
     protected abstract String createHref(String hrefBase);
 
@@ -103,7 +101,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
         Long id = entity.getId();
         String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getDomainId();
+        String domainId = entity.getIdentifier();
         String hrefBase = query.getHrefBase();
 
         result.setId(Long.toString(id));
@@ -128,6 +126,8 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<E> allInstances = getAllInstances(query, session);
         return createExpanded(allInstances, query, session);
     }
+
+    protected abstract O createExpanded(E instance, DbQuery query, Session session) throws DataAccessException;
 
     protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {

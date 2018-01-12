@@ -89,9 +89,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        boolean mobile = entity.isMobile();
-        boolean insitu = entity.isInsitu();
-        return new PlatformOutput(PlatformType.toInstance(mobile, insitu));
+        return new PlatformOutput();
     }
 
     @Override
@@ -173,8 +171,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                                        .removeAllOf(Parameters.NEAR));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setDatasets(datasets);
-
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
@@ -184,8 +180,10 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return null;
         }
 
-        result.setGeometry(geometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+
+        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
+        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
         result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
@@ -361,7 +359,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private PlatformEntity convertToPlatform(FeatureEntity entity, DbQuery query) {
         PlatformEntity result = new PlatformEntity();
-        result.setDomainId(entity.getDomainId());
+        result.setIdentifier(entity.getIdentifier());
         result.setId(entity.getId());
         result.setName(entity.getName());
         result.setParameters(entity.getParameters());

@@ -12,11 +12,6 @@
     <description>REST SPI Implementation for SOS Series Database.</description>
     <url>http://52north.org/communities/sensorweb/</url>
 
-    <properties>
-        <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
-        <!--<hibernate.version>5.1.0.Final</hibernate.version>-->
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.n52.series-api</groupId>
@@ -35,11 +30,6 @@
             <artifactId>entities</artifactId>
         </dependency>
         
-         <dependency>
-            <groupId>org.n52.shetland</groupId>
-            <artifactId>shetland</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -92,7 +82,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
+            <version>${version.hibernate}</version>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -103,23 +93,9 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${hibernate.spatial.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.postgis</groupId>
-                    <artifactId>postgis-jdbc</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${version.hibernate}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
