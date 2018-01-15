@@ -43,6 +43,13 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.slf4j.Logger;
@@ -280,4 +287,28 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 .findAny().orElse(null);
     }
 
+    /**
+     * Translate the {@link Criteria criteria} to SQL.
+     *
+     * @param criteria the criteria
+     *
+     * @return the SQL
+     */
+    public static String toSQLString(Criteria criteria) {
+        if (!(criteria instanceof CriteriaImpl)) {
+            return criteria.toString();
+        }
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+        SessionImplementor session = criteriaImpl.getSession();
+        SessionFactoryImplementor factory = session.getFactory();
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getImplementors(entityOrClassName);
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        LoadQueryInfluencers loadQueryInfluencers = session.getLoadQueryInfluencers();
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
+                                                           entityOrClassName, loadQueryInfluencers);
+        return walker.getSQLString();
+    }
 }
