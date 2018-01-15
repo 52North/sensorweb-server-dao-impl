@@ -131,9 +131,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")

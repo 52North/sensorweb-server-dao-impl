@@ -83,15 +83,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     /**
-     * <p>
      * Retrieves all available observation instances.
-     * </p>
      *
-     * @param parameters
-     *        query parameters.
+     * @param parameters query parameters.
+     *
      * @return all instances matching the given query parameters.
-     * @throws DataAccessException
-     *         if accessing database fails.
+     *
+     * @throws DataAccessException if accessing database fails.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -99,6 +97,9 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
         return criteria.list();
     }
 
