@@ -185,8 +185,8 @@ public class DbQuery {
             DateTime endDate = interval.getEnd();
             Date start = startDate.toDate();
             Date end = endDate.toDate();
-            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_START, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_END, start, end)));
+            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_START, start, end),
+                                         Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
         }
         return criteria;
     }
