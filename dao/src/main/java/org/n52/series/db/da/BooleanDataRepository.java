@@ -145,6 +145,11 @@ public class BooleanDataRepository
     }
 
     @Override
+    protected BooleanValue createEmptyValue() {
+        return new BooleanValue();
+    }
+
+    @Override
     public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
                                              BooleanDatasetEntity series,
                                              DbQuery query) {

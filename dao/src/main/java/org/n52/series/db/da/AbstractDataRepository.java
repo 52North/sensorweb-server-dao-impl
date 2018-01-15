@@ -121,6 +121,9 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
     }
+    
+    protected abstract V createEmptyValue();
+    
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 

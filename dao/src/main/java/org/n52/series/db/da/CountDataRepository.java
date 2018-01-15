@@ -141,6 +141,11 @@ public class CountDataRepository
     }
 
     @Override
+    protected CountValue createEmptyValue() {
+        return new CountValue();
+    }
+
+    @Override
     public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations

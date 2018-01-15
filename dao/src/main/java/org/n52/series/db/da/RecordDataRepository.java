@@ -144,6 +144,11 @@ public class RecordDataRepository
     }
 
     @Override
+    protected RecordValue createEmptyValue() {
+        return new RecordValue();
+    }
+
+    @Override
     public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations

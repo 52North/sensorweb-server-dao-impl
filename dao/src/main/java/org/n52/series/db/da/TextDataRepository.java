@@ -140,6 +140,11 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     }
 
     @Override
+    protected TextValue createEmptyValue() {
+        return new TextValue();
+    }
+
+    @Override
     public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations

@@ -177,6 +177,9 @@ public class QuantityDataRepository extends
         return parameters.isShowTimeIntervals()
                 ? new QuantityValue(start, end, observationValue)
                 : new QuantityValue(end, observationValue);
+    @Override
+    protected QuantityValue createEmptyValue() {
+        return new QuantityValue();
     }
 
     private Double format(QuantityDataEntity observation, QuantityDatasetEntity series) {
