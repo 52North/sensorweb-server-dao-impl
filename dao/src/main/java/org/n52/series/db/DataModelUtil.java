@@ -88,9 +88,9 @@ public final class DataModelUtil {
                                                                          criteriaImpl,
                                                                          criteriaImpl.getEntityOrClassName(),
                                                                          CriteriaQueryTranslator.ROOT_SQL_ALIAS);
-        String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
+        String[] implementors = factory.getMetamodel().getImplementors(criteriaImpl.getEntityOrClassName());
 
-        OuterJoinLoadable joinLoader = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        OuterJoinLoadable joinLoader = (OuterJoinLoadable) factory.getMetamodel().entityPersister(implementors[0]);
         CriteriaJoinWalker walker = new CriteriaJoinWalker(joinLoader,
                                                            translator,
                                                            factory,
