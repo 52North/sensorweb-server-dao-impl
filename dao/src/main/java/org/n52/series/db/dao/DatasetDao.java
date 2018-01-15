@@ -53,16 +53,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
+    public static final String FEATURE_PATH_ALIAS = "dsFeature";
+
+    public static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
-
-//    private static final String OFFERING_ALIAS = "off";
-//
-//    private static final String FEATURE_ALIAS = "feat";
-//
-//    private static final String PHENOMENON_ALIAS = "phen";
-//
-//    public static final String PROCEDURE_ALIAS = "proc";
 
     private final Class<T> entityType;
 
@@ -155,7 +150,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROCEDURE);
+        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROCEDURE, PROCEDURE_PATH_ALIAS);
         if (ignoreReferenceSeries) {
             procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }

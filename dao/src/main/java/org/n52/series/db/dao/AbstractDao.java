@@ -164,13 +164,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
             return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         } else {
             addSpatialFilter(query, subquery);
-            return projectOnDatasetParameterId(subquery);
+            return subquery.createCriteria(getDatasetProperty())
+                           .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         }
-    }
-
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(getDatasetProperty())
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     protected final Conjunction createPublishedDatasetFilter() {
@@ -218,15 +214,14 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
-                criteria.createCriteria(DatasetEntity.PROCEDURE)
-                        .add(createPlatformTypeRestriction(filterResolver));
+                criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_PATH_ALIAS, filterResolver));
             } else if (parameter.endsWith(DatasetEntity.PROCEDURE)) {
                 // restrict directly on procedure table
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.createCriteria(DatasetEntity.PROCEDURE)
+                c.createCriteria(DatasetEntity.PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
                  .add(createPlatformTypeRestriction(filterResolver));
 
                 QueryUtils.setFilterProjectionOn(parameter, c);
