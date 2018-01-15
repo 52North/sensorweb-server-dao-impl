@@ -31,7 +31,7 @@
             <element column="resulttime" type="timestamp" />
         </set>
 
-        <subclass discriminator-value="sos/" name="QuantityDatasetEntity">
+        <subclass discriminator-value="quantity" name="QuantityDatasetEntity">
             <property formula="3" name="numberOfDecimals" type="int" />
             <!-- first value for backwards compatibility -->
             <component class="ObservationEntity" name="firstValue">
@@ -73,7 +73,7 @@
             </bag>
         </subclass>
 
-        <subclass discriminator-value="sos/-profile" name="QuantityProfileDatasetEntity">
+        <subclass discriminator-value="quantity-profile" name="QuantityProfileDatasetEntity">
             <property name="verticalParameterName" formula="'depth'" type="string" />
             <property name="verticalFromParameterName" formula="'fromDepth'" type="string" />
             <property name="verticalToParameterName" formula="'toDepth'" type="string" />
