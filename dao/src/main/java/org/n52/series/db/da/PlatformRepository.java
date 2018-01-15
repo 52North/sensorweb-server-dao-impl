@@ -160,12 +160,22 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        PlatformOutput output = super.createCondensed(entity, query, session);
+        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
+        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
+        // re-set ID after platformtype has been determined 
+        output.setId(Long.toString(entity.getId()));
+        return output;
+    }
+
+    @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
-                                           .extendWith(Parameters.PLATFORMS, result.getId())
-                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                                .extendWith(Parameters.PLATFORMS, result.getId())
+                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR));
