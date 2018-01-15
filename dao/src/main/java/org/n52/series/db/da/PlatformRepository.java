@@ -88,7 +88,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private IDataRepositoryFactory factory;
 
     @Override
-    protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
+    protected PlatformOutput prepareEmptyParameterOutput() {
         return new PlatformOutput();
     }
 

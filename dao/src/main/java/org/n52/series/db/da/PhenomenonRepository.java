@@ -43,7 +43,7 @@ import org.n52.series.spi.search.SearchResult;
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
     @Override
-    protected PhenomenonOutput prepareEmptyParameterOutput(PhenomenonEntity entity) {
+    protected PhenomenonOutput prepareEmptyParameterOutput() {
         return new PhenomenonOutput();
     }
 

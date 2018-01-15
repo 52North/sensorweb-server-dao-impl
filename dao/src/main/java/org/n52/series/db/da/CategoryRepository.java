@@ -43,7 +43,7 @@ import org.n52.series.spi.search.SearchResult;
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
 
     @Override
-    protected CategoryOutput prepareEmptyParameterOutput(CategoryEntity entity) {
+    protected CategoryOutput prepareEmptyParameterOutput() {
         return new CategoryOutput();
     }
 

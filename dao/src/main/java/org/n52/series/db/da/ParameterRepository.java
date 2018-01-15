@@ -48,8 +48,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
-    // TODO check if passing entity is still neccessary
-    protected abstract O prepareEmptyParameterOutput(E entity);
+    protected abstract O prepareEmptyParameterOutput();
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
 
@@ -96,7 +95,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
-        O result = prepareEmptyParameterOutput(entity);
+        O result = prepareEmptyParameterOutput();
         IoParameters parameters = query.getParameters();
 
         Long id = entity.getId();
