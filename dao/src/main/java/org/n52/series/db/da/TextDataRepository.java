@@ -124,10 +124,10 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     private TextValue[] expandToInterval(String value, TextDatasetEntity series, DbQuery query) {
         TextDataEntity referenceStart = new TextDataEntity();
         TextDataEntity referenceEnd = new TextDataEntity();
-        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
+        referenceStart.setSamplingTimeEnd(query.getTimespan()
                                                  .getStart()
                                                  .toDate());
-        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
                                                .getEnd()
                                                .toDate());
         referenceStart.setValue(value);

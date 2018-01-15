@@ -129,13 +129,13 @@ public class QuantityDataRepository extends
         return result;
     }
 
-    private QuantityValue[] expandToInterval(Double value, QuantityDatasetEntity series, DbQuery query) {
+    private QuantityValue[] expandToInterval(BigDecimal value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
+        referenceStart.setSamplingTimeEnd(query.getTimespan()
                                                  .getStart()
                                                  .toDate());
-        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
                                                .getEnd()
                                                .toDate());
         referenceStart.setValue(value);
@@ -162,7 +162,7 @@ public class QuantityDataRepository extends
 
     private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Double observationValue = !service.isNoDataValue(observation)
+        BigDecimal observationValue = !service.isNoDataValue(observation)
                 ? format(observation, series)
                 : null;
         return createValue(observationValue, observation, query);

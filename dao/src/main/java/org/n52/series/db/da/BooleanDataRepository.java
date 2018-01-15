@@ -129,10 +129,10 @@ public class BooleanDataRepository
     private BooleanValue[] expandToInterval(Boolean value, BooleanDatasetEntity series, DbQuery query) {
         BooleanDataEntity referenceStart = new BooleanDataEntity();
         BooleanDataEntity referenceEnd = new BooleanDataEntity();
-        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
+        referenceStart.setSamplingTimeEnd(query.getTimespan()
                                                  .getStart()
                                                  .toDate());
-        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
                                                .getEnd()
                                                .toDate());
         referenceStart.setValue(value);

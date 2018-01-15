@@ -128,10 +128,10 @@ public class RecordDataRepository
     private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
         RecordDataEntity referenceStart = new RecordDataEntity() {};
         RecordDataEntity referenceEnd = new RecordDataEntity() {};
-        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
+        referenceStart.setSamplingTimeEnd(query.getTimespan()
                                                  .getStart()
                                                  .toDate());
-        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
                                                .getEnd()
                                                .toDate());
         referenceStart.setValue(value);
