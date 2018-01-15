@@ -181,7 +181,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 
-        query.addOdataFilter(criteria);
+        query.addOdataFilterForDataset(criteria);
 
         return criteria;
     }

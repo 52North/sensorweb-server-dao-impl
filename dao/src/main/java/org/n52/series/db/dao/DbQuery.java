@@ -196,8 +196,19 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addOdataFilter(Criteria criteria) {
-        FESCriterionGenerator generator = new FESCriterionGenerator(true, isMatchDomainIds(), isComplexParent());
+    public Criteria addOdataFilterForData(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    public Criteria addOdataFilterForDataset(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
         return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
     }
 

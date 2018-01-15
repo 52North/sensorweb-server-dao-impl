@@ -3,18 +3,24 @@ package org.n52.series.db.dao;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MoreRestrictions;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.internal.CriteriaImpl.Subcriteria;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
@@ -26,7 +32,7 @@ import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -35,6 +41,7 @@ import org.n52.shetland.ogc.filter.BinaryLogicFilter;
 import org.n52.shetland.ogc.filter.ComparisonFilter;
 import org.n52.shetland.ogc.filter.Filter;
 import org.n52.shetland.ogc.filter.FilterConstants.ComparisonOperator;
+import org.n52.shetland.ogc.filter.FilterConstants.SpatialOperator;
 import org.n52.shetland.ogc.filter.FilterConstants.TimeOperator;
 import org.n52.shetland.ogc.filter.Filters;
 import org.n52.shetland.ogc.filter.SpatialFilter;
@@ -45,16 +52,19 @@ import org.n52.shetland.ogc.gml.time.TimeInstant;
 import org.n52.shetland.ogc.gml.time.TimePeriod;
 
 import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * Class to create a {@linkplain Criterion criterion} from an FES {@linkplain Filter filter}.
+ * TODO JavaDoc
  *
  * @author Christian Autermann
  */
-public class FESCriterionGenerator {
+public abstract class FESCriterionGenerator {
+
     private static final Logger LOG = LoggerFactory.getLogger(FESCriterionGenerator.class);
+
     private static final String VR_PROCEDURE = "om:procedure";
     private static final String VR_FEATURE = "om:featureOfInterest";
     private static final String VR_OFFERING = "sos:offering";
@@ -69,20 +79,88 @@ public class FESCriterionGenerator {
     private final boolean unsupportedIsTrue;
     private final boolean matchDomainIds;
     private final boolean complexParent;
+    private final Criteria criteria;
+    private final Set<String> aliases = new HashSet<>();
 
     /**
      * Creates a new {@code FESCriterionGenerator}.
      *
+     * @param criteria          the criteria
      * @param unsupportedIsTrue if the generator encounters a filter expression it could not translate it may generate a
      *                          criterion that is always {@code true} or always {@code false} depending on this flag
      * @param matchDomainIds    if filter on observation parameters like feature, offering or procedure should match on
      *                          their respective domain identifiers or on the primary keys in the database
      * @param complexParent     if the queries should result in the parent observation and hide the child observations
      */
-    public FESCriterionGenerator(boolean unsupportedIsTrue, boolean matchDomainIds, boolean complexParent) {
+    public FESCriterionGenerator(Criteria criteria,
+                                 boolean unsupportedIsTrue,
+                                 boolean matchDomainIds,
+                                 boolean complexParent) {
+        this.criteria = Objects.requireNonNull(criteria);
         this.unsupportedIsTrue = unsupportedIsTrue;
         this.matchDomainIds = matchDomainIds;
         this.complexParent = complexParent;
+    }
+
+    /**
+     * Get the criteria this generator creates criterions for.
+     *
+     * @return the criteria
+     */
+    protected Criteria getCriteria() {
+        return this.criteria;
+    }
+
+    /**
+     * If the generator encounters a filter expression it could not translate it may generate a criterion that is always
+     * {@code true} or always {@code false} depending on this flag
+     *
+     * @return the flag
+     */
+    protected boolean isUnsupportedIsTrue() {
+        return this.unsupportedIsTrue;
+    }
+
+    /**
+     * Ff filter on observation parameters like feature, offering or procedure should match on their respective domain
+     * identifiers or on the primary keys in the database
+     *
+     * @return if domain identifiers should be matched
+     */
+    protected boolean isMatchDomainIds() {
+        return this.matchDomainIds;
+    }
+
+    /**
+     * If the queries should result in the parent observation and hide the child observations.
+     *
+     * @return if the queries should result in the parent observation and hide the child observations
+     */
+    protected boolean isComplexParent() {
+        return this.complexParent;
+    }
+
+    /**
+     * Add a alias for the specified property to the criteria.
+     *
+     * @param property the property
+     *
+     * @return the alias
+     */
+    protected String addAlias(String property) {
+        Iterator<Subcriteria> subcriteria = ((CriteriaImpl) this.criteria).iterateSubcriteria();
+        while(subcriteria.hasNext()) {
+            Subcriteria sc = subcriteria.next();
+            if (sc.getPath().equals(property)) {
+                return sc.getAlias();
+            }
+        }
+        String alias = "odf_" + property;
+        if (!this.aliases.contains(alias)) {
+            this.criteria.createAlias(property, alias);
+            this.aliases.add(alias);
+        }
+        return alias;
     }
 
     /**
@@ -150,20 +228,6 @@ public class FESCriterionGenerator {
     }
 
     /**
-     * Simplify the supplied filter.
-     *
-     * @param filter the filter
-     *
-     * @return the simplified filter
-     */
-    private Filter<?> simplify(Filter<?> filter) {
-        if (filter instanceof ComparisonFilter) {
-            return simplifyComparison((ComparisonFilter) filter);
-        }
-        return filter;
-    }
-
-    /**
      * Create a {@code Criterion} for the supplied {@code ComparisonFilter}.
      *
      * @param filter the filter
@@ -196,28 +260,17 @@ public class FESCriterionGenerator {
     }
 
     /**
-     * Create a {@code Criterion} for a property of the associated {@linkplain DatasetEntity data set}.
+     * Create a spatial filter criterion for the supplied filter.
      *
-     * @param filter   the comparison filter
-     * @param property the property of the data set to compare
+     * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createDatasetCriterion(ComparisonFilter filter, String property) {
+    protected Criterion createSpatialFilterCriterion(SpatialFilter filter) {
+        // TODO remove this once Hibernate supports LocationTech JTS
+        Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
 
-        if (matchDomainIds) {
-            filter.setValueReference(DescribableEntity.PROPERTY_DOMAIN_ID);
-        } else {
-            filter.setValueReference(DescribableEntity.PROPERTY_PKID);
-        }
-
-        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class)
-                .setProjection(Property.forName(DatasetEntity.PROPERTY_PKID))
-                .add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, Boolean.FALSE))
-                .add(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED, Boolean.TRUE))
-                .createCriteria(property).add(createComparison(filter));
-
-        return Subqueries.propertyIn(DataEntity.PROPERTY_SERIES_PKID, subquery);
+        return createSpatialFilterCriterion(filter.getOperator(), filter.getValueReference(), geom);
     }
 
     /**
@@ -227,7 +280,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion createComparison(ComparisonFilter filter) {
+    protected Criterion createComparison(ComparisonFilter filter) {
         return createComparison(filter, null);
     }
 
@@ -240,7 +293,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion createComparison(ComparisonFilter filter, Object value) {
+    protected Criterion createComparison(ComparisonFilter filter, Object value) {
         Object v = Optional.ofNullable(value).orElseGet(filter::getValue);
 
         switch (filter.getOperator()) {
@@ -268,50 +321,6 @@ public class FESCriterionGenerator {
             default:
                 return unsupported(filter);
 
-        }
-    }
-
-    /**
-     * Create a {@code Criterion} for the supplied {@code SpatialFilter}.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createSpatialCriterion(SpatialFilter filter) {
-
-        String property = QueryUtils.createAssociation(DataEntity.PROPERTY_GEOMETRY_ENTITY,
-                                                       GeometryEntity.PROPERTY_GEOMETRY);
-        // TODO remove this once Hibernate supports LocationTech JTS
-        Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
-
-        if (geom.isEmpty()) {
-            return SpatialRestrictions.isEmpty(property);
-        }
-
-        switch (filter.getOperator()) {
-            case BBOX:
-                return SpatialRestrictions.filter(property, geom);
-            case Contains:
-                return SpatialRestrictions.contains(property, geom);
-            case Crosses:
-                return SpatialRestrictions.crosses(property, geom);
-            case Disjoint:
-                return SpatialRestrictions.disjoint(property, geom);
-            case Equals:
-                return SpatialRestrictions.eq(property, geom);
-            case Intersects:
-                return SpatialRestrictions.intersects(property, geom);
-            case Overlaps:
-                return SpatialRestrictions.overlaps(property, geom);
-            case Touches:
-                return SpatialRestrictions.touches(property, geom);
-            case Within:
-                return SpatialRestrictions.within(property, geom);
-            case Beyond:
-            case DWithin:
-            default:
-                return unsupported(filter);
         }
     }
 
@@ -471,15 +480,17 @@ public class FESCriterionGenerator {
     }
 
     /**
-     * Creates a criterion for an unsupported filter.
+     * Simplify the supplied filter.
      *
      * @param filter the filter
      *
-     * @return the restriction
+     * @return the simplified filter
      */
-    private Criterion unsupported(Filter<?> filter) {
-        LOG.warn("Unsupported filter: {}", filter);
-        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
+    private Filter<?> simplify(Filter<?> filter) {
+        if (filter instanceof ComparisonFilter) {
+            return simplifyComparison((ComparisonFilter) filter);
+        }
+        return filter;
     }
 
     /**
@@ -489,9 +500,21 @@ public class FESCriterionGenerator {
      *
      * @return the restriction
      */
-    private Criterion unsupported(Enum<?> filter) {
+    protected Criterion unsupported(Filter<?> filter) {
+        LOG.warn("Unsupported filter: {}", filter);
+        return isUnsupportedIsTrue() ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
+    }
+
+    /**
+     * Creates a criterion for an unsupported filter.
+     *
+     * @param filter the filter
+     *
+     * @return the restriction
+     */
+    protected Criterion unsupported(Enum<?> filter) {
         LOG.warn("Unsupported operator: {}", filter);
-        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
+        return isUnsupportedIsTrue() ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
     }
 
     /**
@@ -501,9 +524,9 @@ public class FESCriterionGenerator {
      *
      * @return the restriction
      */
-    private Criterion unsupported(Object o) {
+    protected Criterion unsupported(Object o) {
         LOG.warn("Unsupported: {}", o);
-        return unsupportedIsTrue ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
+        return isUnsupportedIsTrue() ? MoreRestrictions.alwaysTrue() : MoreRestrictions.alwaysFalse();
     }
 
     /**
@@ -514,7 +537,7 @@ public class FESCriterionGenerator {
      *
      * @return the criterion
      */
-    private Criterion unparsableTime(String value, IllegalArgumentException ex) {
+    protected Criterion unparsableTime(String value, IllegalArgumentException ex) {
         LOG.warn("Could not parse time value " + value, ex);
         return unsupported(value);
     }
@@ -915,96 +938,6 @@ public class FESCriterionGenerator {
     }
 
     /**
-     * Create a new {@code Criterion} for the procedure.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createProcedureCriterion(ComparisonFilter filter) {
-        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_PROCEDURE);
-    }
-
-    /**
-     * Create a new {@code Criterion} for the feature.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createFeatureCriterion(ComparisonFilter filter) {
-        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_FEATURE);
-    }
-
-    /**
-     * Create a new {@code Criterion} for the offering.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createOfferingCriterion(ComparisonFilter filter) {
-        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_OFFERING);
-    }
-
-    /**
-     * Create a new {@code Criterion} for the phenomenon.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createPhenomenonCriterion(ComparisonFilter filter) {
-        return createDatasetCriterion(filter, DatasetEntity.PROPERTY_PHENOMENON);
-    }
-
-    /**
-     * Creates a new {@code Criterion} for the result time.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createResultTimeCriterion(ComparisonFilter filter) {
-        return createTemporalCriterion(filter, DataEntity.PROPERTY_RESULTTIME);
-    }
-
-    /**
-     * Creates a new {@code Criterion} for the phenomenon time.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createPhenomenonTimeCriterion(ComparisonFilter filter) {
-        return createTemporalCriterion(filter, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND);
-    }
-
-    /**
-     * Creates a new {@code Criterion} for the phenomenon time.
-     *
-     * @param operator the temporal operator
-     * @param time     the filter value
-     *
-     * @return the criterion
-     */
-    private Criterion createPhenomenonTimeCriterion(TimeOperator operator, Time time) {
-        return createTemporalCriterion(operator, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND, time);
-    }
-
-    /**
-     * Creates a new {@code Criterion} for the result time.
-     *
-     * @param operator the temporal operator
-     * @param time     the filter value
-     *
-     * @return the criterion
-     */
-    private Criterion createResultTimeCriterion(TimeOperator operator, Time time) {
-        return createTemporalCriterion(operator, DataEntity.PROPERTY_RESULTTIME, time);
-    }
-
-    /**
      * Create a {@code Criterion} for the specified {@code PropertyIsLike} comparison filter.
      *
      * @param filter the filter
@@ -1043,16 +976,126 @@ public class FESCriterionGenerator {
     }
 
     /**
-     * Create a {@code Criterion} for the specified result filter.
+     * Create a new {@code Criterion} for the procedure.
      *
      * @param filter the filter
      *
      * @return the criterion
      */
-    private Criterion createResultCriterion(ComparisonFilter filter) {
-        filter.setValueReference(DataEntity.PROPERTY_VALUE);
+    private Criterion createProcedureCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(DatasetEntity.PROPERTY_PROCEDURE, filter);
+    }
 
-        Optional<DetachedCriteria> count = parseLong(filter.getValue())
+    /**
+     * Create a new {@code Criterion} for the feature.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createFeatureCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(DatasetEntity.PROPERTY_FEATURE, filter);
+    }
+
+    /**
+     * Create a new {@code Criterion} for the offering.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createOfferingCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(DatasetEntity.PROPERTY_OFFERING, filter);
+    }
+
+    /**
+     * Create a new {@code Criterion} for the phenomenon.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createPhenomenonCriterion(ComparisonFilter filter) {
+        return createDatasetCriterion(DatasetEntity.PROPERTY_PHENOMENON, filter);
+    }
+
+    /**
+     * Create a {@code Criterion} for the supplied {@code SpatialFilter}.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createSpatialCriterion(SpatialFilter filter) {
+        switch (filter.getValueReference()) {
+            case VR_SAMPLING_GEOMETRY:
+                return createSamplingGeometryFilter(filter);
+            case VR_FEATURE_SHAPE:
+                return createFeatureOfInterestFilter(filter);
+            default:
+                return unsupported(filter);
+        }
+
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the result time.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createResultTimeCriterion(ComparisonFilter filter) {
+        return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_RESULTTIME));
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the phenomenon time.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createPhenomenonTimeCriterion(ComparisonFilter filter) {
+        return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND));
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the phenomenon time.
+     *
+     * @param operator the temporal operator
+     * @param time     the filter value
+     *
+     * @return the criterion
+     */
+    private Criterion createPhenomenonTimeCriterion(TimeOperator operator, Time time) {
+        return createDataCriterion(createTemporalCriterion(operator, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND, time));
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the result time.
+     *
+     * @param operator the temporal operator
+     * @param time     the filter value
+     *
+     * @return the criterion
+     */
+    private Criterion createResultTimeCriterion(TimeOperator operator, Time time) {
+        return createDataCriterion(createTemporalCriterion(operator, DataEntity.PROPERTY_RESULTTIME, time));
+    }
+
+    /**
+     * Create a stream of subqueries that apply the comparison filter to the result value of the data entity. No
+     * projection is applied to the subqueries, this should be done in the calling method.
+     *
+     * @param filter the filter
+     *
+     * @return a stream of subqueries for the {@linkplain DataEntity data entity}
+     */
+    protected Stream<DetachedCriteria> getResultSubqueries(ComparisonFilter filter) {
+        filter.setValueReference(DataEntity.PROPERTY_VALUE);
+        //        Optional<DetachedCriteria> count = parseLong(filter.getValue())
+        Optional<DetachedCriteria> count = parseInt(filter.getValue())
                 // we can't apply PropertyIsLike to count values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
                 .map(lv -> DetachedCriteria.forClass(CountDataEntity.class)
@@ -1066,49 +1109,145 @@ public class FESCriterionGenerator {
                 .add(createComparison(filter)));
         Optional<DetachedCriteria> category = Optional.of(DetachedCriteria.forClass(CategoryDataEntity.class)
                 .add(createComparison(filter)));
-
         // subqueries resulting in the ids of matching observations
-        List<DetachedCriteria> primitives = Stream.of(count, quantity, text, category)
+        List<DetachedCriteria> subqueries = Stream.of(count, quantity, text, category)
                 .filter(Optional::isPresent).map(Optional::get)
-                .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_PKID)))
                 .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE)))
                 .collect(toList());
 
-        if (complexParent) {
-            // we are only returning top-level observations
-            DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
-                    .setProjection(Projections.property(DataEntity.PROPERTY_PKID))
-                    .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
-                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
-                    .add(primitives.stream()
-                            // restrict the subqueries to observations that are children
-                            .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.FALSE)))
-                            // create a property IN expression for each query
-                            .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
-                            // and wrap everything into a disjunction
-                            .collect(MoreRestrictions.toDisjunction()));
-
-            // restrict subqueries to observations that are not children
-            Stream<DetachedCriteria> topLevelPrimitives = primitives.stream()
-                    .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE)));
-
-            return Stream.concat(Stream.of(profile), topLevelPrimitives)
-                    // create a property IN expression for each query
-                    .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
-                    // and wrap everything into a disjunction
-                    .collect(MoreRestrictions.toDisjunction());
-        } else {
+        if (!isComplexParent()) {
 
             // we are not returning top-level observations but the children,
             // no need to query profile observation
-            return primitives.stream()
-                    // create a property IN expression for each query
-                    .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
-                    // and wrap everything into a disjunction
-                    .collect(MoreRestrictions.toDisjunction());
+            return subqueries.stream();
+        }
 
+        // we are only returning top-level observations
+        DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
+                .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
+                .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
+                .add(subqueries.stream()
+                        // restrict the subqueries to observations that are children
+                        .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.FALSE)))
+                        // just get the PKID
+                        .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_PKID)))
+                        // create a property IN expression for each query
+                        .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
+                        // and wrap everything into a disjunction
+                        .collect(MoreRestrictions.toDisjunction()));
+
+        // restrict subqueries to observations that are not children
+        Stream<DetachedCriteria> topLevelPrimitives = subqueries.stream()
+                .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE)));
+
+        return Stream.concat(Stream.of(profile), topLevelPrimitives);
+    }
+
+    /**
+     * Create a spatial filter criterion for the supplied operator, property and geometry.
+     *
+     * @param operator the spatial operator
+     * @param property the property to apply the filter to
+     * @param geom     the geometry
+     *
+     * @return the criterion
+     */
+    private Criterion createSpatialFilterCriterion(SpatialOperator operator, String property, Geometry geom) {
+        if (geom.isEmpty()) {
+            return SpatialRestrictions.isEmpty(property);
+        }
+
+        switch (operator) {
+            case BBOX:
+                return SpatialRestrictions.filter(property, geom);
+            case Contains:
+                return SpatialRestrictions.contains(property, geom);
+            case Crosses:
+                return SpatialRestrictions.crosses(property, geom);
+            case Disjoint:
+                return SpatialRestrictions.disjoint(property, geom);
+            case Equals:
+                return SpatialRestrictions.eq(property, geom);
+            case Intersects:
+                return SpatialRestrictions.intersects(property, geom);
+            case Overlaps:
+                return SpatialRestrictions.overlaps(property, geom);
+            case Touches:
+                return SpatialRestrictions.touches(property, geom);
+            case Within:
+                return SpatialRestrictions.within(property, geom);
+            case Beyond:
+            case DWithin:
+            default:
+                return unsupported(operator);
         }
     }
+
+    /**
+     * Creates a spatial filter criterion for the sampling geometry.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createSamplingGeometryFilter(SpatialFilter filter) {
+        filter.setValueReference(QueryUtils.createAssociation(DataEntity.PROPERTY_GEOMETRY_ENTITY,
+                                                              GeometryEntity.PROPERTY_GEOMETRY));
+        return createDataCriterion(createSpatialFilterCriterion(filter));
+    }
+
+    /**
+     * Creates a spatial filter criterion for the geometry of the feature.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createFeatureOfInterestFilter(SpatialFilter filter) {
+        filter.setValueReference(QueryUtils.createAssociation(FeatureEntity.PROPERTY_GEOMETRY_ENTITY,
+                                                              GeometryEntity.PROPERTY_GEOMETRY));
+        return createDatasetCriterion(DatasetEntity.PROPERTY_FEATURE, filter);
+    }
+
+    /**
+     * Create a {@code Criterion} for the specified result filter.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    protected abstract Criterion createResultCriterion(ComparisonFilter filter);
+
+    /**
+     * Create a {@code Criterion} for a property of the associated {@linkplain DatasetEntity data set}.
+     *
+     *
+     * @param property the property of the data set to apply the filter to
+     * @param filter   the comparison filter
+     *
+     * @return the criterion
+     */
+    protected abstract Criterion createDatasetCriterion(String property, ComparisonFilter filter);
+
+    /**
+     * Create a {@code Criterion} for a property of the associated {@linkplain DatasetEntity data set}.
+     *
+     * @param property the property of the data set to apply the filter to
+     * @param filter   the spatial filter
+     *
+     * @return the criterion
+     */
+    protected abstract Criterion createDatasetCriterion(String property, SpatialFilter filter);
+
+    /**
+     * Create a {@code Criterion} for a property of the associated {@linkplain DataEntity data entity}.
+     *
+     * @param criterion the criterion
+     *
+     * @return the criterion
+     */
+    protected abstract Criterion createDataCriterion(Criterion criterion);
+
     /**
      * Parse the {@code value} either as a {@link TimeInstant} or as a {@link TimePeriod}.
      *
@@ -1118,7 +1257,7 @@ public class FESCriterionGenerator {
      *
      * @throws IllegalArgumentException if the {@code value} does not represent a valud time instant or period
      */
-    private static Time parseTime(String value) throws IllegalArgumentException {
+    public static Time parseTime(String value) throws IllegalArgumentException {
         try {
             return new TimeInstant(Instant.parse(value));
         } catch (IllegalArgumentException ex1) {
@@ -1138,8 +1277,19 @@ public class FESCriterionGenerator {
      *
      * @return the parsed value or {@code Optional.empty()}
      */
-    private static Optional<Long> parseLong(String value) {
+    public static Optional<Long> parseLong(String value) {
         return Optional.ofNullable(Longs.tryParse(value));
+    }
+
+    /**
+     * Trys to parse {@code value} as a {@code int}.
+     *
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
+     */
+    public static Optional<Integer> parseInt(String value) {
+        return Optional.ofNullable(Ints.tryParse(value));
     }
 
     /**
@@ -1149,7 +1299,7 @@ public class FESCriterionGenerator {
      *
      * @return the parsed value or {@code Optional.empty()}
      */
-    private static Optional<Double> parseDouble(String value) {
+    public static Optional<Double> parseDouble(String value) {
         return Optional.ofNullable(Doubles.tryParse(value));
     }
 }
