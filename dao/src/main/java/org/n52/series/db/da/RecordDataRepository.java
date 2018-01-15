@@ -29,14 +29,12 @@
 
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.record.RecordData;
 import org.n52.io.response.dataset.record.RecordDatasetMetadata;
 import org.n52.io.response.dataset.record.RecordValue;
@@ -160,14 +158,8 @@ public class RecordDataRepository
                 ? observation.getValue()
                 : null;
 
-        Date timeend = observation.getPhenomenonTimeEnd();
-        Date timestart = observation.getPhenomenonTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        RecordValue value = parameters.isShowTimeIntervals()
-                ? new RecordValue(start, end, observationValue)
-                : new RecordValue(end, observationValue);
+        RecordValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

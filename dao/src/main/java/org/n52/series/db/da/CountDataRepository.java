@@ -29,14 +29,12 @@
 
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.count.CountData;
 import org.n52.io.response.dataset.count.CountDatasetMetadata;
 import org.n52.io.response.dataset.count.CountValue;
@@ -157,15 +155,8 @@ public class CountDataRepository
                 ? observation.getValue()
                 : null;
 
-        IoParameters parameters = query.getParameters();
-        Date timeend = observation.getPhenomenonTimeEnd();
-        Date timestart = observation.getPhenomenonTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        CountValue value = parameters.isShowTimeIntervals()
-                ? new CountValue(start, end, observationValue)
-                : new CountValue(end, observationValue);
-
+        CountValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

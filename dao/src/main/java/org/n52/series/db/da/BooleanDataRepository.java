@@ -29,14 +29,12 @@
 
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.bool.BooleanData;
 import org.n52.io.response.dataset.bool.BooleanDatasetMetadata;
 import org.n52.io.response.dataset.bool.BooleanValue;
@@ -163,15 +161,8 @@ public class BooleanDataRepository
                 ? observation.getValue()
                 : null;
 
-        IoParameters parameters = query.getParameters();
-        Date timeend = observation.getPhenomenonTimeEnd();
-        Date timestart = observation.getPhenomenonTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        BooleanValue value = parameters.isShowTimeIntervals()
-                ? new BooleanValue(start, end, observationValue)
-                : new BooleanValue(end, observationValue);
-
+        BooleanValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

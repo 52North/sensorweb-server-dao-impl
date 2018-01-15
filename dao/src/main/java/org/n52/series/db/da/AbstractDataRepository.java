@@ -29,9 +29,11 @@
 
 package org.n52.series.db.da;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
@@ -124,7 +126,22 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     
     protected abstract V createEmptyValue();
     
+    protected V prepareValue(E observation, DbQuery query) {
+        V emptyValue = createEmptyValue();
+        if (observation == null) {
+            return emptyValue;
+        }
 
+        IoParameters parameters = query.getParameters();
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        if (timestart != null) {
+            emptyValue.setTimestart(timestart.getTime());
+        }
+        emptyValue.setTimestamp(timeend.getTime());
+        return emptyValue;
+    }
+    
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
     protected abstract D assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;

@@ -29,14 +29,12 @@
 
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.text.TextData;
 import org.n52.io.response.dataset.text.TextDatasetMetadata;
 import org.n52.io.response.dataset.text.TextValue;
@@ -156,15 +154,8 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
                 ? observation.getValue()
                 : null;
 
-        Date timeend = observation.getPhenomenonTimeEnd();
-        Date timestart = observation.getPhenomenonTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        TextValue value = parameters.isShowTimeIntervals()
-                ? new TextValue(start, end, observationValue)
-                : new TextValue(end, observationValue);
-
+        TextValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
