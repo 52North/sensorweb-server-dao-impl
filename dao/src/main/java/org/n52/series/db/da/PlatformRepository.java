@@ -171,7 +171,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                            .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
-                                                       .removeAllOf(Parameters.NEAR));
+                                                       .removeAllOf(Parameters.NEAR)
+                                                       .removeAllOf(Parameters.ODATA_FILTER));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
@@ -217,7 +218,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             String id = dataset.getId();
             DbQuery datasetQuery = getDbQuery(query.getParameters()
                                               .removeAllOf(Parameters.BBOX)
-                                              .removeAllOf(Parameters.NEAR));
+                                              .removeAllOf(Parameters.NEAR)
+                                              .removeAllOf(Parameters.ODATA_FILTER));
             DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;

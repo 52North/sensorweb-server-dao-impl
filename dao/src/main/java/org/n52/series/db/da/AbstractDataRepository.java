@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import java.util.List;
 
 import org.hibernate.Session;
+
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -61,7 +62,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
             IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)));
+                                                                      .removeAllOf(Parameters.NEAR)
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
