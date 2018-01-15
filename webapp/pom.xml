@@ -52,11 +52,6 @@
             <artifactId>entities</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>types</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -247,7 +242,6 @@
                         <webResources>
                             <resource>
                                 <directory>src/main/resources</directory>
-                                <targetPath>WEB-INF/classes</targetPath>
                                 <filtering>true</filtering>
                             </resource>
                             <resource>
@@ -287,9 +281,19 @@
                         <scanIntervalSeconds>0</scanIntervalSeconds>
                         <reload>manual</reload>
                         <webAppConfig>
+                            <resourceBases>
+                                <resourceBase>${webappDirectory}</resourceBase>
+                                <resourceBase>src/main/webapp</resourceBase>
+                            </resourceBases>
                             <contextPath>/</contextPath>
                             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
+                            <extraClasspath>/target/classes/;${project.build.outputDirectory};../dao/target/classes</extraClasspath>
                         </webAppConfig>
+                        <scanTargets>
+                            <scanTarget>/target/classes/</scanTarget>
+                            <scanTarget>${project.build.outputDirectory}</scanTarget>
+                            <scanTarget>../dao/target/classes</scanTarget>
+                        </scanTargets>
                         <systemProperties>
                             <systemProperty>
                                 <name>catalina.base</name>

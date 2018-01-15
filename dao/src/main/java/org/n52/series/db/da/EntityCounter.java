@@ -58,6 +58,9 @@ public class EntityCounter {
     @Autowired
     private DbQueryFactory dbQueryFactory;
 
+    @Autowired
+    private IDataRepositoryFactory dataRepositoryFactory;
+
     public Integer countFeatures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
@@ -115,7 +118,16 @@ public class EntityCounter {
     public Integer countDatasets(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new DatasetDao<DatasetEntity>(session, DatasetEntity.class), query);
+            IoParameters parameters = query.getParameters();
+            if (parameters.getValueTypes().isEmpty()) {
+                parameters = parameters.extendWith(
+                        "valueTypes",
+                        dataRepositoryFactory.getKnownTypes().toArray(new String[0])
+                );
+                return getCount(new DatasetDao<>(session, DatasetEntity.class),
+                                dbQueryFactory.createFrom(parameters));
+            }
+            return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
         } finally {
             sessionStore.returnSession(session);
         }

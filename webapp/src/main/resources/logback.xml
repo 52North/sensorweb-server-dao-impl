@@ -34,7 +34,7 @@
 
     <logger name="org.n52" level="${logger.org.n52.level:-WARN}" />
 
-    <logger name="org.springframework" level="${logger.org.springframework.level:-WARN}" />
+    <logger name="org.springframework" level="${logger.org.springframework.level:-INFO}" />
     <logger name="org.springframework.web.servlet.mvc.method.annotation" level="${logger.org.springframework.web.servlet.mvc.method.annotation.level:-WARN}" />
     <logger name="org.springframework.core.env.PropertySourcesPropertyResolver" level="${logger.org.springframework.core.env.PropertySourcesPropertyResolver.level:-WARN}" />
 
@@ -43,8 +43,8 @@
     <logger name="org.hibernate.SQL" level="${logger.org.hibernate.SQL.level:-WARN}" />
 
     <logger name="org.apache" level="${logger.org.apache.level:-WARN}" />
-    <logger name="org.geotools" level="${logger.org.geotools.level:-WARN}" />
-    <logger name="com.sun.xml" level="${logger.com.sun.xml.level:-WARN}" />
+    <logger name="org.geotools" level="${logger.org.geotools.level:-INFO}" />
+    <logger name="com.sun.xml" level="${logger.com.sun.xml:-ERROR}" />
 
     <include resource="logback-appender-${env}.xml" />
 
