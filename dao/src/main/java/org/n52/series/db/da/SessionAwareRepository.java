@@ -34,10 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -67,6 +63,9 @@ import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.web.ctrl.UrlHelper;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -115,9 +114,13 @@ public abstract class SessionAwareRepository {
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
-        String srid = query.getDatabaseSridCode();
-        geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
-        return geometryEntity.getGeometry();
+        if (geometryEntity == null) {
+            return null;
+        } else {
+            String srid = query.getDatabaseSridCode();
+            geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+            return geometryEntity.getGeometry();
+        }
     }
 
     // XXX a bit misplaced here

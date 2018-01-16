@@ -35,7 +35,11 @@ public class ProcedureEntity extends HierarchicalEntity<ProcedureEntity> {
 
     public static final String PROPERTY_REFERENCE = "reference";
 
+    public static final String PROPERTY_DELETED = "deleted";
+
     private boolean reference;
+    
+    private boolean deleted;
 
     private boolean mobile;
 
@@ -49,6 +53,14 @@ public class ProcedureEntity extends HierarchicalEntity<ProcedureEntity> {
 
     public void setReference(boolean reference) {
         this.reference = reference;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public boolean isMobile() {

@@ -45,6 +45,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         super(QuantityValue.TYPE);
     }
 
+    @Override
     public Set<QuantityDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
