@@ -30,16 +30,18 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Subqueries;
-import org.n52.io.request.FilterResolver;
+import org.hibernate.spatial.criterion.SpatialFilter;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nPlatformEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @Transactional
 public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity> {
@@ -72,33 +74,37 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
          * repository decides already which DAO is used to query stationary (--> FeatureDao) and mobile
          * platforms
          */
-        FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.isSetMobileFilter()) {
+        if (query.getFilterResolver().isSetMobileFilter()) {
+            SpatialFilter spatialFilter = query.createSpatialFilter();
+            if (spatialFilter != null) {
 
-            // values for oldest result time
-            String rtAlias = "rtAlias";
-            // String rtColumn = QueryUtils.createAssociation(rtAlias, column);
-            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_SERIES_PKID);
-            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULTTIME);
+                // values for newest result time
+                String rtAlias = "rtAlias";
+                // String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+                String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_SERIES_PKID);
+                String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULTTIME);
 
-            DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias);
-            maxResultTimeByDatasetId.setProjection(Projections.projectionList()
-                                                              // .add(Projections.groupProperty(rtColumn))
-                                                              .add(Projections.groupProperty(rtDatasetId))
-                                                              .add(Projections.max(rtResultTime)));
+                DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias)
+                        .setProjection(Projections.projectionList()
+                                // .add(Projections.groupProperty(rtColumn))
+                                .add(Projections.groupProperty(rtDatasetId))
+                                .add(Projections.max(rtResultTime)));
 
-            String[] matchProperties = new String[] {
-                // column,
-                DataEntity.PROPERTY_SERIES_PKID,
-                DataEntity.PROPERTY_RESULTTIME
-            };
-            PropertyProjection seriesFKProjection = Projections.property(DataEntity.PROPERTY_SERIES_PKID);
-            DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
-                                                        .setProjection(seriesFKProjection)
-                                                        .add(Subqueries.propertiesIn(matchProperties,
-                                                                                     maxResultTimeByDatasetId));
+                String[] matchProperties = new String[] {
+                    // column,
+                    DataEntity.PROPERTY_SERIES_PKID,
+                    DataEntity.PROPERTY_RESULTTIME
+                };
 
-            criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_PKID, observationCriteria));
+                Criterion criterion = Subqueries.propertyIn(
+                        DatasetEntity.PROPERTY_PKID,
+                        DetachedCriteria.forClass(DataEntity.class)
+                                .setProjection(Projections.property(DataEntity.PROPERTY_SERIES_PKID))
+                                .add(Subqueries.propertiesIn(matchProperties, maxResultTimeByDatasetId))
+                                .add(spatialFilter));
+
+                criteria.add(criterion);
+            }
         }
 
         return criteria;
