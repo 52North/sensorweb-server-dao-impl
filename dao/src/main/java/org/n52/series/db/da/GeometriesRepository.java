@@ -275,7 +275,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
             return getCrsUtils().createLineString(points, srid);
         } else {
-            // when named query not configured --> bad performance
+            // when named query not configured --> may be a performance issue
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
                                              .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getId()));

@@ -118,7 +118,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        return criteria.add(Restrictions.eq(DatasetEntity.PROPERTY_FEATURE, feature.getId()))
+        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, DatasetEntity.PROPERTY_ID);
+        return criteria.add(Restrictions.eq(path, feature.getId()))
                        .list();
     }
 
