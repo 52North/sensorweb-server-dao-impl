@@ -149,7 +149,7 @@ public abstract class FESCriterionGenerator {
      */
     protected String addAlias(String property) {
         Iterator<Subcriteria> subcriteria = ((CriteriaImpl) this.criteria).iterateSubcriteria();
-        while(subcriteria.hasNext()) {
+        while (subcriteria.hasNext()) {
             Subcriteria sc = subcriteria.next();
             if (sc.getPath().equals(property)) {
                 return sc.getAlias();
@@ -1100,17 +1100,25 @@ public abstract class FESCriterionGenerator {
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
                 .map(lv -> DetachedCriteria.forClass(CountDataEntity.class)
                 .add(createComparison(filter, lv)));
+        /* TODO uncomment when BooleanDataEntity exists
+        Optional<DetachedCriteria> bool = parseBoolean(filter.getValue())
+                // we can't apply PropertyIsLike to boolean values
+                .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
+                .map(lv -> DetachedCriteria.forClass(BooleanDataEntity.class)
+                .add(createComparison(filter, lv)));
+        */
         Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
                 // we can't apply PropertyIsLike to numeric values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
                 .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
                 .add(createComparison(filter, dv)));
+
         Optional<DetachedCriteria> text = Optional.of(DetachedCriteria.forClass(TextDataEntity.class)
                 .add(createComparison(filter)));
         Optional<DetachedCriteria> category = Optional.of(DetachedCriteria.forClass(CategoryDataEntity.class)
                 .add(createComparison(filter)));
         // subqueries resulting in the ids of matching observations
-        List<DetachedCriteria> subqueries = Stream.of(count, quantity, text, category)
+        List<DetachedCriteria> subqueries = Stream.of(count, quantity, text, category/*, bool*/)
                 .filter(Optional::isPresent).map(Optional::get)
                 .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE)))
                 .collect(toList());
@@ -1301,5 +1309,22 @@ public abstract class FESCriterionGenerator {
      */
     public static Optional<Double> parseDouble(String value) {
         return Optional.ofNullable(Doubles.tryParse(value));
+    }
+
+    /**
+     * Trys to parse {@code value} as a {@code boolean}.
+     *
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
+     */
+    public static Optional<Boolean> parseBoolean(String value) {
+        if (value.equalsIgnoreCase("true")) {
+            return Optional.of(Boolean.TRUE);
+        } else if (value.equalsIgnoreCase("false")) {
+            return Optional.of(Boolean.FALSE);
+        } else {
+            return Optional.empty();
+        }
     }
 }
