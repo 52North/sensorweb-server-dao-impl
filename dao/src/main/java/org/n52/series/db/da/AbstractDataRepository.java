@@ -135,7 +135,7 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         IoParameters parameters = query.getParameters();
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
-        if (timestart != null) {
+        if (parameters.isShowTimeIntervals() && timestart != null) {
             emptyValue.setTimestart(timestart.getTime());
         }
         emptyValue.setTimestamp(timeend.getTime());
