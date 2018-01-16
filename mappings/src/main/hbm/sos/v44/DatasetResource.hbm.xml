@@ -50,6 +50,11 @@
                 <key column="observationid" />
                 <one-to-many class="QuantityDataEntity" />
             </bag>
+            
+            <set name="referenceValues" table="seriesreference" inverse="true">
+                <key column="seriesid" />
+                <many-to-many class="DatasetEntity" column="referenceseriesid" unique="true" />
+            </set>
         </subclass>
 
         <subclass discriminator-value="text" name="TextDatasetEntity">
