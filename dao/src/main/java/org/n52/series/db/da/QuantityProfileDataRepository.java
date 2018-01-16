@@ -103,7 +103,8 @@ public class QuantityProfileDataRepository
                     ProfileDataItem<BigDecimal> dataItem = new ProfileDataItem<>();
                     dataItem.setValue(quantityEntity.getValue());
                     // set vertical's value
-                    dataItem.setVertical((Double) parameterObject.get("value"));
+                    BigDecimal value = (BigDecimal) parameterObject.get("value");
+                    dataItem.setVertical(value != null ? value.doubleValue() : null);
                     String verticalUnit = (String) parameterObject.get("unit");
                     if (profile.getVerticalUnit() == null) {
                         profile.setVerticalUnit(verticalUnit);
