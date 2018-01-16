@@ -29,25 +29,12 @@
 
 package org.n52.series.db.beans;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.n52.io.response.dataset.count.CountValue;
 
 public class CountDatasetEntity extends DatasetEntity<CountDataEntity> {
 
-    private Set<CountDatasetEntity> referenceValues = new HashSet<>();
-
     public CountDatasetEntity() {
         super(CountValue.TYPE);
-    }
-
-    public Set<CountDatasetEntity> getReferenceValues() {
-        return referenceValues;
-    }
-
-    public void setReferenceValues(Set<CountDatasetEntity> referenceValues) {
-        this.referenceValues = referenceValues;
     }
 
 }

@@ -91,7 +91,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     private UnitEntity unit;
 
     private long observationCount = -1;
-
+    
     public DatasetEntity() {
         this((String) null);
     }
@@ -292,6 +292,10 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     public long getObservationCount() {
         return observationCount;
+    }
+    
+    public <D extends DatasetEntity<T>> Set<D> getReferenceValues() {
+        return null;
     }
 
     @Override

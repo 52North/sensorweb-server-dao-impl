@@ -37,6 +37,7 @@ import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
@@ -102,12 +103,19 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         return new DataDao<>(session);
     }
 
+    @Override
+    public ReferenceValueOutput[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+        return new ReferenceValueOutput[0];
+    }
+
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
     protected abstract D assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected abstract D assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
-            throws DataAccessException;
+    protected D assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+            throws DataAccessException {
+        return assembleData(datasetEntity, dbQuery, session);
+    }
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
         return observations.size() > 0;

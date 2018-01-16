@@ -30,15 +30,11 @@
 package org.n52.series.db.da;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.count.CountData;
-import org.n52.io.response.dataset.count.CountDatasetMetadata;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CountDataEntity;
@@ -56,59 +52,6 @@ public class CountDataRepository
     }
 
     @Override
-    protected CountData assembleDataWithReferenceValues(CountDatasetEntity timeseries, DbQuery dbQuery, Session session)
-            throws DataAccessException {
-        CountData result = assembleData(timeseries, dbQuery, session);
-        Set<CountDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            CountDatasetMetadata metadata = new CountDatasetMetadata();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, CountData> assembleReferenceSeries(Set<CountDatasetEntity> referenceValues,
-                                                           DbQuery query,
-                                                           Session session)
-            throws DataAccessException {
-        Map<String, CountData> referenceSeries = new HashMap<>();
-        for (CountDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                CountData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(referenceSeriesEntity.getPkid()
-                                                         .toString(),
-                                    referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(CountData referenceSeriesData) {
-        return referenceSeriesData.getValues()
-                                  .size() <= 1;
-    }
-
-    private CountData expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        CountData result = new CountData();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            CountValue lastValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
-        }
-        if (hasSingleValidReferenceValue(observations)) {
-            CountDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
     protected CountData assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         CountData result = new CountData();
@@ -120,24 +63,6 @@ public class CountDataRepository
             }
         }
         return result;
-    }
-
-    private CountValue[] expandToInterval(Integer value, CountDatasetEntity series, DbQuery query) {
-        CountDataEntity referenceStart = new CountDataEntity();
-        CountDataEntity referenceEnd = new CountDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new CountValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
-
     }
 
     @Override
