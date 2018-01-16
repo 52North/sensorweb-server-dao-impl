@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.response.dataset.count.CountData;
-import org.n52.io.response.dataset.count.CountDatasetMetadata;
+import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CountDataEntity;
@@ -46,7 +46,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class CountDataRepository
-        extends AbstractDataRepository<CountData, CountDatasetEntity, CountDataEntity, CountValue> {
+        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
 
     @Override
     public Class<CountDatasetEntity> getDatasetEntityType() {
@@ -54,26 +54,26 @@ public class CountDataRepository
     }
 
     @Override
-    protected CountData assembleDataWithReferenceValues(CountDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected Data<CountValue> assembleDataWithReferenceValues(CountDatasetEntity timeseries, DbQuery dbQuery, Session session)
             throws DataAccessException {
-        CountData result = assembleData(timeseries, dbQuery, session);
+        Data<CountValue> result = assembleData(timeseries, dbQuery, session);
         Set<CountDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
-            CountDatasetMetadata metadata = new CountDatasetMetadata();
+            DatasetMetadata<Data<CountValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
             result.setMetadata(metadata);
         }
         return result;
     }
 
-    private Map<String, CountData> assembleReferenceSeries(Set<CountDatasetEntity> referenceValues,
+    private Map<String, Data<CountValue>> assembleReferenceSeries(Set<CountDatasetEntity> referenceValues,
                                                            DbQuery query,
                                                            Session session)
             throws DataAccessException {
-        Map<String, CountData> referenceSeries = new HashMap<>();
+        Map<String, Data<CountValue>> referenceSeries = new HashMap<>();
         for (CountDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                CountData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
+                Data<CountValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
@@ -85,14 +85,14 @@ public class CountDataRepository
         return referenceSeries;
     }
 
-    private boolean haveToExpandReferenceData(CountData referenceSeriesData) {
+    private boolean haveToExpandReferenceData(Data<CountValue> referenceSeriesData) {
         return referenceSeriesData.getValues()
                                   .size() <= 1;
     }
 
-    private CountData expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<CountValue> expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        CountData result = new CountData();
+        Data<CountValue> result = new Data<CountValue>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
@@ -107,9 +107,9 @@ public class CountDataRepository
     }
 
     @Override
-    protected CountData assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        CountData result = new CountData();
+        Data<CountValue> result = new Data<CountValue>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {
@@ -145,11 +145,6 @@ public class CountDataRepository
 
     @Override
     public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
         ServiceEntity service = getServiceEntity(series);
         Integer observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()

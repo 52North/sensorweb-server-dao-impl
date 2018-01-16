@@ -263,9 +263,10 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         Set<String> geometryTypes = parameters.getGeometryTypes();
         for (String geometryType : geometryTypes) {
             if (!geometryType.isEmpty()) {
+                // XXX convert to disjunction
                 GeometryType type = getGeometryType(geometryType);
                 if (type != null) {
-                    String typeName = type.name();
+                    String typeName = "ST_" + type.getCamelCased();
                     String propertyName = DataEntity.PROPERTY_GEOMETRY_ENTITY;
                     criteria.add(SpatialRestrictions.geometryType(propertyName, typeName));
                 }

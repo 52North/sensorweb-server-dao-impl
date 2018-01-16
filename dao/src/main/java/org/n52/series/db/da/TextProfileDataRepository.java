@@ -29,47 +29,46 @@
 
 package org.n52.series.db.da;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
-import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
-import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal> {
+public class TextProfileDataRepository extends ProfileDataRepository<String> {
 
-    private final QuantityDataRepository quantityRepository;
+    private final TextDataRepository textRepository;
 
-    public QuantityProfileDataRepository() {
-        this.quantityRepository = new QuantityDataRepository();
+    public TextProfileDataRepository() {
+        this.textRepository = new TextDataRepository();
     }
 
     @Override
-    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity datasetEntity,
+    protected ProfileValue<String> createValue(ProfileDataEntity observation,
+                                               ProfileDatasetEntity dataset,
                                                DbQuery query) {
-        ProfileValue<BigDecimal> profile = prepareValue(observation, query);
-        List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
+        ProfileValue<String> profile = createProfileValue(observation, query);
+        List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
-            QuantityDataEntity entity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = quantityRepository.createValue(entity.getValue(), entity, query);
+            TextDataEntity entity = (TextDataEntity) dataEntity;
+            TextValue valueItem = textRepository.createValue(entity.getValue(), entity, query);
             addParameters(entity, valueItem, query);
             for (Map<String, Object> parameterObject : valueItem.getParameters()) {
-                String verticalName = datasetEntity.getVerticalParameterName();
+                String verticalName = dataset.getVerticalParameterName();
                 if (isVertical(parameterObject, verticalName)) {
                     dataItems.add(assembleDataItem(entity, profile, parameterObject));
                 }
             }
         }
         profile.setValue(dataItems);
-        return addMetadatasIfNeeded(observation, profile, datasetEntity, query);
+        return profile;
     }
 
 }

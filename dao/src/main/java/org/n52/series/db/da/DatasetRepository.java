@@ -277,7 +277,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         IoParameters parameters = query.getParameters();
 
         String valueType = dataset.getValueType();
-        DatasetOutput< ? , ? > result = DatasetOutput.create(valueType, parameters);
+        DatasetOutput< ? > result = DatasetOutput.create(valueType, parameters);
 
         Long id = dataset.getId();
         String domainId = dataset.getIdentifier();
@@ -296,7 +296,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     // XXX refactor generics
-    protected DatasetOutput< ? , ? > createExpanded(DatasetEntity dataset, DbQuery query, Session session)
+    protected DatasetOutput< ? > createExpanded(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
         try {
             IoParameters params = query.getParameters();

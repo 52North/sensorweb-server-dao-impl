@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.response.dataset.text.TextData;
-import org.n52.io.response.dataset.text.TextDatasetMetadata;
+import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
@@ -45,7 +45,7 @@ import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextDataRepository extends AbstractDataRepository<TextData, TextDatasetEntity, TextDataEntity, TextValue> {
+public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
 
     @Override
     public Class<TextDatasetEntity> getDatasetEntityType() {
@@ -53,26 +53,26 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     }
 
     @Override
-    protected TextData assembleDataWithReferenceValues(TextDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected Data<TextValue> assembleDataWithReferenceValues(TextDatasetEntity timeseries, DbQuery dbQuery, Session session)
             throws DataAccessException {
-        TextData result = assembleData(timeseries, dbQuery, session);
+        Data<TextValue> result = assembleData(timeseries, dbQuery, session);
         Set<TextDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
-            TextDatasetMetadata metadata = new TextDatasetMetadata();
+            DatasetMetadata<Data<TextValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
             result.setMetadata(metadata);
         }
         return result;
     }
 
-    private Map<String, TextData> assembleReferenceSeries(Set<TextDatasetEntity> referenceValues,
+    private Map<String, Data<TextValue>> assembleReferenceSeries(Set<TextDatasetEntity> referenceValues,
                                                           DbQuery query,
                                                           Session session)
             throws DataAccessException {
-        Map<String, TextData> referenceSeries = new HashMap<>();
+        Map<String, Data<TextValue>> referenceSeries = new HashMap<>();
         for (TextDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                TextData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
+                Data<TextValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
@@ -82,14 +82,14 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
         return referenceSeries;
     }
 
-    private boolean haveToExpandReferenceData(TextData referenceSeriesData) {
+    private boolean haveToExpandReferenceData(Data<TextValue> referenceSeriesData) {
         List<TextValue> values = referenceSeriesData.getValues();
         return values.size() <= 1;
     }
 
-    private TextData expandReferenceDataIfNecessary(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<TextValue> expandReferenceDataIfNecessary(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        TextData result = new TextData();
+        Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
@@ -105,9 +105,9 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     }
 
     @Override
-    protected TextData assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        TextData result = new TextData();
+        Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
@@ -144,11 +144,6 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
 
     @Override
     public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
@@ -157,6 +152,14 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
         TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
+    }
+    
+    TextValue createValue(String observationValue,
+                          TextDataEntity observation,
+                          DbQuery query) {
+        TextValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }
