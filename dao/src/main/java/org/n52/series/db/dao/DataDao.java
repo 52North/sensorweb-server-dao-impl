@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.Date;
@@ -136,7 +135,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public Criteria getDefaultCriteria(DbQuery query) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
+                                   .addOrder(Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END))
                                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
 
         query.addSpatialFilter(criteria);
@@ -152,20 +151,20 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
-        Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
+        Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         return (T) criteria.uniqueResult();
     }
 
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
-        Criteria criteria = createDataAtCriteria(timestart, DataEntity.PROPERTY_PHENOMENON_TIME_START, series, query);
+        Criteria criteria = createDataAtCriteria(timestart, DataEntity.PROPERTY_SAMPLING_TIME_START, series, query);
         return (T) criteria.uniqueResult();
     }
 
     public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
         Date lastValueAt = series.getLastValueAt();
-        Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
+        Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         criteria.setProjection(Projections.property(DataEntity.PROPERTY_GEOMETRY_ENTITY));
         return (GeometryEntity) criteria.uniqueResult();
     }

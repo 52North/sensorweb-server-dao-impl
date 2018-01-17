@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.Date;
@@ -185,8 +184,8 @@ public class DbQuery {
             DateTime endDate = interval.getEnd();
             Date start = startDate.toDate();
             Date end = endDate.toDate();
-            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_START, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_END, start, end)));
+            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_START, start, end),
+                                         Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
         }
         return criteria;
     }

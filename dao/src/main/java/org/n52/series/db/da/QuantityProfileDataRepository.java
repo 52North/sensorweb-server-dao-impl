@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,9 +26,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +49,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class QuantityProfileDataRepository
-        extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue<Double>> {
+        extends AbstractDataRepository<ProfileData, ProfileDatasetEntity, ProfileDataEntity, ProfileValue<BigDecimal>> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -58,13 +58,13 @@ public class QuantityProfileDataRepository
     }
 
     @Override
-    public ProfileValue<Double> getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<BigDecimal> getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getFirstValue(dataset, session, query);
     }
 
     @Override
-    public ProfileValue<Double> getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<BigDecimal> getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getLastValue(dataset, session, query);
     }
@@ -84,7 +84,7 @@ public class QuantityProfileDataRepository
     }
 
     @Override
-    protected ProfileValue<Double> createSeriesValueFor(ProfileDataEntity valueEntity,
+    protected ProfileValue<BigDecimal> createSeriesValueFor(ProfileDataEntity valueEntity,
                                                 ProfileDatasetEntity datasetEntity,
                                                 DbQuery query) {
         Date timeend = valueEntity.getPhenomenonTimeEnd();
@@ -92,11 +92,11 @@ public class QuantityProfileDataRepository
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        ProfileValue<Double> profile = parameters.isShowTimeIntervals()
+        ProfileValue<BigDecimal> profile = parameters.isShowTimeIntervals()
                 ? new ProfileValue<>(start, end, null)
                 : new ProfileValue<>(end, null);
 
-        List<ProfileDataItem<Double>> dataItems = new ArrayList<>();
+        List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : valueEntity.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
@@ -104,7 +104,7 @@ public class QuantityProfileDataRepository
             for (Map<String, Object> parameterObject : valueItem.getParameters()) {
                 String verticalName = datasetEntity.getVerticalParameterName();
                 if (isVertical(parameterObject, verticalName)) {
-                    ProfileDataItem<Double> dataItem = new ProfileDataItem<>();
+                    ProfileDataItem<BigDecimal> dataItem = new ProfileDataItem<>();
                     dataItem.setValue(quantityEntity.getValue());
                     // set vertical's value
                     dataItem.setVertical((Double) parameterObject.get("value"));
