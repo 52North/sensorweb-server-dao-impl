@@ -40,6 +40,7 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -60,7 +61,7 @@ public class QuantityDataRepository extends
                                                            Session session)
             throws DataAccessException {
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
-        Set<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
+        Set<DatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
             DatasetMetadata<Data<QuantityValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
@@ -69,16 +70,16 @@ public class QuantityDataRepository extends
         return result;
     }
 
-    private Map<String, Data<QuantityValue>> assembleReferenceSeries(Set<QuantityDatasetEntity> referenceValues,
+    private Map<String, Data<QuantityValue>> assembleReferenceSeries(Set<DatasetEntity> referenceValues,
                                                               DbQuery query,
                                                               Session session)
             throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
-        for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                Data<QuantityValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
+        for (DatasetEntity referenceSeriesEntity : referenceValues) {
+            if (referenceSeriesEntity.isPublished() && referenceValues instanceof QuantityDatasetEntity) {
+                Data<QuantityValue> referenceSeriesData = assembleData((QuantityDatasetEntity) referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
+                    referenceSeriesData = expandReferenceDataIfNecessary((QuantityDatasetEntity) referenceSeriesEntity, query, session);
                 }
                 referenceSeries.put(referenceSeriesEntity.getId()
                                                          .toString(),

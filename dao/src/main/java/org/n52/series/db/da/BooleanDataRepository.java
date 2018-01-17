@@ -40,6 +40,7 @@ import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.BooleanDataEntity;
 import org.n52.series.db.beans.BooleanDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
@@ -58,7 +59,7 @@ public class BooleanDataRepository
                                                           Session session)
             throws DataAccessException {
         Data<BooleanValue> result = assembleData(timeseries, dbQuery, session);
-        Set<BooleanDatasetEntity> referenceValues = timeseries.getReferenceValues();
+        Set<DatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
             DatasetMetadata<Data<BooleanValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
@@ -67,20 +68,22 @@ public class BooleanDataRepository
         return result;
     }
 
-    private Map<String, Data<BooleanValue>> assembleReferenceSeries(Set<BooleanDatasetEntity> referenceValues,
+    private Map<String, Data<BooleanValue>> assembleReferenceSeries(Set<DatasetEntity> referenceValues,
                                                              DbQuery query,
                                                              Session session)
             throws DataAccessException {
         Map<String, Data<BooleanValue>> referenceSeries = new HashMap<>();
-        for (BooleanDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                Data<BooleanValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
+        for (DatasetEntity referenceSeriesEntity : referenceValues) {
+            if (referenceSeriesEntity instanceof BooleanDatasetEntity) {
+                if (referenceSeriesEntity.isPublished()) {
+                    Data<BooleanValue> referenceSeriesData = assembleData((BooleanDatasetEntity) referenceSeriesEntity, query, session);
+                    if (haveToExpandReferenceData(referenceSeriesData)) {
+                        referenceSeriesData = expandReferenceDataIfNecessary((BooleanDatasetEntity) referenceSeriesEntity, query, session);
+                    }
+                    referenceSeries.put(referenceSeriesEntity.getId()
+                                                             .toString(),
+                                        referenceSeriesData);
                 }
-                referenceSeries.put(referenceSeriesEntity.getId()
-                                                         .toString(),
-                                    referenceSeriesData);
             }
         }
         return referenceSeries;

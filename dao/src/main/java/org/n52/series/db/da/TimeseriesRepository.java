@@ -44,6 +44,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -228,10 +229,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                                                                                   Session session)
             throws DataAccessException {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
-        Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
+        Set<DatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
-        for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
+        for (DatasetEntity referenceSeriesEntity : referenceValues) {
+            if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
@@ -240,7 +241,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
                 refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
-                                                                                referenceSeriesEntity,
+                                                                                (QuantityDatasetEntity) referenceSeriesEntity,
                                                                                 query));
                 outputs.add(refenceValueOutput);
             }
