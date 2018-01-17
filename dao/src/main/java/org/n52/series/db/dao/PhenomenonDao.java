@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
 
+
     public PhenomenonDao(Session session) {
         super(session);
     }

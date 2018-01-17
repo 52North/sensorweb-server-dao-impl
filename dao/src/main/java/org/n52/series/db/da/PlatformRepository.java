@@ -37,7 +37,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -87,7 +86,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private IDataRepositoryFactory factory;
 
     @Override
-    protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
+    protected PlatformOutput prepareEmptyParameterOutput() {
         return new PlatformOutput();
     }
 
@@ -159,12 +158,22 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        PlatformOutput output = super.createCondensed(entity, query, session);
+        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
+        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
+        // re-set ID after platformtype has been determined
+        output.setId(Long.toString(entity.getId()));
+        return output;
+    }
+
+    @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
-                                           .extendWith(Parameters.PLATFORMS, result.getId())
-                                           .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                                .extendWith(Parameters.PLATFORMS, result.getId())
+                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR));
@@ -183,7 +192,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
         result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

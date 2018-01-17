@@ -83,12 +83,6 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     }
 
     @Override
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(DatasetEntity.PROCEDURE)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
-    }
-
-    @Override
     protected Class<PlatformEntity> getEntityClass() {
         return PlatformEntity.class;
     }

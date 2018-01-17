@@ -78,7 +78,7 @@ This project includes:
   javax.inject under The Apache Software License, Version 2.0
   JBoss Logging 3 under Apache License, version 2.0
   JBoss Logging I18n Annotations under Public Domain
-  JCL 1.1.1 implemented over SLF4J under MIT License
+  JCL 1.2 implemented over SLF4J under MIT License
   JCommon under GNU Lesser General Public Licence
   JFreeChart under GNU Lesser General Public Licence
   jgridshift under GNU Lesser General Public License, version 2.0 (LGPLv2)
@@ -94,7 +94,7 @@ This project includes:
   Open GIS Interfaces under GNU Lesser General Public License (LGPL) version 2.1
   Postgis JDBC Driver under GNU Lesser General Public License
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
-  Quartz Enterprise Job Scheduler under Apache 2.0
+  quartz under The Apache Software License, Version 2.0
   Referencing services under GNU Lesser General Public License (LGPL) version 2.1
   Reflections under WTFPL
   Series DAO REST API under GNU General Public License, Version 2.0
@@ -122,7 +122,10 @@ This project includes:
   Spring Web MVC under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
   xalan under The Apache Software License, Version 2.0
+<<<<<<< HEAD
   Xerces2-j under The Apache Software License, Version 2.0
+=======
+>>>>>>> develop
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
   XmlBeans under The Apache Software License, Version 2.0

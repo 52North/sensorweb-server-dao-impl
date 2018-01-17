@@ -28,13 +28,16 @@
  */
 package org.n52.series.db.da;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
@@ -45,13 +48,11 @@ import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity,
+public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
@@ -60,28 +61,21 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     private PlatformRepository platformRepository;
 
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery query) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
             DatasetDao<S> seriesDao = getSeriesDao(session);
-
+            IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
-            DbQuery spatialLessQuery = getDbQuery(query.getParameters()
-                                                       .removeAllOf(Parameters.BBOX)
-                                                       .removeAllOf(Parameters.NEAR));
-            if (!seriesDao.hasInstance(id, spatialLessQuery)) {
-                throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
-            }
-            S series = seriesDao.getInstance(id, spatialLessQuery);
-
-            series.setPlatform(getCondensedPlatform(series, spatialLessQuery, session));
+            S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                                                      .removeAllOf(Parameters.NEAR)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
-            return query.isExpanded()
-                    ? assembleDataWithReferenceValues(series, query, session)
-                    : assembleData(series, query, session);
+            return dbQuery.isExpanded()
+                    ? assembleDataWithReferenceValues(series, dbQuery, session)
+                    : assembleData(series, dbQuery, session);
         } finally {
             returnSession(session);
         }
@@ -97,14 +91,18 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     public V getFirstValue(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
         E valueEntity = dao.getDataValueViaTimestart(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
+        return valueEntity != null
+                ? createSeriesValueFor(valueEntity, entity, query)
+                : null;
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
         E valueEntity = dao.getDataValueViaTimeend(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
+        return valueEntity != null
+                ? createSeriesValueFor(valueEntity, entity, query)
+                : null;
     }
 
     @Override
@@ -121,12 +119,37 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
         return new DataDao<>(session);
     }
 
+    protected abstract V createEmptyValue();
+
+    protected V prepareValue(E observation, DbQuery query) {
+        V emptyValue = createEmptyValue();
+        if (observation == null) {
+            return emptyValue;
+        }
+
+        IoParameters parameters = query.getParameters();
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        if (parameters.isShowTimeIntervals() && timestart != null) {
+            emptyValue.setTimestart(timestart.getTime());
+        }
+        emptyValue.setTimestamp(timeend.getTime());
+        return emptyValue;
+    }
+
+    @Override
+    public ReferenceValueOutput[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+        return new ReferenceValueOutput[0];
+    }
+
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract D assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected abstract D assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
-            throws DataAccessException;
+    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+            throws DataAccessException {
+        return assembleData(datasetEntity, dbQuery, session);
+    }
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
         return observations.size() > 0;

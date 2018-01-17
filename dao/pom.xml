@@ -102,7 +102,12 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${version.hibernate}</version>
+            <version>${version.hibernate-spatial}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geolatte</groupId>
+            <artifactId>geolatte-geom</artifactId>
+            <version>${version.geolatte}</version>
         </dependency>
         
         <dependency>

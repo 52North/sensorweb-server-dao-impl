@@ -28,16 +28,11 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.record.RecordData;
-import org.n52.io.response.dataset.record.RecordDatasetMetadata;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.RecordDataEntity;
@@ -47,7 +42,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
     @Override
     public Class<RecordDatasetEntity> getDatasetEntityType() {
@@ -55,63 +50,9 @@ public class RecordDataRepository
     }
 
     @Override
-    protected RecordData assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
-                                                         DbQuery dbQuery,
-                                                         Session session)
+    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        RecordData result = assembleData(timeseries, dbQuery, session);
-        Set<RecordDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            RecordDatasetMetadata metadata = new RecordDatasetMetadata();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, RecordData> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
-                                                            DbQuery query,
-                                                            Session session)
-            throws DataAccessException {
-        Map<String, RecordData> referenceSeries = new HashMap<>();
-        for (RecordDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                RecordData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(Long.toString(referenceSeriesEntity.getId()), referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(RecordData referenceSeriesData) {
-        return referenceSeriesData.getValues()
-                                  .size() <= 1;
-    }
-
-    private RecordData expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        RecordData result = new RecordData();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            RecordValue lastValidValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValidValue.getValue(), seriesEntity, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            RecordDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
-    protected RecordData assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        RecordData result = new RecordData();
+        Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (RecordDataEntity observation : observations) {
@@ -123,23 +64,9 @@ public class RecordDataRepository
         return result;
     }
 
-    // XXX
-    private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity() {};
-        RecordDataEntity referenceEnd = new RecordDataEntity() {};
-        referenceStart.setPhenomenonTimeEnd(query.getTimespan()
-                                                 .getStart()
-                                                 .toDate());
-        referenceEnd.setPhenomenonTimeEnd(query.getTimespan()
-                                               .getEnd()
-                                               .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new RecordValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
-
+    @Override
+    protected RecordValue createEmptyValue() {
+        return new RecordValue();
     }
 
     @Override
@@ -154,14 +81,8 @@ public class RecordDataRepository
                 ? observation.getValue()
                 : null;
 
-        Date timeend = observation.getPhenomenonTimeEnd();
-        Date timestart = observation.getPhenomenonTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        RecordValue value = parameters.isShowTimeIntervals()
-                ? new RecordValue(start, end, observationValue)
-                : new RecordValue(end, observationValue);
+        RecordValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
