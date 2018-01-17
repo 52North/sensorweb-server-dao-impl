@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
@@ -51,9 +52,12 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
+    ReferenceValueOutput[] createReferenceValueOutputs(E datasetEntity, DbQuery query);
+
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void
     }
 
     Class<E> getDatasetEntityType();
+
 }

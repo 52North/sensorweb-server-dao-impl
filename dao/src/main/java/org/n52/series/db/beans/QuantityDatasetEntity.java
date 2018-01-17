@@ -29,6 +29,7 @@
 
 package org.n52.series.db.beans;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,6 +46,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         super(QuantityValue.TYPE);
     }
 
+    @Override
     public Set<QuantityDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
@@ -66,7 +68,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
-            Double value = firstValue.getValue();
+            BigDecimal value = firstValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;
@@ -80,7 +82,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
-            Double value = lastValue.getValue();
+            BigDecimal value = lastValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;

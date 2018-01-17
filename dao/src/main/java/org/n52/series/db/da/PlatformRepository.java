@@ -29,16 +29,21 @@
 
 package org.n52.series.db.da;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -57,9 +62,6 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -74,11 +76,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformRepository.class);
 
     private static final String FILTER_STATIONARY = "stationary";
-
     private static final String FILTER_MOBILE = "mobile";
-
     private static final String FILTER_INSITU = "insitu";
-
     private static final String FILTER_REMOTE = "remote";
 
     @Autowired
@@ -89,7 +88,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput(PlatformEntity entity) {
-        return new PlatformOutput(entity.getPlatformType());
+        return new PlatformOutput();
     }
 
     @Override
@@ -160,6 +159,16 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        PlatformOutput output = super.createCondensed(entity, query, session);
+        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
+        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
+        // re-set ID after platformtype has been determined
+        output.setId(Long.toString(entity.getPkid()));
+        return output;
+    }
+
+    @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
@@ -171,7 +180,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                                        .removeAllOf(Parameters.NEAR));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setDatasets(datasets);
+        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
 
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, platformQuery, session)
@@ -182,9 +191,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return null;
         }
 
-        result.setGeometry(geometry);
+        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 
@@ -314,14 +323,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_INSITU);
-        PlatformDao dao = createPlatformDao(session);
-        return dao.getAllInstances(query);
+        return createPlatformDao(session).getAllInstances(query);
     }
 
     private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_REMOTE);
-        PlatformDao dao = createPlatformDao(session);
-        return dao.getAllInstances(query);
+        return createPlatformDao(session).getAllInstances(query);
     }
 
     private DbQuery createPlatformFilter(DbQuery parameters, String... filterValues) {
@@ -330,19 +337,11 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        List<PlatformEntity> converted = new ArrayList<>();
-        for (FeatureEntity entity : entities) {
-            converted.add(convertInsitu(entity, query));
-        }
-        return converted;
+        return entities.stream().map(x -> convertInsitu(x, query)).collect(toList());
     }
 
     private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        List<PlatformEntity> converted = new ArrayList<>();
-        for (FeatureEntity entity : entities) {
-            converted.add(convertRemote(entity, query));
-        }
-        return converted;
+        return entities.stream().map(x -> convertRemote(x, query)).collect(toList());
     }
 
     private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {
@@ -376,7 +375,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {
-        throw new ResourceNotFoundException(resource + " with id '" + id + "' could not be found.");
+        throw new ResourceNotFoundException(String.format("%s with id '%s' could not be found.", resource, id));
     }
 
 }

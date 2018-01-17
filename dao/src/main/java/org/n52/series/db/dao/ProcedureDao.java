@@ -33,13 +33,14 @@ package org.n52.series.db.dao;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.I18nProcedureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
@@ -56,7 +57,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
         LOGGER.debug("get instance '{}': {}", key, query);
         Criteria criteria = getDefaultCriteria(true, query);
-        return getEntityClass().cast(criteria.add(Restrictions.eq("pkid", key))
+        return getEntityClass().cast(criteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_PKID, key))
                                              .uniqueResult());
     }
 

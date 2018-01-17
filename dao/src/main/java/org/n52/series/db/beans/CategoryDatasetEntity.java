@@ -42,6 +42,7 @@ public class CategoryDatasetEntity extends DatasetEntity<CategoryDataEntity> {
         super(CategoryValue.TYPE);
     }
 
+    @Override
     public Set<CategoryDatasetEntity> getReferenceValues() {
         return referenceValues;
     }

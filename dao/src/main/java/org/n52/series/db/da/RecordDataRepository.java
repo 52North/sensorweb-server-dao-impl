@@ -30,15 +30,12 @@
 package org.n52.series.db.da;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.RecordDataEntity;
@@ -56,63 +53,9 @@ public class RecordDataRepository
     }
 
     @Override
-    protected Data<RecordValue> assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
-                                                         DbQuery dbQuery,
-                                                         Session session)
-            throws DataAccessException {
-        Data<RecordValue> result = assembleData(timeseries, dbQuery, session);
-        Set<RecordDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<Data<RecordValue>> metadata = new DatasetMetadata<>();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, Data<RecordValue>> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
-                                                            DbQuery query,
-                                                            Session session)
-            throws DataAccessException {
-        Map<String, Data<RecordValue>> referenceSeries = new HashMap<>();
-        for (RecordDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                Data<RecordValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(Long.toString(referenceSeriesEntity.getPkid()), referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<RecordValue> referenceSeriesData) {
-        return referenceSeriesData.getValues()
-                                  .size() <= 1;
-    }
-
-    private Data<RecordValue> expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        Data<RecordValue> result = new Data<>();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            RecordValue lastValidValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValidValue.getValue(), seriesEntity, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            RecordDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
     protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<RecordValue> result = new Data<RecordValue>();
+        Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (RecordDataEntity observation : observations) {
@@ -124,27 +67,13 @@ public class RecordDataRepository
         return result;
     }
 
-    // XXX
-    private RecordValue[] expandToInterval(Map<String, Object> value, RecordDatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity() {};
-        RecordDataEntity referenceEnd = new RecordDataEntity() {};
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new RecordValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
-
-    }
-
     @Override
     public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+        if (observation == null) {
+            // do not fail on empty observations
+            return null;
+        }
+
         ServiceEntity service = getServiceEntity(series);
         Map<String, Object> observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()

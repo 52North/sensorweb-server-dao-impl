@@ -190,7 +190,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series, query, repository);
+        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series,
+                                                                                                query,
+                                                                                                repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);

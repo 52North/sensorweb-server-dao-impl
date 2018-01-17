@@ -29,9 +29,10 @@
 
 package org.n52.series.db.dao;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
@@ -43,9 +44,13 @@ import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.criterion.SpatialFilter;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
-import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
@@ -57,10 +62,6 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
@@ -161,9 +162,7 @@ public class DbQuery {
     }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
-        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode()))
-                        .list()
-                        .isEmpty();
+        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
     }
 
     public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
@@ -183,10 +182,8 @@ public class DbQuery {
         IntervalWithTimeZone timespan = parameters.getTimespan();
         if (timespan != null) {
             Interval interval = timespan.toInterval();
-            DateTime startDate = interval.getStart();
-            DateTime endDate = interval.getEnd();
-            Date start = startDate.toDate();
-            Date end = endDate.toDate();
+            Date start = interval.getStart().toDate();
+            Date end = interval.getEnd().toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_TIMESTART, start, end),
                                          Restrictions.between(DataEntity.PROPERTY_TIMEEND, start, end)));
         }
@@ -204,9 +201,7 @@ public class DbQuery {
             int limit = (getParameters().containsParameter(Parameters.LIMIT))
                     ? getParameters().getLimit()
                     : DEFAULT_LIMIT;
-            limit = (limit > 1)
-                    ? limit
-                    : DEFAULT_LIMIT;
+            limit = limit > 1 ? limit : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -250,8 +245,8 @@ public class DbQuery {
 
         addFilterRestriction(parameters.getDatasets()
                                        .stream()
-                                       .map(e -> ValueType.extractId(e))
-                                       .collect(Collectors.toSet()),
+                                       .map(ValueType::extractId)
+                                       .collect(toSet()),
                              filter);
 
         // TODO refactory/simplify projection
@@ -289,7 +284,7 @@ public class DbQuery {
             } else {
                 // return subquery for further chaining
                 return filter.createCriteria(entity)
-                             .add(restriction);
+                        .add(restriction);
             }
         }
         return filter;
@@ -307,11 +302,9 @@ public class DbQuery {
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        Disjunction disjunction = Restrictions.disjunction();
-        for (String filter : filterValues) {
-            disjunction.add(Restrictions.ilike(column, filter));
-        }
-        return disjunction;
+        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
+                .collect(Restrictions::disjunction, Disjunction::add,
+                         (a, b) -> b.conditions().forEach(a::add));
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
@@ -325,48 +318,42 @@ public class DbQuery {
 
     private Set<String> getStationaryIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isStationaryId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                        .filter(PlatformType::isStationaryId)
+                        .map(PlatformType::extractId)
+                        .collect(toSet());
     }
 
     private Set<String> getMobileIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isMobileId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                .filter(PlatformType::isMobileId)
+                .map(PlatformType::extractId)
+                .collect(toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            Disjunction or = Restrictions.disjunction();
-            for (String resultTime : parameters.getResultTimes()) {
-                Instant instant = Instant.parse(resultTime);
-                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULTTIME, instant.toDate()));
-            }
-            criteria.add(or);
+            criteria.add(parameters.getResultTimes().stream()
+                    .map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULTTIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add,
+                             (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
 
     public Criteria addSpatialFilter(Criteria criteria) {
         SpatialFilter filter = createSpatialFilter();
-        return filter != null
-                ? criteria.add(filter)
-                : criteria;
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
         SpatialFilter filter = createSpatialFilter();
-        return filter != null
-                ? criteria.add(filter)
-                : criteria;
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
-    private SpatialFilter createSpatialFilter() {
-        BoundingBox bbox = parameters.getSpatialFilter();
-        if (bbox != null) {
-            Envelope envelope = getSpatialFilter();
+    public SpatialFilter createSpatialFilter() {
+        Envelope envelope = getSpatialFilter();
+        if (envelope != null) {
             CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
             int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";

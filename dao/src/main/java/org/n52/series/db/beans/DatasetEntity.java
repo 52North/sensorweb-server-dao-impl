@@ -294,6 +294,10 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
         return observationCount;
     }
 
+    public <D extends DatasetEntity<T>> Set<D> getReferenceValues() {
+        return null;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
