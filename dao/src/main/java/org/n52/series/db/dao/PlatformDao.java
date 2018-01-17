@@ -53,7 +53,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROCEDURE, createMobileSubquery(true));
+        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileSubquery(true));
         DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
                                                               createMobileSubquery(false));
 
@@ -72,14 +72,14 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     private DetachedCriteria createMobileSubquery(boolean mobile) {
         DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.createCriteria(DatasetEntity.PROCEDURE)
+        criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
                 .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
         return criteria;
     }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROCEDURE;
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override

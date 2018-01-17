@@ -245,11 +245,11 @@ public class DbQuery {
         }
 
         if (hasValues(procedures)) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROCEDURE, filter);
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
         }
 
         if (hasValues(offerings)) {
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.OFFERING, filter);
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         }
 
         if (hasValues(features)) {

@@ -73,7 +73,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROCEDURE;
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override

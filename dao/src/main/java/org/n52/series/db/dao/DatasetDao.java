@@ -151,7 +151,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROCEDURE, PROCEDURE_PATH_ALIAS);
+        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS);
         if (ignoreReferenceSeries) {
             procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
