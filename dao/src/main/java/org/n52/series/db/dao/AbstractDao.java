@@ -56,7 +56,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
-    protected Session session;
+    protected final Session session;
 
     public AbstractDao(Session session) {
         if (session == null) {
@@ -266,9 +266,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 // XXX convert to disjunction
                 GeometryType type = getGeometryType(geometryType);
                 if (type != null) {
-                    String typeName = "ST_" + type.getCamelCased();
                     String propertyName = DataEntity.PROPERTY_GEOMETRY_ENTITY;
-                    criteria.add(SpatialRestrictions.geometryType(propertyName, typeName));
+                    criteria.add(SpatialRestrictions.geometryType(propertyName, type));
                 }
             }
         }

@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
+@SuppressWarnings("rawtypes")
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
     public static final String FEATURE_PATH_ALIAS = "dsFeature";
@@ -164,6 +165,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         // on dataset itself there is no explicit join neccessary
         Criteria filter = criteria.add(createPublishedDatasetFilter());
         query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
+                                                     FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));
         return criteria;
     }

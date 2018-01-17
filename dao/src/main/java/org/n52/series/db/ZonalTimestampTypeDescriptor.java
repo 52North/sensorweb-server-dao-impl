@@ -102,7 +102,7 @@ public final class ZonalTimestampTypeDescriptor extends TimestampTypeDescriptor 
                     throws SQLException {
                 final Timestamp unwrapped = javaTypeDescriptor.unwrap(value, Timestamp.class, opts);
                 st.setTimestamp(name, unwrapped, zonalCalendar);
-                
+
             }
         };
     }

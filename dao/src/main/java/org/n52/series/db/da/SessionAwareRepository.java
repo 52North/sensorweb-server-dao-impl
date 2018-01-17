@@ -93,6 +93,10 @@ public abstract class SessionAwareRepository {
                 : new DefaultDbQueryFactory();
     }
 
+    public void setDbQueryFactory(DbQueryFactory dbQueryFactory) {
+        this.dbQueryFactory = dbQueryFactory;
+    }
+
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
     }
@@ -110,9 +114,13 @@ public abstract class SessionAwareRepository {
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
-        String srid = query.getDatabaseSridCode();
-        geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
-        return geometryEntity.getGeometry();
+        if (geometryEntity == null) {
+            return null;
+        } else {
+            String srid = query.getDatabaseSridCode();
+            geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+            return geometryEntity.getGeometry();
+        }
     }
 
     // XXX a bit misplaced here

@@ -38,6 +38,7 @@ import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
@@ -118,9 +119,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
     }
-    
+
     protected abstract V createEmptyValue();
-    
+
     protected V prepareValue(E observation, DbQuery query) {
         V emptyValue = createEmptyValue();
         if (observation == null) {
@@ -137,12 +138,19 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         return emptyValue;
     }
 
+    @Override
+    public ReferenceValueOutput[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+        return new ReferenceValueOutput[0];
+    }
+
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
     protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected abstract Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
-            throws DataAccessException;
+    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+            throws DataAccessException {
+        return assembleData(datasetEntity, dbQuery, session);
+    }
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
         return observations.size() > 0;

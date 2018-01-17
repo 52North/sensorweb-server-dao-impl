@@ -38,7 +38,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -164,7 +163,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         PlatformOutput output = super.createCondensed(entity, query, session);
         PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
         output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
-        // re-set ID after platformtype has been determined 
+        // re-set ID after platformtype has been determined
         output.setId(Long.toString(entity.getId()));
         return output;
     }
@@ -194,7 +193,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
         result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

@@ -142,7 +142,11 @@ public class QuantityDataRepository extends
             createSeriesValueFor(referenceStart, series, query),
             createSeriesValueFor(referenceEnd, series, query),
         };
+    }
 
+    @Override
+    protected QuantityValue createEmptyValue() {
+        return new QuantityValue();
     }
 
     @Override
@@ -159,11 +163,6 @@ public class QuantityDataRepository extends
                 ? format(observation, series)
                 : null;
         return createValue(observationValue, observation, query);
-    }
-
-    @Override
-    protected QuantityValue createEmptyValue() {
-        return new QuantityValue();
     }
 
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {

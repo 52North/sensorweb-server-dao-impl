@@ -199,7 +199,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series, query, repository, session);
+        List<ReferenceValueOutput<QuantityValue>> referenceValues =
+                createReferenceValueOutputs(series, query, repository, session);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
         DatasetParameters timeseries = createTimeseriesOutput(series, query);
@@ -223,9 +224,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
-                                                                           DbQuery query,
-                                                                           QuantityDataRepository repository,
-                                                                           Session session)
+                                                                                  DbQuery query,
+                                                                                  QuantityDataRepository repository,
+                                                                                  Session session)
             throws DataAccessException {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
