@@ -29,24 +29,26 @@
 
 package org.n52.series.db.beans;
 
-import static org.junit.Assert.assertTrue;
+import java.util.HashSet;
+import java.util.Set;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collection;
+import org.n52.io.response.dataset.category.CategoryValue;
 
-import org.junit.Test;
+public class CategoryDatasetEntity extends DatasetEntity<CategoryDataEntity> {
 
-public class QuantityDataEntityTest {
+    private Set<CategoryDatasetEntity> referenceValues = new HashSet<>();
 
-    @Test
-    public void when_noDataCollectionContainsValue_then_detectNoDataValue() {
-        Collection<String> noDataValues = Arrays.asList(new String[] {
-            "9999",
-            "-9999.9"
-        });
-        QuantityDataEntity entity = new QuantityDataEntity();
-        entity.setValue(new BigDecimal(9999d));
-        assertTrue(entity.isNoDataValue(noDataValues));
+    public CategoryDatasetEntity() {
+        super(CategoryValue.TYPE);
     }
+
+    @Override
+    public Set<CategoryDatasetEntity> getReferenceValues() {
+        return referenceValues;
+    }
+
+    public void setReferenceValues(Set<CategoryDatasetEntity> referenceValues) {
+        this.referenceValues = referenceValues;
+    }
+
 }

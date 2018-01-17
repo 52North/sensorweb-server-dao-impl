@@ -38,10 +38,10 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.io.response.dataset.quantity.QuantityReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.FeatureEntity;
@@ -190,7 +190,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<QuantityReferenceValueOutput> referenceValues = createReferenceValueOutputs(series, query, repository);
+        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series,
+                                                                                                query,
+                                                                                                repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
@@ -213,15 +215,15 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    private List<QuantityReferenceValueOutput> createReferenceValueOutputs(QuantityDatasetEntity series,
+    private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
                                                                            DbQuery query,
                                                                            QuantityDataRepository repository)
             throws DataAccessException {
-        List<QuantityReferenceValueOutput> outputs = new ArrayList<>();
+        List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                QuantityReferenceValueOutput refenceValueOutput = new QuantityReferenceValueOutput();
+                ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()

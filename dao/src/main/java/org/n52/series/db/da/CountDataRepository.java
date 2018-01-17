@@ -34,7 +34,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.count.CountData;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CountDataEntity;
@@ -44,7 +44,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class CountDataRepository
-        extends AbstractDataRepository<CountData, CountDatasetEntity, CountDataEntity, CountValue> {
+        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
 
     @Override
     public Class<CountDatasetEntity> getDatasetEntityType() {
@@ -52,9 +52,9 @@ public class CountDataRepository
     }
 
     @Override
-    protected CountData assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        CountData result = new CountData();
+        Data<CountValue> result = new Data<>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {
@@ -63,6 +63,24 @@ public class CountDataRepository
             }
         }
         return result;
+    }
+
+    private CountValue[] expandToInterval(Integer value, CountDatasetEntity series, DbQuery query) {
+        CountDataEntity referenceStart = new CountDataEntity();
+        CountDataEntity referenceEnd = new CountDataEntity();
+        referenceStart.setTimestamp(query.getTimespan()
+                                         .getStart()
+                                         .toDate());
+        referenceEnd.setTimestamp(query.getTimespan()
+                                       .getEnd()
+                                       .toDate());
+        referenceStart.setValue(value);
+        referenceEnd.setValue(value);
+        return new CountValue[] {
+            createSeriesValueFor(referenceStart, series, query),
+            createSeriesValueFor(referenceEnd, series, query),
+        };
+
     }
 
     @Override

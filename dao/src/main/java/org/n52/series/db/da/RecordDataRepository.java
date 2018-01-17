@@ -35,7 +35,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.record.RecordData;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.RecordDataEntity;
@@ -45,7 +45,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordData, RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
     @Override
     public Class<RecordDatasetEntity> getDatasetEntityType() {
@@ -53,9 +53,9 @@ public class RecordDataRepository
     }
 
     @Override
-    protected RecordData assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        RecordData result = new RecordData();
+        Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (RecordDataEntity observation : observations) {

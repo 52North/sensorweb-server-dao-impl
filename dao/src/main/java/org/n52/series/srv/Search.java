@@ -66,7 +66,7 @@ public class Search implements SearchService {
     private OutputAssembler<PlatformOutput> platformRepository;
 
     @Autowired
-    private OutputAssembler<DatasetOutput< ? , ? >> datasetRepository;
+    private OutputAssembler<DatasetOutput< ? >> datasetRepository;
 
     @Autowired
     @Deprecated

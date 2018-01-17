@@ -48,8 +48,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractDataRepository<D extends Data< ? >,
-                                             S extends DatasetEntity< ? >,
+public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
@@ -79,14 +78,18 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
     public V getFirstValue(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
         E valueEntity = dao.getDataValueViaTimestart(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
+        return valueEntity != null
+                ? createSeriesValueFor(valueEntity, entity, query)
+                : null;
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
         DataDao<E> dao = createDataDao(session);
         E valueEntity = dao.getDataValueViaTimeend(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
+        return valueEntity != null
+                ? createSeriesValueFor(valueEntity, entity, query)
+                : null;
     }
 
     @Override
@@ -110,9 +113,9 @@ public abstract class AbstractDataRepository<D extends Data< ? >,
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract D assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected D assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
             throws DataAccessException {
         return assembleData(datasetEntity, dbQuery, session);
     }

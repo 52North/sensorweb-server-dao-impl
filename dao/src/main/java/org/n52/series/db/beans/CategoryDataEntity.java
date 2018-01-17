@@ -29,24 +29,14 @@
 
 package org.n52.series.db.beans;
 
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
+public class CategoryDataEntity extends DataEntity<String> {
 
-public class QuantityDataEntityTest {
-
-    @Test
-    public void when_noDataCollectionContainsValue_then_detectNoDataValue() {
-        Collection<String> noDataValues = Arrays.asList(new String[] {
-            "9999",
-            "-9999.9"
-        });
-        QuantityDataEntity entity = new QuantityDataEntity();
-        entity.setValue(new BigDecimal(9999d));
-        assertTrue(entity.isNoDataValue(noDataValues));
+    @Override
+    public boolean isNoDataValue(Collection<String> noDataValues) {
+        String value = getValue();
+        return value == null
+                || noDataValues.contains(value);
     }
 }

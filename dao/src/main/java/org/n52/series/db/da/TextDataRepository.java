@@ -34,7 +34,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.text.TextData;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
@@ -43,7 +43,7 @@ import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextDataRepository extends AbstractDataRepository<TextData, TextDatasetEntity, TextDataEntity, TextValue> {
+public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
 
     @Override
     public Class<TextDatasetEntity> getDatasetEntityType() {
@@ -51,9 +51,9 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
     }
 
     @Override
-    protected TextData assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        TextData result = new TextData();
+        Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
@@ -66,26 +66,37 @@ public class TextDataRepository extends AbstractDataRepository<TextData, TextDat
 
     @Override
     public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
+        TextValue value = createValue(observation, series, query, observationValue);
+        return addMetadatasIfNeeded(observation, value, series, query);
+    }
+
+    private TextValue createValue(TextDataEntity observation,
+                                  TextDatasetEntity series,
+                                  DbQuery query,
+                                  String observationValue) {
+        ServiceEntity service = getServiceEntity(series);
+        String textValue = !service.isNoDataValue(observation)
+                ? observation.getValue()
+                : null;
+        return createValue(textValue, observation, query);
+    }
+
+    TextValue createValue(String observationValue,
+                          TextDataEntity observation,
+                          DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        TextValue value = parameters.isShowTimeIntervals()
+        return parameters.isShowTimeIntervals()
                 ? new TextValue(start, end, observationValue)
                 : new TextValue(end, observationValue);
-
-        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }
