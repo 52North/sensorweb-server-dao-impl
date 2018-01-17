@@ -38,7 +38,7 @@ public class ProcedureEntity extends HierarchicalEntity<ProcedureEntity> {
     public static final String PROPERTY_DELETED = "deleted";
 
     private boolean reference;
-    
+
     private boolean deleted;
 
     private boolean mobile;

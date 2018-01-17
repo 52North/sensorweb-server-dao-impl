@@ -318,7 +318,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-            
+
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);

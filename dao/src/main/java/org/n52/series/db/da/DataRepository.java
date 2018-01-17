@@ -47,11 +47,11 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
     V getFirstValue(E entity, Session session, DbQuery query);
 
     V getLastValue(E entity, Session session, DbQuery query);
-    
+
     GeometryEntity getLastKnownGeometry(E lastDataset, Session session, DbQuery query);
 
     void setSessionStore(HibernateSessionStore sessionStore);
-    
+
     ReferenceValueOutput[] createReferenceValueOutputs(E datasetEntity, DbQuery query);
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
