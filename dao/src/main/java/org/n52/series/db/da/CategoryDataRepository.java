@@ -30,15 +30,11 @@
 package org.n52.series.db.da;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CategoryDataEntity;
@@ -56,62 +52,6 @@ public class CategoryDataRepository
     }
 
     @Override
-    protected Data<CategoryValue> assembleDataWithReferenceValues(CategoryDatasetEntity timeseries,
-                                                                  DbQuery dbQuery,
-                                                                  Session session)
-            throws DataAccessException {
-        Data<CategoryValue> result = assembleData(timeseries, dbQuery, session);
-        Set<CategoryDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<Data<CategoryValue>> metadata = new DatasetMetadata<>();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, Data<CategoryValue>> assembleReferenceSeries(Set<CategoryDatasetEntity> referenceValues,
-                                                                     DbQuery query,
-                                                                     Session session)
-            throws DataAccessException {
-        Map<String, Data<CategoryValue>> referenceSeries = new HashMap<>();
-        for (CategoryDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                Data<CategoryValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(Long.toString(referenceSeriesEntity.getPkid()), referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<CategoryValue> referenceSeriesData) {
-        List<CategoryValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<CategoryValue> expandReferenceDataIfNecessary(CategoryDatasetEntity seriesEntity,
-                                                               DbQuery query,
-                                                               Session session)
-            throws DataAccessException {
-        Data<CategoryValue> result = new Data<>();
-        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
-        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            CategoryValue lastValidValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValidValue.getValue(), seriesEntity, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            CategoryDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
     protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<CategoryValue> result = new Data<>();
@@ -123,25 +63,6 @@ public class CategoryDataRepository
             }
         }
         return result;
-    }
-
-    // XXX
-    private CategoryValue[] expandToInterval(String value, CategoryDatasetEntity series, DbQuery query) {
-        CategoryDataEntity referenceStart = new CategoryDataEntity();
-        CategoryDataEntity referenceEnd = new CategoryDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new CategoryValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
-
     }
 
     @Override

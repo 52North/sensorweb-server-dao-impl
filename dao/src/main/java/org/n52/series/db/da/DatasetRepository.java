@@ -34,10 +34,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -46,6 +42,7 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
@@ -60,6 +57,9 @@ import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * TODO: JavaDoc
@@ -309,14 +309,31 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             AbstractValue lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
                     : dataRepository.getLastValue(dataset, session, query);
 
+            List<ReferenceValueOutput> refValues = dataRepository.createReferenceValueOutputs(dataset, query);
+            lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
+                    // first == last to have a valid interval
+                    ? firstValue
+                    : lastValue;
+
+            result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
+
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);
             return null;
         }
+    }
+
+    private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
+        return firstValue.getTimestamp().equals(lastValue.getTimestamp());
+    }
+
+    private boolean isReferenceSeries(DatasetEntity<?> series) {
+        return series.getProcedure()
+                     .isReference();
     }
 
     private PlatformOutput getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)

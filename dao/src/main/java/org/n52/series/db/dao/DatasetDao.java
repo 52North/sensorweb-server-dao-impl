@@ -178,6 +178,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
         if (ignoreReferenceSeries) {
             criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.eq(ProcedureEntity.PROPERTY_DELETED, Boolean.FALSE))
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 

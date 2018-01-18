@@ -37,19 +37,24 @@
             <component class="ObservationEntity" name="firstValue">
                 <property column="firsttimestamp" name="timestart" type="timestamp" insert="false" update="false" />
                 <property column="firsttimestamp" name="timeend" type="timestamp" insert="false" update="false" />
-                <property column="firstnumericvalue" name="value" type="double" />
+                <property column="firstnumericvalue" name="value" type="big_decimal" />
             </component>
             <!-- last value for backwards compatibility -->
             <component class="ObservationEntity" name="lastValue">
                 <property column="lasttimestamp" name="timestart" type="timestamp" insert="false" update="false" />
                 <property column="lasttimestamp" name="timeend" type="timestamp" insert="false" update="false" />
-                <property column="lastnumericvalue" name="value" type="double" />
+                <property column="lastnumericvalue" name="value" type="big_decimal" />
             </component>
             <many-to-one class="UnitEntity" column="unitid" insert="false" name="unit" update="false" />
             <bag fetch="select" inverse="true" name="observations" table="observation">
                 <key column="observationid" />
                 <one-to-many class="QuantityDataEntity" />
             </bag>
+
+            <set name="referenceValues" table="seriesreference" inverse="true">
+                <key column="seriesid" />
+                <many-to-many class="DatasetEntity" column="referenceseriesid" unique="true" />
+            </set>
         </subclass>
 
         <subclass discriminator-value="text" name="TextDatasetEntity">

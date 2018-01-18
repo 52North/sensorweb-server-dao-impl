@@ -29,25 +29,12 @@
 
 package org.n52.series.db.beans;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.n52.io.response.dataset.category.CategoryValue;
 
 public class CategoryDatasetEntity extends DatasetEntity<CategoryDataEntity> {
 
-    private Set<CategoryDatasetEntity> referenceValues = new HashSet<>();
-
     public CategoryDatasetEntity() {
         super(CategoryValue.TYPE);
-    }
-
-    public Set<CategoryDatasetEntity> getReferenceValues() {
-        return referenceValues;
-    }
-
-    public void setReferenceValues(Set<CategoryDatasetEntity> referenceValues) {
-        this.referenceValues = referenceValues;
     }
 
 }

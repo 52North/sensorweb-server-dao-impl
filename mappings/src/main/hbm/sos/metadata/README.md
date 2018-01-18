@@ -7,8 +7,7 @@ Add `/hbm/sos/metadata` to the `seriesSessionFactory` bean in
 ```
 <property name="mappingLocations">
   <list>
-    <value>classpath:hbm/sos/v42/*.hbm.xml</value>
-    <value>classpath:hbm/sos/v42/series/*.hbm.xml</value>
+    <value>classpath:hbm/sos/v44/*.hbm.xml</value>
     <value>classpath:hbm/sos/metadata/*.hbm.xml</value>
   </list>
 </property>
@@ -38,5 +37,5 @@ For example
 
 After restart you should be able to review the extra metadata available in the
 `extras` property array of a timeseries. To access them just call
-`api/v1/timeseries/:id/extras` and optionally filter by adding query parameter
+`api/datasets/:id/extras` and optionally filter by adding query parameter
 `fields` (takes a comma-separated list of metadata names).
