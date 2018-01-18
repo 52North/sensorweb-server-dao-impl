@@ -29,6 +29,7 @@
 
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,7 @@ public abstract class ProfileDataRepository<T>
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(quantityEntity.getValue());
         // set vertical's value
-        dataItem.setVertical((Double) parameterObject.get("value"));
+        dataItem.setVertical((BigDecimal) parameterObject.get("value"));
         String verticalUnit = (String) parameterObject.get("unit");
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
