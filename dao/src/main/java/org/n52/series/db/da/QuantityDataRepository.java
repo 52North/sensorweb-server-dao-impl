@@ -31,6 +31,7 @@ package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +42,10 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -58,9 +61,28 @@ public class QuantityDataRepository extends
     }
 
     @Override
+    public ReferenceValueOutput<QuantityValue>[] createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
+                                                                             DbQuery query) {
+        Set<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
+        List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
+        for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
+            ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
+            ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
+            refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
+            refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
+                                                                        .toString());
+
+            QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
+            refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
+            outputs.add(refenceValueOutput);
+        }
+        return outputs.toArray(new ReferenceValueOutput[0]);
+    }
+
+    @Override
     protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                           DbQuery dbQuery,
-                                                           Session session)
+                                                                  DbQuery dbQuery,
+                                                                  Session session)
             throws DataAccessException {
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
         Set<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -73,8 +95,8 @@ public class QuantityDataRepository extends
     }
 
     private Map<String, Data<QuantityValue>> assembleReferenceSeries(Set<QuantityDatasetEntity> referenceValues,
-                                                              DbQuery query,
-                                                              Session session)
+                                                                     DbQuery query,
+                                                                     Session session)
             throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -97,8 +119,8 @@ public class QuantityDataRepository extends
     }
 
     private Data<QuantityValue> expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity,
-                                                        DbQuery query,
-                                                        Session session)
+                                                               DbQuery query,
+                                                               Session session)
             throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
