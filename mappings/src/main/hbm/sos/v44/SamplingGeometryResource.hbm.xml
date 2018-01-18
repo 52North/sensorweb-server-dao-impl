@@ -9,7 +9,7 @@
     <property name="timestamp" column="phenomenontimestart" type="timestamp"/>
 
     <component class="GeometryEntity" name="geometryEntity">
-        <!-- <property column="lat" name="lat" type="double" /> <property column="lon" name="lon" type="double" /> -->
+        <!-- <property column="lat" name="lat" type="big_decimal" /> <property column="lon" name="lon" type="big_decimal" /> -->
         <property column="samplingGeometry" name="geometry" type="org.hibernate.spatial.GeometryType" />
     </component>
 
@@ -19,8 +19,8 @@
 <!--   <sql-query name="getSampleLatLonGeometries"> -->
 <!--     <return-scalar column="phenomenontime" type="timestamp" /> -->
 <!--     <return-scalar column="geom" type="org.hibernate.spatial.GeometryType" /> -->
-<!--     <return-scalar column="lat" type="double" /> -->
-<!--     <return-scalar column="lon" type="double" /> -->
+<!--     <return-scalar column="lat" type="big_decimal" /> -->
+<!--     <return-scalar column="lon" type="big_decimal" /> -->
 <!--     SELECT DISTINCT o.phenomenontime, o.lat, o.lon -->
 <!--     FROM observation o, series s -->
 <!--     WHERE s.seriesid = o.seriesid AND s.featureofinterestid=:featureid -->
