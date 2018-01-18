@@ -62,8 +62,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     public boolean exists(String id, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
-            AbstractDao< ? extends DescribableEntity> dao = createDao(session);
-            return dao.hasInstance(parseId(id), query);
+            return createDao(session).hasInstance(id, query);
         } finally {
             returnSession(session);
         }
