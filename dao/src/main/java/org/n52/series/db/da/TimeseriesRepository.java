@@ -190,12 +190,12 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series, query, repository);
+        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query, repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
 
-        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, referenceValues, params, result::setReferenceValues);
+        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
         result.setValue(TimeseriesMetadataOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
         result.setValue(TimeseriesMetadataOutput.LAST_VALUE, lastValue, params, result::setLastValue);

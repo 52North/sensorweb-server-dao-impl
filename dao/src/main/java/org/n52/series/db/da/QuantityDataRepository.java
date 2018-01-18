@@ -129,7 +129,7 @@ public class QuantityDataRepository extends
         return result;
     }
 
-    private QuantityValue[] expandToInterval(Double value, QuantityDatasetEntity series, DbQuery query) {
+    private QuantityValue[] expandToInterval(BigDecimal value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
         referenceStart.setTimestamp(query.getTimespan()
@@ -157,13 +157,13 @@ public class QuantityDataRepository extends
 
     private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Double observationValue = !service.isNoDataValue(observation)
+        BigDecimal observationValue = !service.isNoDataValue(observation)
                 ? format(observation, series)
                 : null;
         return createValue(observationValue, observation, query);
     }
 
-    QuantityValue createValue(Double observationValue, QuantityDataEntity observation, DbQuery query) {
+    QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();
@@ -174,13 +174,12 @@ public class QuantityDataRepository extends
                 : new QuantityValue(end, observationValue);
     }
 
-    private Double format(QuantityDataEntity observation, QuantityDatasetEntity series) {
+    private BigDecimal format(QuantityDataEntity observation, QuantityDatasetEntity series) {
         if (observation.getValue() == null) {
             return observation.getValue();
         }
         int scale = series.getNumberOfDecimals();
-        return new BigDecimal(observation.getValue()).setScale(scale, RoundingMode.HALF_UP)
-                                                     .doubleValue();
+        return observation.getValue().setScale(scale, RoundingMode.HALF_UP);
     }
 
 }

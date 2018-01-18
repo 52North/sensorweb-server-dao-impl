@@ -37,10 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
@@ -64,6 +60,9 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;

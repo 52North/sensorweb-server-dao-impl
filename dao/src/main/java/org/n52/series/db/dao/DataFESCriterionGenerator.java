@@ -1,6 +1,5 @@
-package org.n52.series.db.dao;
 
-import static org.n52.series.db.dao.FESCriterionGenerator.parseLong;
+package org.n52.series.db.dao;
 
 import java.util.Optional;
 
@@ -12,7 +11,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -31,18 +29,33 @@ public class DataFESCriterionGenerator extends FESCriterionGenerator {
     /**
      * Creates a new {@code DataFESCriterionGenerator}.
      *
-     * @param criteria          the criteria
-     * @param unsupportedIsTrue if the generator encounters a filter expression it could not translate it may generate a
-     *                          criterion that is always {@code true} or always {@code false} depending on this flag
-     * @param matchDomainIds    if filter on observation parameters like feature, offering or procedure should match on
-     *                          their respective domain identifiers or on the primary keys in the database
-     * @param complexParent     if the queries should result in the parent observation and hide the child observations
+     * @param criteria
+     *        the criteria
+     * @param unsupportedIsTrue
+     *        if the generator encounters a filter expression it could not translate it may generate a
+     *        criterion that is always {@code true} or always {@code false} depending on this flag
+     * @param matchDomainIds
+     *        if filter on observation parameters like feature, offering or procedure should match on
+     *        their respective domain identifiers or on the primary keys in the database
+     * @param complexParent
+     *        if the queries should result in the parent observation and hide the child observations
      */
     public DataFESCriterionGenerator(Criteria criteria,
                                      boolean unsupportedIsTrue,
                                      boolean matchDomainIds,
                                      boolean complexParent) {
         super(criteria, unsupportedIsTrue, matchDomainIds, complexParent);
+    }
+
+    @Override
+    protected Criterion createResultCriterion(ComparisonFilter filter) {
+        return getResultSubqueries(filter)
+                                          // just get the PKID
+                                          .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_PKID)))
+                                          // create a property IN expression for each query
+                                          .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
+                                          // and wrap everything into a disjunction
+                                          .collect(MoreRestrictions.toDisjunction());
     }
 
     @Override
@@ -74,32 +87,25 @@ public class DataFESCriterionGenerator extends FESCriterionGenerator {
         return createDatasetCriterion(property, createSpatialFilterCriterion(filter));
     }
 
-    @Override
-    protected Criterion createResultCriterion(ComparisonFilter filter) {
-        return getResultSubqueries(filter)
-                // just get the PKID
-                .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_PKID)))
-                // create a property IN expression for each query
-                .map(q -> Subqueries.propertyIn(DataEntity.PROPERTY_PKID, q))
-                // and wrap everything into a disjunction
-                .collect(MoreRestrictions.toDisjunction());
-    }
-
     /**
-     * Return a criterion for the {@linkplain DataEntity data entity} that applies {@code criterion} to the supplied
+     * Return a criterion for the {@linkplain DataEntity data entity} that applies {@code criterion} to the
+     * supplied
      * {@code property} of the {@linkplain DatasetEntity dataset}.
      *
-     * @param property  the property of the dataset
-     * @param criterion the criterion to apply
-     *
+     * @param property
+     *        the property of the dataset
+     * @param criterion
+     *        the criterion to apply
      * @return the data entity criterion
      */
     private Criterion createDatasetCriterion(String property, Criterion criterion) {
         DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class)
-                .setProjection(Property.forName(DatasetEntity.PROPERTY_PKID))
-                .add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, Boolean.FALSE))
-                .add(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED, Boolean.TRUE))
-                .createCriteria(property).add(criterion);
+                                                    .setProjection(Property.forName(DatasetEntity.PROPERTY_PKID))
+                                                    .add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, Boolean.FALSE))
+                                                    .add(Restrictions.eq(DatasetEntity.PROPERTY_PUBLISHED,
+                                                                         Boolean.TRUE))
+                                                    .createCriteria(property)
+                                                    .add(criterion);
 
         return Subqueries.propertyIn(DataEntity.PROPERTY_SERIES_PKID, subquery);
     }

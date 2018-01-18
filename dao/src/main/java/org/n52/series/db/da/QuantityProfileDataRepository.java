@@ -29,6 +29,7 @@
 
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<Double, QuantityProfileDatasetEntity> {
+public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDatasetEntity> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -56,11 +57,11 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<Double,
   }
 
     @Override
-    protected ProfileValue<Double> createValue(ProfileDataEntity observation,
+    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
                                                ProfileDatasetEntity dataset,
                                                DbQuery query) {
-        ProfileValue<Double> profile = createProfileValue(observation, query);
-        List<ProfileDataItem<Double>> dataItems = new ArrayList<>();
+        ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
+        List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);

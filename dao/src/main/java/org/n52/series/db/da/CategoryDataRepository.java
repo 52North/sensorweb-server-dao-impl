@@ -47,7 +47,8 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class CategoryDataRepository extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+public class CategoryDataRepository
+        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
 
     @Override
     public Class<CategoryDatasetEntity> getDatasetEntityType() {
@@ -55,7 +56,9 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     @Override
-    protected Data<CategoryValue> assembleDataWithReferenceValues(CategoryDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected Data<CategoryValue> assembleDataWithReferenceValues(CategoryDatasetEntity timeseries,
+                                                                  DbQuery dbQuery,
+                                                                  Session session)
             throws DataAccessException {
         Data<CategoryValue> result = assembleData(timeseries, dbQuery, session);
         Set<CategoryDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -68,8 +71,8 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     private Map<String, Data<CategoryValue>> assembleReferenceSeries(Set<CategoryDatasetEntity> referenceValues,
-                                                          DbQuery query,
-                                                          Session session)
+                                                                     DbQuery query,
+                                                                     Session session)
             throws DataAccessException {
         Map<String, Data<CategoryValue>> referenceSeries = new HashMap<>();
         for (CategoryDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -89,7 +92,9 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
         return values.size() <= 1;
     }
 
-    private Data<CategoryValue> expandReferenceDataIfNecessary(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<CategoryValue> expandReferenceDataIfNecessary(CategoryDatasetEntity seriesEntity,
+                                                               DbQuery query,
+                                                               Session session)
             throws DataAccessException {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
@@ -140,7 +145,9 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     @Override
-    public CategoryValue createSeriesValueFor(CategoryDataEntity observation, CategoryDatasetEntity series, DbQuery query) {
+    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
+                                              CategoryDatasetEntity series,
+                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
@@ -151,9 +158,9 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     private CategoryValue createValue(CategoryDataEntity observation,
-                                  CategoryDatasetEntity series,
-                                  DbQuery query,
-                                  String observationValue) {
+                                      CategoryDatasetEntity series,
+                                      DbQuery query,
+                                      String observationValue) {
         ServiceEntity service = getServiceEntity(series);
         String textValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
@@ -162,8 +169,8 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     CategoryValue createValue(String observationValue,
-                          CategoryDataEntity observation,
-                          DbQuery query) {
+                              CategoryDataEntity observation,
+                              DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();

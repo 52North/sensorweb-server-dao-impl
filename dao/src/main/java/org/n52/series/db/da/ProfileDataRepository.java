@@ -29,6 +29,7 @@
 
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,10 @@ import org.n52.series.db.dao.DbQuery;
 public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<T>> {
 
+    private static final String PARAMETER_NAME = "name";
+    private static final String PARAMETER_VALUE = "value";
+    private static final String PARAMETER_UNIT = "unit";
+
     @Override
     public ProfileValue<T> getFirstValue(P dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
@@ -63,9 +68,8 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     }
 
     protected boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        String parameter = "name";
-        if (parameterObject.containsKey(parameter)) {
-            String value = (String) parameterObject.get(parameter);
+        if (parameterObject.containsKey(PARAMETER_NAME)) {
+            String value = (String) parameterObject.get(PARAMETER_NAME);
             return value.equalsIgnoreCase(verticalName);
         }
         return false;
@@ -127,8 +131,8 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         // set vertical's value
-        dataItem.setVertical((Double) parameterObject.get("value"));
-        String verticalUnit = (String) parameterObject.get("unit");
+        dataItem.setVertical((BigDecimal) parameterObject.get(PARAMETER_VALUE));
+        String verticalUnit = (String) parameterObject.get(PARAMETER_VALUE);
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
         }
@@ -165,10 +169,10 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         }
     }
 
-    private Double getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
+    private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
        for (Map<String, Object> parameterObject : parameters) {
            if (isVertical(parameterObject, verticalName)) {
-               return (Double) parameterObject.get("value");
+               return (BigDecimal) parameterObject.get(PARAMETER_VALUE);
            }
        }
        return null;
@@ -177,11 +181,11 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
         String unit = null;
         for (Map<String, Object> parameter : parameters) {
-            if (unit == null && parameter.containsKey("name") &&
-                    (parameter.get("name").equals(dataset.getVerticalParameterName())
-                    || parameter.get("name").equals(dataset.getVerticalFromParameterName())
-                    || parameter.get("name").equals(dataset.getVerticalToParameterName()))) {
-                unit = (String) parameter.get("unit");
+            if (unit == null && parameter.containsKey(PARAMETER_NAME) &&
+                    (parameter.get(PARAMETER_NAME).equals(dataset.getVerticalParameterName())
+                    || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalFromParameterName())
+                    || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalToParameterName()))) {
+                unit = (String) parameter.get(PARAMETER_UNIT);
             }
         }
         return unit;
@@ -190,8 +194,8 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     private Set<String> getParameterNames(Set<Map<String, Object>> parameters) {
         Set<String> names = new HashSet<>();
         for (Map<String, Object> parameter : parameters) {
-            if (parameter.containsKey("name")) {
-                names.add((String) parameter.get("name"));
+            if (parameter.containsKey(PARAMETER_NAME)) {
+                names.add((String) parameter.get(PARAMETER_NAME));
             }
         }
         return names;

@@ -55,7 +55,9 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    protected Data<TextValue> assembleDataWithReferenceValues(TextDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected Data<TextValue> assembleDataWithReferenceValues(TextDatasetEntity timeseries,
+                                                              DbQuery dbQuery,
+                                                              Session session)
             throws DataAccessException {
         Data<TextValue> result = assembleData(timeseries, dbQuery, session);
         Set<TextDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -68,8 +70,8 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     private Map<String, Data<TextValue>> assembleReferenceSeries(Set<TextDatasetEntity> referenceValues,
-                                                          DbQuery query,
-                                                          Session session)
+                                                                 DbQuery query,
+                                                                 Session session)
             throws DataAccessException {
         Map<String, Data<TextValue>> referenceSeries = new HashMap<>();
         for (TextDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -89,7 +91,9 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
         return values.size() <= 1;
     }
 
-    private Data<TextValue> expandReferenceDataIfNecessary(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<TextValue> expandReferenceDataIfNecessary(TextDatasetEntity seriesEntity,
+                                                           DbQuery query,
+                                                           Session session)
             throws DataAccessException {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);

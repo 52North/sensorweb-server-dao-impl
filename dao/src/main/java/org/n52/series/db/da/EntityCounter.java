@@ -47,7 +47,6 @@ import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 public class EntityCounter {
 

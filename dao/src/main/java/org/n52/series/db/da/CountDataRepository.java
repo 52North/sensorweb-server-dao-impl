@@ -56,7 +56,9 @@ public class CountDataRepository
     }
 
     @Override
-    protected Data<CountValue> assembleDataWithReferenceValues(CountDatasetEntity timeseries, DbQuery dbQuery, Session session)
+    protected Data<CountValue> assembleDataWithReferenceValues(CountDatasetEntity timeseries,
+                                                               DbQuery dbQuery,
+                                                               Session session)
             throws DataAccessException {
         Data<CountValue> result = assembleData(timeseries, dbQuery, session);
         Set<CountDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -69,8 +71,8 @@ public class CountDataRepository
     }
 
     private Map<String, Data<CountValue>> assembleReferenceSeries(Set<CountDatasetEntity> referenceValues,
-                                                           DbQuery query,
-                                                           Session session)
+                                                                  DbQuery query,
+                                                                  Session session)
             throws DataAccessException {
         Map<String, Data<CountValue>> referenceSeries = new HashMap<>();
         for (CountDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -92,7 +94,9 @@ public class CountDataRepository
                                   .size() <= 1;
     }
 
-    private Data<CountValue> expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<CountValue> expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity,
+                                                            DbQuery query,
+                                                            Session session)
             throws DataAccessException {
         Data<CountValue> result = new Data<CountValue>();
         DataDao<CountDataEntity> dao = createDataDao(session);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.n52</groupId>
@@ -40,11 +41,11 @@
         <url>https://github.com/52North/dao-series-api</url>
         <tag>HEAD</tag>
     </scm>
-    
+
     <properties>
         <!-- dev | ci | prod -->
         <env>dev</env>
-        
+
         <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
         <logback.version>1.2.3</logback.version>
         <jackson.version>2.8.5</jackson.version>
@@ -81,7 +82,7 @@
                 <artifactId>mappings</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.n52.series-api</groupId>
                 <artifactId>spi</artifactId>
@@ -108,7 +109,7 @@
                 <artifactId>shetland</artifactId>
                 <version>${artic-sea.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>23.4-jre</version>
@@ -138,7 +139,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
@@ -149,7 +150,7 @@
                 <artifactId>quartz</artifactId>
                 <version>2.2.3</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
@@ -160,7 +161,7 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.5</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -176,7 +177,7 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.jfree</groupId>
                 <artifactId>jfreechart</artifactId>
@@ -215,7 +216,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-api</artifactId>
@@ -334,7 +335,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
@@ -386,7 +387,7 @@
                 <version>3.0.1</version>
                 <scope>provided</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -453,7 +454,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -517,7 +518,7 @@
                 </executions>
             </plugin>
         </plugins>
-        
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -572,13 +573,17 @@
                         <useMissingFile>true</useMissingFile>
                         <fileTemplate>etc/license-as-csv.ftl</fileTemplate>
                         <licenseMerges>
-                            <licenseMerge>The Apache Software License, Version 2.0|Apache 2|Apache License, Version 2.0|Apache License, version 2.0|Apache Public License 2.0|AL 2.0</licenseMerge>
+                            <licenseMerge>The Apache Software License, Version 2.0|Apache 2|Apache License, Version
+                                2.0|Apache License, version 2.0|Apache Public License 2.0|AL 2.0</licenseMerge>
                             <licenseMerge>Apache Software Licenses|Apache Software License|Apache License</licenseMerge>
-                            <licenseMerge>GNU General Public License, v2.0|GNU GENERAL PUBLIC LICENSE Version 2, June 1991|GNU General Public License, Version 2.0</licenseMerge>
-                            <licenseMerge>Common Development and Distribution License (CDDL), version 1.0| Common Development and Distribution License (CDDL) v1.0</licenseMerge>
+                            <licenseMerge>GNU General Public License, v2.0|GNU GENERAL PUBLIC LICENSE Version 2, June
+                                1991|GNU General Public License, Version 2.0</licenseMerge>
+                            <licenseMerge>Common Development and Distribution License (CDDL), version 1.0| Common
+                                Development and Distribution License (CDDL) v1.0</licenseMerge>
                             <licenseMerge>GNU Lesser General Public License, version 2.1|LGPL 2.1</licenseMerge>
                             <licenseMerge>Mozilla Public License version 1.1|MPL 1.1</licenseMerge>
-                            <licenseMerge>Eclipse Public License, Version 1.0|Eclipse Public License (EPL), Version 1.0|Eclipse Public License - v 1.0</licenseMerge>
+                            <licenseMerge>Eclipse Public License, Version 1.0|Eclipse Public License (EPL), Version
+                                1.0|Eclipse Public License - v 1.0</licenseMerge>
                             <licenseMerge>GNU Lesser General Public Licence|LGPL</licenseMerge>
                         </licenseMerges>
                     </configuration>
@@ -606,8 +611,10 @@
                         <source>
                             import java.util.Date
                             import java.text.MessageFormat
-                            def vartimestamp = MessageFormat.format("{0,date,yyyy}", new Date())
-                            project.properties['currentYearDynamic'] = vartimestamp
+                            def vartimestamp =
+                            MessageFormat.format("{0,date,yyyy}", new Date())
+                            project.properties['currentYearDynamic'] =
+                            vartimestamp
                         </source>
                     </configuration>
                 </plugin>
@@ -643,7 +650,7 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -672,7 +679,7 @@
             </plugins>
         </pluginManagement>
     </build>
-    
+
     <profiles>
         <profile>
             <id>create-license-list</id>
@@ -695,7 +702,7 @@
             </build>
         </profile>
     </profiles>
-    
+
     <repositories>
         <repository>
             <id>n52-releases</id>
@@ -705,7 +712,9 @@
         <repository>
             <id>geotools</id>
             <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
+            <!--<url>http://download.osgeo.org/webdav/geotools/</url> -->
+            <!--<url>https://boundless.artifactoryonline.com/boundless/main</url> -->
+            <url>http://repo.boundlessgeo.com/main/</url>
         </repository>
     </repositories>
 </project>

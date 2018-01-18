@@ -25,9 +25,6 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
@@ -50,6 +47,8 @@ import org.n52.shetland.ogc.filter.UnaryLogicFilter;
 import org.n52.shetland.ogc.gml.time.Time;
 import org.n52.shetland.ogc.gml.time.TimeInstant;
 import org.n52.shetland.ogc.gml.time.TimePeriod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
@@ -85,12 +84,16 @@ public abstract class FESCriterionGenerator {
     /**
      * Creates a new {@code FESCriterionGenerator}.
      *
-     * @param criteria          the criteria
-     * @param unsupportedIsTrue if the generator encounters a filter expression it could not translate it may generate a
-     *                          criterion that is always {@code true} or always {@code false} depending on this flag
-     * @param matchDomainIds    if filter on observation parameters like feature, offering or procedure should match on
-     *                          their respective domain identifiers or on the primary keys in the database
-     * @param complexParent     if the queries should result in the parent observation and hide the child observations
+     * @param criteria
+     *        the criteria
+     * @param unsupportedIsTrue
+     *        if the generator encounters a filter expression it could not translate it may generate a
+     *        criterion that is always {@code true} or always {@code false} depending on this flag
+     * @param matchDomainIds
+     *        if filter on observation parameters like feature, offering or procedure should match on
+     *        their respective domain identifiers or on the primary keys in the database
+     * @param complexParent
+     *        if the queries should result in the parent observation and hide the child observations
      */
     public FESCriterionGenerator(Criteria criteria,
                                  boolean unsupportedIsTrue,
@@ -112,7 +115,8 @@ public abstract class FESCriterionGenerator {
     }
 
     /**
-     * If the generator encounters a filter expression it could not translate it may generate a criterion that is always
+     * If the generator encounters a filter expression it could not translate it may generate a criterion that
+     * is always
      * {@code true} or always {@code false} depending on this flag
      *
      * @return the flag
@@ -122,7 +126,8 @@ public abstract class FESCriterionGenerator {
     }
 
     /**
-     * Ff filter on observation parameters like feature, offering or procedure should match on their respective domain
+     * Ff filter on observation parameters like feature, offering or procedure should match on their
+     * respective domain
      * identifiers or on the primary keys in the database
      *
      * @return if domain identifiers should be matched
@@ -143,15 +148,16 @@ public abstract class FESCriterionGenerator {
     /**
      * Add a alias for the specified property to the criteria.
      *
-     * @param property the property
-     *
+     * @param property
+     *        the property
      * @return the alias
      */
     protected String addAlias(String property) {
         Iterator<Subcriteria> subcriteria = ((CriteriaImpl) this.criteria).iterateSubcriteria();
         while (subcriteria.hasNext()) {
             Subcriteria sc = subcriteria.next();
-            if (sc.getPath().equals(property)) {
+            if (sc.getPath()
+                  .equals(property)) {
                 return sc.getAlias();
             }
         }
@@ -166,8 +172,8 @@ public abstract class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for the supplied {@code Filter}.
      *
-     * @param filter the filter
-     *
+     * @param filter
+     *        the filter
      * @return the criterion
      */
     public Criterion create(Filter<?> filter) {
@@ -194,8 +200,8 @@ public abstract class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for the supplied {@code UnaryLogicFilter}.
      *
-     * @param filter the filter
-     *
+     * @param filter
+     *        the filter
      * @return the criterion
      */
     private Criterion createUnaryLogicCriterion(UnaryLogicFilter filter) {
@@ -211,8 +217,8 @@ public abstract class FESCriterionGenerator {
     /**
      * Create a {@code Criterion} for the supplied {@code BinaryLogicFilter}.
      *
-     * @param filter the filter
-     *
+     * @param filter
+     *        the filter
      * @return the criterion
      */
     private Criterion createBinaryLogicCriterion(BinaryLogicFilter filter) {
@@ -271,6 +277,46 @@ public abstract class FESCriterionGenerator {
         Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
 
         return createSpatialFilterCriterion(filter.getOperator(), filter.getValueReference(), geom);
+    }
+
+    /**
+     * Create a spatial filter criterion for the supplied operator, property and geometry.
+     *
+     * @param operator the spatial operator
+     * @param property the property to apply the filter to
+     * @param geom     the geometry
+     *
+     * @return the criterion
+     */
+    private Criterion createSpatialFilterCriterion(SpatialOperator operator, String property, Geometry geom) {
+        if (geom.isEmpty()) {
+            return SpatialRestrictions.isEmpty(property);
+        }
+
+        switch (operator) {
+            case BBOX:
+                return SpatialRestrictions.filter(property, geom);
+            case Contains:
+                return SpatialRestrictions.contains(property, geom);
+            case Crosses:
+                return SpatialRestrictions.crosses(property, geom);
+            case Disjoint:
+                return SpatialRestrictions.disjoint(property, geom);
+            case Equals:
+                return SpatialRestrictions.eq(property, geom);
+            case Intersects:
+                return SpatialRestrictions.intersects(property, geom);
+            case Overlaps:
+                return SpatialRestrictions.overlaps(property, geom);
+            case Touches:
+                return SpatialRestrictions.touches(property, geom);
+            case Within:
+                return SpatialRestrictions.within(property, geom);
+            case Beyond:
+            case DWithin:
+            default:
+                return unsupported(operator);
+        }
     }
 
     /**
@@ -946,32 +992,37 @@ public abstract class FESCriterionGenerator {
      */
     private Criterion createLike(ComparisonFilter filter) {
 
+        String escapeString = "\\";
+        String filterEscapeString = filter.getEscapeString();
         if (filter.isSetEscapeString()) {
-            if (filter.getEscapeString().length() != 1) {
-                filter.setValue(filter.getValue().replaceAll("\\\\", "\\\\"));
-                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getEscapeString()), "\\"));
-                filter.setEscapeString("\\");
+            if (filterEscapeString.length() != 1) {
+                String escapeStringRegex = "\\\\";
+                filter.setValue(filter.getValue().replaceAll(escapeStringRegex, escapeString + escapeString));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filterEscapeString), escapeString));
+                filter.setEscapeString(escapeString);
             }
         } else {
-            filter.setEscapeString("\\");
+            filter.setEscapeString(escapeString);
         }
 
         if (filter.isSetSingleChar()) {
-            if (!filter.getSingleChar().equals("_")) {
-                filter.setValue(filter.getValue().replaceAll("_", filter.getEscapeString() + "_"));
-                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getSingleChar()), "_"));
+            String underscore = "_";
+            if (!filter.getSingleChar().equals(underscore)) {
+                filter.setValue(filter.getValue().replaceAll(underscore, filterEscapeString + underscore));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getSingleChar()), underscore));
             }
         }
 
         if (filter.isSetWildCard()) {
-            if (!filter.getWildCard().equals("%")) {
-                filter.setValue(filter.getValue().replaceAll("%", filter.getEscapeString() + "%"));
-                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getWildCard()), "%"));
+            String stringWildcard = "%";
+            if (!filter.getWildCard().equals(stringWildcard)) {
+                filter.setValue(filter.getValue().replaceAll(stringWildcard, filterEscapeString + stringWildcard));
+                filter.setValue(filter.getValue().replaceAll(Pattern.quote(filter.getWildCard()), stringWildcard));
             }
         }
         return MoreRestrictions.like(filter.getValueReference(),
                                      filter.getValue(),
-                                     filter.getEscapeString(),
+                                     filterEscapeString,
                                      !filter.isMatchCase());
     }
 
@@ -1039,17 +1090,6 @@ public abstract class FESCriterionGenerator {
     }
 
     /**
-     * Creates a new {@code Criterion} for the result time.
-     *
-     * @param filter the filter
-     *
-     * @return the criterion
-     */
-    private Criterion createResultTimeCriterion(ComparisonFilter filter) {
-        return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_RESULTTIME));
-    }
-
-    /**
      * Creates a new {@code Criterion} for the phenomenon time.
      *
      * @param filter the filter
@@ -1057,7 +1097,9 @@ public abstract class FESCriterionGenerator {
      * @return the criterion
      */
     private Criterion createPhenomenonTimeCriterion(ComparisonFilter filter) {
-        return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND));
+        return createDataCriterion(createTemporalCriterion(filter,
+                                                           DataEntity.PROPERTY_TIMESTART,
+                                                           DataEntity.PROPERTY_TIMEEND));
     }
 
     /**
@@ -1069,19 +1111,10 @@ public abstract class FESCriterionGenerator {
      * @return the criterion
      */
     private Criterion createPhenomenonTimeCriterion(TimeOperator operator, Time time) {
-        return createDataCriterion(createTemporalCriterion(operator, DataEntity.PROPERTY_TIMESTART, DataEntity.PROPERTY_TIMEEND, time));
-    }
-
-    /**
-     * Creates a new {@code Criterion} for the result time.
-     *
-     * @param operator the temporal operator
-     * @param time     the filter value
-     *
-     * @return the criterion
-     */
-    private Criterion createResultTimeCriterion(TimeOperator operator, Time time) {
-        return createDataCriterion(createTemporalCriterion(operator, DataEntity.PROPERTY_RESULTTIME, time));
+        return createDataCriterion(createTemporalCriterion(operator,
+                                                           DataEntity.PROPERTY_TIMESTART,
+                                                           DataEntity.PROPERTY_TIMEEND,
+                                                           time));
     }
 
     /**
@@ -1152,46 +1185,6 @@ public abstract class FESCriterionGenerator {
     }
 
     /**
-     * Create a spatial filter criterion for the supplied operator, property and geometry.
-     *
-     * @param operator the spatial operator
-     * @param property the property to apply the filter to
-     * @param geom     the geometry
-     *
-     * @return the criterion
-     */
-    private Criterion createSpatialFilterCriterion(SpatialOperator operator, String property, Geometry geom) {
-        if (geom.isEmpty()) {
-            return SpatialRestrictions.isEmpty(property);
-        }
-
-        switch (operator) {
-            case BBOX:
-                return SpatialRestrictions.filter(property, geom);
-            case Contains:
-                return SpatialRestrictions.contains(property, geom);
-            case Crosses:
-                return SpatialRestrictions.crosses(property, geom);
-            case Disjoint:
-                return SpatialRestrictions.disjoint(property, geom);
-            case Equals:
-                return SpatialRestrictions.eq(property, geom);
-            case Intersects:
-                return SpatialRestrictions.intersects(property, geom);
-            case Overlaps:
-                return SpatialRestrictions.overlaps(property, geom);
-            case Touches:
-                return SpatialRestrictions.touches(property, geom);
-            case Within:
-                return SpatialRestrictions.within(property, geom);
-            case Beyond:
-            case DWithin:
-            default:
-                return unsupported(operator);
-        }
-    }
-
-    /**
      * Creates a spatial filter criterion for the sampling geometry.
      *
      * @param filter the filter
@@ -1215,6 +1208,29 @@ public abstract class FESCriterionGenerator {
         filter.setValueReference(QueryUtils.createAssociation(FeatureEntity.PROPERTY_GEOMETRY_ENTITY,
                                                               GeometryEntity.PROPERTY_GEOMETRY));
         return createDatasetCriterion(DatasetEntity.PROPERTY_FEATURE, filter);
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the result time.
+     *
+     * @param operator the temporal operator
+     * @param time     the filter value
+     *
+     * @return the criterion
+     */
+    private Criterion createResultTimeCriterion(TimeOperator operator, Time time) {
+        return createDataCriterion(createTemporalCriterion(operator, DataEntity.PROPERTY_RESULTTIME, time));
+    }
+
+    /**
+     * Creates a new {@code Criterion} for the result time.
+     *
+     * @param filter the filter
+     *
+     * @return the criterion
+     */
+    private Criterion createResultTimeCriterion(ComparisonFilter filter) {
+        return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_RESULTTIME));
     }
 
     /**

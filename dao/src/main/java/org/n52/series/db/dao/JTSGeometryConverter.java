@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author Christian Autermann
  */
-public class JTSGeometryConverter {
+public final class JTSGeometryConverter {
     private static final String POINT = "Point";
     private static final String MULTI_POINT = "MultiPoint";
     private static final String LINE_STRING = "LineString";
@@ -90,7 +90,7 @@ public class JTSGeometryConverter {
                     return factory.buildGeometry(array);
                 }
                 default:
-                    throw new IllegalArgumentException("Unsupported geometry: " + geometry);
+                    throw new IllegalArgumentException("Unsupported cv geometry: " + geometry);
             }
 
         }
@@ -218,7 +218,7 @@ public class JTSGeometryConverter {
                     return factory.buildGeometry(array);
                 }
                 default:
-                    throw new IllegalArgumentException("Unsupported geometry: " + geometry);
+                    throw new IllegalArgumentException("Unsupported ol geometry: " + geometry);
             }
 
         }

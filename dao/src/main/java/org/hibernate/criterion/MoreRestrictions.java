@@ -1,3 +1,4 @@
+
 package org.hibernate.criterion;
 
 import static java.util.stream.Collectors.collectingAndThen;
@@ -9,7 +10,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collector;
 
 /**
- * Utility functions to ease creation of {@linkplain Criterion restrictions}. The package was chosen to be able to pass
+ * Utility functions to ease creation of {@linkplain Criterion restrictions}. The package was chosen to be
+ * able to pass
  * escape chars to the {@link LikeExpression}.
  *
  * @author Christian Autermann
@@ -27,10 +29,12 @@ public final class MoreRestrictions {
     /**
      * Create a new case-insensitive like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param escapeChar   the escape char to use
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param escapeChar
+     *        the escape char to use
      * @return the expression
      */
     public static LikeExpression ilike(String propertyName, String value, Character escapeChar) {
@@ -40,10 +44,12 @@ public final class MoreRestrictions {
     /**
      * Create a new case-insensitive like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param escapeString the escape string to use
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param escapeString
+     *        the escape string to use
      * @return the expression
      */
     public static LikeExpression ilike(String propertyName, String value, String escapeString) {
@@ -51,13 +57,50 @@ public final class MoreRestrictions {
     }
 
     /**
+     * Create a new case-insensitive like expression.
+     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param matchMode
+     *        the match mode
+     * @param escapeChar
+     *        the escape char to use
+     * @return the expression
+     */
+    public static LikeExpression ilike(String propertyName, String value, MatchMode matchMode, Character escapeChar) {
+        return like(propertyName, value, matchMode, escapeChar, true);
+    }
+
+    /**
+     * Create a new case-insensitive like expression.
+     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param matchMode
+     *        the match mode
+     * @param escapeString
+     *        the escape string to use
+     * @return the expression
+     */
+    public static LikeExpression ilike(String propertyName, String value, MatchMode matchMode, String escapeString) {
+        return like(propertyName, value, matchMode, escapeString, true);
+    }
+
+    /**
      * Create a new like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param escapeChar   the escape char to use
-     * @param ignoreCase   if the match should be case-insensitive
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param escapeChar
+     *        the escape char to use
+     * @param ignoreCase
+     *        if the match should be case-insensitive
      * @return the expression
      */
     public static LikeExpression like(String propertyName, String value, Character escapeChar, boolean ignoreCase) {
@@ -67,11 +110,14 @@ public final class MoreRestrictions {
     /**
      * Create a new like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param escapeString the escape string to use
-     * @param ignoreCase   if the match should be case-insensitive
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param escapeString
+     *        the escape string to use
+     * @param ignoreCase
+     *        if the match should be case-insensitive
      * @return the expression
      */
     public static LikeExpression like(String propertyName, String value, String escapeString, boolean ignoreCase) {
@@ -87,9 +133,10 @@ public final class MoreRestrictions {
     /**
      * Create a new case-sensitive like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
      * @return the expression
      */
     public static LikeExpression like(String propertyName, String value) {
@@ -99,10 +146,12 @@ public final class MoreRestrictions {
     /**
      * Create a new case-sensitive like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param matchMode    the match mode
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param matchMode
+     *        the match mode
      * @return the expression
      */
     public static LikeExpression like(String propertyName, String value, MatchMode matchMode) {
@@ -110,45 +159,24 @@ public final class MoreRestrictions {
     }
 
     /**
-     * Create a new case-insensitive like expression.
-     *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param matchMode    the match mode
-     * @param escapeChar   the escape char to use
-     *
-     * @return the expression
-     */
-    public static LikeExpression ilike(String propertyName, String value, MatchMode matchMode, Character escapeChar) {
-        return like(propertyName, value, matchMode, escapeChar, true);
-    }
-
-    /**
-     * Create a new case-insensitive like expression.
-     *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param matchMode    the match mode
-     * @param escapeString the escape string to use
-     *
-     * @return the expression
-     */
-    public static LikeExpression ilike(String propertyName, String value, MatchMode matchMode, String escapeString) {
-        return like(propertyName, value, matchMode, escapeString, true);
-    }
-
-    /**
      * Create a new like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param matchMode    the match mode
-     * @param escapeString the escape string to use
-     * @param ignoreCase   if the match should be case-insensitive
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param matchMode
+     *        the match mode
+     * @param escapeString
+     *        the escape string to use
+     * @param ignoreCase
+     *        if the match should be case-insensitive
      * @return the expression
      */
-    public static LikeExpression like(String propertyName, String value, MatchMode matchMode, String escapeString,
+    public static LikeExpression like(String propertyName,
+                                      String value,
+                                      MatchMode matchMode,
+                                      String escapeString,
                                       boolean ignoreCase) {
         if (escapeString != null) {
             if (escapeString.length() > 1) {
@@ -162,15 +190,22 @@ public final class MoreRestrictions {
     /**
      * Create a new like expression.
      *
-     * @param propertyName the property name
-     * @param value        the value to compare against
-     * @param matchMode    the match mode
-     * @param escapeChar   the escape char to use
-     * @param ignoreCase   if the match should be case-insensitive
-     *
+     * @param propertyName
+     *        the property name
+     * @param value
+     *        the value to compare against
+     * @param matchMode
+     *        the match mode
+     * @param escapeChar
+     *        the escape char to use
+     * @param ignoreCase
+     *        if the match should be case-insensitive
      * @return the expression
      */
-    public static LikeExpression like(String propertyName, String value, MatchMode matchMode, Character escapeChar,
+    public static LikeExpression like(String propertyName,
+                                      String value,
+                                      MatchMode matchMode,
+                                      Character escapeChar,
                                       boolean ignoreCase) {
         return new LikeExpression(propertyName, value, matchMode, escapeChar, ignoreCase);
     }
@@ -178,15 +213,17 @@ public final class MoreRestrictions {
     /**
      * Replaces all occurences of {@code escapeString} with the default escape character.
      *
-     * @param escapeString the escape string
-     * @param value        the value
-     *
+     * @param escapeString
+     *        the escape string
+     * @param value
+     *        the value
      * @return the newly escaped value
      */
     private static String normalize(String escapeString, String value) {
-        return Pattern.compile(escapeString, Pattern.LITERAL).matcher(value
-                .replaceAll("\\\\", DEF_ESC_STR + DEF_ESC_STR))
-                .replaceAll(DEF_ESC_STR);
+        return Pattern.compile(escapeString, Pattern.LITERAL)
+                      .matcher(value
+                                    .replaceAll("\\\\", DEF_ESC_STR + DEF_ESC_STR))
+                      .replaceAll(DEF_ESC_STR);
     }
 
     /**
@@ -212,7 +249,7 @@ public final class MoreRestrictions {
      *
      * @return the collector
      */
-    public static Collector<Criterion, ?, Criterion> toDisjunction() {
+    public static Collector<Criterion, ? , Criterion> toDisjunction() {
         return toCriterion(Restrictions::disjunction);
     }
 
@@ -221,20 +258,22 @@ public final class MoreRestrictions {
      *
      * @return the collector
      */
-    public static Collector<Criterion, ?, Criterion> toConjunction() {
+    public static Collector<Criterion, ? , Criterion> toConjunction() {
         return toCriterion(Restrictions::conjunction);
     }
 
     /**
      * Creates a {@code Collector} that collects criterions to a single criterion.
      *
-     * @param finisher the finishing function to a create a single criterion from an criterion array
-     *
+     * @param finisher
+     *        the finishing function to a create a single criterion from an criterion array
      * @return the collector
      */
-    private static Collector<Criterion, ?, Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
-        return collectingAndThen(collectingAndThen(toSet(), (Set<Criterion> s) -> s.stream()
-                .toArray(Criterion[]::new)), finisher);
+    private static Collector<Criterion, ? , Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
+        return collectingAndThen(collectingAndThen(toSet(),
+                                                   (Set<Criterion> s) -> s.stream()
+                                                                          .toArray(Criterion[]::new)),
+                                 finisher);
     }
 
 }

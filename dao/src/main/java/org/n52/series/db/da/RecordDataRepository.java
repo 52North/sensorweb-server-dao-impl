@@ -57,8 +57,8 @@ public class RecordDataRepository
 
     @Override
     protected Data<RecordValue> assembleDataWithReferenceValues(RecordDatasetEntity timeseries,
-                                                         DbQuery dbQuery,
-                                                         Session session)
+                                                                DbQuery dbQuery,
+                                                                Session session)
             throws DataAccessException {
         Data<RecordValue> result = assembleData(timeseries, dbQuery, session);
         Set<RecordDatasetEntity> referenceValues = timeseries.getReferenceValues();
@@ -71,8 +71,8 @@ public class RecordDataRepository
     }
 
     private Map<String, Data<RecordValue>> assembleReferenceSeries(Set<RecordDatasetEntity> referenceValues,
-                                                            DbQuery query,
-                                                            Session session)
+                                                                   DbQuery query,
+                                                                   Session session)
             throws DataAccessException {
         Map<String, Data<RecordValue>> referenceSeries = new HashMap<>();
         for (RecordDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -92,7 +92,9 @@ public class RecordDataRepository
                                   .size() <= 1;
     }
 
-    private Data<RecordValue> expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    private Data<RecordValue> expandReferenceDataIfNecessary(RecordDatasetEntity seriesEntity,
+                                                             DbQuery query,
+                                                             Session session)
             throws DataAccessException {
         Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
