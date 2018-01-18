@@ -73,11 +73,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getDatasetProperty();
     }
 
-    public boolean hasInstance(String id, DbQuery query) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query) {
         return getInstance(id, query) != null;
     }
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) {
         return getInstance(id, query) != null;
     }
 
@@ -90,17 +90,17 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return session.get(clazz, id) != null;
     }
 
-    public T getInstance(String key, DbQuery query) throws DataAccessException {
+    public T getInstance(String key, DbQuery query) {
         return getInstance(key, query, getEntityClass());
     }
 
     @Override
-    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+    public T getInstance(Long key, DbQuery query) {
         LOGGER.debug("get instance '{}': {}", key, query);
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
-    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+    private T getInstance(String key, DbQuery query, Class<T> clazz) {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
         criteria = query.isMatchDomainIds()
