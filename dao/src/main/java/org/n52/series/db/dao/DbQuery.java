@@ -32,13 +32,13 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.geotools.geometry.jts.JTS;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.spatial.criterion.SpatialFilter;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
@@ -56,13 +56,14 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class DbQuery {
 
@@ -109,19 +110,17 @@ public class DbQuery {
                          .toInterval();
     }
 
-    public Envelope getSpatialFilter() {
+    public Geometry getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
-            try {
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
-            } catch (FactoryException e) {
-                LOGGER.error("Could not create transformation facilities.", e);
-            } catch (TransformException e) {
-                LOGGER.error("Could not perform transformation.", e);
-            }
+            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+            Point ll = spatialFilter.getLowerLeft();
+            Point ur = spatialFilter.getUpperRight();
+            GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
+            Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            Polygon geometry = JTS.toGeometry(envelope, geomFactory);
+            geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
+            return geometry;
         }
         return null;
     }
@@ -357,27 +356,25 @@ public class DbQuery {
     }
 
     public Criteria addSpatialFilter(Criteria criteria) {
-        SpatialFilter filter = createSpatialFilter();
+        Criterion filter = createSpatialFilter();
         return filter != null
                 ? criteria.add(filter)
                 : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
-        SpatialFilter filter = createSpatialFilter();
+        Criterion filter = createSpatialFilter();
         return filter != null
                 ? criteria.add(filter)
                 : criteria;
     }
 
-    private SpatialFilter createSpatialFilter() {
+    private Criterion createSpatialFilter() {
         BoundingBox bbox = parameters.getSpatialFilter();
         if (bbox != null) {
-            Envelope envelope = getSpatialFilter();
-            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-            int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+            Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.filter(geometryMember, envelope, databaseSrid);
+            return SpatialRestrictions.intersects(geometryMember, envelope);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

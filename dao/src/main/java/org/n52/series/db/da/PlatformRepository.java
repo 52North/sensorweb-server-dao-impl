@@ -59,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -242,9 +241,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
-        Envelope filter = query.getSpatialFilter();
-        Geometry geometry = geometryEntity.getGeometry();
-        return filter == null || filter.contains(geometry.getEnvelopeInternal());
+        Geometry filter= query.getSpatialFilter();
+        if (filter != null) {
+            Geometry envelope = filter.getEnvelope();
+            Geometry geometry = geometryEntity.getGeometry();
+            return envelope == null || envelope.contains(geometry);
+        }
+        return true;
     }
 
     private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {
