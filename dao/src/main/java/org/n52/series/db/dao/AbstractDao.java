@@ -198,8 +198,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
-                     .createCriteria(DatasetEntity.PROCEDURE);
+                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                     QueryUtils.setFilterProjectionOn(parameter, c);
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }
