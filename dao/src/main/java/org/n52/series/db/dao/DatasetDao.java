@@ -99,7 +99,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+    public T getInstance(Long key, DbQuery query) {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
         return (T) criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                            .uniqueResult();

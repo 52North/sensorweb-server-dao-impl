@@ -32,7 +32,6 @@ package org.n52.series.db.dao;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -53,7 +52,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     }
 
     @Override
-    public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
+    public ProcedureEntity getInstance(Long key, DbQuery query) {
         LOGGER.debug("get instance '{}': {}", key, query);
         Criteria criteria = getDefaultCriteria(query);
         return getEntityClass().cast(criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))

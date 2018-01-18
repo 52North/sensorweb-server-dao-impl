@@ -72,34 +72,38 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getDatasetProperty();
     }
 
-    public boolean hasInstance(String id, DbQuery query) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query) {
         return getInstance(id, query) != null;
     }
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) {
         return getInstance(id, query) != null;
     }
 
     @Override
     public boolean hasInstance(Long id, DbQuery query) {
-        return session.get(getEntityClass(), id) != null;
+        return id != null
+                ? hasInstance(id.toString(), query)
+                : false;
     }
 
     public boolean hasInstance(Long id, DbQuery query, Class< ? > clazz) {
-        return session.get(clazz, id) != null;
+        return id != null
+                ? hasInstance(id.toString(), query, clazz)
+                : false;
     }
 
-    public T getInstance(String key, DbQuery query) throws DataAccessException {
+    public T getInstance(String key, DbQuery query) {
         return getInstance(key, query, getEntityClass());
     }
 
     @Override
-    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+    public T getInstance(Long key, DbQuery query) {
         LOGGER.debug("get instance '{}': {}", key, query);
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
-    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+    private T getInstance(String key, DbQuery query, Class<T> clazz) {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
         criteria = query.isMatchDomainIds()
@@ -197,8 +201,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
-                     .createCriteria(DatasetEntity.PROPERTY_PROCEDURE);
+                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                     QueryUtils.setFilterProjectionOn(parameter, c);
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }

@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.da;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -138,8 +139,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     }
 
     @Override
-    public ReferenceValueOutput[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
-        return new ReferenceValueOutput[0];
+    public List<ReferenceValueOutput<V>> createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+        return new ArrayList<>();
     }
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
