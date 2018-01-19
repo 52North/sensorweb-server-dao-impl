@@ -52,7 +52,7 @@ public interface DataRepository<E extends DatasetEntity< ? >, V extends Abstract
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
-    ReferenceValueOutput[] createReferenceValueOutputs(E datasetEntity, DbQuery query);
+    ReferenceValueOutput<?>[] createReferenceValueOutputs(E datasetEntity, DbQuery query);
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void

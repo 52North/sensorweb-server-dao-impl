@@ -107,7 +107,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
     }
 
     @Override
-    public ReferenceValueOutput[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+    public ReferenceValueOutput<?>[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
         return new ReferenceValueOutput[0];
     }
 
