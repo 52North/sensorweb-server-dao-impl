@@ -306,9 +306,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
             DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
             AbstractValue firstValue = dataRepository.getFirstValue(dataset, session, query);
-            AbstractValue lastValue = dataRepository.getLastValue(dataset, session, query);
+            AbstractValue lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
+                    : dataRepository.getLastValue(dataset, session, query);
 
-            ReferenceValueOutput[] refValues = dataRepository.createReferenceValueOutputs(dataset, query);
+            List<ReferenceValueOutput> refValues = dataRepository.createReferenceValueOutputs(dataset, query);
             lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
                     // first == last to have a valid interval
                     ? firstValue

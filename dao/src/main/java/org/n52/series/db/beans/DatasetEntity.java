@@ -294,7 +294,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
         return observationCount;
     }
 
-    public <D extends DatasetEntity<T>> Set<D> getReferenceValues() {
+    public <D extends DatasetEntity<T>> List<D> getReferenceValues() {
         return null;
     }
 

@@ -36,6 +36,10 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -46,9 +50,6 @@ import org.n52.series.db.beans.I18nProcedureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @SuppressWarnings("rawtypes")
@@ -130,9 +131,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")
@@ -178,6 +181,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_DELETED, Boolean.FALSE))
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
+
+        query.addOdataFilterForDataset(criteria);
 
         return criteria;
     }

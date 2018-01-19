@@ -29,44 +29,43 @@
 
 package org.n52.series.db.da;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
-import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.CategoryProfileDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
-import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDatasetEntity> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDatasetEntity> {
 
-    private final QuantityDataRepository quantityRepository;
+    private final CategoryDataRepository categoryRepository;
 
-    public QuantityProfileDataRepository() {
-        this.quantityRepository = new QuantityDataRepository();
+    public CategoryProfileDataRepository() {
+        this.categoryRepository = new CategoryDataRepository();
     }
 
-  @Override
-  public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
-      return QuantityProfileDatasetEntity.class;
-  }
+    @Override
+    public Class<CategoryProfileDatasetEntity> getDatasetEntityType() {
+        return CategoryProfileDatasetEntity.class;
+    }
 
     @Override
-    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
+    protected ProfileValue<String> createValue(ProfileDataEntity observation,
                                                ProfileDatasetEntity dataset,
                                                DbQuery query) {
-        ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
-        List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
+        ProfileValue<String> profile = createProfileValue(observation, query);
+        List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
-            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
-            addParameters(quantityEntity, valueItem, query);
-            dataItems.add(assembleDataItem(quantityEntity, profile, valueItem.getParameters(), dataset));
+            CategoryDataEntity categoryEntity = (CategoryDataEntity) dataEntity;
+            CategoryValue valueItem = categoryRepository.createValue(categoryEntity.getValue(), categoryEntity, query);
+            addParameters(categoryEntity, valueItem, query);
+            dataItems.add(assembleDataItem(categoryEntity, profile, valueItem.getParameters(), dataset));
         }
         profile.setValue(dataItems);
         return profile;

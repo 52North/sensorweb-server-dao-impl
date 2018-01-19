@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
@@ -61,9 +60,9 @@ public class QuantityDataRepository extends
     }
 
     @Override
-    public ReferenceValueOutput<QuantityValue>[] createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
+    public List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
                                                                              DbQuery query) {
-        Set<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
+        List<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
@@ -76,7 +75,7 @@ public class QuantityDataRepository extends
             refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
             outputs.add(refenceValueOutput);
         }
-        return outputs.toArray(new ReferenceValueOutput[0]);
+        return outputs;
     }
 
     @Override
@@ -85,7 +84,7 @@ public class QuantityDataRepository extends
                                                                   Session session)
             throws DataAccessException {
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
-        Set<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
+        List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
             DatasetMetadata<Data<QuantityValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
@@ -94,7 +93,7 @@ public class QuantityDataRepository extends
         return result;
     }
 
-    private Map<String, Data<QuantityValue>> assembleReferenceSeries(Set<QuantityDatasetEntity> referenceValues,
+    private Map<String, Data<QuantityValue>> assembleReferenceSeries(List<QuantityDatasetEntity> referenceValues,
                                                                      DbQuery query,
                                                                      Session session)
             throws DataAccessException {
