@@ -51,7 +51,7 @@
                 <one-to-many class="QuantityDataEntity" />
             </bag>
 
-            <set name="referenceValues" table="seriesreference" inverse="true">
+            <set name="referenceValues" table="seriesreference" inverse="false">
                 <key column="seriesid" />
                 <many-to-many class="DatasetEntity" column="referenceseriesid" unique="true" />
             </set>

@@ -12,6 +12,7 @@
 - Support for pluralized filter parameters
 - output includes href property
 - more consistent filter handling
+- result filtering via OData $filter
 
 ### Features
 - [#129](https://github.com/52North/series-rest-api/issues/129) Implement Paging for DAO SPI implemenation
