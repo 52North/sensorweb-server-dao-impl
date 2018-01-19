@@ -51,10 +51,11 @@
                 <one-to-many class="QuantityDataEntity" />
             </bag>
 
-            <set name="referenceValues" table="seriesreference" inverse="false">
+            <list name="referenceValues" table="seriesreference" inverse="false">
                 <key column="seriesid" />
+                <list-index column="sortorder" />
                 <many-to-many class="DatasetEntity" column="referenceseriesid" unique="true" />
-            </set>
+            </list>
         </subclass>
 
         <subclass discriminator-value="text" name="TextDatasetEntity">
