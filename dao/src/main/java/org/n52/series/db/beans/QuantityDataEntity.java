@@ -59,7 +59,7 @@ public class QuantityDataEntity extends DataEntity<BigDecimal> {
         if (collection == null) {
             return false;
         }
-        for (BigDecimal noDataValue : convertToDoubles(collection)) {
+        for (BigDecimal noDataValue : convert(collection)) {
             if (noDataValue.subtract(key)
                            .abs()
                            .compareTo(DOUBLE_THRESHOLD) < 0) {
@@ -69,7 +69,7 @@ public class QuantityDataEntity extends DataEntity<BigDecimal> {
         return false;
     }
 
-    private Collection<BigDecimal> convertToDoubles(Collection<String> collection) {
+    private Collection<BigDecimal> convert(Collection<String> collection) {
         List<BigDecimal> validatedValues = new ArrayList<>();
         for (String value : collection) {
             String trimmed = value.trim();

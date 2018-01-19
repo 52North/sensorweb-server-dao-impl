@@ -28,7 +28,7 @@
 
         <joined-subclass extends="FeatureParameter" name="FeatureParameterQuantity" table="numericfeatparamvalue">
             <key column="parameterid"/>
-            <property column="value" name="value" type="double"/>
+            <property column="value" name="value" type="big_decimal"/>
             <many-to-one class="org.n52.series.db.beans.UnitEntity" column="unitid" insert="false" name="unit" update="false"/>
         </joined-subclass>
 

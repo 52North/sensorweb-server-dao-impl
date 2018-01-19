@@ -31,35 +31,33 @@ package org.n52.series.db.da;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.record.RecordValue;
+import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.RecordDataEntity;
-import org.n52.series.db.beans.RecordDatasetEntity;
+import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
+public class CategoryDataRepository
+        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
 
     @Override
-    public Class<RecordDatasetEntity> getDatasetEntityType() {
-        return RecordDatasetEntity.class;
+    public Class<CategoryDatasetEntity> getDatasetEntityType() {
+        return CategoryDatasetEntity.class;
     }
 
     @Override
-    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<RecordValue> result = new Data<RecordValue>();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (RecordDataEntity observation : observations) {
-            // XXX n times same object?
+        Data<CategoryValue> result = new Data<>();
+        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
+        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (CategoryDataEntity observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -68,26 +66,40 @@ public class RecordDataRepository
     }
 
     @Override
-    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
+    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
+                                              CategoryDatasetEntity series,
+                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Map<String, Object> observationValue = !service.isNoDataValue(observation)
+        String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
+        CategoryValue value = createValue(observation, series, query, observationValue);
+        return addMetadatasIfNeeded(observation, value, series, query);
+    }
+
+    private CategoryValue createValue(CategoryDataEntity observation,
+                                      CategoryDatasetEntity series,
+                                      DbQuery query,
+                                      String observationValue) {
+        ServiceEntity service = getServiceEntity(series);
+        String textValue = !service.isNoDataValue(observation)
+                ? observation.getValue()
+                : null;
+        return createValue(textValue, observation, query);
+    }
+
+    CategoryValue createValue(String observationValue,
+                              CategoryDataEntity observation,
+                              DbQuery query) {
         Date timeend = observation.getTimeend();
         Date timestart = observation.getTimestart();
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        RecordValue value = parameters.isShowTimeIntervals()
-                ? new RecordValue(start, end, observationValue)
-                : new RecordValue(end, observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return parameters.isShowTimeIntervals()
+                ? new CategoryValue(start, end, observationValue)
+                : new CategoryValue(end, observationValue);
     }
 
 }

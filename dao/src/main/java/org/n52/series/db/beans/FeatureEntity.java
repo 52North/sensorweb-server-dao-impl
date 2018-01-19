@@ -33,6 +33,8 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
 
+    public static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
+
     /**
      * @since 2.0.0
      */

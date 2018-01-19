@@ -32,7 +32,6 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
@@ -190,14 +189,12 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series,
-                                                                                                query,
-                                                                                                repository);
+        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query, repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
 
-        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, referenceValues, params, result::setReferenceValues);
+        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
         result.setValue(TimeseriesMetadataOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
         result.setValue(TimeseriesMetadataOutput.LAST_VALUE, lastValue, params, result::setLastValue);
@@ -220,7 +217,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                                                                            QuantityDataRepository repository)
             throws DataAccessException {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
-        Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
+        List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();

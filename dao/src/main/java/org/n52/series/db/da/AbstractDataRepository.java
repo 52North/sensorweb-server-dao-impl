@@ -29,6 +29,7 @@
 
 package org.n52.series.db.da;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -62,7 +63,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
             IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)));
+                                                                      .removeAllOf(Parameters.NEAR)
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
@@ -107,8 +109,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
     }
 
     @Override
-    public ReferenceValueOutput<?>[] createReferenceValueOutputs(S datasetEntity, DbQuery query) {
-        return new ReferenceValueOutput[0];
+    public List<ReferenceValueOutput<V>> createReferenceValueOutputs(S datasetEntity, DbQuery query) {
+        return new ArrayList<>();
     }
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
