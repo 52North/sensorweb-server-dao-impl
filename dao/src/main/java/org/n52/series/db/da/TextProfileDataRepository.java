@@ -31,7 +31,6 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -40,14 +39,20 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.TextDataEntity;
+import org.n52.series.db.beans.TextProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextProfileDataRepository extends ProfileDataRepository<String> {
+public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDatasetEntity> {
 
     private final TextDataRepository textRepository;
 
     public TextProfileDataRepository() {
         this.textRepository = new TextDataRepository();
+    }
+
+    @Override
+    public Class<TextProfileDatasetEntity> getDatasetEntityType() {
+        return TextProfileDatasetEntity.class;
     }
 
     @Override
@@ -57,15 +62,10 @@ public class TextProfileDataRepository extends ProfileDataRepository<String> {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
-            TextDataEntity entity = (TextDataEntity) dataEntity;
-            TextValue valueItem = textRepository.createValue(entity.getValue(), entity, query);
-            addParameters(entity, valueItem, query);
-            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
-                String verticalName = dataset.getVerticalParameterName();
-                if (isVertical(parameterObject, verticalName)) {
-                    dataItems.add(assembleDataItem(entity, profile, parameterObject));
-                }
-            }
+            TextDataEntity textEntity = (TextDataEntity) dataEntity;
+            TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
+            addParameters(textEntity, valueItem, query);
+            dataItems.add(assembleDataItem(textEntity, profile, valueItem.getParameters(), dataset));
         }
         profile.setValue(dataItems);
         return profile;

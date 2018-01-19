@@ -31,8 +31,10 @@ package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
@@ -46,8 +48,12 @@ import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class ProfileDataRepository<T>
-        extends AbstractDataRepository<ProfileDatasetEntity, ProfileDataEntity, ProfileValue<T>> {
+public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
+        extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<T>> {
+
+    private static final String PARAMETER_NAME = "name";
+    private static final String PARAMETER_VALUE = "value";
+    private static final String PARAMETER_UNIT = "unit";
 
     @Override
     protected ProfileValue<T> createEmptyValue() {
@@ -55,33 +61,27 @@ public abstract class ProfileDataRepository<T>
     }
 
     @Override
-    public ProfileValue<T> getFirstValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<T> getFirstValue(P dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getFirstValue(dataset, session, query);
     }
 
     @Override
-    public ProfileValue<T> getLastValue(ProfileDatasetEntity dataset, Session session, DbQuery query) {
+    public ProfileValue<T> getLastValue(P dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getLastValue(dataset, session, query);
     }
 
-    @Override
-    public Class<ProfileDatasetEntity> getDatasetEntityType() {
-        return ProfileDatasetEntity.class;
-    }
-
     protected boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        String parameter = "name";
-        if (parameterObject.containsKey(parameter)) {
-            String value = (String) parameterObject.get(parameter);
+        if (parameterObject.containsKey(PARAMETER_NAME)) {
+            String value = (String) parameterObject.get(PARAMETER_NAME);
             return value.equalsIgnoreCase(verticalName);
         }
         return false;
     }
 
     @Override
-    protected Data<ProfileValue<T>> assembleData(ProfileDatasetEntity datasetEntity, DbQuery query, Session session)
+    protected Data<ProfileValue<T>> assembleData(P datasetEntity, DbQuery query, Session session)
             throws DataAccessException {
         query.setComplexParent(true);
         Data<ProfileValue<T>> result = new Data<>();
@@ -96,7 +96,7 @@ public abstract class ProfileDataRepository<T>
     }
 
     @Override
-    protected Data<ProfileValue<T>> assembleDataWithReferenceValues(ProfileDatasetEntity datasetEntity,
+    protected Data<ProfileValue<T>> assembleDataWithReferenceValues(P datasetEntity,
                                                                     DbQuery dbQuery,
                                                                     Session session)
             throws DataAccessException {
@@ -120,7 +120,7 @@ public abstract class ProfileDataRepository<T>
 
     @Override
     protected ProfileValue<T> createSeriesValueFor(ProfileDataEntity observation,
-                                                   ProfileDatasetEntity dataset,
+                                                   P dataset,
                                                    DbQuery query) {
         ProfileValue<T> profile = createValue(observation, dataset, query);
         return addMetadatasIfNeeded(observation, profile, dataset, query);
@@ -130,14 +130,14 @@ public abstract class ProfileDataRepository<T>
                                                    ProfileDatasetEntity dataset,
                                                    DbQuery query);
 
-    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E quantityEntity,
+    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
                                                                             Map<String, Object> parameterObject) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
-        dataItem.setValue(quantityEntity.getValue());
+        dataItem.setValue(dataEntity.getValue());
         // set vertical's value
-        dataItem.setVertical((BigDecimal) parameterObject.get("value"));
-        String verticalUnit = (String) parameterObject.get("unit");
+        dataItem.setVertical((BigDecimal) parameterObject.get(PARAMETER_VALUE));
+        String verticalUnit = (String) parameterObject.get(PARAMETER_VALUE);
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
         }
@@ -147,6 +147,63 @@ public abstract class ProfileDataRepository<T>
             dataItem.setVerticalUnit(verticalUnit);
         }
         return dataItem;
+    }
+
+    protected <E extends DataEntity<T>> ProfileDataItem<T>  assembleDataItem(E dataEntity, ProfileValue<T> profile,
+            Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
+        ProfileDataItem<T> dataItem = new ProfileDataItem<>();
+        dataItem.setValue(dataEntity.getValue());
+        String verticalUnit = getVerticalUnit(parameters, dataset);
+        addValues(dataItem, parameters, dataset);
+        if (profile.getVerticalUnit() == null
+                || !profile.getVerticalUnit()
+                           .equals(verticalUnit)) {
+            dataItem.setVerticalUnit(verticalUnit);
+        }
+        return dataItem;
+    }
+
+    private void addValues(ProfileDataItem<T> dataItem, Set<Map<String, Object>> parameters,
+            ProfileDatasetEntity dataset) {
+        if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
+            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalParameterName()));
+        } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
+                && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
+            dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
+            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+        }
+    }
+
+    private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
+       for (Map<String, Object> parameterObject : parameters) {
+           if (isVertical(parameterObject, verticalName)) {
+               return (BigDecimal) parameterObject.get(PARAMETER_VALUE);
+           }
+       }
+       return null;
+    }
+
+    private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
+        String unit = null;
+        for (Map<String, Object> parameter : parameters) {
+            if (unit == null && parameter.containsKey(PARAMETER_NAME) &&
+                    (parameter.get(PARAMETER_NAME).equals(dataset.getVerticalParameterName())
+                    || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalFromParameterName())
+                    || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalToParameterName()))) {
+                unit = (String) parameter.get(PARAMETER_UNIT);
+            }
+        }
+        return unit;
+    }
+
+    private Set<String> getParameterNames(Set<Map<String, Object>> parameters) {
+        Set<String> names = new HashSet<>();
+        for (Map<String, Object> parameter : parameters) {
+            if (parameter.containsKey(PARAMETER_NAME)) {
+                names.add((String) parameter.get(PARAMETER_NAME));
+            }
+        }
+        return names;
     }
 
 }

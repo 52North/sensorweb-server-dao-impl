@@ -235,6 +235,7 @@ COPY observation (observation_id, fk_dataset_id, sampling_time_start, sampling_t
 100	8	2012-11-19 13:45:00	2012-11-19 13:49:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_100_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000034400000000000003440	\N	\N	\N	5.9	\N	quantity
 \.
 
+select updateGeometrySRID('observation','sampling_geometry',4326)
 
 
 COPY parameter (parameter_id, name, type, value_quantity, fk_unit_id) FROM stdin;

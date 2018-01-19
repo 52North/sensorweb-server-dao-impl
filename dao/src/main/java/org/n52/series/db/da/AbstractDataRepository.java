@@ -71,7 +71,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
             IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)));
+                                                                      .removeAllOf(Parameters.NEAR)
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }

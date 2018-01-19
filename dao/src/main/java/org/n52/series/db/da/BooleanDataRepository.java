@@ -29,14 +29,10 @@
 
 package org.n52.series.db.da;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.BooleanDataEntity;
@@ -54,63 +50,6 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected Data<BooleanValue> assembleDataWithReferenceValues(BooleanDatasetEntity timeseries,
-                                                          DbQuery dbQuery,
-                                                          Session session)
-            throws DataAccessException {
-        Data<BooleanValue> result = assembleData(timeseries, dbQuery, session);
-        Set<BooleanDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<Data<BooleanValue>> metadata = new DatasetMetadata<>();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, Data<BooleanValue>> assembleReferenceSeries(Set<BooleanDatasetEntity> referenceValues,
-                                                             DbQuery query,
-                                                             Session session)
-            throws DataAccessException {
-        Map<String, Data<BooleanValue>> referenceSeries = new HashMap<>();
-        for (BooleanDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                Data<BooleanValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(referenceSeriesEntity.getId()
-                                                         .toString(),
-                                    referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<BooleanValue> referenceSeriesData) {
-        return referenceSeriesData.getValues()
-                                  .size() <= 1;
-    }
-
-    private Data<BooleanValue> expandReferenceDataIfNecessary(BooleanDatasetEntity seriesEntity,
-                                                       DbQuery query,
-                                                       Session session)
-            throws DataAccessException {
-        Data<BooleanValue> result = new Data<>();
-        DataDao<BooleanDataEntity> dao = createDataDao(session);
-        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            BooleanValue lastValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
-        }
-        if (hasSingleValidReferenceValue(observations)) {
-            BooleanDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
     protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<BooleanValue> result = new Data<>();
@@ -122,24 +61,6 @@ public class BooleanDataRepository
             }
         }
         return result;
-    }
-
-    private BooleanValue[] expandToInterval(Boolean value, BooleanDatasetEntity series, DbQuery query) {
-        BooleanDataEntity referenceStart = new BooleanDataEntity();
-        BooleanDataEntity referenceEnd = new BooleanDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan()
-                                                 .getStart()
-                                                 .toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan()
-                                               .getEnd()
-                                               .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new BooleanValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
-
     }
 
     @Override

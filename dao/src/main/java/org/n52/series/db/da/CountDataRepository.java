@@ -29,10 +29,13 @@
 
 package org.n52.series.db.da;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CountDataEntity;
@@ -52,7 +55,7 @@ public class CountDataRepository
     @Override
     protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<CountValue> result = new Data<CountValue>();
+        Data<CountValue> result = new Data<>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {

@@ -35,29 +35,29 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
-import org.n52.io.response.dataset.text.TextValue;
+import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
+public class CategoryDataRepository
+        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
 
     @Override
-    public Class<TextDatasetEntity> getDatasetEntityType() {
-        return TextDatasetEntity.class;
+    public Class<CategoryDatasetEntity> getDatasetEntityType() {
+        return CategoryDatasetEntity.class;
     }
 
     @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<TextValue> result = new Data<>();
-        DataDao<TextDataEntity> dao = new DataDao<>(session);
-        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (TextDataEntity observation : observations) {
+        Data<CategoryValue> result = new Data<>();
+        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
+        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (CategoryDataEntity observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -66,31 +66,27 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    protected TextValue createEmptyValue() {
-        return new TextValue();
+    protected CategoryValue createEmptyValue() {
+        return new CategoryValue();
     }
 
     @Override
-    public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
-        }
-
+    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
+                                              CategoryDatasetEntity series,
+                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
-        TextValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
+        CategoryValue value = createValue(observation, series, query, observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
-    private TextValue createValue(TextDataEntity observation,
-                                  TextDatasetEntity series,
-                                  DbQuery query,
-                                  String observationValue) {
+    private CategoryValue createValue(CategoryDataEntity observation,
+                                      CategoryDatasetEntity series,
+                                      DbQuery query,
+                                      String observationValue) {
         ServiceEntity service = getServiceEntity(series);
         String textValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
@@ -98,12 +94,17 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
         return createValue(textValue, observation, query);
     }
 
-    TextValue createValue(String observationValue,
-                          TextDataEntity observation,
-                          DbQuery query) {
-        TextValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
-        return value;
+    CategoryValue createValue(String observationValue,
+                              CategoryDataEntity observation,
+                              DbQuery query) {
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        return parameters.isShowTimeIntervals()
+                ? new CategoryValue(start, end, observationValue)
+                : new CategoryValue(end, observationValue);
     }
 
 }
