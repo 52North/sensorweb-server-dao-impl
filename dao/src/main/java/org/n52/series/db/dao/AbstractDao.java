@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.geolatte.geom.GeometryType;
@@ -40,9 +41,11 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
+import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -286,4 +289,24 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return null;
     }
 
+    /**
+     * Currently used in SOS cache operations.
+     *
+     * @param query Query parameters
+     *
+     * @return the result
+     * 
+     * @deprecated Onlxy for SOS cache which might be deleted in the future
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public Collection<T> get(DbQuery query) {
+        Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
+                .setResultTransformer(RootEntityResultTransformer.INSTANCE);
+        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class);
+        subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
+        query.addFilters(c, getDatasetProperty());
+        return c.list();
+
+    }
 }
