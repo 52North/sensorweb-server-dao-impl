@@ -319,7 +319,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      * @param query Query parameters
      *
      * @return the result
-     * 
+     *
      * @deprecated Onlxy for SOS cache which might be deleted in the future
      */
     @SuppressWarnings("unchecked")

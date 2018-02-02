@@ -259,8 +259,8 @@ public class DbQuery {
         }
 
         addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROCEDURE, filter);
-        addHierarchicalFilterRestriction(offerings, DatasetEntity.OFFERING, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(datasets, filter);

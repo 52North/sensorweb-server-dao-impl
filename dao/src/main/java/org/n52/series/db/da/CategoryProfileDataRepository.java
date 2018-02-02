@@ -65,7 +65,11 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
             CategoryDataEntity categoryEntity = (CategoryDataEntity) dataEntity;
             CategoryValue valueItem = categoryRepository.createValue(categoryEntity.getValue(), categoryEntity, query);
             addParameters(categoryEntity, valueItem, query);
-            dataItems.add(assembleDataItem(categoryEntity, profile, valueItem.getParameters(), dataset));
+            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(categoryEntity, profile, observation));
+            } else {
+                dataItems.add(assembleDataItem(categoryEntity, profile, valueItem.getParameters(), dataset));
+            }
         }
         profile.setValue(dataItems);
         return profile;

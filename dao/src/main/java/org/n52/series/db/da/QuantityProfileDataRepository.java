@@ -66,7 +66,11 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
-            dataItems.add(assembleDataItem(quantityEntity, profile, valueItem.getParameters(), datasetEntity));
+            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(quantityEntity, profile, observation));
+            } else {
+                dataItems.add(assembleDataItem(quantityEntity, profile, valueItem.getParameters(), datasetEntity));
+            }
         }
         profile.setValue(dataItems);
         return profile;
