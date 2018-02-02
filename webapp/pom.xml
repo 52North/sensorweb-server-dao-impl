@@ -19,7 +19,7 @@
 
         <version.postgis>2.2.0</version.postgis>
         <version.aspectj>1.8.9</version.aspectj>
-        <version.postgresql>9.4.1208.jre7</version.postgresql>
+        <version.postgresql>42.1.4</version.postgresql>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
 

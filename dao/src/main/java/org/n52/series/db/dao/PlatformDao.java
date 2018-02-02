@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import org.hibernate.Criteria;
@@ -54,7 +53,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROCEDURE, createMobileSubquery(true));
+        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileSubquery(true));
         DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
                                                               createMobileSubquery(false));
 
@@ -73,14 +72,14 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     private DetachedCriteria createMobileSubquery(boolean mobile) {
         DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.createCriteria(DatasetEntity.PROCEDURE)
+        criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
                 .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
         return criteria;
     }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROCEDURE;
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override

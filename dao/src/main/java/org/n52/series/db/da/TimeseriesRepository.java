@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -230,8 +230,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
-        for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
+        for (DatasetEntity referenceSeriesEntity : referenceValues) {
+            if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
@@ -240,7 +240,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
                 refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
-                                                                                referenceSeriesEntity,
+                                                                                (QuantityDatasetEntity) referenceSeriesEntity,
                                                                                 query));
                 outputs.add(refenceValueOutput);
             }

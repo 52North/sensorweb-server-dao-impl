@@ -65,7 +65,11 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Tex
             TextDataEntity textEntity = (TextDataEntity) dataEntity;
             TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
             addParameters(textEntity, valueItem, query);
-            dataItems.add(assembleDataItem(textEntity, profile, valueItem.getParameters(), dataset));
+            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(textEntity, profile, observation));
+            } else {
+                dataItems.add(assembleDataItem(textEntity, profile, valueItem.getParameters(), dataset));
+            }
         }
         profile.setValue(dataItems);
         return profile;

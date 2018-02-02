@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,9 +26,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
+import java.util.Collection;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -50,9 +50,11 @@ import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
+import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -227,13 +229,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
                 criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_PATH_ALIAS, filterResolver));
-            } else if (parameter.endsWith(DatasetEntity.PROCEDURE)) {
+            } else if (parameter.endsWith(DatasetEntity.PROPERTY_PROCEDURE)) {
                 // restrict directly on procedure table
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.createCriteria(DatasetEntity.PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
+                c.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
                  .add(createPlatformTypeRestriction(filterResolver));
 
                 QueryUtils.setFilterProjectionOn(parameter, c);
@@ -311,4 +313,24 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return walker.getSQLString();
     }
 
+    /**
+     * Currently used in SOS cache operations.
+     *
+     * @param query Query parameters
+     *
+     * @return the result
+     *
+     * @deprecated Onlxy for SOS cache which might be deleted in the future
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public Collection<T> get(DbQuery query) {
+        Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
+                .setResultTransformer(RootEntityResultTransformer.INSTANCE);
+        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class);
+        subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
+        query.addFilters(c, getDatasetProperty());
+        return c.list();
+
+    }
 }

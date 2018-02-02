@@ -132,12 +132,27 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
+                                                                            ProfileDataEntity observation) {
+        ProfileDataItem<T> dataItem = new ProfileDataItem<>();
+        dataItem.setValue(dataEntity.getValue());
+        // set vertical's value
+        dataItem.setVerticalFrom(dataEntity.getVerticalFrom());
+        dataItem.setVerticalTo(dataEntity.getVerticalTo());
+        if (observation.hasVerticalUnit()) {
+            dataItem.setVerticalUnit(observation.getVerticalUnit().getIdentifier());
+        }
+        return dataItem;
+    }
+
+    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
+                                                                            ProfileValue<T> profile,
                                                                             Map<String, Object> parameterObject) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         // set vertical's value
-        dataItem.setVertical((BigDecimal) parameterObject.get(PARAMETER_VALUE));
-        String verticalUnit = (String) parameterObject.get(PARAMETER_VALUE);
+        dataItem.setVerticalFrom(dataEntity.getVerticalFrom());
+        dataItem.setVerticalTo(dataEntity.getVerticalTo());
+        String verticalUnit = (String) parameterObject.get("unit");
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
         }

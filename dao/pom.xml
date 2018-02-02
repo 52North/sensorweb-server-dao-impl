@@ -43,9 +43,14 @@
             <artifactId>spring-tx</artifactId>
         </dependency>
 
+		<dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-api</artifactId>
+        </dependency> 
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -60,6 +65,11 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.geolatte</groupId>
+            <artifactId>geolatte-geom</artifactId>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
@@ -83,6 +93,10 @@
                 <exclusion>
                     <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

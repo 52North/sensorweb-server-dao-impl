@@ -44,7 +44,7 @@ COPY feature (feature_id, discriminator, fk_format_id, identifier, fk_identifier
 2	\N	2	http://www.52north.org/test/featureOfInterest/1	1	con terra	1	\N	0101000020E61000003F726BD26DE91E407D5EF1D423F14940	\N	\N
 3	\N	2	http://www.52north.org/test/featureOfInterest/2	1	ESRI	1	\N	0101000020E6100000EB1D6E87864C5DC08255F5F23B074140	\N	\N
 4	\N	2	http://www.52north.org/test/featureOfInterest/3	1	Kisters	1	\N	0101000020E610000014AAB2C82E8718400576C70892644940	\N	\N
-5	\N	2	http://www.52north.org/test/featureOfInterest/4	1	con terra	1	\N	0101000020E61000003F726BD26DE91E407D5EF1D423F14940	\N	\N
+5	\N	2	http://www.52north.org/test/featureOfInterest/4	1	IfGI	1	\N	0101000020E61000003F726BD26DE91E407D5EF1D423F14940	\N	\N
 6	\N	2	http://www.52north.org/test/featureOfInterest/5	1	TU-Dresden	1	\N	0101000020E6100000404EB4AB90722B401DE6CB0BB0834940	\N	\N
 7	\N	2	http://www.52north.org/test/featureOfInterest/6	1	Hochschule Bochum	1	\N	0101000020E6100000083E062B4E151D4090D959F44EB94940	\N	\N
 8	\N	2	http://www.52north.org/test/featureOfInterest/7	1	ITC	1	\N	0101000020E610000000958FEE31221140E45F15B9F1054A40	\N	\N
@@ -120,6 +120,7 @@ COPY unit (unit_id, symbol, name, link) FROM stdin;
 3	test_unit_6	\N	\N
 4	test_unit_7	\N	\N
 5	test_unit_8	\N	\N
+6	m	\N	\N
 \.
 
 
@@ -142,116 +143,116 @@ COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_pr
 
 
 
-COPY observation (observation_id, fk_dataset_id, sampling_time_start, sampling_time_end, result_time, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, is_deleted, is_child, is_parent, valid_time_start, valid_time_end, sampling_geometry, value_count, value_boolean, value_category, value_quantity, value_text, value_type) FROM stdin;
-1	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/profile-observation/1	1	\N	1	\N	0	0	1	\N	\N	\N	\N	\N	\N	\N	\N	profile
-10	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/profile-observation/10	1	\N	1	\N	0	0	1	\N	\N	\N	\N	\N	\N	\N	\N	profile
-11	2	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	0	\N	\N	\N	\N	count
-12	2	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	1	\N	\N	\N	\N	count
-13	2	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	2	\N	\N	\N	\N	count
-14	2	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	3	\N	\N	\N	\N	count
-15	2	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	4	\N	\N	\N	\N	count
-16	2	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	5	\N	\N	\N	\N	count
-17	2	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	6	\N	\N	\N	\N	count
-18	2	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	7	\N	\N	\N	\N	count
-19	2	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	8	\N	\N	\N	\N	count
-20	2	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	9	\N	\N	\N	\N	count
-21	3	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-22	3	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-23	3	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean
-24	3	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-25	3	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean
-26	3	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean
-27	3	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-28	3	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-29	3	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean
-30	3	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean
-31	4	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_0	\N	\N	category
-32	4	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_1	\N	\N	category
-33	4	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_2	\N	\N	category
-34	4	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_3	\N	\N	category
-35	4	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_4	\N	\N	category
-36	4	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_5	\N	\N	category
-37	4	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_6	\N	\N	category
-38	4	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_7	\N	\N	category
-39	4	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_8	\N	\N	category
-40	5	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_9	\N	\N	category
-41	5	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_0	text
-42	5	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_1	text
-43	5	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_2	text
-44	5	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_3	text
-45	5	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_4	text
-46	5	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_5	text
-47	5	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_6	text
-48	5	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_7	text
-49	5	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_8	text
-50	5	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_9	text
-51	6	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.0	\N	quantity
-52	6	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.1	\N	quantity
-53	6	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.2	\N	quantity
-54	6	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.3	\N	quantity
-55	6	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.4	\N	quantity
-56	6	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.5	\N	quantity
-57	6	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.6	\N	quantity
-58	6	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.7	\N	quantity
-59	6	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.8	\N	quantity
-60	6	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.9	\N	quantity
-61	7	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.0	\N	quantity
-62	7	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.1	\N	quantity
-63	7	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.2	\N	quantity
-64	7	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.3	\N	quantity
-65	7	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.4	\N	quantity
-66	7	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.5	\N	quantity
-67	7	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.6	\N	quantity
-68	7	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.7	\N	quantity
-69	7	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.8	\N	quantity
-70	7	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.9	\N	quantity
-71	8	2012-11-19 13:00:00	2012-11-19 13:04:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_71_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	01010000000000000000001C400000000000004940	\N	\N	\N	4.0	\N	quantity
-72	8	2012-11-19 13:05:00	2012-11-19 13:09:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_72_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000000CDCCCCCCCCCC1C40CDCCCCCCCC4C4940	\N	\N	\N	4.1	\N	quantity
-73	8	2012-11-19 13:10:00	2012-11-19 13:14:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_73_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	01010000003333333333331F40CDCCCCCCCCCC4940	\N	\N	\N	4.2	\N	quantity
-74	8	2012-11-19 13:15:00	2012-11-19 13:19:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_74_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000000CDCCCCCCCCCC20409A99999999994940	\N	\N	\N	4.3	\N	quantity
-75	8	2012-11-19 13:20:00	2012-11-19 13:24:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_75_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	01010000009A99999999991D409A99999999194940	\N	\N	\N	4.4	\N	quantity
-76	8	2012-11-19 13:25:00	2012-11-19 13:29:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_76_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	01010000006666666666661E406666666666664940	\N	\N	\N	4.5	\N	quantity
-77	8	2012-11-19 13:30:00	2012-11-19 13:34:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_77_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000020406666666666664940	\N	\N	\N	4.6	\N	quantity
-78	8	2012-11-19 13:35:00	2012-11-19 13:39:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_78_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000021406666666666664940	\N	\N	\N	4.7	\N	quantity
-79	8	2012-11-19 13:40:00	2012-11-19 13:44:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_79_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	010100000033333333333320409A99999999194940	\N	\N	\N	4.8	\N	quantity
-80	8	2012-11-19 13:45:00	2012-11-19 13:49:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_80_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	010100000033333333333321400000000000404940	\N	\N	\N	4.9	\N	quantity
-81	9	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Carsten Hollmann	text
-82	10	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Christian Autermann	text
-83	11	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Shane StClair	text
-84	12	2012-12-31 23:00:00	2012-12-31 23:00:00	2012-12-31 22:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	John/Jane Doe	text
-85	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	100	\N	quantity
-86	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	200	\N	quantity
-87	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	300	\N	quantity
-88	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	400	\N	quantity
-91	8	2012-11-19 13:00:00	2012-11-19 13:04:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_91_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000024400000000000002440	\N	\N	\N	5.0	\N	quantity
-92	8	2012-11-19 13:05:00	2012-11-19 13:09:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_92_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000000CDCCCCCCCCCC1C40CDCCCCCCCC4C4940	\N	\N	\N	5.1	\N	quantity
-93	8	2012-11-19 13:10:00	2012-11-19 13:14:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_93_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	01010000003333333333331F40CDCCCCCCCCCC4940	\N	\N	\N	5.2	\N	quantity
-94	8	2012-11-19 13:15:00	2012-11-19 13:19:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_94_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000000CDCCCCCCCCCC20409A99999999994940	\N	\N	\N	5.3	\N	quantity
-95	8	2012-11-19 13:20:00	2012-11-19 13:24:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_95_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	01010000009A99999999991D409A99999999194940	\N	\N	\N	5.4	\N	quantity
-96	8	2012-11-19 13:25:00	2012-11-19 13:29:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_96_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	01010000006666666666661E406666666666664940	\N	\N	\N	5.5	\N	quantity
-97	8	2012-11-19 13:30:00	2012-11-19 13:34:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_97_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000020406666666666664940	\N	\N	\N	5.6	\N	quantity
-98	8	2012-11-19 13:35:00	2012-11-19 13:39:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_98_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000021406666666666664940	\N	\N	\N	5.7	\N	quantity
-99	8	2012-11-19 13:40:00	2012-11-19 13:44:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_99_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000033333333333320409A99999999194940	\N	\N	\N	5.8	\N	quantity
-100	8	2012-11-19 13:45:00	2012-11-19 13:49:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_100_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	010100000000000000000034400000000000003440	\N	\N	\N	5.9	\N	quantity
+COPY observation (observation_id, fk_dataset_id, sampling_time_start, sampling_time_end, result_time, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, is_deleted, is_child, is_parent, valid_time_start, valid_time_end, sampling_geometry, value_count, value_boolean, value_category, value_quantity, value_text, value_type, vertical_from, vertical_to) FROM stdin;
+1	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/profile-observation/1	1	\N	1	\N	0	0	1	\N	\N	\N	\N	\N	\N	\N	\N	profile	10	20
+10	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/profile-observation/10	1	\N	1	\N	0	0	1	\N	\N	\N	\N	\N	\N	\N	\N	profile	10	20
+11	2	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	0	\N	\N	\N	\N	count	\N	\N
+12	2	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	1	\N	\N	\N	\N	count	\N	\N
+13	2	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	2	\N	\N	\N	\N	count	\N	\N
+14	2	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	3	\N	\N	\N	\N	count	\N	\N
+15	2	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	4	\N	\N	\N	\N	count	\N	\N
+16	2	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	5	\N	\N	\N	\N	count	\N	\N
+17	2	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	6	\N	\N	\N	\N	count	\N	\N
+18	2	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	7	\N	\N	\N	\N	count	\N	\N
+19	2	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	8	\N	\N	\N	\N	count	\N	\N
+20	2	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	9	\N	\N	\N	\N	count	\N	\N
+21	3	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+22	3	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+23	3	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean	\N	\N
+24	3	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+25	3	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean	\N	\N
+26	3	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean	\N	\N
+27	3	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+28	3	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+29	3	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	0	\N	\N	\N	boolean	\N	\N
+30	3	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	1	\N	\N	\N	boolean	\N	\N
+31	4	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_0	\N	\N	category	\N	\N
+32	4	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_1	\N	\N	category	\N	\N
+33	4	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_2	\N	\N	category	\N	\N
+34	4	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_3	\N	\N	category	\N	\N
+35	4	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_4	\N	\N	category	\N	\N
+36	4	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_5	\N	\N	category	\N	\N
+37	4	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_6	\N	\N	category	\N	\N
+38	4	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_7	\N	\N	category	\N	\N
+39	4	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_8	\N	\N	category	\N	\N
+40	5	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	test_category_9	\N	\N	category	\N	\N
+41	5	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_0	text	\N	\N
+42	5	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_1	text	\N	\N
+43	5	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_2	text	\N	\N
+44	5	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_3	text	\N	\N
+45	5	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_4	text	\N	\N
+46	5	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_5	text	\N	\N
+47	5	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_6	text	\N	\N
+48	5	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_7	text	\N	\N
+49	5	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_8	text	\N	\N
+50	5	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	test_text_9	text	\N	\N
+51	6	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.0	\N	quantity	\N	\N
+52	6	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.1	\N	quantity	\N	\N
+53	6	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.2	\N	quantity	\N	\N
+54	6	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.3	\N	quantity	\N	\N
+55	6	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.4	\N	quantity	\N	\N
+56	6	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.5	\N	quantity	\N	\N
+57	6	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.6	\N	quantity	\N	\N
+58	6	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.7	\N	quantity	\N	\N
+59	6	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.8	\N	quantity	\N	\N
+60	6	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	2.9	\N	quantity	\N	\N
+61	7	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.0	\N	quantity	\N	\N
+62	7	2012-11-19 13:01:00	2012-11-19 13:01:00	2012-11-19 13:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.1	\N	quantity	\N	\N
+63	7	2012-11-19 13:02:00	2012-11-19 13:02:00	2012-11-19 13:02:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.2	\N	quantity	\N	\N
+64	7	2012-11-19 13:03:00	2012-11-19 13:03:00	2012-11-19 13:03:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.3	\N	quantity	\N	\N
+65	7	2012-11-19 13:04:00	2012-11-19 13:04:00	2012-11-19 13:04:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.4	\N	quantity	\N	\N
+66	7	2012-11-19 13:05:00	2012-11-19 13:05:00	2012-11-19 13:05:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.5	\N	quantity	\N	\N
+67	7	2012-11-19 13:06:00	2012-11-19 13:06:00	2012-11-19 13:06:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.6	\N	quantity	\N	\N
+68	7	2012-11-19 13:07:00	2012-11-19 13:07:00	2012-11-19 13:07:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.7	\N	quantity	\N	\N
+69	7	2012-11-19 13:08:00	2012-11-19 13:08:00	2012-11-19 13:08:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.8	\N	quantity	\N	\N
+70	7	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	3.9	\N	quantity	\N	\N
+71	8	2012-11-19 13:00:00	2012-11-19 13:04:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_71_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000000000000000001C400000000000004940	\N	\N	\N	4.0	\N	quantity	\N	\N
+72	8	2012-11-19 13:05:00	2012-11-19 13:09:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_72_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E6100000CDCCCCCCCCCC1C40CDCCCCCCCC4C4940	\N	\N	\N	4.1	\N	quantity	\N	\N
+73	8	2012-11-19 13:10:00	2012-11-19 13:14:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_73_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000003333333333331F40CDCCCCCCCCCC4940	\N	\N	\N	4.2	\N	quantity	\N	\N
+74	8	2012-11-19 13:15:00	2012-11-19 13:19:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_74_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E6100000CDCCCCCCCCCC20409A99999999994940	\N	\N	\N	4.3	\N	quantity	\N	\N
+75	8	2012-11-19 13:20:00	2012-11-19 13:24:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_75_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000009A99999999991D409A99999999194940	\N	\N	\N	4.4	\N	quantity	\N	\N
+76	8	2012-11-19 13:25:00	2012-11-19 13:29:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_76_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000006666666666661E406666666666664940	\N	\N	\N	4.5	\N	quantity	\N	\N
+77	8	2012-11-19 13:30:00	2012-11-19 13:34:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_77_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000020406666666666664940	\N	\N	\N	4.6	\N	quantity	\N	\N
+78	8	2012-11-19 13:35:00	2012-11-19 13:39:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_78_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000021406666666666664940	\N	\N	\N	4.7	\N	quantity	\N	\N
+79	8	2012-11-19 13:40:00	2012-11-19 13:44:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_79_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000033333333333320409A99999999194940	\N	\N	\N	4.8	\N	quantity	\N	\N
+80	8	2012-11-19 13:45:00	2012-11-19 13:49:59	2012-11-18 13:00:00	http://www.52north.org/test/observation/8_80_resulttime_2012-11-18	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000033333333333321400000000000404940	\N	\N	\N	4.9	\N	quantity	\N	\N
+81	9	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Carsten Hollmann	text	\N	\N
+82	10	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Christian Autermann	text	\N	\N
+83	11	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Shane StClair	text	\N	\N
+84	12	2012-12-31 23:00:00	2012-12-31 23:00:00	2012-12-31 22:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	John/Jane Doe	text	\N	\N
+85	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	100	\N	quantity	10	\N
+86	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	200	\N	quantity	20	\N
+87	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	300	\N	quantity	15	\N
+88	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	400	\N	quantity	12	\N
+91	8	2012-11-19 13:00:00	2012-11-19 13:04:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_91_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000024400000000000002440	\N	\N	\N	5.0	\N	quantity	\N	\N
+92	8	2012-11-19 13:05:00	2012-11-19 13:09:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_92_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E6100000CDCCCCCCCCCC1C40CDCCCCCCCC4C4940	\N	\N	\N	5.1	\N	quantity	\N	\N
+93	8	2012-11-19 13:10:00	2012-11-19 13:14:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_93_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000003333333333331F40CDCCCCCCCCCC4940	\N	\N	\N	5.2	\N	quantity	\N	\N
+94	8	2012-11-19 13:15:00	2012-11-19 13:19:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_94_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E6100000CDCCCCCCCCCC20409A99999999994940	\N	\N	\N	5.3	\N	quantity	\N	\N
+95	8	2012-11-19 13:20:00	2012-11-19 13:24:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_95_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000009A99999999991D409A99999999194940	\N	\N	\N	5.4	\N	quantity	\N	\N
+96	8	2012-11-19 13:25:00	2012-11-19 13:29:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_96_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000006666666666661E406666666666664940	\N	\N	\N	5.5	\N	quantity	\N	\N
+97	8	2012-11-19 13:30:00	2012-11-19 13:34:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_97_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000020406666666666664940	\N	\N	\N	5.6	\N	quantity	\N	\N
+98	8	2012-11-19 13:35:00	2012-11-19 13:39:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_98_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000021406666666666664940	\N	\N	\N	5.7	\N	quantity	\N	\N
+99	8	2012-11-19 13:40:00	2012-11-19 13:44:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_99_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000033333333333320409A99999999194940	\N	\N	\N	5.8	\N	quantity	\N	\N
+100	8	2012-11-19 13:45:00	2012-11-19 13:49:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_100_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000034400000000000003440	\N	\N	\N	5.9	\N	quantity	\N	\N
 \.
 
 select updateGeometrySRID('observation','sampling_geometry',4326);
 
 
 COPY parameter (parameter_id, name, type, value_quantity, fk_unit_id) FROM stdin;
-1	depth	quantity	10	2
-2	depth	quantity	20	2
-3	depth	quantity	15	2
-4	depth	quantity	12	2
+1	test	quantity	10	2
+2	test	quantity	20	2
+3	test	quantity	15	2
+4	test	quantity	12	2
 \.
 
 
 
 COPY observation_parameter (fk_parameter_id, fk_observation_id) FROM stdin;
-1	85
-2	86
-3	87
-4	88
+1	51
+2	52
+3	53
+4	54
 \.
 
 
@@ -284,6 +285,8 @@ COPY feature_relation (fk_parent_feature_id, fk_child_feature_id) FROM stdin;
 \.
 
 
+
+SELECT pg_catalog.setval('category_seq', 9, true);
 
 
 SELECT pg_catalog.setval('phenomenon_seq', 9, true);
@@ -338,9 +341,9 @@ SELECT pg_catalog.setval('procedure_seq', 9, true);
 
 
 
-COPY value_profile (fk_observation_id, from_level, to_level, fk_level_unit_id) FROM stdin;
-1	10	20	2
-10	10	20	2
+COPY value_profile (fk_observation_id, vertical_from_name, vertical_to_name, fk_vertical_unit_id) FROM stdin;
+1	depth	\N	6
+10	depth	\N	6
 \.
 
 
