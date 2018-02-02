@@ -42,6 +42,13 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -235,7 +242,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         }
         return criteria;
     }
-    
+
     private LogicalExpression createPlatformTypeRestriction(FilterResolver filterResolver) {
         return createPlatformTypeRestriction(null, filterResolver);
     }
@@ -287,22 +294,21 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      * @return the SQL
      */
     public static String toSQLString(Criteria criteria) {
-        return "TODO";
-//        if (!(criteria instanceof CriteriaImpl)) {
-//            return criteria.toString();
-//        }
-//        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-//        SessionImplementor session = criteriaImpl.getSession();
-//        SessionFactoryImplementor factory = session.getFactory();
-//        String entityOrClassName = criteriaImpl.getEntityOrClassName();
-//        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
-//                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
-//        String[] implementors = factory.getImplementors(entityOrClassName);
-//        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
-//        LoadQueryInfluencers loadQueryInfluencers = session.getLoadQueryInfluencers();
-//        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
-//                                                           entityOrClassName, loadQueryInfluencers);
-//        return walker.getSQLString();
+        if (!(criteria instanceof CriteriaImpl)) {
+            return criteria.toString();
+        }
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+        SharedSessionContractImplementor sessionContractImpl = criteriaImpl.getSession();
+        SessionFactoryImplementor factory = sessionContractImpl.getFactory();
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getImplementors(entityOrClassName);
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        LoadQueryInfluencers loadQueryInfluencers = sessionContractImpl.getLoadQueryInfluencers();
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
+                                                           entityOrClassName, loadQueryInfluencers);
+        return walker.getSQLString();
     }
 
 }
