@@ -31,7 +31,6 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
@@ -229,7 +228,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                                                                                   Session session)
             throws DataAccessException {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
-        Set<DatasetEntity> referenceValues = series.getReferenceValues();
+        List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {

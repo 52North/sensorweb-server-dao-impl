@@ -28,6 +28,8 @@
  */
 package org.n52.io.extension.metadata;
 
-public class MetadataDoubleEntity extends MetadataEntity<Double> {
+import java.math.BigDecimal;
+
+public class MetadataQuantityEntity extends MetadataEntity<BigDecimal> {
 
 }

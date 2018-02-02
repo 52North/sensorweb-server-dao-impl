@@ -80,9 +80,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     /**
-     * <p>
      * Retrieves all available observation instances.
-     * </p>
      *
      * @param parameters
      *        query parameters.
@@ -137,9 +135,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END))
                                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
+        query.addOdataFilterForData(criteria);
 
         criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))

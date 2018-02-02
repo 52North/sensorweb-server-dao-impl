@@ -29,6 +29,8 @@
 package org.n52.series.db.dao;
 
 import java.util.Collection;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 import org.geolatte.geom.GeometryType;
@@ -40,6 +42,13 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
@@ -149,7 +158,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -249,9 +258,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
         String propertyMobile = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_MOBILE);
-        return Restrictions.or(Restrictions.eq(propertyMobile, includeMobile),
-                               // inverse to match filter
-                               Restrictions.eq(propertyMobile, !includeStationary));
+        return Restrictions.or(Restrictions.eq(propertyMobile, !includeStationary),
+                               Restrictions.eq(propertyMobile, includeMobile));
     }
 
     private LogicalExpression createInsituExpression(String alias, FilterResolver filterResolver) {
@@ -259,34 +267,50 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
         String propertyInsitu = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_INSITU);
         return Restrictions.or(Restrictions.eq(propertyInsitu, includeInsitu),
-                               // inverse to match filter
                                Restrictions.eq(propertyInsitu, !includeRemote));
     }
 
     protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-        IoParameters parameters = query.getParameters();
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                // XXX convert to disjunction
-                GeometryType type = getGeometryType(geometryType);
-                if (type != null) {
-                    String propertyName = DataEntity.PROPERTY_GEOMETRY_ENTITY;
-                    criteria.add(SpatialRestrictions.geometryType(propertyName, type));
-                }
-            }
-        }
+        query.getParameters()
+                .getGeometryTypes()
+                .stream()
+                .filter(geometryType -> !geometryType.isEmpty())
+                .map(this::getGeometryType)
+                .filter(Objects::nonNull)
+                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+                .forEach(criteria::add);
         return criteria;
     }
 
     private GeometryType getGeometryType(String geometryType) {
-        for (GeometryType type : GeometryType.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
+        return Arrays.stream(GeometryType.values())
+                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+                .findAny().orElse(null);
+    }
+
+    /**
+     * Translate the {@link Criteria criteria} to SQL.
+     *
+     * @param criteria the criteria
+     *
+     * @return the SQL
+     */
+    public static String toSQLString(Criteria criteria) {
+        if (!(criteria instanceof CriteriaImpl)) {
+            return criteria.toString();
         }
-        return null;
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+        SharedSessionContractImplementor sessionContractImpl = criteriaImpl.getSession();
+        SessionFactoryImplementor factory = sessionContractImpl.getFactory();
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getImplementors(entityOrClassName);
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        LoadQueryInfluencers loadQueryInfluencers = sessionContractImpl.getLoadQueryInfluencers();
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
+                                                           entityOrClassName, loadQueryInfluencers);
+        return walker.getSQLString();
     }
 
     /**

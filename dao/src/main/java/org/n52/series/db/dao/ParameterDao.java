@@ -57,8 +57,7 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        return query.addFilters(criteria, getDatasetProperty()).list();
     }
 
     @Override
@@ -67,7 +66,6 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        return query.addFilters(criteria, getDatasetProperty()).list();
     }
 }

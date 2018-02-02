@@ -28,9 +28,10 @@
  */
 package org.n52.series.db.dao;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.geotools.geometry.jts.JTS;
 import org.hibernate.Criteria;
@@ -195,6 +196,22 @@ public class DbQuery {
         return criteria;
     }
 
+    public Criteria addOdataFilterForData(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    public Criteria addOdataFilterForDataset(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
+        return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
+    }
+
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
             int limit = (getParameters().containsParameter(Parameters.LIMIT))
@@ -219,6 +236,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
+        Set<String> series = parameters.getSeries();
 
         if (!(hasValues(platforms)
                 || hasValues(phenomena)
@@ -226,7 +244,8 @@ public class DbQuery {
                 || hasValues(offerings)
                 || hasValues(features)
                 || hasValues(categories)
-                || hasValues(datasets))) {
+                || hasValues(datasets)
+                || hasValues(series))) {
             // no subquery neccessary
             return criteria;
         }
@@ -239,29 +258,12 @@ public class DbQuery {
             procedures.addAll(getMobileIds(platforms));
         }
 
-        if (hasValues(phenomena)) {
-            addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
-        }
-
-        if (hasValues(procedures)) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-        }
-
-        if (hasValues(offerings)) {
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-        }
-
-        if (hasValues(features)) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        }
-
-        if (hasValues(categories)) {
-            addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
-        }
-
-        if (hasValues(datasets)) {
-            addFilterRestriction(datasets, filter);
-        }
+        addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROCEDURE, filter);
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.OFFERING, filter);
+        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(datasets, filter);
 
         criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
@@ -313,11 +315,9 @@ public class DbQuery {
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        Disjunction disjunction = Restrictions.disjunction();
-        for (String filter : filterValues) {
-            disjunction.add(Restrictions.ilike(column, filter));
-        }
-        return disjunction;
+        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
+                .collect(Restrictions::disjunction, Disjunction::add,
+                         (a, b) -> b.conditions().forEach(a::add));
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
@@ -331,26 +331,25 @@ public class DbQuery {
 
     private Set<String> getStationaryIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isStationaryId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                        .filter(PlatformType::isStationaryId)
+                        .map(PlatformType::extractId)
+                        .collect(toSet());
     }
 
     private Set<String> getMobileIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isMobileId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                .filter(PlatformType::isMobileId)
+                .map(PlatformType::extractId)
+                .collect(toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            Disjunction or = Restrictions.disjunction();
-            for (String resultTime : parameters.getResultTimes()) {
-                Instant instant = Instant.parse(resultTime);
-                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, instant.toDate()));
-            }
-            criteria.add(or);
+            criteria.add(parameters.getResultTimes().stream()
+                    .map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add,
+                             (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
