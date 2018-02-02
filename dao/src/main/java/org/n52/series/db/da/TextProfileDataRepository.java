@@ -60,10 +60,14 @@ public class TextProfileDataRepository extends ProfileDataRepository<String> {
             TextDataEntity entity = (TextDataEntity) dataEntity;
             TextValue valueItem = textRepository.createValue(entity.getValue(), entity, query);
             addParameters(entity, valueItem, query);
-            for (Map<String, Object> parameterObject : valueItem.getParameters()) {
-                String verticalName = dataset.getVerticalParameterName();
-                if (isVertical(parameterObject, verticalName)) {
-                    dataItems.add(assembleDataItem(entity, profile, parameterObject));
+            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(entity, profile, observation));
+            } else {
+                for (Map<String, Object> parameterObject : valueItem.getParameters()) {
+                    String verticalName = dataset.getVerticalParameterName();
+                    if (isVertical(parameterObject, verticalName)) {
+                        dataItems.add(assembleDataItem(entity, profile, parameterObject));
+                    }
                 }
             }
         }

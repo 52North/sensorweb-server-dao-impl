@@ -43,6 +43,7 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
+import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -132,11 +133,27 @@ public abstract class ProfileDataRepository<T>
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E quantityEntity,
                                                                             ProfileValue<T> profile,
+                                                                            ProfileDataEntity observation) {
+        ProfileDataItem<T> dataItem = new ProfileDataItem<>();
+        dataItem.setValue(quantityEntity.getValue());
+        // set vertical's value
+        dataItem.setVerticalFrom(quantityEntity.getVerticalFrom());
+        dataItem.setVerticalTo(quantityEntity.getVerticalTo());
+        if (observation.hasVerticalUnit()) {
+            dataItem.setVerticalUnit(observation.getVerticalUnit().getIdentifier());
+        }
+        return dataItem;
+    }
+
+    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E quantityEntity,
+                                                                            ProfileValue<T> profile,
                                                                             Map<String, Object> parameterObject) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(quantityEntity.getValue());
         // set vertical's value
-        dataItem.setVertical((BigDecimal) parameterObject.get("value"));
+        dataItem.setVerticalFrom(quantityEntity.getVerticalFrom());
+        dataItem.setVerticalTo(quantityEntity.getVerticalTo());
+//        dataItem.setVertical((BigDecimal) parameterObject.get("value"));
         String verticalUnit = (String) parameterObject.get("unit");
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
