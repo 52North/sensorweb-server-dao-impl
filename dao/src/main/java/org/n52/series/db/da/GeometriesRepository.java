@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -275,7 +274,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
             return getCrsUtils().createLineString(points, srid);
         } else {
-            // when named query not configured --> bad performance
+            // when named query not configured --> may be a performance issue
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
                                              .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getId()));

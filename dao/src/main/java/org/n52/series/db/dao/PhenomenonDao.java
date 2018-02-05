@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,25 +26,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhenomenonDao.class);
 
     public PhenomenonDao(Session session) {
         super(session);
@@ -52,15 +44,7 @@ public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenon
 
     @Override
     protected String getDatasetProperty() {
-        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
-                                            ObservationConstellationEntity.OBSERVABLE_PROPERTY);
-    }
-
-    @Override
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                       .createCriteria(ObservationConstellationEntity.OBSERVABLE_PROPERTY)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
+        return DatasetEntity.PROPERTY_PHENOMENON;
     }
 
     @Override

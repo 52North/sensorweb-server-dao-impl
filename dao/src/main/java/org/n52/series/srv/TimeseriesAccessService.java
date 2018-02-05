@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,14 +26,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
-import org.n52.io.response.dataset.quantity.QuantityData;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
@@ -47,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Deprecated
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
-        implements DataService<QuantityData> {
+        implements DataService<Data<QuantityValue>> {
 
     @Autowired
     private IDataRepositoryFactory factory;
@@ -57,11 +56,11 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
     }
 
     @Override
-    public DataCollection<QuantityData> getData(IoParameters parameters) {
+    public DataCollection<Data<QuantityValue>> getData(IoParameters parameters) {
         try {
-            TvpDataCollection<QuantityData> dataCollection = new TvpDataCollection<>();
+            TvpDataCollection<Data<QuantityValue>> dataCollection = new TvpDataCollection<>();
             for (String timeseriesId : parameters.getDatasets()) {
-                QuantityData data = getDataFor(timeseriesId, parameters);
+                Data<QuantityValue> data = getDataFor(timeseriesId, parameters);
                 if (data != null) {
                     dataCollection.addNewSeries(timeseriesId, data);
                 }
@@ -72,10 +71,10 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
         }
     }
 
-    private QuantityData getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
+    private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         DataRepository< ? , ? > dataRepository = createRepository();
-        return (QuantityData) dataRepository.getData(timeseriesId, dbQuery);
+        return (Data<QuantityValue>) dataRepository.getData(timeseriesId, dbQuery);
     }
 
     private DataRepository< ? , ? > createRepository() throws DataAccessException {

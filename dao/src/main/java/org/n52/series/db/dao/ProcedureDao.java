@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,19 +26,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.i18n.I18nProcedureEntity;
 import org.slf4j.Logger;
@@ -57,7 +52,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     }
 
     @Override
-    public ProcedureEntity getInstance(Long key, DbQuery query) throws DataAccessException {
+    public ProcedureEntity getInstance(Long key, DbQuery query) {
         LOGGER.debug("get instance '{}': {}", key, query);
         Criteria criteria = getDefaultCriteria(query);
         return getEntityClass().cast(criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
@@ -77,15 +72,7 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
 
     @Override
     protected String getDatasetProperty() {
-        return QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION,
-                                            ObservationConstellationEntity.PROCEDURE);
-    }
-
-    @Override
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override

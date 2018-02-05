@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.List;
@@ -39,7 +38,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -54,15 +52,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
-    public static final String PROCEDURE_ALIAS = "proc";
+    public static final String FEATURE_PATH_ALIAS = "dsFeature";
+
+    public static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
-
-    private static final String OFFERING_ALIAS = "off";
-
-    private static final String FEATURE_ALIAS = "feat";
-
-    private static final String PHENOMENON_ALIAS = "phen";
 
     private final Class<T> entityType;
 
@@ -89,17 +83,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          */
         Criteria criteria = getDefaultCriteria(query);
         // default criteria performs join on procedure table
-        constellationJoin(ObservationConstellationEntity.OFFERING, OFFERING_ALIAS, criteria);
-        constellationJoin(ObservationConstellationEntity.OBSERVABLE_PROPERTY, PHENOMENON_ALIAS, criteria);
 
-        String phenomenonName = QueryUtils.createAssociation(PHENOMENON_ALIAS, PhenomenonEntity.PROPERTY_NAME);
-        String procedureName = QueryUtils.createAssociation(PROCEDURE_ALIAS, ProcedureEntity.PROPERTY_NAME);
-        String offeringName = QueryUtils.createAssociation(OFFERING_ALIAS, OfferingEntity.PROPERTY_NAME);
-        String featureName = QueryUtils.createAssociation(FEATURE_ALIAS, FeatureEntity.PROPERTY_NAME);
-        criteria.add(Restrictions.or(Restrictions.ilike(procedureName, searchTerm),
-                                     Restrictions.ilike(offeringName, searchTerm),
-                                     Restrictions.ilike(phenomenonName, searchTerm),
-                                     Restrictions.ilike(featureName, searchTerm)));
+        criteria.add(Restrictions.or(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm)));
 
         i18n(I18nOfferingEntity.class, criteria, query);
         i18n(I18nPhenomenonEntity.class, criteria, query);
@@ -108,14 +96,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return criteria.list();
     }
 
-    private Criteria constellationJoin(String accosiationPath, String targetAlias, Criteria criteria) {
-        String member = QueryUtils.createAssociation(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, accosiationPath);
-        return criteria.createCriteria(member, targetAlias, JoinType.LEFT_OUTER_JOIN);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
-    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+    public T getInstance(Long key, DbQuery query) {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
         return (T) criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                            .uniqueResult();
@@ -134,8 +117,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        String featureIdMember = QueryUtils.createAssociation(FEATURE_ALIAS, DescribableEntity.PROPERTY_ID);
-        return criteria.add(Restrictions.eq(featureIdMember, feature.getId()))
+        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, DatasetEntity.PROPERTY_ID);
+        return criteria.add(Restrictions.eq(path, feature.getId()))
                        .list();
     }
 
@@ -167,10 +150,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                .createCriteria(ObservationConstellationEntity.PROCEDURE, PROCEDURE_ALIAS, JoinType.LEFT_OUTER_JOIN);
+        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS);
         if (ignoreReferenceSeries) {
-                    procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
+            procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 
         return criteria;
@@ -181,7 +163,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         // on dataset itself there is no explicit join neccessary
         Criteria filter = criteria.add(createPublishedDatasetFilter());
         query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                     FEATURE_ALIAS,
+                                                     FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));
         return criteria;
     }

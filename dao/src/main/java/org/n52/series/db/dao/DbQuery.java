@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,20 +26,20 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
+
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.geotools.geometry.jts.JTS;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.spatial.criterion.SpatialFilter;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
@@ -57,14 +57,14 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class DbQuery {
 
@@ -111,19 +111,17 @@ public class DbQuery {
                          .toInterval();
     }
 
-    public Envelope getSpatialFilter() {
+    public Geometry getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
-            try {
-                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
-                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
-                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
-            } catch (FactoryException e) {
-                LOGGER.error("Could not create transformation facilities.", e);
-            } catch (TransformException e) {
-                LOGGER.error("Could not perform transformation.", e);
-            }
+            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+            Point ll = spatialFilter.getLowerLeft();
+            Point ur = spatialFilter.getUpperRight();
+            GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
+            Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            Polygon geometry = JTS.toGeometry(envelope, geomFactory);
+            geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
+            return geometry;
         }
         return null;
     }
@@ -186,8 +184,8 @@ public class DbQuery {
             DateTime endDate = interval.getEnd();
             Date start = startDate.toDate();
             Date end = endDate.toDate();
-            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_START, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_PHENOMENON_TIME_END, start, end)));
+            criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_START, start, end),
+                                         Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
         }
         return criteria;
     }
@@ -196,6 +194,22 @@ public class DbQuery {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
         return criteria;
+    }
+
+    public Criteria addOdataFilterForData(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    public Criteria addOdataFilterForDataset(Criteria criteria) {
+        FESCriterionGenerator generator
+                = new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        return addOdataFilter(generator, criteria);
+    }
+
+    private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
+        return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
     }
 
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
@@ -222,6 +236,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
+        Set<String> series = parameters.getSeries();
 
         if (!(hasValues(platforms)
                 || hasValues(phenomena)
@@ -229,57 +244,29 @@ public class DbQuery {
                 || hasValues(offerings)
                 || hasValues(features)
                 || hasValues(categories)
-                || hasValues(datasets))) {
+                || hasValues(datasets)
+                || hasValues(series))) {
             // no subquery neccessary
             return criteria;
         }
 
-        String alias = "constellation";
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        DetachedCriteria observationConstellationFilter = createObservationConstellationFilter(filter, alias);
-        QueryUtils.setFilterProjectionOn(alias, datasetName, filter);
+        QueryUtils.setFilterProjectionOn(datasetName, filter);
 
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
             procedures.addAll(getMobileIds(platforms));
         }
 
-        if (hasValues(phenomena)) {
-            addHierarchicalFilterRestriction(phenomena,
-                                             ObservationConstellationEntity.OBSERVABLE_PROPERTY,
-                                             observationConstellationFilter);
-        }
-
-        if (hasValues(procedures)) {
-            addHierarchicalFilterRestriction(procedures,
-                                             ObservationConstellationEntity.PROCEDURE,
-                                             observationConstellationFilter);
-        }
-
-        if (hasValues(offerings)) {
-            addHierarchicalFilterRestriction(offerings,
-                                             ObservationConstellationEntity.OFFERING,
-                                             observationConstellationFilter);
-        }
-
-        if (hasValues(features)) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        }
-
-        if (hasValues(categories)) {
-            addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
-        }
-
-        if (hasValues(datasets)) {
-            addFilterRestriction(datasets, filter);
-        }
+        addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(datasets, filter);
 
         criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
         return criteria;
-    }
-
-    private DetachedCriteria createObservationConstellationFilter(DetachedCriteria filter, String alias) {
-        return filter.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias);
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
@@ -328,11 +315,9 @@ public class DbQuery {
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        Disjunction disjunction = Restrictions.disjunction();
-        for (String filter : filterValues) {
-            disjunction.add(Restrictions.ilike(column, filter));
-        }
-        return disjunction;
+        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
+                .collect(Restrictions::disjunction, Disjunction::add,
+                         (a, b) -> b.conditions().forEach(a::add));
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
@@ -346,52 +331,49 @@ public class DbQuery {
 
     private Set<String> getStationaryIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isStationaryId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                        .filter(PlatformType::isStationaryId)
+                        .map(PlatformType::extractId)
+                        .collect(toSet());
     }
 
     private Set<String> getMobileIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(e -> PlatformType.isMobileId(e))
-                        .map(e -> PlatformType.extractId(e))
-                        .collect(Collectors.toSet());
+                .filter(PlatformType::isMobileId)
+                .map(PlatformType::extractId)
+                .collect(toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            Disjunction or = Restrictions.disjunction();
-            for (String resultTime : parameters.getResultTimes()) {
-                Instant instant = Instant.parse(resultTime);
-                or.add(Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, instant.toDate()));
-            }
-            criteria.add(or);
+            criteria.add(parameters.getResultTimes().stream()
+                    .map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add,
+                             (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
 
     public Criteria addSpatialFilter(Criteria criteria) {
-        SpatialFilter filter = createSpatialFilter();
+        Criterion filter = createSpatialFilter();
         return filter != null
                 ? criteria.add(filter)
                 : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
-        SpatialFilter filter = createSpatialFilter();
+        Criterion filter = createSpatialFilter();
         return filter != null
                 ? criteria.add(filter)
                 : criteria;
     }
 
-    private SpatialFilter createSpatialFilter() {
+    private Criterion createSpatialFilter() {
         BoundingBox bbox = parameters.getSpatialFilter();
         if (bbox != null) {
-            Envelope envelope = getSpatialFilter();
-            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-            int databaseSrid = crsUtils.getSrsIdFrom(databaseSridCode);
+            Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.filter(geometryMember, envelope, databaseSrid);
+            return SpatialRestrictions.intersects(geometryMember, envelope);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

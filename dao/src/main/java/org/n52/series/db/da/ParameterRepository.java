@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -48,12 +47,9 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         extends SessionAwareRepository
         implements SearchableRepository, OutputAssembler<O> {
 
-    protected abstract O prepareEmptyParameterOutput(E entity);
+    protected abstract O prepareEmptyParameterOutput();
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
-
-    protected abstract O createExpanded(E instance, DbQuery query, Session session)
-            throws DataAccessException;
 
     protected abstract String createHref(String hrefBase);
 
@@ -65,8 +61,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     public boolean exists(String id, DbQuery query) throws DataAccessException {
         Session session = getSession();
         try {
-            AbstractDao< ? extends DescribableEntity> dao = createDao(session);
-            return dao.hasInstance(parseId(id), query);
+            return createDao(session).hasInstance(id, query);
         } finally {
             returnSession(session);
         }
@@ -98,12 +93,12 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
-        O result = prepareEmptyParameterOutput(entity);
+        O result = prepareEmptyParameterOutput();
         IoParameters parameters = query.getParameters();
 
         Long id = entity.getId();
         String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getDomainId();
+        String domainId = entity.getIdentifier();
         String hrefBase = query.getHrefBase();
 
         result.setId(Long.toString(id));
@@ -128,6 +123,8 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         List<E> allInstances = getAllInstances(query, session);
         return createExpanded(allInstances, query, session);
     }
+
+    protected abstract O createExpanded(E instance, DbQuery query, Session session) throws DataAccessException;
 
     protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {

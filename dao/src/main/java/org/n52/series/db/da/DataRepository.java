@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,16 +26,19 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
+
+import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
@@ -50,6 +53,11 @@ public interface DataRepository<E extends DatasetEntity, V extends AbstractValue
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
-    Class<E> getDatasetEntityType();
+    List<ReferenceValueOutput<V>> createReferenceValueOutputs(E datasetEntity, DbQuery query);
 
+    default void setServiceEntity(ServiceEntity serviceEntity) {
+        // void
+    }
+
+    Class<E> getDatasetEntityType();
 }

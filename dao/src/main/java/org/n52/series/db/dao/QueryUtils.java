@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.Set;
@@ -45,21 +44,6 @@ public class QueryUtils {
         return alias != null && !alias.isEmpty()
                 ? alias + "." + property
                 : property;
-    }
-
-    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
-        return projectionOn(null, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
-        return projectionOn(null, member, property, criteria);
-    }
-
-    public static DetachedCriteria projectionOn(String alias,
-                                                String member,
-                                                String property,
-                                                DetachedCriteria criteria) {
-        return criteria.setProjection(projectionOn(alias, member, property));
     }
 
     public static DetachedCriteria projectionOnPkid(DetachedCriteria criteria) {
@@ -86,6 +70,21 @@ public class QueryUtils {
         return projectionOn(alias, member, DescribableEntity.PROPERTY_ID);
     }
 
+    public static DetachedCriteria projectionOn(String property, DetachedCriteria criteria) {
+        return projectionOn(null, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String member, String property, DetachedCriteria criteria) {
+        return projectionOn(null, member, property, criteria);
+    }
+
+    public static DetachedCriteria projectionOn(String alias,
+                                                String member,
+                                                String property,
+                                                DetachedCriteria criteria) {
+        return criteria.setProjection(projectionOn(alias, member, property));
+    }
+
     public static PropertyProjection projectionOn(String property) {
         return projectionOn(null, property);
     }
@@ -100,13 +99,13 @@ public class QueryUtils {
         return Projections.property(association);
     }
 
-    public static void setFilterProjectionOn(String alias, String parameter, DetachedCriteria c) {
-        String[] associationPathElements = parameter.split("\\.", 2);
-        if (associationPathElements.length == 2) {
-            // other observationconstellation members
-            String member = associationPathElements[1];
-            projectionOnPkid(alias, member, c);
-        } else {
+    public static void setFilterProjectionOn(String parameter, DetachedCriteria c) {
+//        String[] associationPathElements = parameter.split("\\.", 2);
+//        if (associationPathElements.length == 2) {
+//            // other observationconstellation members
+//            String member = associationPathElements[1];
+//            projectionOnPkid(alias, member, c);
+//        } else {
             if (!parameter.isEmpty()) {
                 // feature case only
                 projectionOn(parameter, c);
@@ -114,7 +113,7 @@ public class QueryUtils {
                 // dataset case
                 projectionOnPkid(c);
             }
-        }
+//        }
     }
 
     public static Set<Long> parseToIds(Set<String> ids) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import org.hibernate.Criteria;
@@ -40,7 +39,6 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
@@ -55,11 +53,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        String alias = "const";
-        String procedure = QueryUtils.createAssociation(alias, ObservationConstellationEntity.PROCEDURE);
-        DetachedCriteria mobile = QueryUtils.projectionOn(procedure, createMobileSubquery(alias, true));
+        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileSubquery(true));
         DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
-                                                              createMobileSubquery(alias, false));
+                                                              createMobileSubquery(false));
 
         FeatureDao featureDao = new FeatureDao(session);
         ProcedureDao procedureDao = new ProcedureDao(session);
@@ -74,24 +70,16 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                               .uniqueResult();
     }
 
-    private DetachedCriteria createMobileSubquery(String constellationAlias, boolean mobile) {
+    private DetachedCriteria createMobileSubquery(boolean mobile) {
         DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, constellationAlias)
-                .createCriteria(ObservationConstellationEntity.PROCEDURE)
+        criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
                 .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
         return criteria;
     }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION + "." + ObservationConstellationEntity.PROCEDURE;
-    }
-
-    @Override
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION)
-                       .createCriteria(ObservationConstellationEntity.PROCEDURE)
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override
@@ -134,7 +122,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
                                                         .add(Subqueries.propertiesIn(matchProperties,
                                                                                      maxResultTimeByDatasetId))
-                                                        .createCriteria(DataEntity.PROPERTY_DATASETS)
+                                                        .createCriteria(DataEntity.PROPERTY_DATASET)
                                                         .setProjection(Projections.property(DataEntity.PROPERTY_ID));
 
             criteria.add(Subqueries.propertyIn(DatasetEntity.PROPERTY_ID, observationCriteria));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -36,8 +35,8 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -187,7 +186,8 @@ public class StationRepository extends SessionAwareRepository
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        result.setValue(StationOutput.TIMESERIES, timeseriesList, parameters, result ::setTimeseries);
+        // FIXME no constant for the timeseries parameter
+        result.setValue("timeseries", timeseriesList, parameters, result::setTimeseries);
 
         return result;
     }

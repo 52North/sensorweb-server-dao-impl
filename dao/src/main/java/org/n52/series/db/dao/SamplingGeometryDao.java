@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.List;
@@ -35,10 +34,9 @@ import java.util.stream.Collectors;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.SamplingGeometryEntity;
 
@@ -46,7 +44,7 @@ public class SamplingGeometryDao {
 
     private static final String COLUMN_TIMESTAMP = "timestamp";
 
-    private static final String PROPERTY_DATASETS_IDS = "datasetIds";
+    private static final String PROPERTY_DATASET = "dataset";
 
     private final Session session;
 
@@ -57,8 +55,9 @@ public class SamplingGeometryDao {
     @SuppressWarnings("unchecked")
     public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery query) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        criteria.createCriteria(PROPERTY_DATASETS_IDS)
-                .add(Restrictions.in(DescribableEntity.PROPERTY_ID, getDatasetIds(query)));
+        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, FeatureEntity.PROPERTY_ID);
+        criteria.createCriteria(PROPERTY_DATASET)
+                .add(Restrictions.in(path, getFeatureIds(query)));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
 
@@ -66,12 +65,12 @@ public class SamplingGeometryDao {
         return toGeometryEntities(criteria.list());
     }
 
-    @SuppressWarnings("unchecked")
-    private List<Long> getDatasetIds(DbQuery query) {
-        Criteria criteria = session.createCriteria(DatasetEntity.class);
-        criteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
-        query.addDetachedFilters("", criteria);
-        return criteria.list();
+    protected List<Long> getFeatureIds(DbQuery query) {
+        return query.getParameters()
+                    .getFeatures()
+                    .stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
     }
 
     private List<GeometryEntity> toGeometryEntities(List<SamplingGeometryEntity> entities) {

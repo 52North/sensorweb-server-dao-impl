@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.io.extension.resulttime;
 
 import java.io.IOException;
@@ -64,7 +63,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
             ObjectMapper om = new ObjectMapper();
             return Arrays.asList(om.readValue(taskConfig, String[].class));
         } catch (IOException e) {
-            LOGGER.error("Could not load {}. Using empty config.", CONFIG_FILE, e);
+            LOGGER.info("Could not load '{}'. Using empty config.", CONFIG_FILE);
             return Collections.emptyList();
         }
     }

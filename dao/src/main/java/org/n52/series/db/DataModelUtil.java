@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import java.util.Arrays;
@@ -37,7 +36,7 @@ import org.hibernate.Session;
 import org.hibernate.engine.spi.NamedQueryDefinition;
 import org.hibernate.engine.spi.NamedSQLQueryDefinition;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
@@ -82,15 +81,15 @@ public final class DataModelUtil {
 
     public static String getSqlString(Criteria criteria) {
         CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-        SessionImplementor session = criteriaImpl.getSession();
+        SharedSessionContractImplementor session = criteriaImpl.getSession();
         SessionFactoryImplementor factory = extractSessionFactory(criteria);
         CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory,
                                                                          criteriaImpl,
                                                                          criteriaImpl.getEntityOrClassName(),
                                                                          CriteriaQueryTranslator.ROOT_SQL_ALIAS);
-        String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
+        String[] implementors = factory.getMetamodel().getImplementors(criteriaImpl.getEntityOrClassName());
 
-        OuterJoinLoadable joinLoader = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        OuterJoinLoadable joinLoader = (OuterJoinLoadable) factory.getMetamodel().entityPersister(implementors[0]);
         CriteriaJoinWalker walker = new CriteriaJoinWalker(joinLoader,
                                                            translator,
                                                            factory,
@@ -113,14 +112,14 @@ public final class DataModelUtil {
     }
 
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
-        SessionImplementor session = getSessionImplementor(criteria);
+        SharedSessionContractImplementor session = getSessionImplementor(criteria);
         return session != null
                 ? session.getFactory()
                 : null;
     }
 
-    private static SessionImplementor getSessionImplementor(Criteria criteria) {
-        SessionImplementor session = null;
+    private static SharedSessionContractImplementor getSessionImplementor(Criteria criteria) {
+        SharedSessionContractImplementor session = null;
         if (criteria instanceof CriteriaImpl) {
             session = ((CriteriaImpl) criteria).getSession();
         } else if (criteria instanceof CriteriaImpl.Subcriteria) {
