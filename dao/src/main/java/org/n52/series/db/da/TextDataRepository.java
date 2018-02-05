@@ -28,13 +28,10 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
@@ -84,17 +81,6 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
         TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
-    }
-
-    private TextValue createValue(TextDataEntity observation,
-                                  TextDatasetEntity series,
-                                  DbQuery query,
-                                  String observationValue) {
-        ServiceEntity service = getServiceEntity(series);
-        String textValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
-        return createValue(textValue, observation, query);
     }
 
     TextValue createValue(String observationValue,
