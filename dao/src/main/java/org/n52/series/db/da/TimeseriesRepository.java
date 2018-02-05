@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -238,9 +239,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId()
                                                                             .toString());
 
+                QuantityDatasetEntity quantityDatasetEntity = (QuantityDatasetEntity) referenceSeriesEntity;
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
                 refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
-                                                                                (QuantityDatasetEntity) referenceSeriesEntity,
+                                                                                quantityDatasetEntity,
                                                                                 query));
                 outputs.add(refenceValueOutput);
             }

@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
@@ -75,9 +76,12 @@ public class QuantityDataRepository extends
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished() && referenceValues instanceof QuantityDatasetEntity) {
-                Data<QuantityValue> referenceSeriesData = assembleData((QuantityDatasetEntity) referenceSeriesEntity, query, session);
+                Data<QuantityValue> referenceSeriesData =
+                        assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary((QuantityDatasetEntity) referenceSeriesEntity, query, session);
+                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity,
+                                                                         query,
+                                                                         session);
                 }
                 referenceSeries.put(referenceSeriesEntity.getId()
                                                          .toString(),
@@ -129,11 +133,11 @@ public class QuantityDataRepository extends
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
         referenceStart.setSamplingTimeEnd(query.getTimespan()
-                                                 .getStart()
-                                                 .toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan()
-                                               .getEnd()
+                                               .getStart()
                                                .toDate());
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
+                                             .getEnd()
+                                             .toDate());
         referenceStart.setValue(value);
         referenceEnd.setValue(value);
         return new QuantityValue[] {

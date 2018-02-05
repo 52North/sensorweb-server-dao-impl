@@ -28,14 +28,11 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.RecordDataEntity;

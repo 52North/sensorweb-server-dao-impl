@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import static java.util.stream.Collectors.toList;
@@ -36,10 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
@@ -61,8 +58,10 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -223,8 +222,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
             DbQuery datasetQuery = getDbQuery(query.getParameters()
-                                              .removeAllOf(Parameters.BBOX)
-                                              .removeAllOf(Parameters.NEAR));
+                                                   .removeAllOf(Parameters.BBOX)
+                                                   .removeAllOf(Parameters.NEAR));
             DatasetEntity entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
@@ -243,7 +242,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
-        Geometry filter= query.getSpatialFilter();
+        Geometry filter = query.getSpatialFilter();
         if (filter != null) {
             Geometry envelope = filter.getEnvelope();
             Geometry geometry = geometryEntity.getGeometry();
@@ -341,11 +340,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream().map(x -> convertInsitu(x, query)).collect(toList());
+        return entities.stream()
+                       .map(x -> convertInsitu(x, query))
+                       .collect(toList());
     }
 
     private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream().map(x -> convertRemote(x, query)).collect(toList());
+        return entities.stream()
+                       .map(x -> convertRemote(x, query))
+                       .collect(toList());
     }
 
     private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {
