@@ -148,13 +148,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         return (T) criteria.uniqueResult();
     }
-
+    
+    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
@@ -162,6 +164,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (T) criteria.uniqueResult();
     }
 
+    @Deprecated
     public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
         Date lastValueAt = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);

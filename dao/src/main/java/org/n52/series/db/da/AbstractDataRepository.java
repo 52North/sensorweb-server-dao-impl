@@ -91,8 +91,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimestart(entity, query);
+//        DataDao<E> dao = createDataDao(session);
+//        E valueEntity = dao.getDataValueViaTimestart(entity, query);
+        E valueEntity = (E) entity.getFirstObservation();
         return valueEntity != null
                 ? createSeriesValueFor(valueEntity, entity, query)
                 : null;
@@ -100,8 +101,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimeend(entity, query);
+//        DataDao<E> dao = createDataDao(session);
+//        E valueEntity = dao.getDataValueViaTimeend(entity, query);
+        E valueEntity = (E) entity.getLastObservation();
         return valueEntity != null
                 ? createSeriesValueFor(valueEntity, entity, query)
                 : null;
@@ -109,8 +111,12 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     @Override
     public GeometryEntity getLastKnownGeometry(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        return dao.getValueGeometryViaTimeend(entity, query);
+//        DataDao<E> dao = createDataDao(session);
+//        return dao.getValueGeometryViaTimeend(entity, query);
+        DataEntity lastObservation = entity.getLastObservation();
+        return lastObservation != null
+                ? lastObservation.getGeometryEntity()
+                : null;
     }
 
     protected DatasetDao<S> getSeriesDao(Session session) {
