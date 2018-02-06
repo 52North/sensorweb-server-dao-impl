@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.dao;
 
 import static java.util.stream.Collectors.toSet;
@@ -84,6 +85,44 @@ public class DbQuery {
         if (parameters != null) {
             this.parameters = parameters;
         }
+    }
+
+    /**
+     * Creates a new instance and removes spatial filter parameters.
+     * 
+     * @return a new instance with spatial filters removed
+     */
+    public DbQuery removeSpatialFilter() {
+        return new DbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                     .removeAllOf(Parameters.NEAR));
+    }
+    
+    /**
+     * Create a new instance and replaces given parameter values. 
+     * 
+     * @param parameter the parameter which values to be replaced
+     * @param values the new values
+     * @return a new instance with containing the new parameter values
+     */
+    public DbQuery replaceWith(String parameter, String... values) {
+        return new DbQuery(parameters.replaceWith(parameter, values));
+    }
+
+    /**
+     * Creates a new instance and removes all given parameters.
+     * 
+     * @param parameterNames
+     *        the parameters to remove
+     * @return a new instance with given parameters removed
+     */
+    public DbQuery removeAllOf(String... parameterNames) {
+        IoParameters ioParameters = parameters;
+        if (parameterNames != null) {
+            for (String parameterName : parameterNames) {
+                ioParameters = ioParameters.removeAllOf(parameterName);
+            }
+        }
+        return new DbQuery(ioParameters);
     }
 
     public String getDatabaseSridCode() {
@@ -197,19 +236,22 @@ public class DbQuery {
     }
 
     public Criteria addOdataFilterForData(Criteria criteria) {
-        FESCriterionGenerator generator
-                = new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        FESCriterionGenerator generator =
+                new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
     public Criteria addOdataFilterForDataset(Criteria criteria) {
-        FESCriterionGenerator generator
-                = new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        FESCriterionGenerator generator =
+                new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
     private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
-        return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
+        return parameters.getODataFilter()
+                         .map(generator::create)
+                         .map(criteria::add)
+                         .orElse(criteria);
     }
 
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
@@ -315,9 +357,12 @@ public class DbQuery {
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
-                .collect(Restrictions::disjunction, Disjunction::add,
-                         (a, b) -> b.conditions().forEach(a::add));
+        return filterValues.stream()
+                           .map(filter -> Restrictions.ilike(column, filter))
+                           .collect(Restrictions::disjunction,
+                                    Disjunction::add,
+                                    (a, b) -> b.conditions()
+                                               .forEach(a::add));
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
@@ -338,18 +383,22 @@ public class DbQuery {
 
     private Set<String> getMobileIds(Set<String> platforms) {
         return platforms.stream()
-                .filter(PlatformType::isMobileId)
-                .map(PlatformType::extractId)
-                .collect(toSet());
+                        .filter(PlatformType::isMobileId)
+                        .map(PlatformType::extractId)
+                        .collect(toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            criteria.add(parameters.getResultTimes().stream()
-                    .map(Instant::parse).map(Instant::toDate)
-                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
-                    .collect(Restrictions::disjunction, Disjunction::add,
-                             (a, b) -> b.conditions().forEach(a::add)));
+            criteria.add(parameters.getResultTimes()
+                                   .stream()
+                                   .map(Instant::parse)
+                                   .map(Instant::toDate)
+                                   .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                                   .collect(Restrictions::disjunction,
+                                            Disjunction::add,
+                                            (a, b) -> b.conditions()
+                                                       .forEach(a::add)));
         }
         return criteria;
     }

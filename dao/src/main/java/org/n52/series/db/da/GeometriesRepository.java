@@ -216,17 +216,37 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 : geometryInfo;
     }
 
-    private Collection<GeometryInfo> getAllTracks(DbQuery parameters, Session session, boolean expanded)
+    private Collection<GeometryInfo> getAllTracks(DbQuery query, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
-        DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                 .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                              "mobile"));
-        for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
-            geometryInfoList.add(createTrack(featureEntity, parameters, expanded, session));
+        if (isFilterViaSamplingGeometries()) {
+            // filter via sampling_geometry will hit performance!
+            // if possible, keep a LINESTRING geometry updated in feature-Table for each track
+            DbQuery trackQuery = query.removeSpatialFilter()
+                                      .replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
+            for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+                GeometryInfo track = createTrack(featureEntity, trackQuery, expanded, session);
+                Geometry spatialFilter = query.getSpatialFilter();
+                if (spatialFilter == null || spatialFilter.intersects(track.getGeometry())) {
+                    geometryInfoList.add(track);
+                }
+            }
+        } else {
+            DbQuery trackQuery = dbQueryFactory.createFrom(query.getParameters()
+                                                                     .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
+                                                                                  "mobile"));
+            for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+                geometryInfoList.add(createTrack(featureEntity, query, expanded, session));
+            }
         }
         return geometryInfoList;
+    }
+
+    private boolean isFilterViaSamplingGeometries() {
+        // TODO update test data to support LINESTRING tracks in feature-Table
+        // TODO apply config switch via HibernateSessionHolderImpl
+        return true;
     }
 
     private GeometryInfo createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session)
