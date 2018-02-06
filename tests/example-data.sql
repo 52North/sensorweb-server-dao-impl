@@ -219,10 +219,10 @@ COPY observation (observation_id, fk_dataset_id, sampling_time_start, sampling_t
 82	10	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Christian Autermann	text	-99999.00	-99999.00
 83	11	2008-10-29 00:00:00	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	Shane StClair	text	-99999.00	-99999.00
 84	12	2012-12-31 23:00:00	2012-12-31 23:00:00	2012-12-31 22:01:00	\N	1	\N	1	\N	0	0	0	\N	\N	\N	\N	\N	\N	\N	John/Jane Doe	text	-99999.00	-99999.00
-85	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	100	\N	quantity	10	-99999.00
-86	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	200	\N	quantity	20	-99999.00
-87	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	300	\N	quantity	15	-9999.00
-88	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	400	\N	quantity	12	-9999.00
+85	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	100	\N	quantity	-99999.00	10
+86	1	2012-11-19 13:00:00	2012-11-19 13:00:00	2012-11-19 13:00:00	http://www.52north.org/test/observation/1_firstValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	200	\N	quantity	-99999.00	20
+87	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_0	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	300	\N	quantity	-9999.00	15
+88	1	2012-11-19 13:09:00	2012-11-19 13:09:00	2012-11-19 13:09:00	http://www.52north.org/test/observation/1_lastValue_vertical_1	1	\N	1	\N	0	1	0	\N	\N	\N	\N	\N	\N	400	\N	quantity	-9999.00	12
 91	8	2012-11-19 13:00:00	2012-11-19 13:04:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_91_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E610000000000000000024400000000000002440	\N	\N	\N	5.0	\N	quantity	-9999.00	-9999.00
 92	8	2012-11-19 13:05:00	2012-11-19 13:09:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_92_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E6100000CDCCCCCCCCCC1C40CDCCCCCCCC4C4940	\N	\N	\N	5.1	\N	quantity	-9999.00	-9999.00
 93	8	2012-11-19 13:10:00	2012-11-19 13:14:59	2012-11-19 13:00:00	http://www.52north.org/test/observation/8_93_resulttime_2012-11-19	1	\N	1	\N	0	0	0	\N	\N	0101000020E61000003333333333331F40CDCCCCCCCCCC4940	\N	\N	\N	5.2	\N	quantity	-9999.00	-9999.00
