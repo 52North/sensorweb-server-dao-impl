@@ -95,17 +95,6 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         return result;
     }
 
-    @Override
-    protected Data<ProfileValue<T>> assembleDataWithReferenceValues(P datasetEntity,
-                                                                    DbQuery dbQuery,
-                                                                    Session session)
-            throws DataAccessException {
-
-        // TODO handle reference values
-
-        return assembleData(datasetEntity, dbQuery, session);
-    }
-
     protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
