@@ -1772,6 +1772,7 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "05da2e67-410f-4097-9625-8688904893e2",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -1786,7 +1787,7 @@
 									"tests[\"item has correct valueType\"] = jsonData.valueType === \"quantity\";",
 									"tests[\"item has first value\"] = jsonData.firstValue !== undefined;",
 									"tests[\"first value has geometry\"] = jsonData.firstValue.geometry !== undefined;",
-									"tests[\"first value is POINT(10 10)\"] = jsonData.firstValue.geometry.coordinates[0] == 10 && jsonData.firstValue.geometry.coordinates[1] == 10;",
+									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue.geometry.coordinates[0] == 7 && jsonData.firstValue.geometry.coordinates[1] == 50;",
 									"tests[\"item has last value\"] = jsonData.lastValue !== undefined;",
 									"tests[\"last value has geometry\"] = jsonData.lastValue.geometry !== undefined;",
 									"tests[\"first value is POINT(20 20)\"] = jsonData.lastValue.geometry.coordinates[0] == 20 && jsonData.lastValue.geometry.coordinates[1] == 20;",
