@@ -220,11 +220,11 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             throws DataAccessException {
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
+        DbQuery mobileQuery = query.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
         if (isFilterViaSamplingGeometries()) {
             // filter via sampling_geometry will hit performance!
-            // if possible, keep a LINESTRING geometry updated in feature-Table for each track
-            DbQuery trackQuery = query.removeSpatialFilter()
-                                      .replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
+            // if possible, keep a LINESTRING geometry updated in feature-Table for each trackv
+            DbQuery trackQuery = mobileQuery.removeSpatialFilter();
             for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
                 GeometryInfo track = createTrack(featureEntity, trackQuery, expanded, session);
                 Geometry spatialFilter = query.getSpatialFilter();
@@ -233,10 +233,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 }
             }
         } else {
-            DbQuery trackQuery = dbQueryFactory.createFrom(query.getParameters()
-                                                                     .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                                  "mobile"));
-            for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+            for (FeatureEntity featureEntity : featureDao.getAllInstances(mobileQuery)) {
                 geometryInfoList.add(createTrack(featureEntity, query, expanded, session));
             }
         }

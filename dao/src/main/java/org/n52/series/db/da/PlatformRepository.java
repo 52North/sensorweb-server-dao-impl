@@ -255,9 +255,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         Geometry filter = query.getSpatialFilter();
         if (filter != null) {
             Geometry envelope = filter.getEnvelope();
-            return geometry != null
-                    || envelope == null
-                    || envelope.contains(geometry);
+            return envelope == null
+                    || geometry != null
+                    && envelope.contains(geometry);
         }
         return true;
     }
