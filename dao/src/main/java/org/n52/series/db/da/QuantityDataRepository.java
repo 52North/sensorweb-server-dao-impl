@@ -152,15 +152,17 @@ public class QuantityDataRepository extends
 
     private QuantityValue[] expandToInterval(BigDecimal value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
-        QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
+        Date startDate = query.getTimespan().getStart().toDate();
+        referenceStart.setTimestart(startDate);
+        referenceStart.setTimeend(startDate);
         referenceStart.setValue(value);
+
+        Date endDate = query.getTimespan().getEnd().toDate();
+        QuantityDataEntity referenceEnd = new QuantityDataEntity();
+        referenceEnd.setTimestart(endDate);
+        referenceEnd.setTimeend(endDate);
         referenceEnd.setValue(value);
+
         return new QuantityValue[] {
             createSeriesValueFor(referenceStart, series, query),
             createSeriesValueFor(referenceEnd, series, query),
