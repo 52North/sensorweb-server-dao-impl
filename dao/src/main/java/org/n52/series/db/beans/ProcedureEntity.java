@@ -80,7 +80,7 @@ public class ProcedureEntity extends HierarchicalEntity<ProcedureEntity> {
     }
 
     public String getProcedureDescriptionFormat() {
-        return this.procedureDescriptionFormat;
+        return procedureDescriptionFormat;
     }
 
     public void setProcedureDescriptionFormat(String procedureDescriptionFormat) {
