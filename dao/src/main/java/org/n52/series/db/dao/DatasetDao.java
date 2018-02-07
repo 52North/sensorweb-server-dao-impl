@@ -36,10 +36,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -50,6 +46,9 @@ import org.n52.series.db.beans.I18nProcedureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @SuppressWarnings("rawtypes")
@@ -126,7 +125,12 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return (T) criteria.add(Restrictions.eq(COLUMN_PKID, key))
                            .uniqueResult();
     }
-
+    
+    @Override
+    protected T getInstance(String key, DbQuery query, Class<T> clazz) {
+        return super.getInstance(key, query, clazz, getDefaultCriteria(null, false, query, clazz));
+    }
+    
     @Override
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {

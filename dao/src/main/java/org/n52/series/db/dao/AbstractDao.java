@@ -52,9 +52,6 @@ import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
@@ -63,6 +60,8 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
@@ -112,9 +111,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
-    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+    protected T getInstance(String key, DbQuery query, Class<T> clazz) {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
+        return getInstance(key, query, clazz, criteria);
+    }
+
+    protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
         criteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
                 : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
