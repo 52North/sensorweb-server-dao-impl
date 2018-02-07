@@ -95,17 +95,6 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         return result;
     }
 
-    @Override
-    protected Data<ProfileValue<T>> assembleDataWithReferenceValues(P datasetEntity,
-                                                                    DbQuery dbQuery,
-                                                                    Session session)
-            throws DataAccessException {
-
-        // TODO handle reference values
-
-        return assembleData(datasetEntity, dbQuery, session);
-    }
-
     protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
@@ -132,12 +121,19 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
-                                                                            ProfileDataEntity observation) {
+                                                                            ProfileDataEntity observation,
+                                                                            DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
-        // set vertical's value
-        dataItem.setVerticalFrom(dataEntity.getVerticalFrom());
-        dataItem.setVerticalTo(dataEntity.getVerticalTo());
+
+        IoParameters parameters = query.getParameters();
+        BigDecimal verticalTo = dataEntity.getVerticalTo();
+        BigDecimal verticalFrom = dataEntity.getVerticalFrom();
+
+        dataItem.setVertical(verticalTo);
+        if (parameters.isShowVerticalIntervals() && dataEntity.hasVerticalFrom()) {
+            dataItem.setVerticalFrom(verticalFrom);
+        }
         if (observation.hasVerticalUnit()) {
             dataItem.setVerticalUnit(observation.getVerticalUnit()
                                                 .getIdentifier());
@@ -147,50 +143,31 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
-                                                                            Map<String, Object> parameterObject) {
-        ProfileDataItem<T> dataItem = new ProfileDataItem<>();
-        dataItem.setValue(dataEntity.getValue());
-        // set vertical's value
-        dataItem.setVerticalFrom(dataEntity.getVerticalFrom());
-        dataItem.setVerticalTo(dataEntity.getVerticalTo());
-        String verticalUnit = (String) parameterObject.get(PARAMETER_UNIT);
-        if (profile.getVerticalUnit() == null) {
-            profile.setVerticalUnit(verticalUnit);
-        }
-        if (profile.getVerticalUnit() == null
-                || !profile.getVerticalUnit()
-                           .equals(verticalUnit)) {
-            dataItem.setVerticalUnit(verticalUnit);
-        }
-        return dataItem;
-    }
-
-    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
-                                                                            ProfileValue<T> profile,
                                                                             Set<Map<String, Object>> parameters,
-                                                                            ProfileDatasetEntity dataset) {
+                                                                            ProfileDatasetEntity dataset,
+                                                                            DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         String verticalUnit = getVerticalUnit(parameters, dataset);
-        addValues(dataItem, parameters, dataset);
-        if (profile.getVerticalUnit() == null
-                || !profile.getVerticalUnit()
-                           .equals(verticalUnit)) {
-            dataItem.setVerticalUnit(verticalUnit);
-        }
-        return dataItem;
-    }
 
-    private void addValues(ProfileDataItem<T> dataItem,
-                           Set<Map<String, Object>> parameters,
-                           ProfileDatasetEntity dataset) {
         if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
             dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalParameterName()));
         } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
                 && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
-            dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
-            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+            BigDecimal verticalFrom = getVerticalValue(parameters, dataset.getVerticalFromParameterName());
+            boolean showVerticalIntervals = query.getParameters().isShowVerticalIntervals();
+            if (showVerticalIntervals && dataEntity.hasVerticalFrom()) {
+                dataItem.setVerticalFrom(verticalFrom);
+            }
         }
+
+        if (profile.getVerticalUnit() == null
+                || !profile.getVerticalUnit()
+                           .equals(verticalUnit)) {
+            dataItem.setVerticalUnit(verticalUnit);
+        }
+        return dataItem;
     }
 
     private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {

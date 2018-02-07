@@ -16,7 +16,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "4153a965-11f3-489d-ac51-e0cca655660a",
+								"id": "1fba8bab-05f6-4df0-bbcb-afed5d1e1ea2",
 								"type": "text/javascript",
 								"exec": [
 									"// https://github.com/postmanlabs/postman-app-support/issues/882#issuecomment-278759032",
@@ -120,6 +120,35 @@
 									"        }",
 									"    };",
 									"    ",
+									"    helpers.intersectsBBox = function(features=[], bbox=[], failOnEmpty=true) {",
+									"        features = Array.isArray(features) ? features : [features];",
+									"        console.log(features);",
+									"        assertNonEmpty(features, failOnEmpty);",
+									"        if (bbox.length !== 4) {",
+									"            console.warn(\"Expected [lon,lat,lon,lat] bbox: \" + bbox);",
+									"            return false;",
+									"        }",
+									"        var ll_lon = bbox[0];",
+									"        var ll_lat = bbox[1];",
+									"        var ur_lon = bbox[2];",
+									"        var ur_lat = bbox[3];",
+									"        for (var i = 0; i < features.length; i++) {",
+									"            var path = [\"geometry\", \"coordinates\"];",
+									"            var coords = navigateTo(path, features[i]);",
+									"            if (coords === undefined) {",
+									"                console.warn(\"Excepted an array of GeoJSON Features!\");",
+									"                return false;",
+									"            }",
+									"            for (var i = 0; i < coords.length; i++) {",
+									"                if (coords[i][0] > ll_lon && ur_lon > coords[i][0]",
+									"                    || coords[i][1] > ll_lat && ur_lat > coords[i][1]) {",
+									"                    return true;",
+									"                }",
+									"            }",
+									"        }",
+									"        return false;",
+									"    }",
+									"    ",
 									"    helpers.allWithinBBox = function(features=[], bbox=[], failOnEmpty=true) {",
 									"        features = Array.isArray(features) ? features : [features];",
 									"        console.log(features);",
@@ -136,7 +165,7 @@
 									"            var path = [\"geometry\", \"coordinates\"];",
 									"            var coords = navigateTo(path, features[i]);",
 									"            if (coords === undefined) {",
-									"                console.warn(\"Excepted an array of GeoJSON POINT Features!\");",
+									"                console.warn(\"Excepted an array of GeoJSON Features!\");",
 									"                return false;",
 									"            }",
 									"            if (coords[0] < ll_lon || coords[0] > ur_lon",
@@ -146,7 +175,7 @@
 									"        }",
 									"        return true;",
 									"    };",
-									"",
+									"    ",
 									"    // ...additional helpers",
 									"",
 									"    return helpers;",
@@ -981,7 +1010,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "a07a0247-491c-4544-ae70-49485970d967",
+										"id": "564ca8c0-6cee-4dad-8ea0-0a20c3eaaa53",
 										"type": "text/javascript",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
@@ -1000,7 +1029,7 @@
 											"tests[\"Contains stationary_insitu_2 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_2\")",
 											"tests[\"Contains stationary_insitu_5 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_5\")",
 											"tests[\"Contains stationary_insitu_7 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_7\")",
-											"tests[\"Contains mobile_insitu_8 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"mobile_insitu_8\")",
+											"tests[\"Contains mobile_insitu_8 platform having last known position within bbox \"] = helpers.containsId(jsonData, \"mobile_insitu_8\")",
 											""
 										]
 									}
@@ -1772,6 +1801,7 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "d96ccbdd-3375-4b7d-9889-122a40b25d8d",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -1786,10 +1816,10 @@
 									"tests[\"item has correct valueType\"] = jsonData.valueType === \"quantity\";",
 									"tests[\"item has first value\"] = jsonData.firstValue !== undefined;",
 									"tests[\"first value has geometry\"] = jsonData.firstValue.geometry !== undefined;",
-									"tests[\"first value is POINT(10 10)\"] = jsonData.firstValue.geometry.coordinates[0] == 10 && jsonData.firstValue.geometry.coordinates[1] == 10;",
+									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue.geometry.coordinates[0] == 7 && jsonData.firstValue.geometry.coordinates[1] == 50;",
 									"tests[\"item has last value\"] = jsonData.lastValue !== undefined;",
 									"tests[\"last value has geometry\"] = jsonData.lastValue.geometry !== undefined;",
-									"tests[\"first value is POINT(20 20)\"] = jsonData.lastValue.geometry.coordinates[0] == 20 && jsonData.lastValue.geometry.coordinates[1] == 20;",
+									"tests[\"last value is POINT(7.8 51)\"] = jsonData.lastValue.geometry.coordinates[0] == 7.8 && jsonData.lastValue.geometry.coordinates[1] == 51;",
 									"tests[\"platformType matches type of platform\"] = jsonData.parameters && jsonData.platformType === jsonData.parameters.platform.platformType;",
 									"tests[\"platformType is mobile\"] = jsonData.platformType.startsWith('mobile');",
 									"",
@@ -2621,11 +2651,13 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01"
+											"value": "P10M/2012-12-01",
+											"equals": true
 										},
 										{
 											"key": "expanded",
-											"value": "false"
+											"value": "false",
+											"equals": true
 										}
 									]
 								},
@@ -3448,6 +3480,7 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "f8543449-3864-4e7b-9552-52cb77a45b0f",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -3829,6 +3862,83 @@
 							]
 						},
 						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET track intersects bbox expanded",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f909e8e5-7b05-455a-ad02-a527740210fd",
+								"type": "text/javascript",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+									"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+									"",
+									"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");",
+									"",
+									"tests[\"Track intersects bbox\"] = helpers.intersectsBBox(jsonData, [7.0,50.5,7.9,52]);",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries/?platformtypes=mobile&expanded=true&bbox=7.0,50.5,7.9,52",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}{{context}}",
+							"path": [
+								"api",
+								"geometries",
+								""
+							],
+							"query": [
+								{
+									"key": "platformtypes",
+									"value": "mobile",
+									"equals": true
+								},
+								{
+									"key": "expanded",
+									"value": "true",
+									"equals": true
+								},
+								{
+									"key": "bbox",
+									"value": "7.0,50.5,7.9,52",
+									"equals": true
+								}
+							]
+						},
+						"description": ""
 					},
 					"response": []
 				}

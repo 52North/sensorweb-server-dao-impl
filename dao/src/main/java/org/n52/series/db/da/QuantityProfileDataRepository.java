@@ -51,15 +51,15 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
         this.quantityRepository = new QuantityDataRepository();
     }
 
-  @Override
-  public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
-      return QuantityProfileDatasetEntity.class;
-  }
+    @Override
+    public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
+        return QuantityProfileDatasetEntity.class;
+    }
 
     @Override
     protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity datasetEntity,
-                                               DbQuery query) {
+                                                   ProfileDatasetEntity datasetEntity,
+                                                   DbQuery query) {
         ProfileValue<BigDecimal> profile = prepareValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
@@ -67,9 +67,13 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
-                dataItems.add(assembleDataItem(quantityEntity, profile, observation));
+                dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
             } else {
-                dataItems.add(assembleDataItem(quantityEntity, profile, valueItem.getParameters(), datasetEntity));
+                dataItems.add(assembleDataItem(quantityEntity,
+                                               profile,
+                                               valueItem.getParameters(),
+                                               datasetEntity,
+                                               query));
             }
         }
         profile.setValue(dataItems);

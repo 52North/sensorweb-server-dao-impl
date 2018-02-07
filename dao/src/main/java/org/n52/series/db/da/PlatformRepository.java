@@ -183,8 +183,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                 ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
 
-        if (geometry == null) {
-            // spatial filter does not match
+        if (!matchesSpatialFilter(geometry, query)) {
             return null;
         }
 
@@ -206,9 +205,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
 
             return isValidGeometry(lastKnownGeometry)
-                    && matchesSpatialFilter(lastKnownGeometry, query)
-                            ? lastKnownGeometry.getGeometry()
-                            : null;
+                    ? lastKnownGeometry.getGeometry()
+                    : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                          lastDataset.getId());
@@ -241,12 +239,25 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return geometry != null && geometry.isSetGeometry();
     }
 
-    private boolean matchesSpatialFilter(GeometryEntity geometryEntity, DbQuery query) {
+    /**
+     * Checks if the given <code>geometry</code> matches a spatial filter, optionally given
+     * by the passed <code>query</code>. If the filter is omitted, no filter is assumed at all
+     * and <code>true</code> is returned.
+     *
+     * @param geometry
+     *        the geometry to check
+     * @param query
+     *        the query, possibly containing a spatial filter
+     * @return <code>true</code> if spatial filter matches, <code>false</code> otherwise or when
+     *         <code>geometry</code> is <code>null</code>.
+     */
+    private boolean matchesSpatialFilter(Geometry geometry, DbQuery query) {
         Geometry filter = query.getSpatialFilter();
         if (filter != null) {
             Geometry envelope = filter.getEnvelope();
-            Geometry geometry = geometryEntity.getGeometry();
-            return envelope == null || envelope.contains(geometry);
+            return envelope == null
+                    || geometry != null
+                    && envelope.contains(geometry);
         }
         return true;
     }
