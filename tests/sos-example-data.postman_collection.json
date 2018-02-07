@@ -16,7 +16,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "1fba8bab-05f6-4df0-bbcb-afed5d1e1ea2",
+								"id": "f96f8b30-7da7-4894-a6eb-879df7efa99b",
 								"type": "text/javascript",
 								"exec": [
 									"// https://github.com/postmanlabs/postman-app-support/issues/882#issuecomment-278759032",
@@ -68,9 +68,9 @@
 									"                                                    || logFailWarning(\"Content-Type\", contentType, actualContentType);",
 									"    };",
 									"",
-									"    helpers.containsId = function(data, id) {",
+									"    helpers.containsId = function(data, id, idName=\"id\") {",
 									"        for (var i = 0; i < data.length ; i++) {",
-									"            if (data[i] && data[i].id === id) {",
+									"            if (data[i] && data[i][idName] === id) {",
 									"                return true;",
 									"            }",
 									"        }",
@@ -191,7 +191,7 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/",
+							"raw": "http://{{host}}:{{port}}{{context}}/api/services",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -199,7 +199,7 @@
 							"port": "{{port}}{{context}}",
 							"path": [
 								"api",
-								""
+								"services"
 							]
 						},
 						"description": ""
@@ -1746,6 +1746,7 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "632cf2e1-c8ec-4e1c-b471-b5bfcd2a8da7",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -1758,6 +1759,7 @@
 									"helpers.testAllMembersPresent(jsonData, [\"id\", \"href\", \"uom\", \"label\", \"platformType\"]);",
 									"",
 									"tests[\"Deleted Dataset text_5 is not listed\"] = !helpers.containsId(jsonData, \"text_5\");",
+									"tests[\"Reference Dataset quantity_13 is not listed\"] = !helpers.containsId(jsonData, \"quantity_13\");",
 									"tests[\"Unpublished Dataset quantity_10 is not listed\"] = !helpers.containsId(jsonData, \"quantity_10\");"
 								]
 							}
@@ -1780,7 +1782,7 @@
 							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets",
+							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -1788,7 +1790,8 @@
 							"port": "{{port}}{{context}}",
 							"path": [
 								"api",
-								"datasets"
+								"datasets",
+								""
 							]
 						},
 						"description": ""
@@ -1801,7 +1804,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "d96ccbdd-3375-4b7d-9889-122a40b25d8d",
+								"id": "851890ef-fff3-45a4-a820-4579e5af73b9",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -1814,6 +1817,11 @@
 									"",
 									"tests[\"item has correct id\"] = jsonData.id === \"quantity_8\";",
 									"tests[\"item has correct valueType\"] = jsonData.valueType === \"quantity\";",
+									"",
+									"var refValues = jsonData.referenceValues;",
+									"tests[\"item has reference values listed\"] = refValues !== undefined;",
+									"tests[\"item lists reference value quantity_13\"] = refValues !== undefined && helpers.containsId(refValues, \"quantity_13\", \"referenceValueId\");",
+									"",
 									"tests[\"item has first value\"] = jsonData.firstValue !== undefined;",
 									"tests[\"first value has geometry\"] = jsonData.firstValue.geometry !== undefined;",
 									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue.geometry.coordinates[0] == 7 && jsonData.firstValue.geometry.coordinates[1] == 50;",
@@ -1845,7 +1853,7 @@
 							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8",
+							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8?expanded=true",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -1855,6 +1863,13 @@
 								"api",
 								"datasets",
 								"quantity_8"
+							],
+							"query": [
+								{
+									"key": "expanded",
+									"value": "true",
+									"equals": true
+								}
 							]
 						},
 						"description": ""
@@ -2059,6 +2074,59 @@
 								"datasets",
 								"quantity-profile_1",
 								""
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "GET reference dataset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c7c561a5-0e42-4248-9577-4dbeac274328",
+								"type": "text/javascript",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"helpers.testAllMembersPresent(jsonData, [\"id\", \"href\", \"uom\", \"label\", \"platformType\"]);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_13",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}{{context}}",
+							"path": [
+								"api",
+								"datasets",
+								"quantity_13"
 							]
 						},
 						"description": ""
@@ -3553,6 +3621,77 @@
 								{
 									"key": "timespan",
 									"value": "P1D/2012-11-20TZ",
+									"equals": true
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "GET mobile data (quantity_8) w/ reference values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c67e4e31-d6f2-4d67-8312-423dc9424398",
+								"type": "text/javascript",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"tests[\"values are qualified\"] = jsonData.quantity_8 !== undefined;",
+									"",
+									"var extra = jsonData.quantity_8.extra;",
+									"tests[\"reference values are serialized\"] = extra !== undefined && extra.referenceValues !== undefined;",
+									"tests[\"reference dataset quantity_13 is listed\"] = extra.referenceValues && extra.referenceValues.quantity_13 !== undefined;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}{{context}}",
+							"path": [
+								"api",
+								"datasets",
+								"quantity_8",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P200D/2012-11-20TZ",
+									"equals": true
+								},
+								{
+									"key": "expanded",
+									"value": "true",
 									"equals": true
 								}
 							]

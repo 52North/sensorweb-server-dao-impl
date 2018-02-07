@@ -31,6 +31,7 @@ package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,11 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
+import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -52,6 +56,24 @@ public class QuantityDataRepository extends
     @Override
     public Class<QuantityDatasetEntity> getDatasetEntityType() {
         return QuantityDatasetEntity.class;
+    }
+
+    @Override
+    public List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
+                                                                                 DbQuery query) {
+        List<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
+        List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
+        for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
+            ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
+            ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
+            refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
+            refenceValueOutput.setReferenceValueId(createReferenceDatasetId(query, referenceSeriesEntity));
+
+            QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
+            refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
+            outputs.add(refenceValueOutput);
+        }
+        return outputs;
     }
 
     @Override
@@ -75,20 +97,27 @@ public class QuantityDataRepository extends
             throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished() && referenceValues instanceof QuantityDatasetEntity) {
-                Data<QuantityValue> referenceSeriesData =
-                        assembleData(referenceSeriesEntity, query, session);
+            if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
+                Data<QuantityValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity,
                                                                          query,
                                                                          session);
                 }
-                referenceSeries.put(referenceSeriesEntity.getId()
-                                                         .toString(),
-                                    referenceSeriesData);
+                referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
+    }
+
+    protected String createReferenceDatasetId(DbQuery query, QuantityDatasetEntity referenceSeriesEntity) {
+        String valueType = referenceSeriesEntity.getValueType();
+        DatasetOutput< ? > dataset = DatasetOutput.create(valueType, query.getParameters());
+        Long id = referenceSeriesEntity.getId();
+        dataset.setId(id.toString());
+
+        String referenceDatasetId = dataset.getId();
+        return referenceDatasetId.toString();
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {

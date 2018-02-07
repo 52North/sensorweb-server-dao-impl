@@ -110,6 +110,7 @@ COPY procedure (procedure_id, fk_format_id, identifier, fk_identifier_codespace_
 7	3	http://www.52north.org/test/procedure/7	\N	ITC	\N	\N	0	\N	0	\N	0	0	1
 8	3	http://www.52north.org/test/procedure/8	\N	DLZ-IT	\N	\N	0	\N	0	\N	0	1	1
 9	3	http://www.52north.org/test/procedure/developer	\N	http://www.52north.org/test/procedure/developer	\N	\N	0	\N	0	\N	0	0	1
+10	3	http://www.52north.org/test/procedure/reference	\N	http://www.52north.org/test/procedure/reference	\N	\N	0	\N	1	\N	0	1	1
 \.
 
 
@@ -138,6 +139,13 @@ COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_pr
 10	11	9	9	9	8	9	0	0	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N
 11	12	9	9	9	8	9	0	1	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N
 12	13	9	9	9	8	9	0	1	0	2012-12-31 23:00:00	2012-12-31 23:00:00	\N	\N	\N	\N	\N	\N	text	\N
+13	9	8	8	10	4	8	0	1	0	2012-11-19 13:00:00	2012-11-19 13:49:59	5	\N	\N	\N	\N	\N	quantity	3
+\.
+
+
+
+COPY dataset_reference (fk_dataset_id_from, sort_order, fk_dataset_id_to) FROM stdin;
+8	0	13
 \.
 
 
@@ -251,6 +259,7 @@ update dataset set fk_first_observation_id=81,fk_last_observation_id=81 where da
 update dataset set fk_first_observation_id=82,fk_last_observation_id=82 where dataset_id=10;
 update dataset set fk_first_observation_id=83,fk_last_observation_id=83 where dataset_id=11;
 update dataset set fk_first_observation_id=84,fk_last_observation_id=84 where dataset_id=12;
+update dataset set fk_first_observation_id=71,fk_last_observation_id=100,first_value=4.0,last_value=5.9 where dataset_id=13;
 
 
 
