@@ -309,8 +309,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
             DataRepository dataRepository = dataRepositoryFactory.create(dataset.getValueType());
             AbstractValue firstValue = dataRepository.getFirstValue(dataset, session, query);
-            AbstractValue lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
-                    : dataRepository.getLastValue(dataset, session, query);
+            AbstractValue lastValue = dataRepository.getLastValue(dataset, session, query);
 
             List<ReferenceValueOutput> refValues = dataRepository.createReferenceValueOutputs(dataset, query);
             lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
@@ -331,7 +330,9 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
-        return firstValue.getTimestamp().equals(lastValue.getTimestamp());
+        return firstValue == null && lastValue == null
+                || firstValue != null && lastValue.getTimestamp().equals(firstValue.getTimestamp())
+                || lastValue != null && firstValue.getTimestamp().equals(lastValue.getTimestamp());
     }
 
     private boolean isReferenceSeries(DatasetEntity series) {
