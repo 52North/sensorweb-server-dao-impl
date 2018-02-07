@@ -120,7 +120,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
         Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
         return clazz.cast(instanceCriteria.uniqueResult());
     }
 

@@ -109,13 +109,13 @@ public class QuantityDataRepository extends
         }
         return referenceSeries;
     }
-    
+
     protected String createReferenceDatasetId(DbQuery query, QuantityDatasetEntity referenceSeriesEntity) {
         String valueType = referenceSeriesEntity.getValueType();
         DatasetOutput< ? > dataset = DatasetOutput.create(valueType, query.getParameters());
         Long id = referenceSeriesEntity.getPkid();
         dataset.setId(id.toString());
-        
+
         String referenceDatasetId = dataset.getId();
         return referenceDatasetId.toString();
     }
