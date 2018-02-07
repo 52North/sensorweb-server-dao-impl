@@ -108,7 +108,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     protected T getInstance(String key, DbQuery query, Class<T> clazz) {
         return super.getInstance(key, query, clazz, getDefaultCriteria(null, false, query, clazz));
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {

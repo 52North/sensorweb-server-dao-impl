@@ -354,7 +354,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                                                      .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all"));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         if (platforms.size() != 1) {
-            LOGGER.warn("expected unique platform (but was: #{}) for feature {}", platforms.size(), entity.getId()); 
+            LOGGER.warn("expected unique platform (but was: #{}) for feature {}", platforms.size(), entity.getId());
         }
         return platforms.iterator()
                         .next();

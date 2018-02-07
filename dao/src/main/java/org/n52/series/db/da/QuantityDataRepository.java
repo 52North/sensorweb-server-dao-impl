@@ -115,7 +115,7 @@ public class QuantityDataRepository extends
         DatasetOutput< ? > dataset = DatasetOutput.create(valueType, query.getParameters());
         Long id = referenceSeriesEntity.getId();
         dataset.setId(id.toString());
-        
+
         String referenceDatasetId = dataset.getId();
         return referenceDatasetId.toString();
     }
