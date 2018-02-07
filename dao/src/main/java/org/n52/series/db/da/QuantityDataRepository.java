@@ -75,9 +75,8 @@ public class QuantityDataRepository extends
             throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished() && referenceValues instanceof QuantityDatasetEntity) {
-                Data<QuantityValue> referenceSeriesData =
-                        assembleData(referenceSeriesEntity, query, session);
+            if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
+                Data<QuantityValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity,
                                                                          query,
