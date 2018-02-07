@@ -38,6 +38,7 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -82,12 +83,20 @@ public class QuantityDataRepository extends
                                                                          query,
                                                                          session);
                 }
-                referenceSeries.put(referenceSeriesEntity.getId()
-                                                         .toString(),
-                                    referenceSeriesData);
+                referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
+    }
+
+    protected String createReferenceDatasetId(DbQuery query, QuantityDatasetEntity referenceSeriesEntity) {
+        String valueType = referenceSeriesEntity.getValueType();
+        DatasetOutput< ? > dataset = DatasetOutput.create(valueType, query.getParameters());
+        Long id = referenceSeriesEntity.getId();
+        dataset.setId(id.toString());
+        
+        String referenceDatasetId = dataset.getId();
+        return referenceDatasetId.toString();
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
