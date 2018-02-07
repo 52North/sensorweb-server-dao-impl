@@ -41,6 +41,7 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
@@ -68,8 +69,7 @@ public class QuantityDataRepository extends
             ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
             ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
             refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
-            refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
-                                                                        .toString());
+            refenceValueOutput.setReferenceValueId(createReferenceDatasetId(query, referenceSeriesEntity));
 
             QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
             refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
@@ -104,12 +104,20 @@ public class QuantityDataRepository extends
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
-                referenceSeries.put(referenceSeriesEntity.getPkid()
-                                                         .toString(),
-                                    referenceSeriesData);
+                referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
+    }
+    
+    protected String createReferenceDatasetId(DbQuery query, QuantityDatasetEntity referenceSeriesEntity) {
+        String valueType = referenceSeriesEntity.getValueType();
+        DatasetOutput< ? > dataset = DatasetOutput.create(valueType, query.getParameters());
+        Long id = referenceSeriesEntity.getPkid();
+        dataset.setId(id.toString());
+        
+        String referenceDatasetId = dataset.getId();
+        return referenceDatasetId.toString();
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
