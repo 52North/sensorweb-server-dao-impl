@@ -89,17 +89,17 @@ public class DbQuery {
 
     /**
      * Creates a new instance and removes spatial filter parameters.
-     * 
+     *
      * @return a new instance with spatial filters removed
      */
     public DbQuery removeSpatialFilter() {
         return new DbQuery(parameters.removeAllOf(Parameters.BBOX)
                                      .removeAllOf(Parameters.NEAR));
     }
-    
+
     /**
-     * Create a new instance and replaces given parameter values. 
-     * 
+     * Create a new instance and replaces given parameter values.
+     *
      * @param parameter the parameter which values to be replaced
      * @param values the new values
      * @return a new instance with containing the new parameter values
@@ -110,7 +110,7 @@ public class DbQuery {
 
     /**
      * Creates a new instance and removes all given parameters.
-     * 
+     *
      * @param parameterNames
      *        the parameters to remove
      * @return a new instance with given parameters removed

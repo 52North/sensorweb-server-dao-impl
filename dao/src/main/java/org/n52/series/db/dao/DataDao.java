@@ -155,7 +155,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         return (T) criteria.uniqueResult();
     }
-    
+
     @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {

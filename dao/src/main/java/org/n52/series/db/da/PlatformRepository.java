@@ -243,7 +243,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
      * Checks if the given <code>geometry</code> matches a spatial filter, optionally given
      * by the passed <code>query</code>. If the filter is omitted, no filter is assumed at all
      * and <code>true</code> is returned.
-     * 
+     *
      * @param geometry
      *        the geometry to check
      * @param query

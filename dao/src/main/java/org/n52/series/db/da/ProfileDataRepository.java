@@ -149,7 +149,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         String verticalUnit = getVerticalUnit(parameters, dataset);
-        
+
         if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
             dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalParameterName()));
         } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
@@ -161,7 +161,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
                 dataItem.setVerticalFrom(verticalFrom);
             }
         }
-        
+
         if (profile.getVerticalUnit() == null
                 || !profile.getVerticalUnit()
                            .equals(verticalUnit)) {
