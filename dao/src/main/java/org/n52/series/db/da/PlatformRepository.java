@@ -177,7 +177,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR)
-                                                       .removeAllOf(Parameters.ODATA_FILTER));
+                                                       .removeAllOf(Parameters.ODATA_FILTER)
+                                                       .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         Geometry geometry = entity.getGeometry() == null
