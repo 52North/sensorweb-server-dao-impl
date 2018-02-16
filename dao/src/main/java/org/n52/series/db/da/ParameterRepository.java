@@ -88,7 +88,14 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected List<O> createCondensed(Iterable<E> allInstances, DbQuery query, Session session) {
         List<O> results = new ArrayList<>();
-        for (E entity : allInstances) {
+        Iterable<E> entities = addServiceFilter(allInstances, query);
+        for (E entity : entities) {
+            /*
+             *  there are cases where entity does not match a filter
+             *  which could not be added to a db criteria, e.g. spatial
+             *  filters on mobile platforms (last location is calculated
+             *  after db query has been finished already)
+             */
             results.add(createCondensed(entity, query, session));
         }
         return results;
@@ -131,11 +138,12 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {
         List<O> results = new ArrayList<>();
-        for (E entity : allInstances) {
+        Iterable<E> entities = addServiceFilter(allInstances, query);
+        for (E entity : entities) {
             O instance = createExpanded(entity, query, session);
             if (instance != null) {
                 /*
-                 *  there are cases where entities does not match a filter
+                 *  there are cases where entity does not match a filter
                  *  which could not be added to a db criteria, e.g. spatial
                  *  filters on mobile platforms (last location is calculated
                  *  after db query has been finished already)

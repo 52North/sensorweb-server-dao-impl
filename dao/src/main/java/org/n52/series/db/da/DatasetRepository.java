@@ -139,7 +139,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                                      List<DatasetOutput> results,
                                      Session session)
             throws DataAccessException {
-        for (DatasetEntity series : dao.getAllInstances(query)) {
+        Iterable<? extends DatasetEntity> entities = addServiceFilter(dao.getAllInstances(query), query);
+        for (DatasetEntity series : entities) {
             results.add(createCondensed(series, query, session));
         }
     }
@@ -212,7 +213,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                                     List<DatasetOutput> results,
                                     Session session)
             throws DataAccessException {
-        for (DatasetEntity series : dao.getAllInstances(query)) {
+        Iterable<? extends DatasetEntity> entities = addServiceFilter(dao.getAllInstances(query), query);
+        for (DatasetEntity series : entities) {
             results.add(createExpanded(series, query, session));
         }
     }

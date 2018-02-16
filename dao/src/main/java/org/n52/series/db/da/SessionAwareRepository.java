@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.hibernate.Session;
 import org.n52.io.crs.CRSUtils;
@@ -304,4 +305,31 @@ public abstract class SessionAwareRepository {
         }
     }
 
+    protected <T extends DescribableEntity, V extends Iterable<T>> V addServiceFilter(V allInstances, DbQuery query) {
+        Iterator iterator = allInstances.iterator();
+        while (iterator.hasNext()) {
+            T element = (T) iterator.next();
+            if (!query.getParameters().getServices().isEmpty() &&
+                !query.getParameters()
+                      .getServices()
+                      .contains(Long.toString(getServiceEntity(element).getPkid()))) {
+                try {
+                    iterator.remove();
+                } catch (UnsupportedOperationException e) {
+                    // dao returning immutable list does not want serviceFilter to be added
+                }
+            }
+        }
+        return allInstances;
+    }
+
+    protected <T extends DescribableEntity> T addServiceFilter(T instance, DbQuery query) {
+        if (!query.getParameters().getServices().isEmpty() &&
+            !query.getParameters().getServices()
+                  .contains(Long.toString(getServiceEntity(instance).getPkid()))) {
+            return null;
+        } else {
+            return instance;
+        }
+    }
 }
