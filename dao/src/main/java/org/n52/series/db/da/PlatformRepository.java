@@ -29,6 +29,8 @@
 
 package org.n52.series.db.da;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +40,6 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
@@ -74,11 +75,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformRepository.class);
 
     private static final String FILTER_STATIONARY = "stationary";
-
     private static final String FILTER_MOBILE = "mobile";
-
     private static final String FILTER_INSITU = "insitu";
-
     private static final String FILTER_REMOTE = "remote";
 
     @Autowired
@@ -183,8 +181,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR)
+                                                       .removeAllOf(Parameters.ODATA_FILTER)
                                                        .removeAllOf(Parameters.FILTER_FIELDS));
-
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets); 
 
@@ -199,7 +197,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
         result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 
@@ -230,7 +228,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             String id = dataset.getId();
             DbQuery datasetQuery = getDbQuery(query.getParameters()
                                               .removeAllOf(Parameters.BBOX)
-                                              .removeAllOf(Parameters.NEAR));
+                                              .removeAllOf(Parameters.NEAR)
+                                              .removeAllOf(Parameters.ODATA_FILTER));
             DatasetEntity< ? > entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
@@ -329,14 +328,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_INSITU);
-        PlatformDao dao = createPlatformDao(session);
-        return dao.getAllInstances(query);
+        return createPlatformDao(session).getAllInstances(query);
     }
 
     private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) throws DataAccessException {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_REMOTE);
-        PlatformDao dao = createPlatformDao(session);
-        return dao.getAllInstances(query);
+        return createPlatformDao(session).getAllInstances(query);
     }
 
     private DbQuery createPlatformFilter(DbQuery parameters, String... filterValues) {
@@ -345,19 +342,11 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        List<PlatformEntity> converted = new ArrayList<>();
-        for (FeatureEntity entity : entities) {
-            converted.add(convertInsitu(entity, query));
-        }
-        return converted;
+        return entities.stream().map(x -> convertInsitu(x, query)).collect(toList());
     }
 
     private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        List<PlatformEntity> converted = new ArrayList<>();
-        for (FeatureEntity entity : entities) {
-            converted.add(convertRemote(entity, query));
-        }
-        return converted;
+        return entities.stream().map(x -> convertRemote(x, query)).collect(toList());
     }
 
     private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {
@@ -391,7 +380,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {
-        throw new ResourceNotFoundException(resource + " with id '" + id + "' could not be found.");
+        throw new ResourceNotFoundException(String.format("%s with id '%s' could not be found.", resource, id));
     }
 
 }

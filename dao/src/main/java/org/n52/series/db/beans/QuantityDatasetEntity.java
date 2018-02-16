@@ -29,9 +29,10 @@
 
 package org.n52.series.db.beans;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.n52.io.response.dataset.quantity.QuantityValue;
 
@@ -39,17 +40,18 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
 
     private int numberOfDecimals;
 
-    private Set<QuantityDatasetEntity> referenceValues = new HashSet<>();
+    private List<QuantityDatasetEntity> referenceValues = new ArrayList<>();
 
     public QuantityDatasetEntity() {
         super(QuantityValue.TYPE);
     }
 
-    public Set<QuantityDatasetEntity> getReferenceValues() {
+    @Override
+    public List<QuantityDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
 
-    public void setReferenceValues(Set<QuantityDatasetEntity> referenceValues) {
+    public void setReferenceValues(List<QuantityDatasetEntity> referenceValues) {
         this.referenceValues = referenceValues;
     }
 
@@ -66,7 +68,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
-            Double value = firstValue.getValue();
+            BigDecimal value = firstValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;
@@ -80,7 +82,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
-            Double value = lastValue.getValue();
+            BigDecimal value = lastValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;

@@ -17,8 +17,8 @@
         <property column="child" name="child" type="org.hibernate.type.TrueFalseType" />
         <component class="GeometryEntity" name="geometryEntity">
             <!--
-           <property column="lat" name="lat" type="double" />
-           <property column="lon" name="lon" type="double" />
+           <property column="lat" name="lat" type="big_decimal" />
+           <property column="lon" name="lon" type="big_decimal" />
             -->
             <property column="samplingGeometry" name="geometry" type="org.hibernate.spatial.GeometryType"/>
         </component>
@@ -29,7 +29,7 @@
 
         <joined-subclass extends="DataEntity" name="QuantityDataEntity" table="numericvalue">
             <key column="observationid"/>
-            <property column="value" name="value" type="double"/>
+            <property column="value" name="value" type="big_decimal"/>
             <property name="valueType" formula="'quantity'" />
         </joined-subclass>
 
@@ -37,6 +37,12 @@
             <key column="observationid"/>
             <property column="value" name="value" type="string"/>
             <property name="valueType" formula="'text'" />
+        </joined-subclass>
+
+        <joined-subclass extends="DataEntity" name="CategoryDataEntity" table="categoryvalue">
+            <key column="observationid"/>
+            <property column="value" name="value" type="string"/>
+            <property name="valueType" formula="'category'" />
         </joined-subclass>
 
         <joined-subclass extends="DataEntity" name="CountDataEntity" table="countvalue">

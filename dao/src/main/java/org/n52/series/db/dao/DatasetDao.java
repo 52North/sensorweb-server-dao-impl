@@ -127,12 +127,19 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
+    protected T getInstance(String key, DbQuery query, Class<T> clazz) {
+        return super.getInstance(key, query, clazz, getDefaultCriteria(null, false, query, clazz));
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")
@@ -175,8 +182,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
         if (ignoreReferenceSeries) {
             criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.eq(ProcedureEntity.PROPERTY_DELETED, Boolean.FALSE))
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
+
+        query.addOdataFilterForDataset(criteria);
 
         return criteria;
     }

@@ -31,6 +31,8 @@ package org.n52.series.db.beans;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import java.math.BigDecimal;
+
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -69,10 +71,10 @@ public class ServiceInfoTest {
     public void shouldHandleDoubleValues() {
         serviceInfo.setNoDataValues("4.3,9,foo");
         QuantityDataEntity entity = new QuantityDataEntity();
-        entity.setValue(new Double(9));
+        entity.setValue(new BigDecimal(9d));
         MatcherAssert.assertThat(serviceInfo.isNoDataValue(entity), Is.is(true));
 
-        entity.setValue(4.30);
+        entity.setValue(new BigDecimal(4.30));
         MatcherAssert.assertThat(serviceInfo.isNoDataValue(entity), Is.is(true));
     }
 }

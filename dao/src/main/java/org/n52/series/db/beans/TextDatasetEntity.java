@@ -29,25 +29,12 @@
 
 package org.n52.series.db.beans;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.n52.io.response.dataset.text.TextValue;
 
 public class TextDatasetEntity extends DatasetEntity<TextDataEntity> {
 
-    private Set<TextDatasetEntity> referenceValues = new HashSet<>();
-
     public TextDatasetEntity() {
         super(TextValue.TYPE);
-    }
-
-    public Set<TextDatasetEntity> getReferenceValues() {
-        return referenceValues;
-    }
-
-    public void setReferenceValues(Set<TextDatasetEntity> referenceValues) {
-        this.referenceValues = referenceValues;
     }
 
 }

@@ -29,6 +29,8 @@
 
 package org.n52.series.db.dao;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -41,6 +43,13 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.n52.io.request.FilterResolver;
@@ -58,7 +67,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
-    protected Session session;
+    protected final Session session;
 
     public AbstractDao(Session session) {
         if (session == null) {
@@ -102,13 +111,17 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
-    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+    protected T getInstance(String key, DbQuery query, Class<T> clazz) {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
-        criteria = query.isMatchDomainIds()
+        return getInstance(key, query, clazz, criteria);
+    }
+
+    protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
+        Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
                 : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
-        return clazz.cast(criteria.uniqueResult());
+        return clazz.cast(instanceCriteria.uniqueResult());
     }
 
     @Override
@@ -145,7 +158,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -237,9 +250,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
-        return Restrictions.or(
-                               // inverse to match filter
-                               Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
+        return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, !includeStationary),
                                Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, includeMobile));
     }
 
@@ -247,7 +258,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeInsitu = filterResolver.shallIncludeInsituPlatformTypes();
         boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
         return Restrictions.or(Restrictions.eq(PlatformEntity.PROPERTY_INSITU, includeInsitu),
-                               // inverse to match filter
                                Restrictions.eq(PlatformEntity.PROPERTY_INSITU, !includeRemote));
     }
 
@@ -263,27 +273,45 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-        IoParameters parameters = query.getParameters();
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                GeometryType.Type type = getGeometryType(geometryType);
-                if (type != null) {
-                    criteria.add(SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type));
-                }
-            }
-        }
+        query.getParameters()
+                .getGeometryTypes()
+                .stream()
+                .filter(geometryType -> !geometryType.isEmpty())
+                .map(this::getGeometryType)
+                .filter(Objects::nonNull)
+                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+                .forEach(criteria::add);
         return criteria;
     }
 
     private GeometryType.Type getGeometryType(String geometryType) {
-        for (GeometryType.Type type : GeometryType.Type.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
-        }
-        return null;
+        return Arrays.stream(GeometryType.Type.values())
+                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+                .findAny().orElse(null);
     }
 
+    /**
+     * Translate the {@link Criteria criteria} to SQL.
+     *
+     * @param criteria the criteria
+     *
+     * @return the SQL
+     */
+    public static String toSQLString(Criteria criteria) {
+        if (!(criteria instanceof CriteriaImpl)) {
+            return criteria.toString();
+        }
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+        SessionImplementor session = criteriaImpl.getSession();
+        SessionFactoryImplementor factory = session.getFactory();
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getImplementors(entityOrClassName);
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        LoadQueryInfluencers loadQueryInfluencers = session.getLoadQueryInfluencers();
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
+                                                           entityOrClassName, loadQueryInfluencers);
+        return walker.getSQLString();
+    }
 }

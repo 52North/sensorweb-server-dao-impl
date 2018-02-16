@@ -6,10 +6,11 @@
       <column name="procedureid"/>
       <generator class="assigned"/>
     </id>
-    <property column="identifier" insert="false" name="domainId" type="string" update="false"/>
+    <property column="identifier" name="domainId" type="string" insert="false" update="false"/>
     <property column="name" name="name" type="string"/>
-    <property column="name" insert="false" name="description" type="string" update="false"/>
-    <property formula="'F'" name="reference" type="org.hibernate.type.TrueFalseType"/>
+    <property column="name" name="description" type="string" insert="false" update="false"/>
+    <property column="deleted" name="deleted" type="org.hibernate.type.TrueFalseType" />
+    <property column="referenceflag" name="reference" type="org.hibernate.type.TrueFalseType"/>
     <property column="mobile" name="mobile" type="org.hibernate.type.TrueFalseType"/>
     <property column="insitu" name="insitu" type="org.hibernate.type.TrueFalseType"/>
     <set name="parents" table="sensorsystem" inverse="false" fetch="select">

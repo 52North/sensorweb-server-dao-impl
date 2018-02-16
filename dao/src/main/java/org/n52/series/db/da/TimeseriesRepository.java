@@ -32,16 +32,15 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.io.response.dataset.quantity.QuantityReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.FeatureEntity;
@@ -190,12 +189,13 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<QuantityReferenceValueOutput> referenceValues = createReferenceValueOutputs(series, query, repository);
+        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query, repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());
+
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
 
-        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, referenceValues, params, result::setReferenceValues);
+        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
         result.setValue(TimeseriesMetadataOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
         result.setValue(TimeseriesMetadataOutput.LAST_VALUE, lastValue, params, result::setLastValue);
@@ -213,15 +213,15 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    private List<QuantityReferenceValueOutput> createReferenceValueOutputs(QuantityDatasetEntity series,
+    private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
                                                                            DbQuery query,
                                                                            QuantityDataRepository repository)
             throws DataAccessException {
-        List<QuantityReferenceValueOutput> outputs = new ArrayList<>();
-        Set<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
+        List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
+        List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                QuantityReferenceValueOutput refenceValueOutput = new QuantityReferenceValueOutput();
+                ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()

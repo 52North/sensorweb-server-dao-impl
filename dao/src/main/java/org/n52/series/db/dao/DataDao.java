@@ -41,14 +41,15 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * TODO: JavaDoc
@@ -82,15 +83,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     /**
-     * <p>
      * Retrieves all available observation instances.
-     * </p>
      *
-     * @param parameters
-     *        query parameters.
+     * @param parameters query parameters.
+     *
      * @return all instances matching the given query parameters.
-     * @throws DataAccessException
-     *         if accessing database fails.
+     *
+     * @throws DataAccessException if accessing database fails.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -98,6 +97,9 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
         return criteria.list();
     }
 
@@ -139,9 +141,12 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                    // TODO check ordering when `showtimeintervals=true`
                                    .addOrder(Order.asc(DataEntity.PROPERTY_TIMEEND))
                                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
+        query.addOdataFilterForData(criteria);
+
         criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
                 : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
