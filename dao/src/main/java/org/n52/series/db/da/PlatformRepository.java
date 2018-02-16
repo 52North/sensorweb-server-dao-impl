@@ -187,8 +187,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         if (!matchesSpatialFilter(geometry, query)) {
             return null;
         }
-
-        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
 
         result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
