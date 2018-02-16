@@ -13,8 +13,8 @@
     <url>http://52north.org/communities/sensorweb/</url>
 
     <properties>
-        <sos.version>5.0.0-SNAPSHOT</sos.version>
-        <hibernate.spatial.version>4.3.1-52N</hibernate.spatial.version>
+        <version.sos>5.0.0-SNAPSHOT</version.sos>
+        <version.arctic-sea>3.0.0</version.arctic-sea>
     </properties>
     
     <dependencies>
@@ -23,26 +23,26 @@
             <artifactId>dao</artifactId>
         </dependency>
         
-         <dependency>
-            <groupId>org.n52.shetland</groupId>
-            <artifactId>shetland</artifactId>
-        </dependency>
-        
         <dependency>
-            <groupId>org.n52.iceland</groupId>
+            <groupId>org.n52.arctic-sea</groupId>
+            <artifactId>shetland</artifactId>
+            <version>${version.arctic-sea}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.n52.arctic-sea</groupId>
             <artifactId>iceland</artifactId>
-            <version>2-SNAPSHOT</version>
+            <version>${version.arctic-sea}</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
-        </dependency>    
-            
+        </dependency>
+        
         <dependency>
             <groupId>org.n52.sensorweb.sos</groupId>
             <artifactId>hibernate-session-factory</artifactId>
-            <version>${sos.version}</version>
+            <version>${version.sos}</version>
             <exclusions>
                 <exclusion>
                     <!-- need a newer version -->
@@ -54,7 +54,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${hibernate.spatial.version}</version>
              <exclusions>
                 <exclusion>
                     <groupId>org.postgis</groupId>
@@ -76,7 +75,7 @@
         <dependency>
             <groupId>org.n52.sensorweb.sos</groupId>
             <artifactId>api</artifactId>
-            <version>${sos.version}</version>
+            <version>${version.sos}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>

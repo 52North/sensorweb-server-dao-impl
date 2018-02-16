@@ -4,13 +4,16 @@ Licensed under GNU General Public License, Version 2.0
 
 This project includes: 
   52North Sensor Web Client PDF report structure under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+  52°North Faroe under The Apache Software License, Version 2.0
   52°North Faroe Annotations under The Apache Software License, Version 2.0
+  52°North Faroe JSON Backend under The Apache Software License, Version 2.0
+  52°North Faroe Utilities under The Apache Software License, Version 2.0
+  52°North Iceland under The Apache Software License, Version 2.0
   52°North Jan Mayen under The Apache Software License, Version 2.0
   52°North Shetland under The Apache Software License, Version 2.0
   52°North SOS - Hibernate Session Factory under GPLv2
   52°North SOS - SOS API Module under GPLv2
-  52°North Third Party - NCName resolver under BSD 2-clause "Simplified" or "FreeBSD"
-                License
+  52°North Svalbard Core under The Apache Software License, Version 2.0
   AntLR Parser Generator under BSD License
   AOP alliance under Public Domain
   Apache Commons Codec under Apache License, Version 2.0
@@ -40,8 +43,9 @@ This project includes:
   Batik SVG transcoder classes under The Apache Software License, Version 2.0
   Batik utility library under The Apache Software License, Version 2.0
   Batik XML utility library under The Apache Software License, Version 2.0
+  c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   c3p0:JDBC DataSources/Resource Pools under GNU LESSER GENERAL PUBLIC LICENSE
-  ClassLoader leak prevention under Apache 2
+  ClassLoader Leak Prevention library under Apache 2
   Commons Lang under The Apache Software License, Version 2.0
   Commons Pool under The Apache Software License, Version 2.0
   Core Hibernate O/RM functionality under GNU Lesser General Public License
@@ -50,6 +54,9 @@ This project includes:
   Ehcache Core under The Apache Software License, Version 2.0
   EJML under The Apache Software License, Version 2.0
   EPSG Authority Service using HSQL database under GNU Lesser General Public License (LGPL) version 2.1
+  EXIficient under MIT License
+  EXIficient-Core under MIT License
+  EXIficient-Grammars under MIT License
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
   Hamcrest All under New BSD License
@@ -71,7 +78,7 @@ This project includes:
   javax.inject under The Apache Software License, Version 2.0
   JBoss Logging 3 under Apache License, version 2.0
   JBoss Logging I18n Annotations under Public Domain
-  JCL 1.1.1 implemented over SLF4J under MIT License
+  JCL 1.2 implemented over SLF4J under MIT License
   JCommon under GNU Lesser General Public Licence
   JFreeChart under GNU Lesser General Public Licence
   jgridshift under GNU Lesser General Public License, version 2.0 (LGPLv2)
@@ -82,11 +89,12 @@ This project includes:
   Log4j Implemented Over SLF4J under Apache Software Licenses
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
+  mchange-commons-java library under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   Metadata under GNU Lesser General Public License (LGPL) version 2.1
   Open GIS Interfaces under GNU Lesser General Public License (LGPL) version 2.1
   Postgis JDBC Driver under GNU Lesser General Public License
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
-  Quartz Enterprise Job Scheduler under Apache 2.0
+  quartz under The Apache Software License, Version 2.0
   Referencing services under GNU Lesser General Public License (LGPL) version 2.1
   Reflections under WTFPL
   Series DAO REST API under GNU General Public License, Version 2.0
@@ -113,9 +121,12 @@ This project includes:
   Spring Web under The Apache Software License, Version 2.0
   Spring Web MVC under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
-  vecmath under GPL 2.0 license w/ CPE
   xalan under The Apache Software License, Version 2.0
-  XML Commons External Components XML APIs under The Apache Software License, Version 2.0
+<<<<<<< HEAD
+  Xerces2-j under The Apache Software License, Version 2.0
+=======
+>>>>>>> develop
+  XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
   XmlBeans under The Apache Software License, Version 2.0
 

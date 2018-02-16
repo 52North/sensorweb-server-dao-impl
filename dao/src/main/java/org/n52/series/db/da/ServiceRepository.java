@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.Collection;
@@ -44,7 +43,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
@@ -70,12 +68,10 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     private EntityCounter counter;
 
     @Autowired
-    private DefaultIoFactory<Data<AbstractValue< ? >>,
-                             DatasetOutput<AbstractValue< ? >, ? >,
-                             AbstractValue< ? >> ioFactoryCreator;
+    private DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
 
     @Override
-    protected ServiceOutput prepareEmptyParameterOutput(ServiceEntity entity) {
+    protected ServiceOutput prepareEmptyParameterOutput() {
         return new ServiceOutput();
     }
 
@@ -203,7 +199,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);

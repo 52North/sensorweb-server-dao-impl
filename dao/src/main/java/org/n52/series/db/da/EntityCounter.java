@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
@@ -47,9 +46,7 @@ import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class EntityCounter {
 
     @Autowired
@@ -57,6 +54,9 @@ public class EntityCounter {
 
     @Autowired
     private DbQueryFactory dbQueryFactory;
+
+    @Autowired
+    private IDataRepositoryFactory dataRepositoryFactory;
 
     public Integer countFeatures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
@@ -115,7 +115,16 @@ public class EntityCounter {
     public Integer countDatasets(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
-            return getCount(new DatasetDao<DatasetEntity>(session, DatasetEntity.class), query);
+            IoParameters parameters = query.getParameters();
+            if (parameters.getValueTypes().isEmpty()) {
+                parameters = parameters.extendWith(
+                        "valueTypes",
+                        dataRepositoryFactory.getKnownTypes().toArray(new String[0])
+                );
+                return getCount(new DatasetDao<>(session, DatasetEntity.class),
+                                dbQueryFactory.createFrom(parameters));
+            }
+            return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
         } finally {
             sessionStore.returnSession(session);
         }

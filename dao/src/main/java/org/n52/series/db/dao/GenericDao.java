@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,6 +45,6 @@ public interface GenericDao<T, K extends Serializable> {
 
     Integer getCount(DbQuery query) throws DataAccessException;
 
-    boolean hasInstance(Long id, DbQuery query) throws DataAccessException;
+    boolean hasInstance(K id, DbQuery query) throws DataAccessException;
 
 }

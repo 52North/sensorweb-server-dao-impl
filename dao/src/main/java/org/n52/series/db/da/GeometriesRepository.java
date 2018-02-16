@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -217,17 +217,34 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                 : geometryInfo;
     }
 
-    private Collection<GeometryInfo> getAllTracks(DbQuery parameters, Session session, boolean expanded)
+    private Collection<GeometryInfo> getAllTracks(DbQuery query, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryInfo> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
-        DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                 .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                              "mobile"));
-        for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
-            geometryInfoList.add(createTrack(featureEntity, parameters, expanded, session));
+        DbQuery mobileQuery = query.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
+        if (isFilterViaSamplingGeometries()) {
+            // filter via sampling_geometry will hit performance!
+            // if possible, keep a LINESTRING geometry updated in feature-Table for each trackv
+            DbQuery trackQuery = mobileQuery.removeSpatialFilter();
+            for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+                GeometryInfo track = createTrack(featureEntity, trackQuery, expanded, session);
+                Geometry spatialFilter = query.getSpatialFilter();
+                if (spatialFilter == null || spatialFilter.intersects(track.getGeometry())) {
+                    geometryInfoList.add(track);
+                }
+            }
+        } else {
+            for (FeatureEntity featureEntity : featureDao.getAllInstances(mobileQuery)) {
+                geometryInfoList.add(createTrack(featureEntity, query, expanded, session));
+            }
         }
         return geometryInfoList;
+    }
+
+    private boolean isFilterViaSamplingGeometries() {
+        // TODO update test data to support LINESTRING tracks in feature-Table
+        // TODO apply config switch via HibernateSessionHolderImpl
+        return true;
     }
 
     private GeometryInfo createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session)
@@ -275,7 +292,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
             return getCrsUtils().createLineString(points, srid);
         } else {
-            // when named query not configured --> bad performance
+            // when named query not configured --> may be a performance issue
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
                                              .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getId()));
@@ -337,6 +354,9 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
                                                      .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all")
                                                      .removeAllOf(Parameters.FILTER_FIELDS));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
+        if (platforms.size() != 1) {
+            LOGGER.warn("expected unique platform (but was: #{}) for feature {}", platforms.size(), entity.getId());
+        }
         return platforms.iterator()
                         .next();
     }

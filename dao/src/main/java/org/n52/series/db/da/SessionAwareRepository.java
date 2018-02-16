@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -94,6 +92,10 @@ public abstract class SessionAwareRepository {
                 : new DefaultDbQueryFactory();
     }
 
+    public void setDbQueryFactory(DbQueryFactory dbQueryFactory) {
+        this.dbQueryFactory = dbQueryFactory;
+    }
+
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
     }
@@ -111,15 +113,18 @@ public abstract class SessionAwareRepository {
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
-        String srid = query.getDatabaseSridCode();
-        geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
-        return geometryEntity.getGeometry();
+        if (geometryEntity == null) {
+            return null;
+        } else {
+            String srid = query.getDatabaseSridCode();
+            geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+            return geometryEntity.getGeometry();
+        }
     }
 
     // XXX a bit misplaced here
     protected String getPlatformId(DatasetEntity dataset) {
-        ObservationConstellationEntity constellation = dataset.getObservationConstellation();
-        ProcedureEntity procedure = constellation.getProcedure();
+        ProcedureEntity procedure = dataset.getProcedure();
         boolean mobile = procedure.isMobile();
         boolean insitu = procedure.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);

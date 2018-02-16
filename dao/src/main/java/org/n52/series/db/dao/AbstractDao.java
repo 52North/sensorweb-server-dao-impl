@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,11 +26,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
+import org.geolatte.geom.GeometryType;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
@@ -39,15 +42,21 @@ import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.spatial.GeometryType;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
+import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ObservationConstellationEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
@@ -57,7 +66,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
-    protected Session session;
+    protected final Session session;
 
     public AbstractDao(Session session) {
         if (session == null) {
@@ -74,40 +83,48 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getDatasetProperty();
     }
 
-    public boolean hasInstance(String id, DbQuery query) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query) {
         return getInstance(id, query) != null;
     }
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) throws DataAccessException {
+    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) {
         return getInstance(id, query) != null;
     }
 
     @Override
     public boolean hasInstance(Long id, DbQuery query) {
-        return session.get(getEntityClass(), id) != null;
+        return id != null
+                ? hasInstance(id.toString(), query)
+                : false;
     }
 
     public boolean hasInstance(Long id, DbQuery query, Class< ? > clazz) {
-        return session.get(clazz, id) != null;
+        return id != null
+                ? hasInstance(id.toString(), query, clazz)
+                : false;
     }
 
-    public T getInstance(String key, DbQuery query) throws DataAccessException {
+    public T getInstance(String key, DbQuery query) {
         return getInstance(key, query, getEntityClass());
     }
 
     @Override
-    public T getInstance(Long key, DbQuery query) throws DataAccessException {
+    public T getInstance(Long key, DbQuery query) {
         LOGGER.debug("get instance '{}': {}", key, query);
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
-    private T getInstance(String key, DbQuery query, Class<T> clazz) throws DataAccessException {
+    protected T getInstance(String key, DbQuery query, Class<T> clazz) {
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
-        criteria = query.isMatchDomainIds()
+        return getInstance(key, query, clazz, criteria);
+    }
+
+    protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
+        Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
                 : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
-        return clazz.cast(criteria.uniqueResult());
+        return clazz.cast(instanceCriteria.uniqueResult());
     }
 
     @Override
@@ -144,7 +161,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -165,13 +182,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
             return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         } else {
             addSpatialFilter(query, subquery);
-            return projectOnDatasetParameterId(subquery);
+            return subquery.createCriteria(getDatasetProperty())
+                           .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
         }
-    }
-
-    protected DetachedCriteria projectOnDatasetParameterId(DetachedCriteria subquery) {
-        return subquery.createCriteria(getDatasetProperty())
-                       .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
     }
 
     protected final Conjunction createPublishedDatasetFilter() {
@@ -202,12 +215,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
-                    String alias = "valueTypeFilter";
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes))
-                     .createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
-                     .createCriteria(ObservationConstellationEntity.PROCEDURE);
-                    QueryUtils.setFilterProjectionOn(alias, parameter, c);
+                    c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
+                    QueryUtils.setFilterProjectionOn(parameter, c);
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
                 }
             }
@@ -221,19 +231,17 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
             if (parameter == null || parameter.isEmpty()) {
                 // join starts from dataset table
-                criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_ALIAS, filterResolver));
-            } else if (parameter.endsWith(ObservationConstellationEntity.PROCEDURE)) {
+                criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_PATH_ALIAS, filterResolver));
+            } else if (parameter.endsWith(DatasetEntity.PROPERTY_PROCEDURE)) {
                 // restrict directly on procedure table
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
-                String alias = "platformTypeFilter";
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.createCriteria(DatasetEntity.PROPERTY_OBSERVATION_CONSTELLATION, alias)
-                 .createCriteria(ObservationConstellationEntity.PROCEDURE)
+                c.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
                  .add(createPlatformTypeRestriction(filterResolver));
 
-                QueryUtils.setFilterProjectionOn(alias, parameter, c);
+                QueryUtils.setFilterProjectionOn(parameter, c);
                 criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
             }
         }
@@ -253,9 +261,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeStationary = filterResolver.shallIncludeStationaryPlatformTypes();
         boolean includeMobile = filterResolver.shallIncludeMobilePlatformTypes();
         String propertyMobile = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_MOBILE);
-        return Restrictions.or(Restrictions.eq(propertyMobile, includeMobile),
-                               // inverse to match filter
-                               Restrictions.eq(propertyMobile, !includeStationary));
+        return Restrictions.or(Restrictions.eq(propertyMobile, !includeStationary),
+                               Restrictions.eq(propertyMobile, includeMobile));
     }
 
     private LogicalExpression createInsituExpression(String alias, FilterResolver filterResolver) {
@@ -263,32 +270,70 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         boolean includeRemote = filterResolver.shallIncludeRemotePlatformTypes();
         String propertyInsitu = QueryUtils.createAssociation(alias, PlatformEntity.PROPERTY_INSITU);
         return Restrictions.or(Restrictions.eq(propertyInsitu, includeInsitu),
-                               // inverse to match filter
                                Restrictions.eq(propertyInsitu, !includeRemote));
     }
 
     protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-        IoParameters parameters = query.getParameters();
-        Set<String> geometryTypes = parameters.getGeometryTypes();
-        for (String geometryType : geometryTypes) {
-            if (!geometryType.isEmpty()) {
-                GeometryType.Type type = getGeometryType(geometryType);
-                if (type != null) {
-                    criteria.add(SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type));
-                }
-            }
-        }
+        query.getParameters()
+                .getGeometryTypes()
+                .stream()
+                .filter(geometryType -> !geometryType.isEmpty())
+                .map(this::getGeometryType)
+                .filter(Objects::nonNull)
+                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+                .forEach(criteria::add);
         return criteria;
     }
 
-    private GeometryType.Type getGeometryType(String geometryType) {
-        for (GeometryType.Type type : GeometryType.Type.values()) {
-            if (type.name()
-                    .equalsIgnoreCase(geometryType)) {
-                return type;
-            }
-        }
-        return null;
+    private GeometryType getGeometryType(String geometryType) {
+        return Arrays.stream(GeometryType.values())
+                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+                .findAny().orElse(null);
     }
 
+    /**
+     * Translate the {@link Criteria criteria} to SQL.
+     *
+     * @param criteria the criteria
+     *
+     * @return the SQL
+     */
+    public static String toSQLString(Criteria criteria) {
+        if (!(criteria instanceof CriteriaImpl)) {
+            return criteria.toString();
+        }
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
+        SharedSessionContractImplementor sessionContractImpl = criteriaImpl.getSession();
+        SessionFactoryImplementor factory = sessionContractImpl.getFactory();
+        String entityOrClassName = criteriaImpl.getEntityOrClassName();
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, entityOrClassName,
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getImplementors(entityOrClassName);
+        OuterJoinLoadable outerJoinLoadable = (OuterJoinLoadable) factory.getEntityPersister(implementors[0]);
+        LoadQueryInfluencers loadQueryInfluencers = sessionContractImpl.getLoadQueryInfluencers();
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(outerJoinLoadable, translator, factory, criteriaImpl,
+                                                           entityOrClassName, loadQueryInfluencers);
+        return walker.getSQLString();
+    }
+
+    /**
+     * Currently used in SOS cache operations.
+     *
+     * @param query Query parameters
+     *
+     * @return the result
+     *
+     * @deprecated Onlxy for SOS cache which might be deleted in the future
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public Collection<T> get(DbQuery query) {
+        Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
+                .setResultTransformer(RootEntityResultTransformer.INSTANCE);
+        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class);
+        subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
+        query.addFilters(c, getDatasetProperty());
+        return c.list();
+
+    }
 }

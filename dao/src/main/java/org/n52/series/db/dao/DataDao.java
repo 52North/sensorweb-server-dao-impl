@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.dao;
 
 import java.util.Date;
@@ -75,15 +74,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    public T getInstance(Long key, DbQuery parameters) throws DataAccessException {
+    public T getInstance(Long key, DbQuery parameters) {
         LOGGER.debug("get instance '{}': {}", key, parameters);
         return entityType.cast(session.get(entityType, key));
     }
 
     /**
-     * <p>
      * Retrieves all available observation instances.
-     * </p>
      *
      * @param parameters
      *        query parameters.
@@ -116,7 +113,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final Long id = series.getId();
         LOGGER.debug("get all instances for series '{}': {}", id, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
-        return criteria.createCriteria(DataEntity.PROPERTY_DATASETS)
+        return criteria.createCriteria(DataEntity.PROPERTY_DATASET)
                        .add(Restrictions.eq(DataEntity.PROPERTY_ID, id))
                        .list();
     }
@@ -136,11 +133,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public Criteria getDefaultCriteria(DbQuery query) {
         Criteria criteria = session.createCriteria(entityType)
                                    // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(Order.asc(DataEntity.PROPERTY_PHENOMENON_TIME_END))
+                                   .addOrder(Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END))
                                    .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
+        query.addOdataFilterForData(criteria);
 
         criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
@@ -149,23 +148,26 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
-        Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
+        Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         return (T) criteria.uniqueResult();
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
-        Criteria criteria = createDataAtCriteria(timestart, DataEntity.PROPERTY_PHENOMENON_TIME_START, series, query);
+        Criteria criteria = createDataAtCriteria(timestart, DataEntity.PROPERTY_SAMPLING_TIME_START, series, query);
         return (T) criteria.uniqueResult();
     }
 
+    @Deprecated
     public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
         Date lastValueAt = series.getLastValueAt();
-        Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_PHENOMENON_TIME_END, series, query);
+        Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         criteria.setProjection(Projections.property(DataEntity.PROPERTY_GEOMETRY_ENTITY));
         return (GeometryEntity) criteria.uniqueResult();
     }
@@ -175,7 +177,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         String dsAlias = DatasetEntity.ENTITY_ALIAS;
         String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_ID);
         Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(column, timestamp));
-        criteria.createCriteria(DataEntity.PROPERTY_DATASETS, dsAlias)
+        criteria.createCriteria(DataEntity.PROPERTY_DATASET, dsAlias)
                 .add(Restrictions.eq(dsId, dataset.getId()));
 
         IoParameters parameters = query.getParameters();
@@ -194,7 +196,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
             String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_ID);
             DetachedCriteria resultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
-            resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASETS, rtDatasetAlias)
+            resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASET, rtDatasetAlias)
                            .add(Restrictions.eq(rtDatasetId, dataset.getId()))
                            .setProjection(Projections.projectionList()
                                                      .add(Projections.groupProperty(rtColumn))
