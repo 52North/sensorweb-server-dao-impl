@@ -13,7 +13,7 @@
 
     <modules>
         <module>dao</module>
-<!--         <module>sos-integration</module> -->
+		<module>sos-integration</module>
         <module>webapp</module>
     </modules>
 
