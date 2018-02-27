@@ -138,6 +138,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
-    
+     <repositories>
+        <repository>
+            <id>n52-snapshots</id>
+            <name>n52-snapshots</name>
+            <url>http://52north.org/maven/repo/snapshots/</url>
+        </repository>
+    </repositories>
 </project>
 
