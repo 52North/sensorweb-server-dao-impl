@@ -54,7 +54,7 @@
         <version.geolatte>1.2.0</version.geolatte>
         <version.series-api>2.0.0-SNAPSHOT</version.series-api>
         <version.series-hibernate>1-SNAPSHOT</version.series-hibernate>
-        <version.artic-sea>3.1.0</version.artic-sea>
+        <version.arctic-sea>3.1.0</version.arctic-sea>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -118,8 +118,13 @@
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>shetland</artifactId>
-                <version>${version.artic-sea}</version>
+                <version>${version.arctic-sea}</version>
             </dependency>
+            <dependency>
+	            <groupId>org.n52.arctic-sea</groupId>
+	            <artifactId>iceland</artifactId>
+	            <version>${version.arctic-sea}</version>
+	        </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
