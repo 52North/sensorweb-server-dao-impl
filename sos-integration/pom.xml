@@ -13,8 +13,7 @@
     <url>http://52north.org/communities/sensorweb/</url>
 
     <properties>
-        <version.sos>5.0.0-SNAPSHOT</version.sos>
-        <version.arctic-sea>3.0.0</version.arctic-sea>
+        <version.sos>5.0.2-SNAPSHOT</version.sos>
     </properties>
     
     <dependencies>
@@ -26,12 +25,10 @@
         <dependency>
             <groupId>org.n52.arctic-sea</groupId>
             <artifactId>shetland</artifactId>
-            <version>${version.arctic-sea}</version>
         </dependency>
         <dependency>
             <groupId>org.n52.arctic-sea</groupId>
             <artifactId>iceland</artifactId>
-            <version>${version.arctic-sea}</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -49,11 +46,24 @@
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-spatial</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.n52.sensorweb.sos</groupId>
+                    <artifactId>api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.n52.arctic-sea</groupId>
+                    <artifactId>janmayen</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.n52.arctic-sea</groupId>
+                    <artifactId>faroe-utils</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
+            <version>${version.hibernate-spatial}</version>
              <exclusions>
                 <exclusion>
                     <groupId>org.postgis</groupId>
@@ -120,7 +130,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.3.11.Final</version>
+            <version>5.2.12.Final</version>
         </dependency>
         
         <dependency>
@@ -128,6 +138,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
-    
+     <repositories>
+        <repository>
+            <id>n52-snapshots</id>
+            <name>n52-snapshots</name>
+            <url>http://52north.org/maven/repo/snapshots/</url>
+        </repository>
+    </repositories>
 </project>
 
