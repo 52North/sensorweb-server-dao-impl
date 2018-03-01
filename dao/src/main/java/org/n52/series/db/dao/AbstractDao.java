@@ -54,10 +54,12 @@ import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +177,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
-        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class)
+        DetachedCriteria subquery = DetachedCriteria.forClass(getDatasetClass(session))
                                                     .add(createPublishedDatasetFilter());
         if (getDatasetProperty().equalsIgnoreCase(DatasetEntity.PROPERTY_FEATURE)) {
             DetachedCriteria featureCriteria = addSpatialFilter(query, subquery);
@@ -215,7 +217,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
-                    DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
+                    DetachedCriteria c = DetachedCriteria.forClass(getDatasetClass(session));
                     c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                     QueryUtils.setFilterProjectionOn(parameter, c);
                     criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
@@ -237,7 +239,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
-                DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
+                DetachedCriteria c = DetachedCriteria.forClass(getDatasetClass(session));
                 c.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
                  .add(createPlatformTypeRestriction(filterResolver));
 
@@ -330,10 +332,14 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     public Collection<T> get(DbQuery query) {
         Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
                 .setResultTransformer(RootEntityResultTransformer.INSTANCE);
-        DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class);
+        DetachedCriteria subquery = DetachedCriteria.forClass(getDatasetClass(session));
         subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
         query.addFilters(c, getDatasetProperty());
         return c.list();
 
+    }
+
+    protected Class<?> getDatasetClass(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session) ? EReportingDatasetEntity.class :  DatasetEntity.class;
     }
 }

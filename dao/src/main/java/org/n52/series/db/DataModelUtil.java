@@ -31,6 +31,8 @@ package org.n52.series.db;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.NamedQueryDefinition;
@@ -110,6 +112,21 @@ public final class DataModelUtil {
         }
         return false;
     }
+
+    public static boolean isEntitySupported(Class<?> clazz, Session session) {
+        EntityManagerFactory factory = session.getEntityManagerFactory();
+
+        if (factory != null) {
+            return factory
+                    .getMetamodel()
+                    .getEntities().stream()
+                    .filter(e -> e.getName().equals(clazz.getSimpleName()))
+                    .findFirst()
+                    .isPresent();
+        }
+        return false;
+    }
+
 
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
         SharedSessionContractImplementor session = getSessionImplementor(criteria);
