@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
@@ -58,6 +59,7 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,7 +294,7 @@ public class DbQuery {
             return criteria;
         }
 
-        DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
+        DetachedCriteria filter = DetachedCriteria.forClass(getDatasetClass(criteria));
         QueryUtils.setFilterProjectionOn(datasetName, filter);
 
         if (hasValues(platforms)) {
@@ -437,6 +439,10 @@ public class DbQuery {
 
     public FilterResolver getFilterResolver() {
         return parameters.getFilterResolver();
+    }
+
+    protected Class<?> getDatasetClass(Criteria criteria) {
+        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, criteria) ? EReportingDatasetEntity.class :  DatasetEntity.class;
     }
 
     @Override
