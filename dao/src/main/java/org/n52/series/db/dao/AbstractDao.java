@@ -137,7 +137,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
         return hasTranslation(query, clazz)
-                ? query.addLocaleTo(criteria, clazz)
+                ? query.addLocaleTo(criteria, clazz, session)
                 : criteria;
     }
 
@@ -334,7 +334,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 .setResultTransformer(RootEntityResultTransformer.INSTANCE);
         DetachedCriteria subquery = DetachedCriteria.forClass(getDatasetClass(session));
         subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
-        query.addFilters(c, getDatasetProperty());
+        query.addFilters(c, getDatasetProperty(), session);
         return c.list();
 
     }

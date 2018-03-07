@@ -204,8 +204,8 @@ public class DbQuery {
                         .isEmpty();
     }
 
-    public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
-        if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, criteria)) {
+    public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz, Session session) {
+        if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, session)) {
             Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
                                              Restrictions.isNull(PROPERTY_LOCALE)));
@@ -231,9 +231,9 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addFilters(Criteria criteria, String datasetProperty) {
+    public Criteria addFilters(Criteria criteria, String datasetProperty, Session session) {
         addLimitAndOffsetFilter(criteria);
-        addDetachedFilters(datasetProperty, criteria);
+        addDetachedFilters(datasetProperty, criteria, session);
         return criteria;
     }
 
@@ -272,7 +272,7 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addDetachedFilters(String datasetName, Criteria criteria) {
+    public Criteria addDetachedFilters(String datasetName, Criteria criteria, Session session) {
         Set<String> categories = parameters.getCategories();
         Set<String> procedures = parameters.getProcedures();
         Set<String> phenomena = parameters.getPhenomena();
@@ -294,7 +294,7 @@ public class DbQuery {
             return criteria;
         }
 
-        DetachedCriteria filter = DetachedCriteria.forClass(getDatasetClass(criteria));
+        DetachedCriteria filter = DetachedCriteria.forClass(getDatasetClass(session));
         QueryUtils.setFilterProjectionOn(datasetName, filter);
 
         if (hasValues(platforms)) {
@@ -441,8 +441,8 @@ public class DbQuery {
         return parameters.getFilterResolver();
     }
 
-    protected Class<?> getDatasetClass(Criteria criteria) {
-        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, criteria) ? EReportingDatasetEntity.class :  DatasetEntity.class;
+    protected Class<?> getDatasetClass(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session) ? EReportingDatasetEntity.class :  DatasetEntity.class;
     }
 
     @Override
