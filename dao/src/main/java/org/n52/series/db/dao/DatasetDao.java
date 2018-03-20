@@ -35,12 +35,15 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.Dataset;
+import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -50,7 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
+public class DatasetDao<T extends Dataset> extends AbstractDao<T> implements SearchableDao<T> {
 
     public static final String FEATURE_PATH_ALIAS = "dsFeature";
 
@@ -62,7 +65,10 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @SuppressWarnings("unchecked")
     public DatasetDao(Session session) {
-        this(session, (Class<T>) DatasetEntity.class);
+        this(session,
+                (Class<T>) (DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session)
+                        ? EReportingDatasetEntity.class
+                        : DatasetEntity.class));
     }
 
     public DatasetDao(Session session, Class<T> clazz) {

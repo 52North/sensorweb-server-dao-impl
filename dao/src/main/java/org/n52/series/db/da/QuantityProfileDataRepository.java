@@ -33,17 +33,21 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.DataModelUtil;
+import org.n52.series.db.beans.dataset.ProfileDataset;
+import org.n52.series.db.beans.dataset.QuantityProfileDataset;
+import org.n52.series.db.beans.ereporting.EReportingQuantityProfileDatasetEntity;
+import org.n52.series.db.beans.data.Data.ProfileData;
 import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDatasetEntity> {
+public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDataset> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -52,13 +56,15 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
     }
 
     @Override
-    public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
-        return QuantityProfileDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingQuantityProfileDatasetEntity.class, session)
+                ? EReportingQuantityProfileDatasetEntity.class
+                : QuantityProfileDatasetEntity.class;
     }
 
     @Override
-    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                                   ProfileDatasetEntity datasetEntity,
+    protected ProfileValue<BigDecimal> createValue(ProfileData observation,
+                                                   ProfileDataset datasetEntity,
                                                    DbQuery query) {
         ProfileValue<BigDecimal> profile = prepareValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();

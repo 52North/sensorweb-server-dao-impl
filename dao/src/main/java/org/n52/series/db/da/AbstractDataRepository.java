@@ -37,7 +37,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
-import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
@@ -45,6 +44,8 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.Dataset;
 import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
@@ -53,8 +54,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public abstract class AbstractDataRepository<S extends DatasetEntity,
-                                             E extends DataEntity< ? >,
+public abstract class AbstractDataRepository<S extends Dataset,
+                                             E extends Data< ? >,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
@@ -62,7 +63,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     private PlatformRepository platformRepository;
 
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public org.n52.io.response.dataset.Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
@@ -113,7 +114,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
 //        DataDao<E> dao = createDataDao(session);
 //        return dao.getValueGeometryViaTimeend(entity, query);
-        DataEntity lastObservation = entity.getLastObservation();
+        Data lastObservation = entity.getLastObservation();
         return lastObservation != null
                 ? lastObservation.getGeometryEntity()
                 : null;
@@ -152,9 +153,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract org.n52.io.response.dataset.Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
 
-    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
+    protected org.n52.io.response.dataset.Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
             throws DataAccessException {
         return assembleData(datasetEntity, dbQuery, session);
     }
@@ -184,7 +185,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         return value;
     }
 
-    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
+    protected void addGeometry(Data< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
         if (dataEntity.isSetGeometryEntity()) {
             GeometryEntity geometryEntity = dataEntity.getGeometryEntity();
             Geometry geometry = getGeometry(geometryEntity, query);
@@ -192,7 +193,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addValidTime(Data< ? > observation, AbstractValue< ? > value) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
             Long validFrom = observation.isSetValidStartTime()
                     ? observation.getValidTimeStart()
@@ -206,14 +207,14 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addResultTime(Data< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
             value.setResultTime(observation.getResultTime()
                                            .getTime());
         }
     }
 
-    protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
+    protected void addParameters(Data< ? > observation, AbstractValue< ? > value, DbQuery query) {
         if (observation.hasParameters()) {
             for (Parameter< ? > parameter : observation.getParameters()) {
                 value.addParameter(parameter.toValueMap(query.getLocale()));

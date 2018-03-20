@@ -34,27 +34,32 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.CountDataEntity;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.CountDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.data.Data.CountData;
+import org.n52.series.db.beans.dataset.CountDataset;
+import org.n52.series.db.beans.ereporting.EReportingCountDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
+        extends AbstractDataRepository<CountDataset, CountData, CountValue> {
 
     @Override
-    public Class<CountDatasetEntity> getDatasetEntityType() {
-        return CountDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingCountDatasetEntity.class, session)
+                ? EReportingCountDatasetEntity.class
+                : CountDatasetEntity.class;
     }
 
     @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CountValue> assembleData(CountDataset seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CountDataEntity observation : observations) {
+        DataDao<CountData> dao = createDataDao(session);
+        List<CountData> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (CountData observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -68,7 +73,7 @@ public class CountDataRepository
     }
 
     @Override
-    public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    public CountValue createSeriesValueFor(CountData observation, CountDataset series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

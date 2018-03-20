@@ -32,17 +32,21 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.beans.TextProfileDatasetEntity;
+import org.n52.series.db.beans.data.Data.ProfileData;
+import org.n52.series.db.beans.dataset.ProfileDataset;
+import org.n52.series.db.beans.dataset.TextProfileDataset;
+import org.n52.series.db.beans.ereporting.EReportingTextProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDatasetEntity> {
+public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDataset> {
 
     private final TextDataRepository textRepository;
 
@@ -51,13 +55,15 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Tex
     }
 
     @Override
-    public Class<TextProfileDatasetEntity> getDatasetEntityType() {
-        return TextProfileDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingTextProfileDatasetEntity.class, session)
+                ? EReportingTextProfileDatasetEntity.class
+                : TextProfileDatasetEntity.class;
     }
 
     @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
+    protected ProfileValue<String> createValue(ProfileData observation,
+                                               ProfileDataset dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();

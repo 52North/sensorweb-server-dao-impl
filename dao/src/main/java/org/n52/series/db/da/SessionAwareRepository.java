@@ -49,6 +49,7 @@ import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.Describable;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -236,7 +237,7 @@ public abstract class SessionAwareRepository {
         return serviceEntity;
     }
 
-    protected ServiceEntity getServiceEntity(DescribableEntity entity) {
+    protected ServiceEntity getServiceEntity(Describable entity) {
         assertServiceAvailable(entity);
         return entity.getService() != null
                 ? entity.getService()
@@ -301,7 +302,7 @@ public abstract class SessionAwareRepository {
                                urlHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
     }
 
-    private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
+    private void assertServiceAvailable(Describable entity) throws IllegalStateException {
         if (serviceEntity == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }

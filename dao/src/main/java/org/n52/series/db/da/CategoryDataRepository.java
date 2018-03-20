@@ -37,27 +37,32 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.data.Data.CategoryData;
+import org.n52.series.db.beans.dataset.CategoryDataset;
+import org.n52.series.db.beans.ereporting.EReportingCategoryDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class CategoryDataRepository
-        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+        extends AbstractDataRepository<CategoryDataset, CategoryData, CategoryValue> {
 
     @Override
-    public Class<CategoryDatasetEntity> getDatasetEntityType() {
-        return CategoryDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingCategoryDatasetEntity.class, session)
+                ? EReportingCategoryDatasetEntity.class
+                : CategoryDatasetEntity.class;
     }
 
     @Override
-    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<CategoryValue> assembleData(CategoryDataset seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<CategoryValue> result = new Data<>();
-        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
-        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CategoryDataEntity observation : observations) {
+        DataDao<CategoryData> dao = new DataDao<>(session);
+        List<CategoryData> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (CategoryData observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -71,8 +76,8 @@ public class CategoryDataRepository
     }
 
     @Override
-    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
-                                              CategoryDatasetEntity series,
+    public CategoryValue createSeriesValueFor(CategoryData observation,
+                                              CategoryDataset series,
                                               DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
@@ -83,8 +88,8 @@ public class CategoryDataRepository
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
-    private CategoryValue createValue(CategoryDataEntity observation,
-                                      CategoryDatasetEntity series,
+    private CategoryValue createValue(CategoryData observation,
+                                      CategoryDataset series,
                                       DbQuery query,
                                       String observationValue) {
         ServiceEntity service = getServiceEntity(series);
@@ -95,7 +100,7 @@ public class CategoryDataRepository
     }
 
     CategoryValue createValue(String observationValue,
-                              CategoryDataEntity observation,
+                              CategoryData observation,
                               DbQuery query) {
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();

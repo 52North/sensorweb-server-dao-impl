@@ -32,17 +32,26 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CategoryProfileDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.beans.data.Data.ProfileData;
+import org.n52.series.db.beans.dataset.CategoryProfileDataset;
+import org.n52.series.db.beans.dataset.ProfileDataset;
+import org.n52.series.db.beans.dataset.QuantityDataset;
+import org.n52.series.db.beans.ereporting.EReportingCategoryProfileDatasetEntity;
+import org.n52.series.db.beans.ereporting.EReportingQuantityDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDatasetEntity> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDataset> {
 
     private final CategoryDataRepository categoryRepository;
 
@@ -51,13 +60,15 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
     }
 
     @Override
-    public Class<CategoryProfileDatasetEntity> getDatasetEntityType() {
-        return CategoryProfileDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingCategoryProfileDatasetEntity.class, session)
+                ? EReportingCategoryProfileDatasetEntity.class
+                : CategoryProfileDatasetEntity.class;
     }
 
     @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
+    protected ProfileValue<String> createValue(ProfileData observation,
+                                               ProfileDataset dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();

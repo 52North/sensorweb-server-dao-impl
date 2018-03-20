@@ -42,14 +42,14 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.data.Data.ProfileData;
+import org.n52.series.db.beans.dataset.ProfileDataset;
 import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
-        extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<T>> {
+public abstract class ProfileDataRepository<T, P extends ProfileDataset>
+        extends AbstractDataRepository<P, ProfileData, ProfileValue<T>> {
 
     private static final String PARAMETER_NAME = "name";
     private static final String PARAMETER_VALUE = "value";
@@ -85,9 +85,9 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
             throws DataAccessException {
         query.setComplexParent(true);
         Data<ProfileValue<T>> result = new Data<>();
-        DataDao<ProfileDataEntity> dao = createDataDao(session);
-        List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
-        for (ProfileDataEntity observation : observations) {
+        DataDao<ProfileData> dao = createDataDao(session);
+        List<ProfileData> observations = dao.getAllInstancesFor(datasetEntity, query);
+        for (ProfileData observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, datasetEntity, query));
             }
@@ -95,7 +95,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         return result;
     }
 
-    protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
+    protected ProfileValue<T> createProfileValue(ProfileData observation, DbQuery query) {
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
         long end = timeend.getTime();
@@ -108,20 +108,20 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     }
 
     @Override
-    protected ProfileValue<T> createSeriesValueFor(ProfileDataEntity observation,
+    protected ProfileValue<T> createSeriesValueFor(ProfileData observation,
                                                    P dataset,
                                                    DbQuery query) {
         ProfileValue<T> profile = createValue(observation, dataset, query);
         return addMetadatasIfNeeded(observation, profile, dataset, query);
     }
 
-    protected abstract ProfileValue<T> createValue(ProfileDataEntity observation,
-                                                   ProfileDatasetEntity dataset,
+    protected abstract ProfileValue<T> createValue(ProfileData observation,
+                                                   ProfileDataset dataset,
                                                    DbQuery query);
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
-                                                                            ProfileDataEntity observation,
+                                                                            ProfileData observation,
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
@@ -144,7 +144,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
                                                                             Set<Map<String, Object>> parameters,
-                                                                            ProfileDatasetEntity dataset,
+                                                                            ProfileDataset dataset,
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
@@ -179,7 +179,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         return null;
     }
 
-    private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
+    private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDataset dataset) {
         String unit = null;
         for (Map<String, Object> parameter : parameters) {
             if (unit == null

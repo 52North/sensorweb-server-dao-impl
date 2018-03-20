@@ -34,26 +34,32 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.beans.TextDatasetEntity;
+import org.n52.series.db.beans.data.Data.TextData;
+import org.n52.series.db.beans.dataset.TextDataset;
+import org.n52.series.db.beans.ereporting.EReportingTextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
+public class TextDataRepository extends AbstractDataRepository<TextDataset, TextData, TextValue> {
 
     @Override
-    public Class<TextDatasetEntity> getDatasetEntityType() {
-        return TextDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingTextDatasetEntity.class, session)
+                ? EReportingTextDatasetEntity.class
+                : TextDatasetEntity.class;
     }
 
     @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<TextValue> assembleData(TextDataset seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<TextValue> result = new Data<>();
-        DataDao<TextDataEntity> dao = new DataDao<>(session);
-        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (TextDataEntity observation : observations) {
+        DataDao<TextData> dao = new DataDao<>(session);
+        List<TextData> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (TextData observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -67,7 +73,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
+    public TextValue createSeriesValueFor(TextData observation, TextDataset series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

@@ -35,27 +35,32 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.RecordDataEntity;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.data.Data.RecordData;
+import org.n52.series.db.beans.dataset.RecordDataset;
+import org.n52.series.db.beans.ereporting.EReportingRecordDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDataset, RecordData, RecordValue> {
 
     @Override
-    public Class<RecordDatasetEntity> getDatasetEntityType() {
-        return RecordDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingRecordDatasetEntity.class, session)
+                ? EReportingRecordDatasetEntity.class
+                : RecordDatasetEntity.class;
     }
 
     @Override
-    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<RecordValue> assembleData(RecordDataset seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<RecordValue> result = new Data<>();
-        DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (RecordDataEntity observation : observations) {
+        DataDao<RecordData> dao = new DataDao<>(session);
+        List<RecordData> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (RecordData observation : observations) {
             // XXX n times same object?
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
@@ -70,7 +75,7 @@ public class RecordDataRepository
     }
 
     @Override
-    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public RecordValue createSeriesValueFor(RecordData observation, RecordDataset series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

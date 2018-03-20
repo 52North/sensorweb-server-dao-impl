@@ -34,27 +34,32 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.BooleanDataEntity;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.BooleanDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.data.Data.BooleanData;
+import org.n52.series.db.beans.dataset.BooleanDataset;
+import org.n52.series.db.beans.ereporting.EReportingBooleanDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class BooleanDataRepository
-        extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue> {
+        extends AbstractDataRepository<BooleanDataset, BooleanData, BooleanValue> {
 
     @Override
-    public Class<BooleanDatasetEntity> getDatasetEntityType() {
-        return BooleanDatasetEntity.class;
+    public Class<?> getDatasetEntityType(Session session) {
+        return DataModelUtil.isEntitySupported(EReportingBooleanDatasetEntity.class, session)
+                ? EReportingBooleanDatasetEntity.class
+                : BooleanDatasetEntity.class;
     }
 
     @Override
-    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<BooleanValue> assembleData(BooleanDataset seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<BooleanValue> result = new Data<>();
-        DataDao<BooleanDataEntity> dao = createDataDao(session);
-        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (BooleanDataEntity observation : observations) {
+        DataDao<BooleanData> dao = createDataDao(session);
+        List<BooleanData> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (BooleanData observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -68,8 +73,8 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
-                                             BooleanDatasetEntity series,
+    public BooleanValue createSeriesValueFor(BooleanData observation,
+                                             BooleanDataset series,
                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         Boolean observationValue = !service.isNoDataValue(observation)

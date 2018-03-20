@@ -39,9 +39,10 @@ import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.dataset.Dataset;
 import org.n52.series.db.dao.DbQuery;
 
-public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
+public interface DataRepository<E extends Dataset, V extends AbstractValue< ? >> {
 
     Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery) throws DataAccessException;
 
@@ -59,5 +60,5 @@ public interface DataRepository<E extends DatasetEntity, V extends AbstractValue
         // void
     }
 
-    Class<E> getDatasetEntityType();
+    Class<?> getDatasetEntityType(Session session);
 }

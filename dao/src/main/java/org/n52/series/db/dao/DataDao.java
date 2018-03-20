@@ -41,9 +41,14 @@ import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.Dataset;
+import org.n52.series.db.beans.ereporting.EReportingDataEntity;
+import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @SuppressWarnings("rawtypes")
-public class DataDao<T extends DataEntity> extends AbstractDao<T> {
+public class DataDao<T extends Data> extends AbstractDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataDao.class);
 
@@ -65,7 +70,10 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     @SuppressWarnings("unchecked")
     public DataDao(Session session) {
-        this(session, (Class<T>) DataEntity.class);
+        this(session,
+                (Class<T>) (DataModelUtil.isEntitySupported(EReportingDataEntity.class, session)
+                        ? EReportingDataEntity.class
+                        : DataEntity.class));
     }
 
     public DataDao(Session session, Class<T> clazz) {
@@ -109,7 +117,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
+    public List<T> getAllInstancesFor(Dataset series, DbQuery query) throws DataAccessException {
         final Long id = series.getId();
         LOGGER.debug("get all instances for series '{}': {}", id, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
