@@ -35,7 +35,6 @@
         <dependency>
             <groupId>org.n52.series-api</groupId>
             <artifactId>rest</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.n52.series-api</groupId>
@@ -45,11 +44,15 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dao</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.n52.series.db</groupId>
             <artifactId>entities</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.n52.series.db</groupId>
+            <artifactId>mappings</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -95,6 +98,25 @@
             <artifactId>spring-aspects</artifactId>
             <version>${version.spring}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${version.spring}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.197</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.4.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -162,6 +184,27 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

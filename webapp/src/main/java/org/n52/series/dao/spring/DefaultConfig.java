@@ -28,7 +28,14 @@
  */
 package org.n52.series.dao.spring;
 
+import org.n52.series.db.da.EntityCounter;
+import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
+import org.n52.series.spi.srv.CountingMetadataService;
+import org.n52.series.srv.CountingMetadataAccessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.View;
@@ -45,8 +52,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Configuration
 public class DefaultConfig extends WebMvcConfigurerAdapter {
 
+    @Value("${database.srid:'EPSG:4326'}")
+    private String databaseSridCode;
+
     @Autowired(required = false)
     private ObjectMapper objectMapper;
+
+    @Bean
+    public DbQueryFactory getDefaultQueryFactory() {
+        return new DefaultDbQueryFactory(databaseSridCode);
+    }
+
+    @Bean
+    public EntityCounter getEntityCounter() {
+        return new EntityCounter();
+    }
+
+    @Bean
+    public CountingMetadataService getCountingMetadataService() {
+        return new CountingMetadataAccessService();
+    }
 
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {

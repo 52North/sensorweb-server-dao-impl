@@ -15,13 +15,9 @@
     <!-- This bean description file injects the SPI implementation into the Web binding layer. Any change will corrupt the
         API Web layer. Custom implementation has to be defined by bean descriptions using the ref-ids associated below. -->
 
-    <bean class="org.n52.web.ctrl.ResourcesController">
-        <property name="metadataService" ref="metadataService" />
-    </bean>
-
-    <bean class="org.n52.web.ctrl.SearchController">
-        <property name="searchService" ref="searchService" />
-    </bean>
+<!--     <bean class="org.n52.web.ctrl.SearchController"> -->
+<!--         <property name="searchService" ref="searchService" /> -->
+<!--     </bean> -->
 
     <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
         <property name="metadataExtensions">

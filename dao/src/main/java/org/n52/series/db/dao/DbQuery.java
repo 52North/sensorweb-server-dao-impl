@@ -159,7 +159,7 @@ public class DbQuery {
             GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
             Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
             Polygon geometry = JTS.toGeometry(envelope, geomFactory);
-            geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
+            geometry.setSRID(CRSUtils.getSrsIdFromEPSG(databaseSridCode));
             return geometry;
         }
         return null;

@@ -26,21 +26,19 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da.sos;
 
 import javax.inject.Inject;
 
 import org.hibernate.Session;
-import org.n52.iceland.ds.ConnectionProvider;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.sos.ds.hibernate.HibernateSessionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SOSHibernateSessionHolder
-        implements
-        HibernateSessionStore {
+public class SOSHibernateSessionHolder implements HibernateSessionStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SOSHibernateSessionHolder.class);
 
