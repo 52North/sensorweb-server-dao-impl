@@ -213,7 +213,7 @@ public class QuantityDataRepository extends
             return observation.getValue();
         }
         Integer scale = series.getNumberOfDecimals();
-        return scale != null
+        return scale != null && scale.intValue() >= 0
                 ? observation.getValue().setScale(scale, RoundingMode.HALF_UP)
                 : observation.getValue();
     }
