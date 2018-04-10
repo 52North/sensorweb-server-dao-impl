@@ -55,6 +55,7 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -127,7 +128,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
-        return ((Long) criteria.uniqueResult()).intValue();
+        Object result = criteria.uniqueResult();
+        if (result == null) {
+            String sql = DataModelUtil.getSqlString(criteria);
+            LOGGER.error("Please review query: {}", sql);
+            return 0;
+        }
+        return ((Long) result).intValue();
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
