@@ -113,7 +113,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
 //        DataDao<E> dao = createDataDao(session);
 //        return dao.getValueGeometryViaTimeend(entity, query);
-        DataEntity lastObservation = entity.getLastObservation();
+        org.n52.series.db.beans.data.Data<?> lastObservation = entity.getLastObservation();
         return lastObservation != null
                 ? lastObservation.getGeometryEntity()
                 : null;
