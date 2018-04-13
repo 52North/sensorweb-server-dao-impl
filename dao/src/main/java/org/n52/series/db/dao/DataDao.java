@@ -48,7 +48,6 @@ import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.data.Data;
 import org.n52.series.db.beans.dataset.Dataset;
 import org.n52.series.db.beans.ereporting.EReportingDataEntity;
-import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;

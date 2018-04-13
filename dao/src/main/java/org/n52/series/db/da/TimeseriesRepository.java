@@ -280,13 +280,12 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private String createTimeseriesLabel(String phenomenon, String procedure, String station, String offering) {
         StringBuilder sb = new StringBuilder();
         sb.append(phenomenon)
-          .append(" ");
+            .append(" ");
         sb.append(procedure)
-          .append(", ");
+            .append(", ");
         sb.append(station)
-          .append(", ");
-        return sb.append(offering)
-                 .toString();
+            .append(", ");
+        return sb.append(offering) .toString();
     }
 
     private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session)

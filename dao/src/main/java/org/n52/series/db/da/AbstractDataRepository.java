@@ -40,7 +40,6 @@ import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
@@ -63,7 +62,8 @@ public abstract class AbstractDataRepository<S extends Dataset,
     private PlatformRepository platformRepository;
 
     @Override
-    public org.n52.io.response.dataset.Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public org.n52.io.response.dataset.Data<? extends AbstractValue<?>> getData(String datasetId, DbQuery dbQuery)
+            throws DataAccessException {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
@@ -92,8 +92,8 @@ public abstract class AbstractDataRepository<S extends Dataset,
 
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        E valueEntity = dao.getDataValueViaTimestart(entity, query);
+        // DataDao<E> dao = createDataDao(session);
+        // E valueEntity = dao.getDataValueViaTimestart(entity, query);
         E valueEntity = (E) entity.getFirstObservation();
         return valueEntity != null
                 ? createSeriesValueFor(valueEntity, entity, query)
@@ -102,8 +102,8 @@ public abstract class AbstractDataRepository<S extends Dataset,
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        E valueEntity = dao.getDataValueViaTimeend(entity, query);
+        // DataDao<E> dao = createDataDao(session);
+        // E valueEntity = dao.getDataValueViaTimeend(entity, query);
         E valueEntity = (E) entity.getLastObservation();
         return valueEntity != null
                 ? createSeriesValueFor(valueEntity, entity, query)
@@ -112,8 +112,8 @@ public abstract class AbstractDataRepository<S extends Dataset,
 
     @Override
     public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        return dao.getValueGeometryViaTimeend(entity, query);
+        // DataDao<E> dao = createDataDao(session);
+        // return dao.getValueGeometryViaTimeend(entity, query);
         Data lastObservation = entity.getLastObservation();
         return lastObservation != null
                 ? lastObservation.getGeometryEntity()
@@ -153,10 +153,11 @@ public abstract class AbstractDataRepository<S extends Dataset,
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract org.n52.io.response.dataset.Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract org.n52.io.response.dataset.Data<V> assembleData(S datasetEntity, DbQuery query,
+            Session session) throws DataAccessException;
 
-    protected org.n52.io.response.dataset.Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
-            throws DataAccessException {
+    protected org.n52.io.response.dataset.Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery,
+            Session session)  throws DataAccessException {
         return assembleData(datasetEntity, dbQuery, session);
     }
 

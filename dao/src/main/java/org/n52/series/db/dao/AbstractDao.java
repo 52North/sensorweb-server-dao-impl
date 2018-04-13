@@ -340,6 +340,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Class<?> getDatasetClass(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session) ? EReportingDatasetEntity.class :  DatasetEntity.class;
+        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session)
+                ? EReportingDatasetEntity.class
+                : DatasetEntity.class;
     }
 }
