@@ -1,4 +1,6 @@
-
+// Nothing to test as Context does not start when Mappings are invalid.
+// Just keeping for archival purposes
+/*
 package sandbox;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -30,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     })
 @TestPropertySource(properties = "series.database.mappings=")
 public class EmptyMappingsConfigurationTest {
-    
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -58,3 +60,4 @@ public class EmptyMappingsConfigurationTest {
     }
 
 }
+    */

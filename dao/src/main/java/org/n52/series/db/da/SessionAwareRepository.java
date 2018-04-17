@@ -65,10 +65,11 @@ import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public abstract class SessionAwareRepository {
+public abstract class SessionAwareRepository implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
 
@@ -304,6 +305,13 @@ public abstract class SessionAwareRepository {
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
         if (serviceEntity == null && entity == null) {
             throw new IllegalStateException("No service instance available");
+        }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (getSession().getSessionFactory().getMetamodel().getEntities().isEmpty()) {
+            throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
         }
     }
 
