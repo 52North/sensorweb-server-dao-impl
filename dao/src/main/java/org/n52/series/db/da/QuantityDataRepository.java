@@ -206,9 +206,10 @@ public class QuantityDataRepository extends
         if (observation.getValue() == null) {
             return observation.getValue();
         }
-        int scale = series.getNumberOfDecimals();
-        return observation.getValue()
-                          .setScale(scale, RoundingMode.HALF_UP);
+        Integer scale = series.getNumberOfDecimals();
+        return scale != null && scale.intValue() >= 0
+                ? observation.getValue().setScale(scale, RoundingMode.HALF_UP)
+                : observation.getValue();
     }
 
 }
