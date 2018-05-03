@@ -17,10 +17,6 @@
         <!-- optional properties file -->
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
-        <version.postgis>2.2.0</version.postgis>
-        <version.aspectj>1.8.9</version.aspectj>
-        <version.postgresql>42.1.4</version.postgresql>
-
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
 
         <docs.context>docs</docs.context>
@@ -135,9 +131,9 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>c3p0</groupId>
+            <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
-            <version>0.9.1.1</version>
+            <version>0.9.5.2</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

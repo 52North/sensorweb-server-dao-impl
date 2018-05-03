@@ -9,7 +9,6 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-    <mvc:annotation-driven />
     <ctx:annotation-config />
 
     <bean name="serviceRepository" class="org.n52.series.db.da.ServiceRepository" />

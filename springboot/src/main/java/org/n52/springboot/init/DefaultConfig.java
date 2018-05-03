@@ -1,3 +1,5 @@
+package org.n52.springboot.init;
+
 /*
  * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
@@ -26,7 +28,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.dao.spring;
+
 
 import org.n52.series.db.da.EntityCounter;
 import org.n52.series.db.dao.DbQueryFactory;
@@ -77,7 +79,7 @@ public class DefaultConfig extends WebMvcConfigurerAdapter {
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
                   .mediaType("json", MediaType.APPLICATION_JSON)
-                  .useJaf(true);
+                  .useRegisteredExtensionsOnly(false);
     }
 
     @Override
@@ -103,5 +105,4 @@ public class DefaultConfig extends WebMvcConfigurerAdapter {
     private ObjectMapper createDefaultObjectMapper() {
         return new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     }
-
 }
