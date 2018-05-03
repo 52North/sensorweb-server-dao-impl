@@ -8,18 +8,15 @@ import javax.sql.DataSource;
 import org.n52.series.db.SeriesHibernateSessionHolder;
 import org.n52.series.db.SeriesLocalSessionFactoryBean;
 import org.n52.series.db.da.DefaultDataRepositoryFactory;
-import org.n52.series.db.da.ProcedureRepository;
 import org.n52.springboot.init.Application;
 import org.n52.springboot.init.DefaultConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.web.servlet.DispatcherServlet;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -41,18 +38,12 @@ public class TestDatabaseConfig {
     @Autowired
     DataSource source;
 
-    /*
-    @Bean
-    public ServletRegistrationBean createDispatcherServlet() {
-        ServletRegistrationBean reg = new ServletRegistrationBean(new DispatcherServlet());
-        reg.setLoadOnStartup(1);
-        reg.setName("api-dispatcher");
-        reg.addUrlMappings("/api/*");
-        reg.addInitParameter("contextConfigLocation", "classpath*:/WEB-INF/spring/dispatcher-servlet.xml");
-        return reg;
-    }
-    */
-    
+    @Value("${hibernate.hbm2ddl.import_file}")
+    String import_files;
+
+    @Value("${series.database.mappings}")
+    String mappings;
+
     @Bean
     public SeriesHibernateSessionHolder createSeriesHibernateSessionHolder() {
         return new SeriesHibernateSessionHolder();
@@ -63,8 +54,8 @@ public class TestDatabaseConfig {
         ComboPooledDataSource bean = new ComboPooledDataSource();
         bean.setJdbcUrl("jdbc:h2:mem:testdb;MODE=PostgreSQL");
         bean.setDriverClass("org.h2.Driver");
-        bean.setUser("as");
-        bean.setPassword("as");
+        bean.setUser("");
+        bean.setPassword("");
         return bean;
     }
 
@@ -76,15 +67,11 @@ public class TestDatabaseConfig {
         hibernateProperties.setProperty("hibernate.default_schema", "public");
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create");
         hibernateProperties.setProperty("hibernate.format_sql", "true");
-        hibernateProperties.setProperty("hibernate.hbm2ddl.import_files", "testdata.sql");
+        hibernateProperties.setProperty("hibernate.hbm2ddl.import_files", import_files);
         hibernateProperties.setProperty("jdbc.time.zone", "UTC");
         bean.setHibernateProperties(hibernateProperties);
         bean.setDataSource(source);
-        
-        FileSystemResource loader = new FileSystemResource("/home/specki/git/series-hibernate/mappings/src/main/hbm/core/");
-        FileSystemResource loader2 = new FileSystemResource("/home/specki/git/series-hibernate/mappings/src/main/hbm/dataset/");
-        bean.setMappingDirectoryLocations(loader, loader2);
-
+        bean.setMappingResources(mappings.split(","));
         return bean;
     }
 

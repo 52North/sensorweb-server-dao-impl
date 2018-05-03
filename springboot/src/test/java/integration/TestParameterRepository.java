@@ -6,7 +6,6 @@
 package integration;
 
 import config.TestDatabaseConfig;
-import integration.TestParameterRepository.TestParameterRepositoryConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.n52.io.request.IoParameters;
@@ -16,16 +15,15 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestDatabaseConfig.class, TestParameterRepositoryConfig.class})
+@SpringBootTest(classes={TestDatabaseConfig.class/*, TestParameterRepositoryConfig.class*/})
 @DataJpaTest
 public class TestParameterRepository {
-    
+/*
     @Configuration
     class TestParameterRepositoryConfig {
         @Bean
@@ -33,6 +31,9 @@ public class TestParameterRepository {
             return new ProcedureRepository();
         }
     }
+    */
+    @MockBean
+    ProcedureRepository procedureRepository;
 
     @Autowired
     ProcedureRepository rep;
@@ -40,9 +41,8 @@ public class TestParameterRepository {
     @Autowired
     DbQueryFactory dbqueryfactory;
 
-   @Test
-   public void test() throws DataAccessException {
-       System.out.println(rep.getAllExpanded(dbqueryfactory.createFrom(IoParameters.createDefaults())));
-   }
-
+    @Test
+    public void test() throws DataAccessException {
+        System.out.println(rep.getAllExpanded(dbqueryfactory.createFrom(IoParameters.createDefaults())));
+    }
 }

@@ -1,34 +1,25 @@
-/*package unit;
+package integration;
 
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-import org.hamcrest.Matchers;
+import config.TestDatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebAppConfiguration
-@ContextConfiguration(
-    locations = {
-        "file:classpath*:/WEB-INF/spring/dispatcher-servlet.xml"
-    })
-@TestPropertySource(properties = "series.database.mappings=")
-public class EmptyMappingsConfigurationTest {
+@SpringBootTest(classes={TestDatabaseConfig.class})
+public class TestParameterEndpoint {
 
     @Autowired
     private WebApplicationContext wac;
@@ -55,4 +46,3 @@ public class EmptyMappingsConfigurationTest {
     }
 
 }
-*/
