@@ -178,17 +178,14 @@ public class StationRepository extends SessionAwareRepository
 
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
             throws DataAccessException {
-        IoParameters parameters = query.getParameters();
         StationOutput result = createCondensed(feature, query);
 
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
         DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        // FIXME no constant for the timeseries parameter
-        result.setValue("timeseries", timeseriesList, parameters, result::setTimeseries);
-
+        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
         return result;
     }
 
@@ -200,7 +197,7 @@ public class StationRepository extends SessionAwareRepository
         String label = entity.getLabelFrom(query.getLocale());
         Geometry geometry = createPoint(entity, query);
         result.setId(id);
-        result.setValue(StationOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
         return result;
     }
