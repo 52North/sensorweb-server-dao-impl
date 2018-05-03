@@ -6,5 +6,7 @@ nbactions.xml
 /scratchpad.txt
 *.swp
 *.swo
-nbactions.xml
 
+nb-configuration.xml
+*.iml
+.idea

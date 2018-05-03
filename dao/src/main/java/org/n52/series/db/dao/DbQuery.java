@@ -259,7 +259,7 @@ public class DbQuery {
             int limit = (getParameters().containsParameter(Parameters.LIMIT))
                     ? getParameters().getLimit()
                     : DEFAULT_LIMIT;
-            limit = (limit > 1)
+            limit = (limit > 0)
                     ? limit
                     : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
