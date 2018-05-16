@@ -36,8 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-//import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-//import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 
 public class SeriesLocalSessionFactoryBean extends LocalSessionFactoryBean {
 

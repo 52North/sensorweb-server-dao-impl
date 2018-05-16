@@ -28,6 +28,8 @@
  */
 package org.n52.series.db;
 
+import javax.annotation.PreDestroy;
+
 import org.hibernate.Session;
 
 public interface HibernateSessionStore {
@@ -36,6 +38,7 @@ public interface HibernateSessionStore {
 
     void returnSession(Session session);
 
+    @PreDestroy
     void shutdown();
 
 }

@@ -1,10 +1,12 @@
 package config;
 
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
 import java.util.Properties;
+
 import javax.sql.DataSource;
+
+import org.hsqldb.jdbc.JDBCDataSource;
 import org.n52.series.db.SeriesHibernateSessionHolder;
 import org.n52.series.db.SeriesLocalSessionFactoryBean;
 import org.n52.series.db.da.DefaultDataRepositoryFactory;
@@ -50,10 +52,9 @@ public class TestDatabaseConfig {
     }
 
     @Bean
-    public ComboPooledDataSource dataSource() throws PropertyVetoException {
-        ComboPooledDataSource bean = new ComboPooledDataSource();
-        bean.setJdbcUrl("jdbc:h2:mem:testdb;MODE=PostgreSQL");
-        bean.setDriverClass("org.h2.Driver");
+    public JDBCDataSource dataSource() throws PropertyVetoException {
+        JDBCDataSource bean = new JDBCDataSource();
+        bean.setUrl("jdbc:h2:mem:testdb;MODE=PostgreSQL");
         bean.setUser("");
         bean.setPassword("");
         return bean;

@@ -3,61 +3,59 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package org.n52.springboot.init;
 
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.io.IOException;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.filter.CharacterEncodingFilter;
-import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.context.annotation.Primary;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-
 
 /**
  *
  * @author specki
  */
-@RestController
-@ComponentScan
-@Controller
-@EnableAutoConfiguration
-@ImportResource({"classpath*:/WEB-INF/spring/dispatcher-servlet.xml"})
-public class Application extends SpringBootServletInitializer {
+@SpringBootApplication
+@ImportResource({"classpath*:/spring/dispatcher-servlet.xml"})
+public class Application {
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    @Autowired
+    @Qualifier("entityManagerFactory")
+    private EntityManagerFactory entityManagerFactory;
+
+    @Bean
+    public EntityManagerFactory entityManagerFactory(DataSource datasource, JpaProperties properties)
+            throws IOException {
+        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        emf.setJpaPropertyMap(properties.getProperties());
+        emf.setDataSource(datasource);
+
+        emf.afterPropertiesSet();
+        return emf.getNativeEntityManagerFactory();
     }
 
     @Bean
-    public ServletRegistrationBean createDispatcherServlet() {
-        ServletRegistrationBean reg = new ServletRegistrationBean(new DispatcherServlet());
-        reg.setLoadOnStartup(1);
-        reg.setName("api-dispatcher");
-        reg.addUrlMappings("/api/*");
-        reg.addInitParameter("contextConfigLocation", "classpath*:/WEB-INF/spring/dispatcher-servlet.xml");
-        return reg;
-    }
-
-    @Bean
-    public FilterRegistrationBean createEncodingFilter() {
-        FilterRegistrationBean filter = new FilterRegistrationBean();
-        filter.setFilter(new CharacterEncodingFilter());
-        filter.addInitParameter("encoding", "UTF-8");
-        return filter;
+    @Primary
+    public SessionFactory sessionFactory() {
+        if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
+            throw new NullPointerException("factory is not a hibernate factory");
+        }
+        return entityManagerFactory.unwrap(SessionFactory.class);
     }
 
     @Bean
@@ -65,12 +63,20 @@ public class Application extends SpringBootServletInitializer {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/*")
-                    .allowedOrigins("*")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .exposedHeaders("Content-Type", "Content-Encoding")
-                    .allowedHeaders("Content-Type", "Content-Encoding", "Accept");
+                registry.addMapping("/*").allowedOrigins("*").allowedMethods("GET",
+                                                                             "POST",
+                                                                             "PUT",
+                                                                             "DELETE",
+                                                                             "OPTIONS").exposedHeaders("Content-Type",
+                                                                                                       "Content-Encoding").allowedHeaders("Content-Type",
+                                                                                                                                          "Content-Encoding",
+                                                                                                                                          "Accept");
             };
         };
     }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
 }

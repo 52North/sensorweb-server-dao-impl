@@ -14,7 +14,7 @@
 
     <properties>
         <version.sos>5.0.2-SNAPSHOT</version.sos>
-    </properties>
+        <version.arctic-sea>3.0.0</version.arctic-sea>    </properties>
     
     <dependencies>
         <dependency>
