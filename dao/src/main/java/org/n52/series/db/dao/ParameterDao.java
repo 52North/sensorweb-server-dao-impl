@@ -39,7 +39,7 @@ import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity> extends AbstractDao<T>
+public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEntity<T>> extends AbstractDao<T>
         implements SearchableDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParameterDao.class);

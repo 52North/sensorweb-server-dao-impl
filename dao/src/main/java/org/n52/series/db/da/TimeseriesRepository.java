@@ -203,7 +203,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 createReferenceValueOutputs(series, query, repository, session);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
-        DatasetParameters timeseries = createTimeseriesOutput(series, query);
+        DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());
 
         result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, referenceValues, params, result::setReferenceValues);
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
@@ -267,7 +267,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         Long id = entity.getId();
         String uom = entity.getUnitI18nName(locale);
         String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
-        StationOutput station = createCondensedStation(entity, query, session);
+        StationOutput station = createCondensedStation(entity, query.withoutFieldsFilter(), session);
 
         result.setId(id.toString());
         result.setValue(TimeseriesMetadataOutput.LABEL, label, parameters, result::setLabel);

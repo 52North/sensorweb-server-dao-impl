@@ -339,19 +339,20 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         GeometryInfo geometryInfo = new GeometryInfo();
         IoParameters parameters = query.getParameters();
         String hrefBase = urlHelper.getGeometriesHrefBaseUrl(query.getHrefBase());
-        PlatformOutput platfom = getPlatfom(featureEntity, query);
+        PlatformOutput platform = getPlatfom(featureEntity, query);
 
         geometryInfo.setId(Long.toString(featureEntity.getId()));
-        geometryInfo.setValue(GeometryInfo.GEOMETRY_TYPE, type, parameters, geometryInfo::setGeometryType);
-        geometryInfo.setValue(GeometryInfo.HREF_BASE, hrefBase, parameters, geometryInfo::setHrefBase);
-        geometryInfo.setValue(GeometryInfo.PLATFORM, platfom, parameters, geometryInfo::setPlatform);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, type, parameters, geometryInfo::setGeometryType);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, hrefBase, parameters, geometryInfo::setHrefBase);
+        geometryInfo.setValue(GeometryInfo.PROPERTIES, platform, parameters, geometryInfo::setPlatform);
         return geometryInfo;
     }
 
     private PlatformOutput getPlatfom(FeatureEntity entity, DbQuery parameters) throws DataAccessException {
         DbQuery platformQuery = getDbQuery(parameters.getParameters()
                                                      .extendWith(Parameters.FEATURES, String.valueOf(entity.getId()))
-                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all"));
+                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all")
+                                                     .removeAllOf(Parameters.FILTER_FIELDS));
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
         if (platforms.size() != 1) {
             LOGGER.warn("expected unique platform (but was: #{}) for feature {}", platforms.size(), entity.getId());

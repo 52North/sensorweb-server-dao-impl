@@ -26,12 +26,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
@@ -40,10 +43,12 @@ import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput>
-        extends ParameterRepository<E, O> implements OutputAssembler<O> {
+        extends ParameterRepository<E, O>
+        implements OutputAssembler<O> {
 
     @Override
-    protected List<O> createExpanded(Iterable<E> entities, DbQuery query, Session session) throws DataAccessException {
+    protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session)
+            throws DataAccessException {
         Set<O> results = new HashSet<>();
         if (entities != null) {
             for (E entity : entities) {
@@ -55,15 +60,12 @@ public abstract class HierarchicalParameterRepository<E extends HierarchicalEnti
     }
 
     @Override
-    protected List<O> createCondensed(Iterable<E> entities, DbQuery query, Session session) {
-        Set<O> results = new HashSet<>();
-        if (entities != null) {
-            for (E entity : entities) {
-                O result = createCondensed(entity, query, session);
-                results.add(result);
-            }
-        }
-        return new ArrayList<>(results);
+    protected List<O> createCondensed(Collection<E> entities, DbQuery query, Session session) {
+        return entities == null
+                ? new ArrayList<>()
+                : entities.stream()
+                          .map(entity -> createCondensed(entity, query, session))
+                          .collect(Collectors.toList());
     }
 
 }

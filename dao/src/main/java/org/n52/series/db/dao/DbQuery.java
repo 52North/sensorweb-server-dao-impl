@@ -259,7 +259,7 @@ public class DbQuery {
             int limit = (getParameters().containsParameter(Parameters.LIMIT))
                     ? getParameters().getLimit()
                     : DEFAULT_LIMIT;
-            limit = (limit > 1)
+            limit = (limit > 0)
                     ? limit
                     : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
@@ -444,4 +444,7 @@ public class DbQuery {
         return "DbQuery{ parameters=" + getParameters().toString() + "'}'";
     }
 
+    public DbQuery withoutFieldsFilter() {
+        return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
+    }
 }

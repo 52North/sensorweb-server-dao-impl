@@ -57,16 +57,16 @@ COPY feature (feature_id, discriminator, fk_format_id, identifier, fk_identifier
 
 
 
-COPY phenomenon (phenomenon_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, is_hidden_child) FROM stdin;
-1	http://www.52north.org/test/observableProperty/1	1	test_observable_property_1	1	\N	0
-2	http://www.52north.org/test/observableProperty/2	1	test_observable_property_2	1	\N	0
-3	http://www.52north.org/test/observableProperty/3	1	test_observable_property_3	1	\N	0
-4	http://www.52north.org/test/observableProperty/4	1	test_observable_property_4	1	\N	0
-5	http://www.52north.org/test/observableProperty/5	1	test_observable_property_5	1	\N	0
-6	http://www.52north.org/test/observableProperty/6	1	test_observable_property_6	1	\N	0
-7	http://www.52north.org/test/observableProperty/7	1	test_observable_property_7	1	\N	0
-8	http://www.52north.org/test/observableProperty/8	1	test_observable_property_8	1	\N	0
-9	http://www.52north.org/test/observableProperty/developer	1	developer	1	\N	0
+COPY phenomenon (phenomenon_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description) FROM stdin;
+1	http://www.52north.org/test/observableProperty/1	1	test_observable_property_1	1	\N
+2	http://www.52north.org/test/observableProperty/2	1	test_observable_property_2	1	\N
+3	http://www.52north.org/test/observableProperty/3	1	test_observable_property_3	1	\N
+4	http://www.52north.org/test/observableProperty/4	1	test_observable_property_4	1	\N
+5	http://www.52north.org/test/observableProperty/5	1	test_observable_property_5	1	\N
+6	http://www.52north.org/test/observableProperty/6	1	test_observable_property_6	1	\N
+7	http://www.52north.org/test/observableProperty/7	1	test_observable_property_7	1	\N
+8	http://www.52north.org/test/observableProperty/8	1	test_observable_property_8	1	\N
+9	http://www.52north.org/test/observableProperty/developer	1	developer	1	\N
 \.
 
 
@@ -126,7 +126,7 @@ COPY unit (unit_id, symbol, name, link) FROM stdin;
 
 
 
-COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_procedure_id, fk_format_id, fk_offering_id, is_deleted, is_published, is_hidden_child, first_time, last_time, fk_unit_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, value_type, decimals) FROM stdin;
+COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_procedure_id, fk_format_id, fk_offering_id, is_deleted, is_published, is_hidden, first_time, last_time, fk_unit_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, value_type, decimals) FROM stdin;
 1	2	1	1	1	4	1	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	1	\N	\N	\N	\N	\N	quantity-profile	3
 2	3	2	2	2	5	2	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	count	\N
 3	4	3	3	3	6	3	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	boolean	\N
@@ -293,7 +293,7 @@ SELECT pg_catalog.setval('format_seq', 8, true);
 
 
 
-COPY feature_relation (fk_parent_feature_id, fk_child_feature_id) FROM stdin;
+COPY feature_hierarchy (fk_parent_feature_id, fk_child_feature_id) FROM stdin;
 1	2
 1	3
 1	4
@@ -381,14 +381,6 @@ COPY composite_observation (fk_parent_observation_id, fk_child_observation_id) F
 
 
 SELECT pg_catalog.setval('related_feature_seq', 1, false);
-
-
-
-SELECT pg_catalog.setval('related_feature_role_seq', 1, false);
-
-
-
-SELECT pg_catalog.setval('related_observation_seq', 1, false);
 
 
 
