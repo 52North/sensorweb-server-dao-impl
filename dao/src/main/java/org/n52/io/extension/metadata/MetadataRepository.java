@@ -39,7 +39,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.da.SessionAwareRepository;
 
-class MetadataRepository extends SessionAwareRepository {
+public class MetadataRepository extends SessionAwareRepository {
 
     List<String> getFieldNames(String id) {
         Session session = getSession();

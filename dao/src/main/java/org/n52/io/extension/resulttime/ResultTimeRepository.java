@@ -48,7 +48,7 @@ import org.n52.series.db.dao.QueryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ResultTimeRepository extends SessionAwareRepository {
+public class ResultTimeRepository extends SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeRepository.class);
 

@@ -40,6 +40,7 @@ import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,8 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
     @Autowired
     private IDataRepositoryFactory factory;
 
-    public TimeseriesAccessService(TimeseriesRepository repository) {
-        super(repository);
+    public TimeseriesAccessService(TimeseriesRepository repository, DbQueryFactory queryFactory) {
+        super(repository, queryFactory);
     }
 
     @Override

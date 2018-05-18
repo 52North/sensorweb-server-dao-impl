@@ -28,12 +28,14 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Objects;
+
 import org.n52.io.request.IoParameters;
 
 public class DefaultDbQueryFactory implements DbQueryFactory {
 
     private static final String DEFAULT_DATABASE_SRID = "EPSG:4326";
-
+    
     private String databaseSrid;
 
     public DefaultDbQueryFactory() {
@@ -41,6 +43,7 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     }
 
     public DefaultDbQueryFactory(String srid) {
+        Objects.requireNonNull(srid, "srid is null");
         this.databaseSrid = srid;
     }
 

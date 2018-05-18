@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.srv;
 
 import java.util.Collection;
@@ -44,36 +45,42 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@SuppressWarnings("deprecation")
 public class Search implements SearchService {
 
-    @Autowired
-    private OutputAssembler<ProcedureOutput> procedureRepository;
+    private final OutputAssembler<ProcedureOutput> procedureRepository;
 
-    @Autowired
-    private OutputAssembler<PhenomenonOutput> phenomenonRepository;
+    private final OutputAssembler<PhenomenonOutput> phenomenonRepository;
 
-    @Autowired
-    private OutputAssembler<FeatureOutput> featureRepository;
+    private final OutputAssembler<FeatureOutput> featureRepository;
 
-    @Autowired
-    private OutputAssembler<CategoryOutput> categoryRepository;
+    private final OutputAssembler<CategoryOutput> categoryRepository;
 
-    @Autowired
-    private OutputAssembler<PlatformOutput> platformRepository;
+    private final OutputAssembler<PlatformOutput> platformRepository;
 
-    @Autowired
-    private OutputAssembler<DatasetOutput< ? >> datasetRepository;
+    private final OutputAssembler<DatasetOutput< ? >> datasetRepository;
 
-    @Autowired
-    @Deprecated
-    private OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository;
+    private final OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository;
 
-    @Autowired
-    @Deprecated
-    private OutputAssembler<StationOutput> stationRepository;
+    private final OutputAssembler<StationOutput> stationRepository;
+
+    public Search(OutputAssembler<ProcedureOutput> procedureRepository,
+                  OutputAssembler<PhenomenonOutput> phenomenonRepository,
+                  OutputAssembler<FeatureOutput> featureRepository,
+                  OutputAssembler<CategoryOutput> categoryRepository,
+                  OutputAssembler<PlatformOutput> platformRepository,
+                  OutputAssembler<DatasetOutput< ? >> datasetRepository,
+                  OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository,
+                  OutputAssembler<StationOutput> stationRepository) {
+        this.procedureRepository = procedureRepository;
+        this.phenomenonRepository = phenomenonRepository;
+        this.featureRepository = featureRepository;
+        this.categoryRepository = categoryRepository;
+        this.platformRepository = platformRepository;
+        this.datasetRepository = datasetRepository;
+        this.timeseriesRepository = timeseriesRepository;
+        this.stationRepository = stationRepository;
+    }
 
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
@@ -86,7 +93,8 @@ public class Search implements SearchService {
         if (parameters.shallBehaveBackwardsCompatible()) {
             results.addAll(timeseriesRepository.searchFor(parameters));
             results.addAll(stationRepository.searchFor(parameters));
-        } else {
+        }
+        else {
             results.addAll(platformRepository.searchFor(parameters));
             results.addAll(datasetRepository.searchFor(parameters));
         }

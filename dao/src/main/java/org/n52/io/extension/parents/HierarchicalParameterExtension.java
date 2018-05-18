@@ -38,8 +38,12 @@ public class HierarchicalParameterExtension extends MetadataExtension<PlatformOu
 
     private static final String EXTENSION_NAME = "parents";
 
-    private HierarchicalParameterService service;
+    private final HierarchicalParameterService service;
 
+    public HierarchicalParameterExtension(HierarchicalParameterService service) {
+        this.service = service;
+    }
+    
     @Override
     public String getExtensionName() {
         return EXTENSION_NAME;
@@ -48,14 +52,6 @@ public class HierarchicalParameterExtension extends MetadataExtension<PlatformOu
     @Override
     public Map<String, Object> getExtras(PlatformOutput output, IoParameters parameters) {
         return wrapSingleIntoMap(service.getExtras(output.getId(), parameters));
-    }
-
-    public HierarchicalParameterService getService() {
-        return service;
-    }
-
-    public void setService(HierarchicalParameterService service) {
-        this.service = service;
     }
 
 }

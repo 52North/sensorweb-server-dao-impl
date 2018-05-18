@@ -41,16 +41,18 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.ParameterService;
 import org.n52.web.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AccessService<T extends ParameterOutput> extends ParameterService<T> {
 
     protected final OutputAssembler<T> repository;
 
-    @Autowired
-    protected DbQueryFactory dbQueryFactory;
+    protected final DbQueryFactory dbQueryFactory;
 
-    public AccessService(OutputAssembler<T> repository) {
+    public AccessService(OutputAssembler<T> repository, DbQueryFactory queryFactory) {
         this.repository = repository;
+        this.dbQueryFactory = queryFactory;
     }
 
     @Override

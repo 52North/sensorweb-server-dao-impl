@@ -42,6 +42,7 @@ import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
 import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
@@ -58,8 +59,8 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     @Autowired
     private IDataRepositoryFactory dataFactory;
 
-    public DatasetAccessService(DatasetRepository<Data< ? >> repository) {
-        super(repository);
+    public DatasetAccessService(DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
+        super(repository, queryFactory);
     }
 
     @Override

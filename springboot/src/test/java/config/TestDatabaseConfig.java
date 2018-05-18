@@ -11,7 +11,7 @@ import org.n52.series.db.SeriesHibernateSessionHolder;
 import org.n52.series.db.SeriesLocalSessionFactoryBean;
 import org.n52.series.db.da.DefaultDataRepositoryFactory;
 import org.n52.springboot.init.Application;
-import org.n52.springboot.init.DefaultConfig;
+import org.n52.springboot.init.SpiImplConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
@@ -34,7 +34,7 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootConfiguration
 @EnableAutoConfiguration(/*exclude={DataSourceAutoConfiguration.class*/)
 @ImportResource({"classpath*:/WEB-INF/spring/dispatcher-servlet.xml"})
-@Import({DefaultConfig.class, Application.class})
+@Import({SpiImplConfig.class, Application.class})
 public class TestDatabaseConfig {
 
     @Autowired

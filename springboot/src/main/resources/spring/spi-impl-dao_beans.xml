@@ -21,45 +21,44 @@
     <bean name="datasetRepository" class="org.n52.series.db.da.DatasetRepository" />
     <bean name="geometriesRepository" class="org.n52.series.db.da.GeometriesRepository" />
 
-    <bean id="serviceParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="serviceRepository" />
-    </bean>
-    <bean id="platformParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="platformRepository" />
-    </bean>
-    <bean id="datasetService" class="org.n52.series.srv.DatasetAccessService">
-        <constructor-arg index="0" ref="datasetRepository" />
-    </bean>
-    <bean id="geometriesService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="geometriesRepository" />
-    </bean>
-    <bean id="offeringParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="offeringRepository" />
-    </bean>
-    <bean id="categoryParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="categoryRepository" />
-    </bean>
-    <bean id="featureParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="featureRepository" />
-    </bean>
-    <bean id="procedureParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="procedureRepository" />
-    </bean>
-    <bean id="phenomenonParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="phenomenonRepository" />
-    </bean>
+<!--     <bean id="serviceParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="serviceRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="platformParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="platformRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="datasetService" class="org.n52.series.srv.DatasetAccessService"> -->
+<!--         <constructor-arg index="0" ref="datasetRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="geometriesService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="geometriesRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="offeringParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="offeringRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="categoryParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="categoryRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="featureParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="featureRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="procedureParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="procedureRepository" /> -->
+<!--     </bean> -->
+<!--     <bean id="phenomenonParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="phenomenonRepository" /> -->
+<!--     </bean> -->
 
-    <bean id="resultTimeService" class="org.n52.io.extension.resulttime.ResultTimeService">
-        <constructor-arg index="0">
-            <bean class="org.n52.io.extension.resulttime.ResultTimeRepository" />
-        </constructor-arg>
-    </bean>
-    <bean id="hierarchicalParameterService" class="org.n52.io.extension.parents.HierarchicalParameterService">
-        <constructor-arg index="0">
-            <bean class="org.n52.io.extension.parents.HierarchicalParameterRepository" />
-        </constructor-arg>
-    </bean>
-
+<!--     <bean id="resultTimeService" class="org.n52.io.extension.resulttime.ResultTimeService"> -->
+<!--         <constructor-arg index="0"> -->
+<!--             <bean class="org.n52.io.extension.resulttime.ResultTimeRepository" /> -->
+<!--         </constructor-arg> -->
+<!--     </bean> -->
+<!--     <bean id="hierarchicalParameterService" class="org.n52.io.extension.parents.HierarchicalParameterService"> -->
+<!--         <constructor-arg index="0"> -->
+<!--             <bean class="org.n52.io.extension.parents.HierarchicalParameterRepository" /> -->
+<!--         </constructor-arg> -->
+<!--     </bean> -->
 
     <!-- ########################################################## -->
     <!-- ################# LEGACY BEAN INJECTIONS ################# -->
@@ -68,9 +67,9 @@
     <bean id="timeseriesRepository" class="org.n52.series.db.da.TimeseriesRepository" />
     <bean id="stationRepository" class="org.n52.series.db.da.StationRepository" />
 
-    <bean id="stationParameterService" class="org.n52.series.srv.AccessService">
-        <constructor-arg index="0" ref="stationRepository" />
-    </bean>
+<!--     <bean id="stationParameterService" class="org.n52.series.srv.AccessService"> -->
+<!--         <constructor-arg index="0" ref="stationRepository" /> -->
+<!--     </bean> -->
     <bean id="timeseriesService" class="org.n52.series.srv.TimeseriesAccessService">
         <constructor-arg index="0" ref="timeseriesRepository" />
     </bean>

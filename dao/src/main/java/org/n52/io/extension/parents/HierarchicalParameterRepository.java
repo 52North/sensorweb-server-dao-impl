@@ -51,17 +51,19 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-class HierarchicalParameterRepository extends SessionAwareRepository {
+public class HierarchicalParameterRepository extends SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             HierarchicalParameterRepository.class);
 
     private static final String KEY_PROCEDURES = "procedures";
 
-    @Autowired
-    private PlatformRepository platformRepository;
+    private final PlatformRepository platformRepository;
+    
+    public HierarchicalParameterRepository(PlatformRepository repository) {
+        this.platformRepository = repository;
+    }
 
     Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId,
             IoParameters parameters) {

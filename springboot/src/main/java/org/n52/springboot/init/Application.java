@@ -23,14 +23,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- *
- * @author specki
- */
 @SpringBootApplication
-@ImportResource({"classpath*:/spring/dispatcher-servlet.xml"})
+//@ImportResource({"classpath*:/spring/dispatcher-servlet.xml"})
+@ImportResource({"classpath*:/spring/application-context.xml"})
 public class Application {
 
     @Autowired
