@@ -3,19 +3,19 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-        <parent>
+    <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.1.RELEASE</version>
     </parent>
-    <!-- 
-    <parent>
+    <!--
+        <parent>
         <groupId>org.n52.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-    </parent>
-     -->
-    
+        </parent>
+    -->
+
     <artifactId>springboot</artifactId>
     <packaging>jar</packaging>
     <name>Series REST API - Spring Boot Starter</name>
@@ -25,7 +25,7 @@
         <series-api.version>2.0.0-SNAPSHOT</series-api.version>
         <series-dao.version>3.0.0-SNAPSHOT</series-dao.version>
         <series-hbm.version>1-SNAPSHOT</series-hbm.version>
-        
+
         <hibernate.version>5.2.12.FINAL</hibernate.version>
         <hibernate-spatial.version>5.2.12-52N.1</hibernate-spatial.version>
         <postgis.version>2.2.0</postgis.version>
@@ -71,7 +71,7 @@
             <version>${series-hbm.version}</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -102,6 +102,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <exclusions>
                 <exclusion>
@@ -114,7 +118,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        
 
         <!-- Spring -->
         <dependency>
@@ -151,17 +154,17 @@
             <artifactId>aspectjtools</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
             <version>${hibernate-spatial.version}</version>
         </dependency>
-<!--         <dependency> -->
-<!--             <groupId>org.hibernate</groupId> -->
-<!--             <artifactId>hibernate-c3p0</artifactId> -->
-<!--             <version>${hibernate.version}</version> -->
-<!--         </dependency> -->
+        <!-- <dependency> -->
+        <!-- <groupId>org.hibernate</groupId> -->
+        <!-- <artifactId>hibernate-c3p0</artifactId> -->
+        <!-- <version>${hibernate.version}</version> -->
+        <!-- </dependency> -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -246,25 +249,25 @@
         </dependency>
 
     </dependencies>
-<!--     <build> -->
-<!--         <plugins> -->
-<!--             <plugin> -->
-<!--                 <groupId>org.springframework.boot</groupId> -->
-<!--                 <artifactId>spring-boot-maven-plugin</artifactId> -->
-<!--                 <version>${project.version}</version> -->
-<!--                 <configuration> -->
-<!--                     <mainClass>org.n52.springboot.init.Application</mainClass> -->
-<!--                     <addResources>false</addResources> -->
-<!--                 </configuration> -->
-<!--                 <executions> -->
-<!--                     <execution> -->
-<!--                         <goals> -->
-<!--                             <goal>repackage</goal> -->
-<!--                         </goals> -->
-<!--                     </execution> -->
-<!--                 </executions> -->
-<!--             </plugin> -->
-<!--         </plugins> -->
-<!--     </build> -->
+    <!-- <build> -->
+    <!-- <plugins> -->
+    <!-- <plugin> -->
+    <!-- <groupId>org.springframework.boot</groupId> -->
+    <!-- <artifactId>spring-boot-maven-plugin</artifactId> -->
+    <!-- <version>${project.version}</version> -->
+    <!-- <configuration> -->
+    <!-- <mainClass>org.n52.springboot.init.Application</mainClass> -->
+    <!-- <addResources>false</addResources> -->
+    <!-- </configuration> -->
+    <!-- <executions> -->
+    <!-- <execution> -->
+    <!-- <goals> -->
+    <!-- <goal>repackage</goal> -->
+    <!-- </goals> -->
+    <!-- </execution> -->
+    <!-- </executions> -->
+    <!-- </plugin> -->
+    <!-- </plugins> -->
+    <!-- </build> -->
 
 </project>
