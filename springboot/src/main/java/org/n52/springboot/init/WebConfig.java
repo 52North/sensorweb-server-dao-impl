@@ -45,8 +45,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        configurer.defaultContentType(MediaType.APPLICATION_JSON).mediaType("json",
-                                                                            MediaType.APPLICATION_JSON).useRegisteredExtensionsOnly(true);
+        configurer.defaultContentType(MediaType.APPLICATION_JSON)
+                  .mediaType("json", MediaType.APPLICATION_JSON)
+                  .mediaType("pdf", MediaType.APPLICATION_PDF)
+                  .mediaType("csv", new MediaType("text", "csv"))
+                  .useRegisteredExtensionsOnly(true);
     }
 
     @Override
