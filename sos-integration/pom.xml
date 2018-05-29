@@ -14,7 +14,7 @@
 
     <properties>
         <version.sos>5.0.2-SNAPSHOT</version.sos>
-        <version.arctic-sea>3.0.0</version.arctic-sea>    </properties>
+        <arctic-sea.version>3.0.0</arctic-sea.version>    </properties>
     
     <dependencies>
         <dependency>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${version.hibernate-spatial}</version>
+            <version>${hibernate-spatial.version}</version>
              <exclusions>
                 <exclusion>
                     <groupId>org.postgis</groupId>
