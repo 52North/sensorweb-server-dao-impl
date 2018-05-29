@@ -57,7 +57,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput<?>> {
     private final List<String> enabledServices = readEnabledServices();
 
     private final ResultTimeService service;
-    
+
     public ResultTimeExtension(ResultTimeService service ) {
         this.service = service;
     }

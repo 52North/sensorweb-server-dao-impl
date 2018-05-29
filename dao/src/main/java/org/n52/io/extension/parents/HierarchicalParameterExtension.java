@@ -43,7 +43,7 @@ public class HierarchicalParameterExtension extends MetadataExtension<PlatformOu
     public HierarchicalParameterExtension(HierarchicalParameterService service) {
         this.service = service;
     }
-    
+
     @Override
     public String getExtensionName() {
         return EXTENSION_NAME;

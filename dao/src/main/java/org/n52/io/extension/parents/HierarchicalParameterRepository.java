@@ -60,7 +60,7 @@ public class HierarchicalParameterRepository extends SessionAwareRepository {
     private static final String KEY_PROCEDURES = "procedures";
 
     private final PlatformRepository platformRepository;
-    
+
     public HierarchicalParameterRepository(PlatformRepository repository) {
         this.platformRepository = repository;
     }

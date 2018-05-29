@@ -35,7 +35,7 @@ import org.n52.io.request.IoParameters;
 public class DefaultDbQueryFactory implements DbQueryFactory {
 
     private static final String DEFAULT_DATABASE_SRID = "EPSG:4326";
-    
+
     private String databaseSrid;
 
     public DefaultDbQueryFactory() {
