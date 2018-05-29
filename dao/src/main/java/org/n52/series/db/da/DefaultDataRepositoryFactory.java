@@ -31,7 +31,9 @@ package org.n52.series.db.da;
 import java.io.File;
 
 import org.n52.io.ConfigTypedFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ? >>
         implements IDataRepositoryFactory {
 

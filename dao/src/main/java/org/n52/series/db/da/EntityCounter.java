@@ -45,18 +45,24 @@ import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EntityCounter {
 
-    @Autowired
-    private HibernateSessionStore sessionStore;
+    private final HibernateSessionStore sessionStore;
 
-    @Autowired
-    private DbQueryFactory dbQueryFactory;
+    private final DbQueryFactory dbQueryFactory;
 
-    @Autowired
-    private IDataRepositoryFactory dataRepositoryFactory;
+    private final IDataRepositoryFactory dataRepositoryFactory;
+    
+    public EntityCounter(HibernateSessionStore sessionStore,
+                         DbQueryFactory dbQueryFactory,
+                         IDataRepositoryFactory dataRepositoryFactory) {
+        this.sessionStore = sessionStore;
+        this.dbQueryFactory = dbQueryFactory;
+        this.dataRepositoryFactory = dataRepositoryFactory;
+    }
 
     public Integer countFeatures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();

@@ -1,24 +1,4 @@
 
-package org.n52.springboot.init;
-
-import org.n52.io.DefaultIoFactory;
-import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.GeometryInfo;
-import org.n52.io.response.OfferingOutput;
-import org.n52.io.response.ParameterOutput;
-import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.PlatformOutput;
-import org.n52.io.response.ProcedureOutput;
-import org.n52.io.response.ServiceOutput;
-import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.StationOutput;
-import org.n52.series.db.da.CategoryRepository;
-import org.n52.series.db.da.DatasetRepository;
-import org.n52.series.db.da.DefaultDataRepositoryFactory;
-
 /*
  * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
@@ -48,7 +28,23 @@ import org.n52.series.db.da.DefaultDataRepositoryFactory;
  * for more details.
  */
 
-import org.n52.series.db.da.EntityCounter;
+package org.n52.springboot.init;
+
+import org.n52.io.response.CategoryOutput;
+import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.GeometryInfo;
+import org.n52.io.response.OfferingOutput;
+import org.n52.io.response.ParameterOutput;
+import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.PlatformOutput;
+import org.n52.io.response.ProcedureOutput;
+import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.StationOutput;
+import org.n52.series.db.da.CategoryRepository;
+import org.n52.series.db.da.DatasetRepository;
 import org.n52.series.db.da.FeatureRepository;
 import org.n52.series.db.da.GeometriesRepository;
 import org.n52.series.db.da.OfferingRepository;
@@ -58,7 +54,6 @@ import org.n52.series.db.da.ProcedureRepository;
 import org.n52.series.db.da.ServiceRepository;
 import org.n52.series.db.da.StationRepository;
 import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
 import org.n52.series.spi.srv.DataService;
 import org.n52.series.spi.srv.ParameterService;
@@ -76,33 +71,19 @@ import org.n52.series.srv.ServiceService;
 import org.n52.series.srv.StationService;
 import org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @EnableWebMvc
 @Configuration
+@ComponentScan(basePackages = "org.n52.series.db")
 public class SpiImplConfig {
 
     @Autowired
     private DbQueryFactory dbQueryFactory;
     
-    @Bean
-    public DefaultDataRepositoryFactory defaultdataRepositoryFactory() {
-        return new DefaultDataRepositoryFactory();
-    }
-
-    @Bean
-    public DbQueryFactory dbQueryFactory(@Value("${database.srid:'EPSG:4326'}") String srid) {
-        return new DefaultDbQueryFactory(srid);
-    }
-
-    @Bean
-    public EntityCounter getEntityCounter() {
-        return new EntityCounter();
-    }
-
     @Bean
     public CountingMetadataService metadataService() {
         return new CountingMetadataAccessService();
