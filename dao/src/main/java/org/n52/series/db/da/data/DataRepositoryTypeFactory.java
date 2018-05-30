@@ -32,14 +32,13 @@ import java.util.Set;
 
 import org.n52.io.DatasetFactoryException;
 
-public interface IDataRepositoryFactory {
+public interface DataRepositoryTypeFactory {
 
     boolean isKnown(String valueType);
 
     Set<String> getKnownTypes();
 
-    DataRepository create(String valueType) throws DatasetFactoryException;
+    DataRepository<?, ?> create(String valueType) throws DatasetFactoryException;
 
     boolean hasCacheEntry(String valueType);
-
 }

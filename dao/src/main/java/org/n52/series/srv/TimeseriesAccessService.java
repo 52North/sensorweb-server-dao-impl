@@ -29,16 +29,16 @@
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
-import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.da.data.DataRepository;
-import org.n52.series.db.da.data.IDataRepositoryFactory;
+import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
@@ -47,9 +47,9 @@ import org.n52.web.exception.InternalServerException;
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
         implements DataService<Data<QuantityValue>> {
 
-    private final IDataRepositoryFactory factory;
+    private final DataRepositoryTypeFactory factory;
 
-    public TimeseriesAccessService(IDataRepositoryFactory factory, TimeseriesRepository repository, DbQueryFactory queryFactory) {
+    public TimeseriesAccessService(DataRepositoryTypeFactory factory, TimeseriesRepository repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.factory = factory;
     }

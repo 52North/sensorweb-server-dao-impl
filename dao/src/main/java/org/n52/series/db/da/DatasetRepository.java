@@ -53,7 +53,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.da.data.DataRepository;
-import org.n52.series.db.da.data.IDataRepositoryFactory;
+import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
@@ -80,12 +80,12 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetRepository.class);
 
-    private final IDataRepositoryFactory dataRepositoryFactory;
+    private final DataRepositoryTypeFactory dataRepositoryFactory;
 
     @Autowired
     private PlatformRepository platformRepository;
 
-    public DatasetRepository(IDataRepositoryFactory dataRepositoryFactory,
+    public DatasetRepository(DataRepositoryTypeFactory dataRepositoryFactory,
 //                             PlatformRepository platformRepository,
                              HibernateSessionStore sessionStore,
                              DbQueryFactory dbQueryFactory) {

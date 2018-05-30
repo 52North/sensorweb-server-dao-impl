@@ -29,6 +29,7 @@
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -36,11 +37,10 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DatasetRepository;
 import org.n52.series.db.da.data.DataRepository;
-import org.n52.series.db.da.data.IDataRepositoryFactory;
+import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
@@ -55,9 +55,9 @@ import org.n52.web.exception.ResourceNotFoundException;
 public class DatasetAccessService extends AccessService<DatasetOutput>
         implements DataService<Data<AbstractValue< ? >>> {
 
-    private final IDataRepositoryFactory dataFactory;
+    private final DataRepositoryTypeFactory dataFactory;
     
-    public DatasetAccessService(IDataRepositoryFactory dataFactory, DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
+    public DatasetAccessService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;
     }

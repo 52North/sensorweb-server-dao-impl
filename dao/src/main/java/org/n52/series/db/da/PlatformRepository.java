@@ -52,7 +52,7 @@ import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.da.data.DataRepository;
-import org.n52.series.db.da.data.IDataRepositoryFactory;
+import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
@@ -86,9 +86,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     private final DatasetRepository<Data> seriesRepository;
 
-    private final IDataRepositoryFactory factory;
+    private final DataRepositoryTypeFactory factory;
 
-    public PlatformRepository(IDataRepositoryFactory dataRepositoryFactory,
+    public PlatformRepository(DataRepositoryTypeFactory dataRepositoryFactory,
                               DatasetRepository<Data> seriesRepository,
                               HibernateSessionStore sessionStore, 
                               DbQueryFactory dbQueryFactory) {

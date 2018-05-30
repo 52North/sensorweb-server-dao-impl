@@ -38,8 +38,8 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
-import org.n52.io.DefaultIoFactory;
-import org.n52.io.IoFactory;
+import org.n52.io.handler.DefaultIoFactory;
+import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
@@ -212,7 +212,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoHandlerFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             }
             catch (DatasetFactoryException e) {

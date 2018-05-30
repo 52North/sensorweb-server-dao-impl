@@ -35,7 +35,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.da.data.IDataRepositoryFactory;
+import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
 import org.n52.series.db.dao.DatasetDao;
@@ -55,11 +55,11 @@ public class EntityCounter {
 
     private final DbQueryFactory dbQueryFactory;
 
-    private final IDataRepositoryFactory dataRepositoryFactory;
+    private final DataRepositoryTypeFactory dataRepositoryFactory;
     
     public EntityCounter(HibernateSessionStore sessionStore,
                          DbQueryFactory dbQueryFactory,
-                         IDataRepositoryFactory dataRepositoryFactory) {
+                         DataRepositoryTypeFactory dataRepositoryFactory) {
         this.sessionStore = sessionStore;
         this.dbQueryFactory = dbQueryFactory;
         this.dataRepositoryFactory = dataRepositoryFactory;

@@ -39,16 +39,14 @@ import java.util.stream.Stream;
 
 import org.n52.io.DatasetFactoryException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
-@Component
-public class DefaultDataRepositoryFactory implements IDataRepositoryFactory {
+public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeFactory {
 
     private final ApplicationContext applicationContext;
 
     private final Map<String, DataRepository< ? , ? >> cache;
 
-    public DefaultDataRepositoryFactory(ApplicationContext applicationContext) {
+    public AnnotationBasedDataRepositoryFactory(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.cache = new HashMap<>();
     }

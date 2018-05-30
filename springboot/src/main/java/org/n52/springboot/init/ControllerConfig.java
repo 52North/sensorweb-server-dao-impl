@@ -1,7 +1,6 @@
 
 package org.n52.springboot.init;
 
-import org.n52.io.DefaultIoFactory;
 import org.n52.io.extension.RenderingHintsExtension;
 import org.n52.io.extension.StatusIntervalsExtension;
 import org.n52.io.extension.metadata.DatabaseMetadataExtension;
@@ -9,6 +8,7 @@ import org.n52.io.extension.metadata.MetadataRepository;
 import org.n52.io.extension.resulttime.ResultTimeExtension;
 import org.n52.io.extension.resulttime.ResultTimeRepository;
 import org.n52.io.extension.resulttime.ResultTimeService;
+import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
