@@ -31,14 +31,14 @@ public class WebConfig implements WebMvcConfigurer {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/*").allowedOrigins("*").allowedMethods("GET",
-                                                                             "POST",
-                                                                             "PUT",
-                                                                             "DELETE",
-                                                                             "OPTIONS").exposedHeaders("Content-Type",
-                                                                                                       "Content-Encoding").allowedHeaders("Content-Type",
-                                                                                                                                          "Content-Encoding",
-                                                                                                                                          "Accept");
+                String[] allowedMethods = {"GET", "POST", "PUT", "DELETE", "OPTIONS"};
+                String[] exposedHeaders = {"Content-Type", "Content-Encoding"};
+                String[] allowedHeaders = {"Content-Type", "Content-Encoding", "Accept"};
+                registry.addMapping("/*")
+                        .allowedOrigins("*")
+                        .allowedMethods(allowedMethods)
+                        .exposedHeaders(exposedHeaders)
+                        .allowedHeaders(allowedHeaders);
             };
         };
     }
@@ -49,7 +49,11 @@ public class WebConfig implements WebMvcConfigurer {
                   .mediaType("json", MediaType.APPLICATION_JSON)
                   .mediaType("pdf", MediaType.APPLICATION_PDF)
                   .mediaType("csv", new MediaType("text", "csv"))
-                  .useRegisteredExtensionsOnly(true);
+                  .mediaType("png", MediaType.IMAGE_PNG);
+//                  .ignoreUnknownPathExtensions(false)
+//                  .favorPathExtension(true)
+//                  .ignoreAcceptHeader(false)
+//                  .useRegisteredExtensionsOnly(true);
     }
 
     @Override
