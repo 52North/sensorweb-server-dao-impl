@@ -43,8 +43,11 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.StationOutput;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
+import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.da.CategoryRepository;
 import org.n52.series.db.da.DatasetRepository;
+import org.n52.series.db.da.EntityCounter;
 import org.n52.series.db.da.FeatureRepository;
 import org.n52.series.db.da.GeometriesRepository;
 import org.n52.series.db.da.OfferingRepository;
@@ -53,6 +56,7 @@ import org.n52.series.db.da.PlatformRepository;
 import org.n52.series.db.da.ProcedureRepository;
 import org.n52.series.db.da.ServiceRepository;
 import org.n52.series.db.da.StationRepository;
+import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.da.data.IDataRepositoryFactory;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
@@ -70,6 +74,7 @@ import org.n52.series.srv.PlatformService;
 import org.n52.series.srv.ProcedureService;
 import org.n52.series.srv.ServiceService;
 import org.n52.series.srv.StationService;
+import org.n52.series.srv.TimeseriesAccessService;
 import org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -81,23 +86,18 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @ComponentScan(basePackages = "org.n52.series.db")
 public class SpiImplConfig {
-
+    
     @Autowired
     private DbQueryFactory dbQueryFactory;
     
     @Bean
-    public CountingMetadataService metadataService() {
-        return new CountingMetadataAccessService();
+    public CountingMetadataService metadataService(EntityCounter counter) {
+        return new CountingMetadataAccessService(counter);
     }
 
     @Bean
     public ParameterService<ServiceOutput> serviceParameterService(ServiceRepository repository) {
-        return backwardsCompatible(serviceService(repository));
-    }
-
-    @Bean
-    public ServiceService serviceService(ServiceRepository repository) {
-        return new ServiceService(repository, dbQueryFactory);
+        return backwardsCompatible(new ServiceService(repository, dbQueryFactory));
     }
 
     @Bean
@@ -122,8 +122,7 @@ public class SpiImplConfig {
 
     @Bean
     public ParameterService<ProcedureOutput> procedureParameterService(ProcedureRepository repository) {
-        ProcedureService service = new ProcedureService(repository, dbQueryFactory);
-        return backwardsCompatible(service);
+        return backwardsCompatible(new ProcedureService(repository, dbQueryFactory));
     }
 
     private <T extends ParameterOutput> ParameterBackwardsCompatibilityAdapter<T> backwardsCompatible(AccessService<T> service) {
@@ -145,18 +144,33 @@ public class SpiImplConfig {
         return new StationService(repository, dbQueryFactory);
     }
 
-    private DatasetAccessService createDatasetRepository(DatasetRepository<Data< ? >> repository) {
-        return new DatasetAccessService(repository, dbQueryFactory);
+    private DatasetAccessService createDatasetService(IDataRepositoryFactory dataFactory, DatasetRepository<Data< ? >> repository) {
+        return new DatasetAccessService(dataFactory, repository, dbQueryFactory);
     }
 
     @Bean
-    public ParameterService<DatasetOutput> datasetParameterService(DatasetRepository<Data< ? >> repository) {
-        return createDatasetRepository(repository);
+    public ParameterService<DatasetOutput> datasetParameterService(IDataRepositoryFactory dataFactory, DatasetRepository<Data< ? >> repository) {
+        return createDatasetService(dataFactory, repository);
     }
 
     @Bean
-    public DataService<Data<AbstractValue< ? >>> dataService(DatasetRepository<Data< ? >> repository) {
-        return createDatasetRepository(repository);
+    public DataService<Data<AbstractValue< ? >>> dataService(IDataRepositoryFactory dataFactory, DatasetRepository<Data< ? >> repository) {
+        return createDatasetService(dataFactory, repository);
+    }
+
+    private TimeseriesAccessService createTimeseriesService(IDataRepositoryFactory dataFactory,
+                                                            TimeseriesRepository repository) {
+        return new TimeseriesAccessService(dataFactory, repository, dbQueryFactory);
+    }
+    
+    @Bean
+    public ParameterService<TimeseriesMetadataOutput> timeseriesMetadataService(IDataRepositoryFactory dataFactory, TimeseriesRepository repository) {
+        return createTimeseriesService(dataFactory, repository);
+    }
+
+    @Bean
+    public DataService<Data<QuantityValue>> timeseriesDataService(IDataRepositoryFactory dataFactory, TimeseriesRepository repository) {
+        return createTimeseriesService(dataFactory, repository);
     }
     
 }

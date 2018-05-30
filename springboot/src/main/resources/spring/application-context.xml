@@ -21,7 +21,7 @@
 <!--     <bean id="dataRepositoryFactory" class="org.n52.series.db.da.DefaultDataRepositoryFactory" /> -->
 <!--     <bean id="ioFactory" class="org.n52.io.DefaultIoFactory" /> -->
 
-    <import resource="spi-impl-dao_beans.xml"/>
+<!--     <import resource="spi-impl-dao_beans.xml"/> -->
 <!--     <import resource="spi-impl-dao_tasks.xml" /> -->
 
     <!-- For SOS Bundles (instead of extra database config) -->

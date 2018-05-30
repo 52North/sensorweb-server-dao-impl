@@ -39,12 +39,18 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
 public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput>
         extends ParameterRepository<E, O>
         implements OutputAssembler<O> {
+
+    public HierarchicalParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session)

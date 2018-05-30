@@ -45,6 +45,7 @@ import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -54,6 +55,7 @@ import org.n52.series.db.da.data.DataRepository;
 import org.n52.series.db.da.data.IDataRepositoryFactory;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -63,6 +65,7 @@ import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -71,6 +74,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
+@Component
 public class PlatformRepository extends ParameterRepository<PlatformEntity, PlatformOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformRepository.class);
@@ -80,11 +84,18 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private static final String FILTER_INSITU = "insitu";
     private static final String FILTER_REMOTE = "remote";
 
-    @Autowired
-    private DatasetRepository<Data> seriesRepository;
+    private final DatasetRepository<Data> seriesRepository;
 
-    @Autowired
-    private IDataRepositoryFactory factory;
+    private final IDataRepositoryFactory factory;
+
+    public PlatformRepository(IDataRepositoryFactory dataRepositoryFactory,
+                              DatasetRepository<Data> seriesRepository,
+                              HibernateSessionStore sessionStore, 
+                              DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.seriesRepository = seriesRepository;
+        this.factory = dataRepositoryFactory;
+    }
 
     @Override
     protected PlatformOutput prepareEmptyParameterOutput() {

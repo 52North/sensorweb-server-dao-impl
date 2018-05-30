@@ -33,17 +33,26 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.EntityCounter;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
 import org.n52.web.exception.InternalServerException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class CountingMetadataAccessService implements CountingMetadataService {
 
-    @Autowired
-    private EntityCounter counter;
+    private final EntityCounter counter;
 
-    @Autowired
-    private DbQueryFactory dbQueryFactory;
+    private final DbQueryFactory dbQueryFactory;
+
+    public CountingMetadataAccessService(EntityCounter counter) {
+        this(counter, new DefaultDbQueryFactory());
+    }
+    
+    public CountingMetadataAccessService(EntityCounter counter, DbQueryFactory dbQueryFactory) {
+        this.counter = counter;
+        this.dbQueryFactory = dbQueryFactory == null
+                ? new DefaultDbQueryFactory()
+                : dbQueryFactory;
+    }
 
     @Override
     public int getServiceCount(IoParameters parameters) {

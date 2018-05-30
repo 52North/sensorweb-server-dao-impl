@@ -31,15 +31,23 @@ package org.n52.series.db.da;
 import org.hibernate.Session;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
+
+    public PhenomenonRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected PhenomenonOutput prepareEmptyParameterOutput() {

@@ -43,6 +43,7 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -55,32 +56,34 @@ import org.n52.series.db.da.data.QuantityDataRepository;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
- * @deprecated since 2.0.0
  */
-@Deprecated
+@Component
 public class TimeseriesRepository extends SessionAwareRepository implements OutputAssembler<TimeseriesMetadataOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesRepository.class);
 
-    @Autowired
-    @Qualifier(value = "stationRepository")
-    private OutputAssembler<StationOutput> stationRepository;
+    private final OutputAssembler<StationOutput> stationRepository;
 
-    @Autowired
-    private PlatformRepository platformRepository;
+    private final PlatformRepository platformRepository;
 
-    @Autowired
-    private IDataRepositoryFactory factory;
+    private final IDataRepositoryFactory factory;
+
+    public TimeseriesRepository(PlatformRepository platformRepository, OutputAssembler<StationOutput> stationRepository, IDataRepositoryFactory factory, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.platformRepository = platformRepository;
+        this.stationRepository = stationRepository;
+        this.factory = factory;
+    }
 
     private DatasetDao<QuantityDatasetEntity> createDatasetDao(Session session) {
         return new DatasetDao<>(session, QuantityDatasetEntity.class);
@@ -298,14 +301,6 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
         // XXX explicit cast here
         return ((StationRepository) stationRepository).getCondensedInstance(featurePkid, query, session);
-    }
-
-    public OutputAssembler<StationOutput> getStationRepository() {
-        return stationRepository;
-    }
-
-    public void setStationRepository(OutputAssembler<StationOutput> stationRepository) {
-        this.stationRepository = stationRepository;
     }
 
 }

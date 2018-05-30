@@ -38,9 +38,9 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.ParameterService;
 import org.n52.web.exception.InternalServerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -49,10 +49,12 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
     protected final OutputAssembler<T> repository;
 
     protected final DbQueryFactory dbQueryFactory;
-
+    
     public AccessService(OutputAssembler<T> repository, DbQueryFactory queryFactory) {
         this.repository = repository;
-        this.dbQueryFactory = queryFactory;
+        this.dbQueryFactory = queryFactory == null
+                ? new DefaultDbQueryFactory()
+                : queryFactory;
     }
 
     @Override

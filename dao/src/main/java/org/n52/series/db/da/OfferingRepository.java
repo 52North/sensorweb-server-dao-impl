@@ -31,14 +31,22 @@ package org.n52.series.db.da;
 import org.hibernate.Session;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
+
+    public OfferingRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected OfferingOutput prepareEmptyParameterOutput() {

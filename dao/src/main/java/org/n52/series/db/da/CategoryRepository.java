@@ -31,15 +31,23 @@ package org.n52.series.db.da;
 import org.hibernate.Session;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
+
+    public CategoryRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected CategoryOutput prepareEmptyParameterOutput() {

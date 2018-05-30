@@ -34,14 +34,22 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
+
+    public FeatureRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected FeatureOutput prepareEmptyParameterOutput() {

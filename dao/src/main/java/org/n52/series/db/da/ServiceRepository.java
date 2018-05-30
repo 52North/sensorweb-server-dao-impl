@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.Collection;
@@ -45,9 +46,11 @@ import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
@@ -56,19 +59,27 @@ import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ServiceRepository extends ParameterRepository<ServiceEntity, ServiceOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRepository.class);
 
     private static final String SERVICE_TYPE = "Restful series access layer.";
 
-    @Autowired
-    private EntityCounter counter;
+    private final EntityCounter counter;
 
-    @Autowired
-    private DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
+    private final DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
+
+    public ServiceRepository(EntityCounter counter,
+                             DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator,
+                             HibernateSessionStore sessionStore,
+                             DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.counter = counter;
+        this.ioFactoryCreator = ioFactoryCreator;
+    }
 
     @Override
     protected ServiceOutput prepareEmptyParameterOutput() {
@@ -103,7 +114,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             ServiceDao dao = createDao(session);
             return isConfiguredServiceInstance(rawId)
                     || dao.hasInstance(rawId, parameters);
-        } finally {
+        }
+        finally {
             returnSession(session);
         }
     }
@@ -134,16 +146,16 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
         return serviceEntity != null
-                ? Collections.singletonList(serviceEntity)
-                : createDao(session).getAllInstances(parameters);
+            ? Collections.singletonList(serviceEntity)
+            : createDao(session).getAllInstances(parameters);
     }
 
     @Override
     protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
             throws DataAccessException {
         ServiceEntity result = !isConfiguredServiceInstance(id)
-                ? dao.getInstance(id, query)
-                : serviceEntity;
+            ? dao.getInstance(id, query)
+            : serviceEntity;
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }
@@ -171,15 +183,16 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                             supportsFirstLatest,
                             parameters,
                             result::setSupportsFirstLatest);
-        } else {
+        }
+        else {
             Map<String, Object> features = new HashMap<>();
             features.put(ServiceOutput.QUANTITIES, quantities);
             features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
             features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
             String version = (entity.getVersion() != null)
-                    ? entity.getVersion()
-                    : "2.0";
+                ? entity.getVersion()
+                : "2.0";
 
             String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
@@ -191,8 +204,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     private String getServiceType(ServiceEntity entity) {
         return entity.getType() != null
-                ? entity.getType()
-                : SERVICE_TYPE;
+            ? entity.getType()
+            : SERVICE_TYPE;
     }
 
     private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
@@ -201,7 +214,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             try {
                 IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
-            } catch (DatasetFactoryException e) {
+            }
+            catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
             }
         }
@@ -224,12 +238,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             if (parameters.shallBehaveBackwardsCompatible()) {
                 quantities.setTimeseriesSize(counter.countTimeseries());
                 quantities.setStationsSize(counter.countStations());
-            } else {
+            }
+            else {
                 quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
                 quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
             }
             return quantities;
-        } catch (DataAccessException e) {
+        }
+        catch (DataAccessException e) {
             throw new InternalServerException("Could not count parameter entities.", e);
         }
     }

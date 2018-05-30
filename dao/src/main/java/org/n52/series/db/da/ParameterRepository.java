@@ -36,9 +36,11 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
@@ -56,6 +58,10 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     protected abstract AbstractDao<E> createDao(Session session);
 
     protected abstract SearchableDao<E> createSearchableDao(Session session);
+
+    public ParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     public boolean exists(String id, DbQuery query) throws DataAccessException {

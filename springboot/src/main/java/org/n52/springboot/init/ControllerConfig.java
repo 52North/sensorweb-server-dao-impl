@@ -6,24 +6,15 @@ import org.n52.io.extension.RenderingHintsExtension;
 import org.n52.io.extension.StatusIntervalsExtension;
 import org.n52.io.extension.metadata.DatabaseMetadataExtension;
 import org.n52.io.extension.metadata.MetadataRepository;
-import org.n52.io.extension.parents.HierarchicalParameterExtension;
-import org.n52.io.extension.parents.HierarchicalParameterRepository;
-import org.n52.io.extension.parents.HierarchicalParameterService;
 import org.n52.io.extension.resulttime.ResultTimeExtension;
 import org.n52.io.extension.resulttime.ResultTimeRepository;
 import org.n52.io.extension.resulttime.ResultTimeService;
-import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.GeometryInfo;
-import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
-import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.PlatformOutput;
-import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.extension.LicenseExtension;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.da.CategoryRepository;
 import org.n52.series.db.da.DatasetRepository;
 import org.n52.series.db.da.FeatureRepository;
@@ -32,38 +23,19 @@ import org.n52.series.db.da.PlatformRepository;
 import org.n52.series.db.da.ProcedureRepository;
 import org.n52.series.db.da.StationRepository;
 import org.n52.series.db.da.TimeseriesRepository;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchService;
-import org.n52.series.spi.srv.CountingMetadataService;
-import org.n52.series.spi.srv.DataService;
-import org.n52.series.spi.srv.ParameterService;
 import org.n52.series.srv.Search;
-import org.n52.series.srv.ServiceService;
-import org.n52.web.ctrl.CategoriesParameterController;
-import org.n52.web.ctrl.DataController;
 import org.n52.web.ctrl.DatasetController;
-import org.n52.web.ctrl.FeaturesParameterController;
-import org.n52.web.ctrl.GeometriesController;
-import org.n52.web.ctrl.OfferingsParameterController;
 import org.n52.web.ctrl.ParameterController;
-import org.n52.web.ctrl.PhenomenaParameterController;
-import org.n52.web.ctrl.PlatformsParameterController;
-import org.n52.web.ctrl.ProceduresParameterController;
-import org.n52.web.ctrl.SearchController;
-import org.n52.web.ctrl.ServicesParameterController;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.n52.web.ctrl.TimeseriesMetadataController;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ComponentScan(basePackages = "org.n52.web.ctrl")
 public class ControllerConfig {
-
-    @Autowired
-    private CountingMetadataService counter;
-
-    @Bean
-    public SearchController searchController(SearchService service) {
-        return new SearchController(service);
-    }
 
     @Bean
     public SearchService searchService(ProcedureRepository procedureRepository,
@@ -90,128 +62,51 @@ public class ControllerConfig {
     }
 
     @Bean
-    public ServicesParameterController serviceController(ServiceService service) {
-        ServicesParameterController controller = new ServicesParameterController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public CategoriesParameterController categoryController(ParameterService<CategoryOutput> service) {
-        CategoriesParameterController controller = new CategoriesParameterController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public FeaturesParameterController featureController(ParameterService<FeatureOutput> service) {
-        FeaturesParameterController controller = new FeaturesParameterController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public ProceduresParameterController procedureController(ParameterService<ProcedureOutput> service) {
-        ProceduresParameterController controller = new ProceduresParameterController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public PhenomenaParameterController phenomenonController(ParameterService<PhenomenonOutput> service) {
-        PhenomenaParameterController controller = new PhenomenaParameterController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public OfferingsParameterController offeringController(ParameterService<OfferingOutput> service) {
-        OfferingsParameterController controller = new OfferingsParameterController(counter, service);
-        // XXX
-        // return withLicenseExtension(controller);
-        return controller;
-    }
-
-    @Bean
-    public GeometriesController geometryController(ParameterService<GeometryInfo> service) {
-        GeometriesController controller = new GeometriesController(counter, service);
-        return controller;
-    }
-
-    @Bean
-    public PlatformsParameterController platformController(ParameterService<PlatformOutput> platformService,
-                                                           PlatformRepository platformRepository) {
-        PlatformsParameterController controller = new PlatformsParameterController(counter, platformService);
-        HierarchicalParameterRepository repository = new HierarchicalParameterRepository(platformRepository);
-        HierarchicalParameterService service = new HierarchicalParameterService(repository);
-        controller.addMetadataExtension(new HierarchicalParameterExtension(service));
-        return controller;
-    }
-
-    // TODO refactor addition of extensions as config signature requires too
-    // much knowledge when creating controller with (actually) optional extns
-    // --> the config can be made much simpler when scanning for @Components
-
-    @Bean
-    public DatasetController datasetController(ParameterService<DatasetOutput< ? >> service) {
-        DatasetController controller = new DatasetController(counter, service);
-
-        controller.addMetadataExtension(renderingHintsExtension());
-        controller.addMetadataExtension(statusIntervalExtension());
-        controller.addMetadataExtension(resultTimeExtension());
-
-        // XXX
-        // controller.addMetadataExtension(databaseMetadataExceotion());
-
-        return controller;
-    }
-
-    @Bean
-    public DataController dataController(ParameterService<DatasetOutput<AbstractValue< ? >>> datasetService,
-                                         DataService<Data<AbstractValue< ? >>> dataService) {
-        return new DataController(defaultIoFactory(), datasetService, dataService);
-    }
-
-    @Bean
     public DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> defaultIoFactory() {
         return new DefaultIoFactory<>();
     }
 
     @Bean
-    public DatabaseMetadataExtension databaseMetadataExtension() {
-        return new DatabaseMetadataExtension(metadataRepository());
+    public DatabaseMetadataExtension databaseMetadataExtension(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        MetadataRepository repository = new MetadataRepository(sessionStore, dbQueryFactory);
+        return new DatabaseMetadataExtension(repository);
     }
 
     @Bean
-    public MetadataRepository metadataRepository() {
-        return new MetadataRepository();
+    public ResultTimeExtension resultTimeExtension(DatasetController datasetController, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        ResultTimeRepository repository = new ResultTimeRepository(sessionStore, dbQueryFactory);
+        ResultTimeService resultTimeService = new ResultTimeService(repository);
+        ResultTimeExtension extension = new ResultTimeExtension(resultTimeService);
+        datasetController.addMetadataExtension(extension);
+        return extension;
     }
 
     @Bean
-    public ResultTimeExtension resultTimeExtension() {
-        return new ResultTimeExtension(resultTimeService());
+    public StatusIntervalsExtension<DatasetOutput< ? >> statusIntervalExtension(DatasetController datasetController) {
+        StatusIntervalsExtension<DatasetOutput< ? >> extension = new StatusIntervalsExtension<>();
+        datasetController.addMetadataExtension(extension);
+        return extension;
     }
 
     @Bean
-    public ResultTimeService resultTimeService() {
-        return new ResultTimeService(resultTimeRepository());
+    public StatusIntervalsExtension<TimeseriesMetadataOutput> timeseriesStatusIntervalExtension(TimeseriesMetadataController timeseriesController) {
+        StatusIntervalsExtension<TimeseriesMetadataOutput> extension = new StatusIntervalsExtension<>();
+        timeseriesController.addMetadataExtension(extension);
+        return extension;
     }
 
     @Bean
-    public ResultTimeRepository resultTimeRepository() {
-        return new ResultTimeRepository();
+    public RenderingHintsExtension<DatasetOutput< ? >> renderingHintsExtension(DatasetController datasetController) {
+        RenderingHintsExtension<DatasetOutput< ? >> extension = new RenderingHintsExtension<>();
+        datasetController.addMetadataExtension(extension);
+        return extension;
     }
 
     @Bean
-    public StatusIntervalsExtension statusIntervalExtension() {
-        return new StatusIntervalsExtension();
+    public RenderingHintsExtension<TimeseriesMetadataOutput> timeseriesRenderingHintsExtension(TimeseriesMetadataController timeseriesController) {
+        RenderingHintsExtension<TimeseriesMetadataOutput> extension = new RenderingHintsExtension<>();
+        timeseriesController.addMetadataExtension(extension);
+        return extension;
     }
-
-    @Bean
-    public RenderingHintsExtension renderingHintsExtension() {
-        return new RenderingHintsExtension();
-    }
-
-    // @Bean
-    // public TimeseriesDataController timeseriesDataController(ParameterService<QuantityDatasetOutput>
-    // timeseriesMetadataService,
-    // DataService<Data<QuantityValue>> timeseriesDataService) {
-    // return new TimeseriesDataController(timeseriesMetadataService, timeseriesDataService);
-    // }
 
 }

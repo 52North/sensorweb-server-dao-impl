@@ -20,13 +20,13 @@
 <!--         <property name="searchService" ref="searchService" /> -->
 <!--     </bean> -->
 
-    <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
-        <property name="metadataExtensions">
-            <list>
-                <bean class="org.n52.io.response.extension.LicenseExtension" />
-            </list>
-        </property>
-    </bean>
+<!--     <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true"> -->
+<!--         <property name="metadataExtensions"> -->
+<!--             <list> -->
+<!--                 <bean class="org.n52.io.response.extension.LicenseExtension" /> -->
+<!--             </list> -->
+<!--         </property> -->
+<!--     </bean> -->
 
 <!--     <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController"> -->
 <!--         <constructor-arg index="0" ref="metadataService" /> -->

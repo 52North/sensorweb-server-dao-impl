@@ -64,8 +64,8 @@ import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -79,34 +79,22 @@ public abstract class SessionAwareRepository implements InitializingBean {
     @Autowired(required = false)
     protected ServiceEntity serviceEntity;
 
-    @Autowired
-    protected DbQueryFactory dbQueryFactory;
-
     private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
+    private final HibernateSessionStore sessionStore;
+
+    protected final DbQueryFactory dbQueryFactory;
+
     @Autowired
-    private HibernateSessionStore sessionStore;
-
-    public DbQueryFactory getDbQueryFactory() {
-        return dbQueryFactory != null
-                ? dbQueryFactory
-                : new DefaultDbQueryFactory();
-    }
-
-    public void setDbQueryFactory(DbQueryFactory dbQueryFactory) {
-        this.dbQueryFactory = dbQueryFactory;
+    public SessionAwareRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        this.sessionStore = sessionStore;
+        this.dbQueryFactory = dbQueryFactory == null
+                ? new DefaultDbQueryFactory()
+                : dbQueryFactory;
     }
 
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
-    }
-
-    public HibernateSessionStore getSessionStore() {
-        return sessionStore;
-    }
-
-    public void setSessionStore(HibernateSessionStore sessionStore) {
-        this.sessionStore = sessionStore;
     }
 
     protected CRSUtils getCrsUtils() {
@@ -124,7 +112,7 @@ public abstract class SessionAwareRepository implements InitializingBean {
     }
 
     // XXX a bit misplaced here
-    protected String getPlatformId(DatasetEntity dataset) {
+    protected static String getPlatformId(DatasetEntity dataset) {
         ProcedureEntity procedure = dataset.getProcedure();
         boolean mobile = procedure.isMobile();
         boolean insitu = procedure.isInsitu();

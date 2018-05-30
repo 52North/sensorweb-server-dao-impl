@@ -46,7 +46,6 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * TODO: JavaDoc
@@ -56,11 +55,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DatasetAccessService extends AccessService<DatasetOutput>
         implements DataService<Data<AbstractValue< ? >>> {
 
-    @Autowired
-    private IDataRepositoryFactory dataFactory;
-
-    public DatasetAccessService(DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
+    private final IDataRepositoryFactory dataFactory;
+    
+    public DatasetAccessService(IDataRepositoryFactory dataFactory, DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
+        this.dataFactory = dataFactory;
     }
 
     @Override

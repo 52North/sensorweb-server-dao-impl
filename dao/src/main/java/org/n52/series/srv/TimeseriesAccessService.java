@@ -43,17 +43,15 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Deprecated
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
         implements DataService<Data<QuantityValue>> {
 
-    @Autowired
-    private IDataRepositoryFactory factory;
+    private final IDataRepositoryFactory factory;
 
-    public TimeseriesAccessService(TimeseriesRepository repository, DbQueryFactory queryFactory) {
+    public TimeseriesAccessService(IDataRepositoryFactory factory, TimeseriesRepository repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
+        this.factory = factory;
     }
 
     @Override
@@ -84,14 +82,6 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
         } catch (DatasetFactoryException e) {
             throw new DataAccessException(e.getMessage());
         }
-    }
-
-    public IDataRepositoryFactory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(IDataRepositoryFactory factory) {
-        this.factory = factory;
     }
 
 }

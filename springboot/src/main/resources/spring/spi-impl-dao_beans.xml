@@ -11,15 +11,15 @@
 
     <ctx:annotation-config />
 
-    <bean name="serviceRepository" class="org.n52.series.db.da.ServiceRepository" />
-    <bean name="categoryRepository" class="org.n52.series.db.da.CategoryRepository" />
-    <bean name="featureRepository" class="org.n52.series.db.da.FeatureRepository" />
-    <bean name="phenomenonRepository" class="org.n52.series.db.da.PhenomenonRepository" />
-    <bean name="procedureRepository" class="org.n52.series.db.da.ProcedureRepository" />
-    <bean name="offeringRepository" class="org.n52.series.db.da.OfferingRepository" />
-    <bean name="platformRepository" class="org.n52.series.db.da.PlatformRepository" />
-    <bean name="datasetRepository" class="org.n52.series.db.da.DatasetRepository" />
-    <bean name="geometriesRepository" class="org.n52.series.db.da.GeometriesRepository" />
+<!--     <bean name="serviceRepository" class="org.n52.series.db.da.ServiceRepository" /> -->
+<!--     <bean name="categoryRepository" class="org.n52.series.db.da.CategoryRepository" /> -->
+<!--     <bean name="featureRepository" class="org.n52.series.db.da.FeatureRepository" /> -->
+<!--     <bean name="phenomenonRepository" class="org.n52.series.db.da.PhenomenonRepository" /> -->
+<!--     <bean name="procedureRepository" class="org.n52.series.db.da.ProcedureRepository" /> -->
+<!--     <bean name="offeringRepository" class="org.n52.series.db.da.OfferingRepository" /> -->
+<!--     <bean name="platformRepository" class="org.n52.series.db.da.PlatformRepository" /> -->
+<!--     <bean name="datasetRepository" class="org.n52.series.db.da.DatasetRepository" /> -->
+<!--     <bean name="geometriesRepository" class="org.n52.series.db.da.GeometriesRepository" /> -->
 
 <!--     <bean id="serviceParameterService" class="org.n52.series.srv.AccessService"> -->
 <!--         <constructor-arg index="0" ref="serviceRepository" /> -->
@@ -64,13 +64,13 @@
     <!-- ################# LEGACY BEAN INJECTIONS ################# -->
     <!-- ########################################################## -->
 
-    <bean id="timeseriesRepository" class="org.n52.series.db.da.TimeseriesRepository" />
-    <bean id="stationRepository" class="org.n52.series.db.da.StationRepository" />
+<!--     <bean id="timeseriesRepository" class="org.n52.series.db.da.TimeseriesRepository" /> -->
+<!--     <bean id="stationRepository" class="org.n52.series.db.da.StationRepository" /> -->
 
 <!--     <bean id="stationParameterService" class="org.n52.series.srv.AccessService"> -->
 <!--         <constructor-arg index="0" ref="stationRepository" /> -->
 <!--     </bean> -->
-    <bean id="timeseriesService" class="org.n52.series.srv.TimeseriesAccessService">
-        <constructor-arg index="0" ref="timeseriesRepository" />
-    </bean>
+<!--     <bean id="timeseriesService" class="org.n52.series.srv.TimeseriesAccessService"> -->
+<!--         <constructor-arg index="0" ref="timeseriesRepository" /> -->
+<!--     </bean> -->
 </beans>

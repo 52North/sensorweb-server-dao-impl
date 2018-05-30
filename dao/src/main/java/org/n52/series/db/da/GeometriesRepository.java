@@ -44,20 +44,23 @@ import org.n52.io.response.GeometryType;
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SamplingGeometryDao;
 import org.n52.series.spi.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
+@Component
 public class GeometriesRepository extends SessionAwareRepository implements OutputAssembler<GeometryInfo> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometriesRepository.class);
@@ -66,8 +69,12 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     private static final String NAMED_QUERY_PARAMETER_FEATURE_ID = "featureid";
 
-    @Autowired
-    private PlatformRepository platformRepository;
+    private final PlatformRepository platformRepository;
+
+    public GeometriesRepository(PlatformRepository platformRepository, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.platformRepository = platformRepository;
+    }
 
     private FeatureDao createFeatureDao(Session session) {
         return new FeatureDao(session);

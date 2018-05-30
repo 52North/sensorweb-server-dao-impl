@@ -43,12 +43,14 @@ import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.da.PlatformRepository;
 import org.n52.series.db.da.SessionAwareRepository;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,8 @@ public class HierarchicalParameterRepository extends SessionAwareRepository {
 
     private final PlatformRepository platformRepository;
 
-    public HierarchicalParameterRepository(PlatformRepository repository) {
+    public HierarchicalParameterRepository(PlatformRepository repository, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
         this.platformRepository = repository;
     }
 
