@@ -26,35 +26,45 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.count.CountValue;
+import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.CountDataEntity;
-import org.n52.series.db.beans.CountDatasetEntity;
+import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.RecordDataEntity;
+import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
-public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
+@DataAssembler("record")
+public class RecordDataRepository
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
 
-    @Override
-    public Class<CountDatasetEntity> getDatasetEntityType() {
-        return CountDatasetEntity.class;
+    public RecordDataRepository(HibernateSessionStore sessionStore,
+                                DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
+    public Class<RecordDatasetEntity> getDatasetEntityType() {
+        return RecordDatasetEntity.class;
+    }
+
+    @Override
+    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CountDataEntity observation : observations) {
+        Data<RecordValue> result = new Data<>();
+        DataDao<RecordDataEntity> dao = new DataDao<>(session);
+        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (RecordDataEntity observation : observations) {
+            // XXX n times same object?
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -63,23 +73,23 @@ public class CountDataRepository
     }
 
     @Override
-    protected CountValue createEmptyValue() {
-        return new CountValue();
+    protected RecordValue createEmptyValue() {
+        return new RecordValue();
     }
 
     @Override
-    public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Integer observationValue = !service.isNoDataValue(observation)
+        Map<String, Object> observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
-        CountValue value = prepareValue(observation, query);
+        RecordValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }

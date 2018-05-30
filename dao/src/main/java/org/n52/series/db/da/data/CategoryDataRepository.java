@@ -26,7 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+
+package org.n52.series.db.da.data;
 
 import java.util.Date;
 import java.util.List;
@@ -36,14 +37,22 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
+@DataAssembler("category")
 public class CategoryDataRepository
-        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+        extends
+        AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+
+    public CategoryDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     public Class<CategoryDatasetEntity> getDatasetEntityType() {
@@ -75,8 +84,8 @@ public class CategoryDataRepository
                                               DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+            ? observation.getValue()
+            : null;
 
         CategoryValue value = createValue(observation, series, query, observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
@@ -88,8 +97,8 @@ public class CategoryDataRepository
                                       String observationValue) {
         ServiceEntity service = getServiceEntity(series);
         String textValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+            ? observation.getValue()
+            : null;
         return createValue(textValue, observation, query);
     }
 
@@ -102,8 +111,8 @@ public class CategoryDataRepository
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
         return parameters.isShowTimeIntervals()
-                ? new CategoryValue(start, end, observationValue)
-                : new CategoryValue(end, observationValue);
+            ? new CategoryValue(start, end, observationValue)
+            : new CategoryValue(end, observationValue);
     }
 
 }

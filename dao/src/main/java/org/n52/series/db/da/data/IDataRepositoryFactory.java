@@ -26,36 +26,20 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
-import java.io.File;
+import java.util.Set;
 
-import org.n52.io.ConfigTypedFactory;
-import org.springframework.stereotype.Component;
+import org.n52.io.DatasetFactoryException;
 
-@Component
-public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ? >>
-        implements IDataRepositoryFactory {
+public interface IDataRepositoryFactory {
 
-    private static final String DEFAULT_CONFIG_FILE = "dataset-repository-factory.properties";
+    boolean isKnown(String valueType);
 
-    public DefaultDataRepositoryFactory() {
-        super(DEFAULT_CONFIG_FILE);
-    }
+    Set<String> getKnownTypes();
 
-    public DefaultDataRepositoryFactory(File configFile) {
-        super(configFile);
-    }
+    DataRepository create(String valueType) throws DatasetFactoryException;
 
-    @Override
-    protected String getFallbackConfigResource() {
-        return DEFAULT_CONFIG_FILE;
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected Class<DataRepository> getTargetType() {
-        return DataRepository.class;
-    }
+    boolean hasCacheEntry(String valueType);
 
 }

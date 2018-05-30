@@ -53,6 +53,7 @@ import org.n52.series.db.da.PlatformRepository;
 import org.n52.series.db.da.ProcedureRepository;
 import org.n52.series.db.da.ServiceRepository;
 import org.n52.series.db.da.StationRepository;
+import org.n52.series.db.da.data.IDataRepositoryFactory;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
 import org.n52.series.spi.srv.DataService;

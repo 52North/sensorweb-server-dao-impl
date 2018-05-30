@@ -26,20 +26,35 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
-import java.util.Set;
+import java.util.List;
 
-import org.n52.io.DatasetFactoryException;
+import org.hibernate.Session;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ReferenceValueOutput;
+import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.dao.DbQuery;
 
-public interface IDataRepositoryFactory {
+public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
 
-    boolean isKnown(String valueType);
+    Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery) throws DataAccessException;
 
-    Set<String> getKnownTypes();
+    V getFirstValue(E entity, Session session, DbQuery query);
 
-    DataRepository create(String valueType) throws DatasetFactoryException;
+    V getLastValue(E entity, Session session, DbQuery query);
 
-    boolean hasCacheEntry(String valueType);
+    GeometryEntity getLastKnownGeometry(DatasetEntity lastDataset, Session session, DbQuery query);
 
+    List<ReferenceValueOutput<V>> createReferenceValueOutputs(E datasetEntity, DbQuery query);
+
+    default void setServiceEntity(ServiceEntity serviceEntity) {
+        // void
+    }
+
+    Class<E> getDatasetEntityType();
 }

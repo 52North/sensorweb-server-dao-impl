@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,15 +41,16 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.parameter.Parameter;
+import org.n52.series.db.da.SessionAwareRepository;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.n52.series.db.dao.DbQueryFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -58,8 +59,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              V extends AbstractValue< ? >>
         extends SessionAwareRepository implements DataRepository<S, V> {
 
-    @Autowired
-    private PlatformRepository platformRepository;
+    public AbstractDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
@@ -83,11 +85,11 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
-        // platform has to be handled dynamically (see #309)
-        return platformRepository.getEntity(getPlatformId(dataset), query, session);
-    }
+//    private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
+//            throws DataAccessException {
+//        // platform has to be handled dynamically (see #309)
+//        return platformRepository.getEntity(getPlatformId(dataset), query, session);
+//    }
 
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {

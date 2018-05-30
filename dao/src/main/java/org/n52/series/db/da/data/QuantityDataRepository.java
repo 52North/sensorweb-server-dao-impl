@@ -27,7 +27,7 @@
  * for more details.
  */
 
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,15 +43,23 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
+@DataAssembler("quantity")
 public class QuantityDataRepository extends
         AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
+
+    public QuantityDataRepository(HibernateSessionStore sessionStore,
+                                  DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     public Class<QuantityDatasetEntity> getDatasetEntityType() {

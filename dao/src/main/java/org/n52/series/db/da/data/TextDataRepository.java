@@ -26,35 +26,42 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.bool.BooleanValue;
+import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.BooleanDataEntity;
-import org.n52.series.db.beans.BooleanDatasetEntity;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.TextDataEntity;
+import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
-public class BooleanDataRepository
-        extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue> {
+@DataAssembler("text")
+public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
 
-    @Override
-    public Class<BooleanDatasetEntity> getDatasetEntityType() {
-        return BooleanDatasetEntity.class;
+    public TextDataRepository(HibernateSessionStore sessionStore,
+                              DbQueryFactory dbQueryFactory) {
+        super( sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
+    public Class<TextDatasetEntity> getDatasetEntityType() {
+        return TextDatasetEntity.class;
+    }
+
+    @Override
+    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
-        Data<BooleanValue> result = new Data<>();
-        DataDao<BooleanDataEntity> dao = createDataDao(session);
-        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (BooleanDataEntity observation : observations) {
+        Data<TextValue> result = new Data<>();
+        DataDao<TextDataEntity> dao = new DataDao<>(session);
+        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (TextDataEntity observation : observations) {
             if (observation != null) {
                 result.addValues(createSeriesValueFor(observation, seriesEntity, query));
             }
@@ -63,22 +70,33 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected BooleanValue createEmptyValue() {
-        return new BooleanValue();
+    protected TextValue createEmptyValue() {
+        return new TextValue();
     }
 
     @Override
-    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
-                                             BooleanDatasetEntity series,
-                                             DbQuery query) {
+    public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
+        if (observation == null) {
+            // do not fail on empty observations
+            return null;
+        }
+
         ServiceEntity service = getServiceEntity(series);
-        Boolean observationValue = !service.isNoDataValue(observation)
+        String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
 
-        BooleanValue value = prepareValue(observation, query);
+        TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
+    }
+
+    TextValue createValue(String observationValue,
+                          TextDataEntity observation,
+                          DbQuery query) {
+        TextValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

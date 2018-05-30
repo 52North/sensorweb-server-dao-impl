@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,19 +35,24 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
+@DataAssembler("quantity-profile")
 public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDatasetEntity> {
 
     private final QuantityDataRepository quantityRepository;
 
-    public QuantityProfileDataRepository() {
-        this.quantityRepository = new QuantityDataRepository();
+    public QuantityProfileDataRepository(HibernateSessionStore sessionStore,
+                                         DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.quantityRepository = new QuantityDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override

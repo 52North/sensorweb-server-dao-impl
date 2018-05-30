@@ -50,6 +50,8 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.da.data.DataRepository;
+import org.n52.series.db.da.data.IDataRepositoryFactory;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
@@ -148,7 +150,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createExpanded(entity, query, session);
     }
 
-    PlatformEntity getEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
+    public PlatformEntity getEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
         if (PlatformType.isStationaryId(id)) {
             return getStation(id, parameters, session);
         } else {

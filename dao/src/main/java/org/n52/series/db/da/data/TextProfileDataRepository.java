@@ -26,7 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+
+package org.n52.series.db.da.data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,19 +35,23 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.beans.TextProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
+@DataAssembler("text-profile")
 public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDatasetEntity> {
 
     private final TextDataRepository textRepository;
 
-    public TextProfileDataRepository() {
-        this.textRepository = new TextDataRepository();
+    public TextProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.textRepository = new TextDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
@@ -66,7 +71,8 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Tex
             addParameters(textEntity, valueItem, query);
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(textEntity, profile, observation, query));
-            } else {
+            }
+            else {
                 dataItems.add(assembleDataItem(textEntity, profile, valueItem.getParameters(), dataset, query));
             }
         }

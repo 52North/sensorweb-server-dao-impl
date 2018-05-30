@@ -35,6 +35,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.da.data.IDataRepositoryFactory;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
 import org.n52.series.db.dao.DatasetDao;

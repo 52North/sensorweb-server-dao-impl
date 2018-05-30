@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.data;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -41,11 +41,13 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
 public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<T>> {
@@ -53,6 +55,11 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     private static final String PARAMETER_NAME = "name";
     private static final String PARAMETER_VALUE = "value";
     private static final String PARAMETER_UNIT = "unit";
+
+    public ProfileDataRepository(HibernateSessionStore sessionStore,
+                                 DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     @Override
     protected ProfileValue<T> createEmptyValue() {

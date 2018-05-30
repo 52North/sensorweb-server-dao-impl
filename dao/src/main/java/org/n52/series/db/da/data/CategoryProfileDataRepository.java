@@ -26,7 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+
+package org.n52.series.db.da.data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,19 +35,22 @@ import java.util.List;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
+import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CategoryProfileDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 
 public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDatasetEntity> {
 
     private final CategoryDataRepository categoryRepository;
 
-    public CategoryProfileDataRepository() {
-        this.categoryRepository = new CategoryDataRepository();
+    public CategoryProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+        this.categoryRepository = new CategoryDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
@@ -66,7 +70,8 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
             addParameters(categoryEntity, valueItem, query);
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(categoryEntity, profile, observation, query));
-            } else {
+            }
+            else {
                 dataItems.add(assembleDataItem(categoryEntity, profile, valueItem.getParameters(), dataset, query));
             }
         }

@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.n52.series.db.SeriesHibernateSessionHolder;
 import org.n52.series.db.SeriesLocalSessionFactoryBean;
-import org.n52.series.db.da.DefaultDataRepositoryFactory;
+import org.n52.series.db.da.data.DefaultDataRepositoryFactory;
 import org.n52.springboot.init.Application;
 import org.n52.springboot.init.SpiImplConfig;
 import org.springframework.beans.factory.annotation.Autowired;
