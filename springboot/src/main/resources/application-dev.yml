@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    username: postgres
+    password: postgres
+    #url: jdbc:postgresql://localhost:5432/sos-v5
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+  h2:
+    console:
+      enabled: true
+      path: /console
+      settings:
+        trace: false
+        web-allow-others: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

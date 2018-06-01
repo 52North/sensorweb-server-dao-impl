@@ -1,10 +1,10 @@
+
 package integration;
 
-
-import config.TestDatabaseConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.n52.series.springdata.DatabaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={TestDatabaseConfig.class})
+@SpringBootTest(classes = {DatabaseConfig.class})
 public class TestParameterEndpoint {
 
     @Autowired
@@ -41,8 +41,8 @@ public class TestParameterEndpoint {
     @Test
     public void queryOfferings() throws Exception {
         mockMvc.perform(get("/offerings").accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is4xxClientError());
+               .andDo(MockMvcResultHandlers.print())
+               .andExpect(status().is4xxClientError());
     }
 
 }
