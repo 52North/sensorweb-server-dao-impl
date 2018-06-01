@@ -1,11 +1,19 @@
-package org.n52.springboot.init;
+package org.n52.series.springdata;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.n52.hibernate.type.SmallBooleanType;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +43,28 @@ public class DatabaseConfig {
             throws IOException {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        emf.setJpaPropertyMap(properties.getProperties());
+        emf.setJpaPropertyMap(addCustomTypes(properties));
         emf.setDataSource(datasource);
-
         emf.afterPropertiesSet();
         return emf.getNativeEntityManagerFactory();
+    }
+
+    private Map<String, Object> addCustomTypes(JpaProperties jpaProperties) {
+        Map<String, Object> properties = new HashMap<>(jpaProperties.getProperties());
+        properties.put(EntityManagerFactoryBuilderImpl.TYPE_CONTRIBUTORS, createTypeContributorsList());
+        return properties;
+    }
+
+    private TypeContributorList createTypeContributorsList() {
+        List<String> types = new ArrayList<>();
+        types.add("org.n52.hibernate.type.SmallBooleanType");
+        
+        return (TypeContributorList) () -> Collections.singletonList(
+                                                                     (typeContributions, serviceRegistry) ->
+                                                                     typeContributions.contributeType(
+                                                                         SmallBooleanType.INSTANCE, "small_boolean"
+                                                                     )
+                                                             );
     }
 
     @Bean
