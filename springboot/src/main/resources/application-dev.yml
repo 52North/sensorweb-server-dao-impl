@@ -2,15 +2,21 @@ spring:
   datasource:
     username: postgres
     password: postgres
-    #url: jdbc:postgresql://localhost:5432/sos-v5
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
-  h2:
-    console:
-      enabled: true
-      path: /console
-      settings:
-        trace: false
-        web-allow-others: false
+    url: jdbc:postgresql://localhost:5432/sos-v5
+#    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE
+  jpa:
+    properties:
+      hibernate: 
+        hbm2ddl:
+           # hbm2ddl values: validate | update | create | create-drop
+          auto: update
+#  h2:
+#    console:
+#      enabled: true
+#      path: /console
+#      settings:
+#        trace: false
+#        web-allow-others: false
 
 management:
   endpoints:
