@@ -32,152 +32,77 @@ package org.n52.springboot.init;
 
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.GeometryInfo;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.StationOutput;
-import org.n52.io.response.dataset.TimeseriesMetadataOutput;
-import org.n52.io.response.dataset.quantity.QuantityValue;
-import org.n52.series.db.da.CategoryRepository;
-import org.n52.series.db.da.DatasetRepository;
-import org.n52.series.db.da.EntityCounter;
-import org.n52.series.db.da.FeatureRepository;
-import org.n52.series.db.da.GeometriesRepository;
-import org.n52.series.db.da.OfferingRepository;
-import org.n52.series.db.da.PhenomenonRepository;
-import org.n52.series.db.da.PlatformRepository;
-import org.n52.series.db.da.ProcedureRepository;
-import org.n52.series.db.da.ServiceRepository;
-import org.n52.series.db.da.StationRepository;
-import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.da.data.AnnotationBasedDataRepositoryFactory;
 import org.n52.series.db.da.data.DataRepositoryTypeFactory;
-import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.spi.srv.CountingMetadataService;
-import org.n52.series.spi.srv.DataService;
 import org.n52.series.spi.srv.ParameterService;
 import org.n52.series.srv.AccessService;
 import org.n52.series.srv.CategoryService;
-import org.n52.series.srv.CountingMetadataAccessService;
-import org.n52.series.srv.DatasetAccessService;
 import org.n52.series.srv.FeatureService;
-import org.n52.series.srv.GeometryService;
 import org.n52.series.srv.OfferingService;
 import org.n52.series.srv.PhenomenonService;
-import org.n52.series.srv.PlatformService;
 import org.n52.series.srv.ProcedureService;
 import org.n52.series.srv.ServiceService;
-import org.n52.series.srv.StationService;
-import org.n52.series.srv.TimeseriesAccessService;
 import org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = "org.n52.series.db")
+@ComponentScan(basePackages = {"org.n52.series.db", "org.n52.series.srv"})
 public class SpiImplConfig {
-    
-    @Autowired
-    private DbQueryFactory dbQueryFactory;
-    
+
     @Bean
-    public DataRepositoryTypeFactory dataRepositoryFactory(ApplicationContext appContext ) {
+    public DataRepositoryTypeFactory dataRepositoryFactory(ApplicationContext appContext) {
         return new AnnotationBasedDataRepositoryFactory(appContext);
     }
-    
+
     @Bean
-    public CountingMetadataService metadataService(EntityCounter counter) {
-        return new CountingMetadataAccessService(counter);
+    @Primary
+    public ParameterService<ServiceOutput> serviceParameterService(ServiceService service) {
+        return backwardsCompatible(service);
     }
 
     @Bean
-    public ParameterService<ServiceOutput> serviceParameterService(ServiceRepository repository) {
-        return backwardsCompatible(new ServiceService(repository, dbQueryFactory));
+    @Primary
+    public ParameterService<OfferingOutput> offeringParameterService(OfferingService service) {
+        return backwardsCompatible(service);
     }
 
     @Bean
-    public ParameterService<OfferingOutput> offeringParameterService(OfferingRepository repository) {
-        return backwardsCompatible(new OfferingService(repository, dbQueryFactory));
+    @Primary
+    public ParameterService<PhenomenonOutput> phenomenonParameterService(PhenomenonService service) {
+        return backwardsCompatible(service);
     }
 
     @Bean
-    public ParameterService<PhenomenonOutput> phenomenonParameterService(PhenomenonRepository repository) {
-        return backwardsCompatible(new PhenomenonService(repository, dbQueryFactory));
+    @Primary
+    public ParameterService<CategoryOutput> categoryParameterService(CategoryService service) {
+        return backwardsCompatible(service);
     }
 
     @Bean
-    public ParameterService<CategoryOutput> categoryParameterService(CategoryRepository repository) {
-        return backwardsCompatible(new CategoryService(repository, dbQueryFactory));
+    @Primary
+    public ParameterService<FeatureOutput> featureParameterService(FeatureService service) {
+        return backwardsCompatible(service);
     }
 
     @Bean
-    public ParameterService<FeatureOutput> featureParameterService(FeatureRepository repository) {
-        return backwardsCompatible(new FeatureService(repository, dbQueryFactory));
-    }
-
-    @Bean
-    public ParameterService<ProcedureOutput> procedureParameterService(ProcedureRepository repository) {
-        return backwardsCompatible(new ProcedureService(repository, dbQueryFactory));
+    @Primary
+    public ParameterService<ProcedureOutput> procedureParameterService(ProcedureService service) {
+        return backwardsCompatible(service);
     }
 
     private <T extends ParameterOutput> ParameterBackwardsCompatibilityAdapter<T> backwardsCompatible(AccessService<T> service) {
         return new ParameterBackwardsCompatibilityAdapter<>(service);
     }
 
-    @Bean
-    public ParameterService<GeometryInfo> geometryParameterService(GeometriesRepository repository) {
-        return new GeometryService(repository, dbQueryFactory);
-    }
-
-    @Bean
-    public ParameterService<PlatformOutput> platformParameterService(PlatformRepository repository) {
-        return new PlatformService(repository, dbQueryFactory);
-    }
-
-    @Bean
-    public ParameterService<StationOutput> stationParameterService(StationRepository repository) {
-        return new StationService(repository, dbQueryFactory);
-    }
-
-    private DatasetAccessService createDatasetService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository) {
-        return new DatasetAccessService(dataFactory, repository, dbQueryFactory);
-    }
-
-    @Bean
-    public ParameterService<DatasetOutput> datasetParameterService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository) {
-        return createDatasetService(dataFactory, repository);
-    }
-
-    @Bean
-    public DataService<Data<AbstractValue< ? >>> dataService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository) {
-        return createDatasetService(dataFactory, repository);
-    }
-
-    private TimeseriesAccessService createTimeseriesService(DataRepositoryTypeFactory dataFactory,
-                                                            TimeseriesRepository repository) {
-        return new TimeseriesAccessService(dataFactory, repository, dbQueryFactory);
-    }
-    
-    @Bean
-    public ParameterService<TimeseriesMetadataOutput> timeseriesMetadataService(DataRepositoryTypeFactory dataFactory, TimeseriesRepository repository) {
-        return createTimeseriesService(dataFactory, repository);
-    }
-
-    @Bean
-    public DataService<Data<QuantityValue>> timeseriesDataService(DataRepositoryTypeFactory dataFactory, TimeseriesRepository repository) {
-        return createTimeseriesService(dataFactory, repository);
-    }
-    
 }

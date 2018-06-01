@@ -41,15 +41,15 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.ParameterService;
 import org.n52.web.exception.InternalServerException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class AccessService<T extends ParameterOutput> extends ParameterService<T> {
+@Service
+public abstract class AccessService<T extends ParameterOutput> extends ParameterService<T> {
 
     protected final OutputAssembler<T> repository;
 
     protected final DbQueryFactory dbQueryFactory;
-    
+
     public AccessService(OutputAssembler<T> repository, DbQueryFactory queryFactory) {
         this.repository = repository;
         this.dbQueryFactory = queryFactory == null

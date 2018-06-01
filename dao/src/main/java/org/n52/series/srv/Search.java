@@ -45,7 +45,9 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Search implements SearchService {
 
     private final OutputAssembler<ProcedureOutput> procedureRepository;

@@ -15,17 +15,7 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.extension.LicenseExtension;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.da.CategoryRepository;
-import org.n52.series.db.da.DatasetRepository;
-import org.n52.series.db.da.FeatureRepository;
-import org.n52.series.db.da.PhenomenonRepository;
-import org.n52.series.db.da.PlatformRepository;
-import org.n52.series.db.da.ProcedureRepository;
-import org.n52.series.db.da.StationRepository;
-import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.spi.search.SearchService;
-import org.n52.series.srv.Search;
 import org.n52.web.ctrl.DatasetController;
 import org.n52.web.ctrl.ParameterController;
 import org.n52.web.ctrl.TimeseriesMetadataController;
@@ -36,25 +26,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = "org.n52.web.ctrl")
 public class ControllerConfig {
-
-    @Bean
-    public SearchService searchService(ProcedureRepository procedureRepository,
-                                       PhenomenonRepository phenomenonRepository,
-                                       FeatureRepository featureRepository,
-                                       CategoryRepository categoryRepository,
-                                       PlatformRepository platformRepository,
-                                       DatasetRepository datasetRepository,
-                                       TimeseriesRepository timeseriesRepository,
-                                       StationRepository stationRepository) {
-        return new Search(procedureRepository,
-                          phenomenonRepository,
-                          featureRepository,
-                          categoryRepository,
-                          platformRepository,
-                          datasetRepository,
-                          timeseriesRepository,
-                          stationRepository);
-    }
 
     private <T extends ParameterController<ParameterOutput>> T withLicenseExtension(T controller) {
         controller.addMetadataExtension(new LicenseExtension());

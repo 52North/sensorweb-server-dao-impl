@@ -46,17 +46,14 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Component;
 
-/**
- * TODO: JavaDoc
- *
- * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
- */
+@Component
 public class DatasetAccessService extends AccessService<DatasetOutput>
         implements DataService<Data<AbstractValue< ? >>> {
 
     private final DataRepositoryTypeFactory dataFactory;
-    
+
     public DatasetAccessService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;

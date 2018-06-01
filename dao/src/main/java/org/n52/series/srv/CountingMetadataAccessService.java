@@ -36,17 +36,15 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
 import org.n52.web.exception.InternalServerException;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CountingMetadataAccessService implements CountingMetadataService {
 
     private final EntityCounter counter;
 
     private final DbQueryFactory dbQueryFactory;
 
-    public CountingMetadataAccessService(EntityCounter counter) {
-        this(counter, new DefaultDbQueryFactory());
-    }
-    
     public CountingMetadataAccessService(EntityCounter counter, DbQueryFactory dbQueryFactory) {
         this.counter = counter;
         this.dbQueryFactory = dbQueryFactory == null
