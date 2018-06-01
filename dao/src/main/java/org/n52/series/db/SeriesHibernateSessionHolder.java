@@ -42,7 +42,7 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeriesHibernateSessionHolder.class);
 
     private final SessionFactory sessionFactory;
-    
+
     public SeriesHibernateSessionHolder(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }

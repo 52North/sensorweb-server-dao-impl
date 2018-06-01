@@ -16,8 +16,8 @@ public @interface DataAssembler {
 
     /**
      * The type of data to assemble.
-     * 
-     * @return the type 
+     *
+     * @return the type
      */
     String value() default "";
 }

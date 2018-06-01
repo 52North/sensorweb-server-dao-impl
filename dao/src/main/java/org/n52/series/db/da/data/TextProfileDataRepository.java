@@ -71,8 +71,7 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Tex
             addParameters(textEntity, valueItem, query);
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(textEntity, profile, observation, query));
-            }
-            else {
+            } else {
                 dataItems.add(assembleDataItem(textEntity, profile, valueItem.getParameters(), dataset, query));
             }
         }

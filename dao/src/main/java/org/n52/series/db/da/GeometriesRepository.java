@@ -71,7 +71,9 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
 
     private final PlatformRepository platformRepository;
 
-    public GeometriesRepository(PlatformRepository platformRepository, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public GeometriesRepository(PlatformRepository platformRepository,
+                                HibernateSessionStore sessionStore,
+                                DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.platformRepository = platformRepository;
     }
@@ -220,8 +222,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             throws DataAccessException {
         GeometryInfo geometryInfo = createGeometryInfo(GeometryType.PLATFORM_SITE, entity, query);
         return expanded
-                ? addGeometry(geometryInfo, entity, query)
-                : geometryInfo;
+            ? addGeometry(geometryInfo, entity, query)
+            : geometryInfo;
     }
 
     private Collection<GeometryInfo> getAllTracks(DbQuery query, Session session, boolean expanded)

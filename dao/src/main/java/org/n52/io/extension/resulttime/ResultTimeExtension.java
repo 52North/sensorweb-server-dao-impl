@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.io.extension.resulttime;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ResultTimeExtension extends MetadataExtension<DatasetOutput<?>> {
+public class ResultTimeExtension extends MetadataExtension<DatasetOutput< ? >> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeExtension.class);
 
@@ -58,7 +59,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput<?>> {
 
     private final ResultTimeService service;
 
-    public ResultTimeExtension(ResultTimeService service ) {
+    public ResultTimeExtension(ResultTimeService service) {
         this.service = service;
     }
 
@@ -78,12 +79,12 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput<?>> {
     }
 
     @Override
-    public Collection<String> getExtraMetadataFieldNames(DatasetOutput<?> output) {
+    public Collection<String> getExtraMetadataFieldNames(DatasetOutput< ? > output) {
         final ParameterOutput serviceOutput = output.getDatasetParameters(true)
                                                     .getService();
         return isAvailableFor(serviceOutput.getId())
-                ? Collections.singleton(EXTENSION_NAME)
-                : Collections.emptySet();
+            ? Collections.singleton(EXTENSION_NAME)
+            : Collections.emptySet();
     }
 
     private boolean isAvailableFor(String serviceId) {
@@ -91,11 +92,11 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput<?>> {
     }
 
     @Override
-    public Map<String, Object> getExtras(DatasetOutput<?> output, IoParameters parameters) {
+    public Map<String, Object> getExtras(DatasetOutput< ? > output, IoParameters parameters) {
         return wrapSingleIntoMap(getResultTimes(parameters, output));
     }
 
-    private Set<String> getResultTimes(IoParameters parameters, DatasetOutput<?> output) {
+    private Set<String> getResultTimes(IoParameters parameters, DatasetOutput< ? > output) {
         return service.getResultTimeList(parameters, output.getId());
     }
 

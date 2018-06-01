@@ -78,7 +78,11 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
     private final DataRepositoryTypeFactory factory;
 
-    public TimeseriesRepository(PlatformRepository platformRepository, OutputAssembler<StationOutput> stationRepository, DataRepositoryTypeFactory factory, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public TimeseriesRepository(PlatformRepository platformRepository,
+                                OutputAssembler<StationOutput> stationRepository,
+                                DataRepositoryTypeFactory factory,
+                                HibernateSessionStore sessionStore,
+                                DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.platformRepository = platformRepository;
         this.stationRepository = stationRepository;
@@ -204,8 +208,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
 
-        List<ReferenceValueOutput<QuantityValue>> referenceValues =
-                createReferenceValueOutputs(series, query, repository, session);
+        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series,
+                                                                                                query,
+                                                                                                repository,
+                                                                                                session);
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
         DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());

@@ -29,21 +29,29 @@
 package org.n52.io.extension.parents;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.HierarchicalParameterOutput;
+import org.n52.io.response.PlatformOutput;
+import org.n52.io.response.extension.MetadataExtension;
 
-public class HierarchicalParameterService {
+public class ExtrasHierarchicalParameterExtension extends MetadataExtension<PlatformOutput> {
 
-    private final HierarchicalParameterRepository repository;
+    private static final String EXTENSION_NAME = "parents";
 
-    public HierarchicalParameterService(HierarchicalParameterRepository repository) {
-        this.repository = repository;
+    private final ExtrasHierarchicalParameterService service;
+
+    public ExtrasHierarchicalParameterExtension(ExtrasHierarchicalParameterService service) {
+        this.service = service;
     }
 
-    Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId, IoParameters parameters) {
-        return repository.getExtras(platformId, parameters);
+    @Override
+    public String getExtensionName() {
+        return EXTENSION_NAME;
+    }
+
+    @Override
+    public Map<String, Object> getExtras(PlatformOutput output, IoParameters parameters) {
+        return wrapSingleIntoMap(service.getExtras(output.getId(), parameters));
     }
 
 }

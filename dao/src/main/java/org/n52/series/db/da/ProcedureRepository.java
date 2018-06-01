@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.Collections;
@@ -52,6 +53,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     public ProcedureRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
+
     @Override
     protected ProcedureOutput prepareEmptyParameterOutput() {
         return new ProcedureOutput();
@@ -81,8 +83,8 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
         ProcedureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+            ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+            : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(ProcedureOutput.SERVICE, service, query.getParameters(), result::setService);
         result.setParents(createCondensed(entity.getParents(), query, session));
         result.setChildren(createCondensed(entity.getChildren(), query, session));
@@ -93,10 +95,10 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
                                                                     DbQuery parameters,
                                                                     Session session) {
         return members == null
-                ? Collections.emptyList()
-                : members.stream()
-                         .map(e -> createCondensed(e, parameters, session))
-                         .collect(Collectors.toList());
+            ? Collections.emptyList()
+            : members.stream()
+                     .map(e -> createCondensed(e, parameters, session))
+                     .collect(Collectors.toList());
     }
 
 }

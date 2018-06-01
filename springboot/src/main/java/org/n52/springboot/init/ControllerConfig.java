@@ -31,7 +31,7 @@ public class ControllerConfig {
         controller.addMetadataExtension(new LicenseExtension());
         return controller;
     }
-
+    
     @Bean
     public DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> defaultIoFactory() {
         return new DefaultIoFactory<>();

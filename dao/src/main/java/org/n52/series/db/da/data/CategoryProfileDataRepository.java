@@ -70,8 +70,7 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
             addParameters(categoryEntity, valueItem, query);
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(categoryEntity, profile, observation, query));
-            }
-            else {
+            } else {
                 dataItems.add(assembleDataItem(categoryEntity, profile, valueItem.getParameters(), dataset, query));
             }
         }

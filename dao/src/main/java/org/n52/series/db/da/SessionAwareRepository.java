@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.HashMap;
@@ -79,18 +80,18 @@ public abstract class SessionAwareRepository implements InitializingBean {
     @Autowired(required = false)
     protected ServiceEntity serviceEntity;
 
+    protected final DbQueryFactory dbQueryFactory;
+
     private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     private final HibernateSessionStore sessionStore;
-
-    protected final DbQueryFactory dbQueryFactory;
 
     @Autowired
     public SessionAwareRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         this.sessionStore = sessionStore;
         this.dbQueryFactory = dbQueryFactory == null
-                ? new DefaultDbQueryFactory()
-                : dbQueryFactory;
+            ? new DefaultDbQueryFactory()
+            : dbQueryFactory;
     }
 
     protected DbQuery getDbQuery(IoParameters parameters) {
@@ -118,8 +119,8 @@ public abstract class SessionAwareRepository implements InitializingBean {
         boolean insitu = procedure.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);
         DescribableEntity entity = type.isStationary()
-                ? dataset.getFeature()
-                : procedure;
+            ? dataset.getFeature()
+            : procedure;
         return type.createId(entity.getId());
     }
 
@@ -182,8 +183,8 @@ public abstract class SessionAwareRepository implements InitializingBean {
         metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), query));
 
         DescribableEntity category = dataset.getCategory() == null
-                ? dataset.getPhenomenon()
-                : dataset.getCategory();
+            ? dataset.getPhenomenon()
+            : dataset.getCategory();
         metadata.setCategory(getCondensedExtendedCategory(category, query));
         // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
         return metadata;
@@ -206,8 +207,8 @@ public abstract class SessionAwareRepository implements InitializingBean {
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
         return entity != null
-                ? createCondensed(new ServiceOutput(), entity, parameters)
-                : createCondensed(new ServiceOutput(), getServiceEntity(), parameters);
+            ? createCondensed(new ServiceOutput(), entity, parameters)
+            : createCondensed(new ServiceOutput(), getServiceEntity(), parameters);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -228,8 +229,8 @@ public abstract class SessionAwareRepository implements InitializingBean {
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
         return entity.getService() != null
-                ? entity.getService()
-                : serviceEntity;
+            ? entity.getService()
+            : serviceEntity;
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {

@@ -95,8 +95,7 @@ public class Search implements SearchService {
         if (parameters.shallBehaveBackwardsCompatible()) {
             results.addAll(timeseriesRepository.searchFor(parameters));
             results.addAll(stationRepository.searchFor(parameters));
-        }
-        else {
+        } else {
             results.addAll(platformRepository.searchFor(parameters));
             results.addAll(datasetRepository.searchFor(parameters));
         }

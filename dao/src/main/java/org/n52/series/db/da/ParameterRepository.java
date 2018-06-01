@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -46,8 +47,15 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 
 public abstract class ParameterRepository<E extends DescribableEntity, O extends ParameterOutput>
-        extends SessionAwareRepository
-        implements SearchableRepository, OutputAssembler<O> {
+        extends
+        SessionAwareRepository
+        implements
+        SearchableRepository,
+        OutputAssembler<O> {
+
+    public ParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+        super(sessionStore, dbQueryFactory);
+    }
 
     protected abstract O prepareEmptyParameterOutput();
 
@@ -58,10 +66,6 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     protected abstract AbstractDao<E> createDao(Session session);
 
     protected abstract SearchableDao<E> createSearchableDao(Session session);
-
-    public ParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
-    }
 
     @Override
     public boolean exists(String id, DbQuery query) throws DataAccessException {
@@ -139,10 +143,9 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
             O instance = createExpanded(entity, query, session);
             if (instance != null) {
                 /*
-                 *  there are cases where entities does not match a filter
-                 *  which could not be added to a db criteria, e.g. spatial
-                 *  filters on mobile platforms (last location is calculated
-                 *  after db query has been finished already)
+                 * there are cases where entities does not match a filter which could not be added to a db
+                 * criteria, e.g. spatial filters on mobile platforms (last location is calculated after db
+                 * query has been finished already)
                  */
                 results.add(instance);
             }

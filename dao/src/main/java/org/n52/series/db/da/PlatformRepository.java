@@ -64,7 +64,6 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -90,7 +89,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     public PlatformRepository(DataRepositoryTypeFactory dataRepositoryFactory,
                               DatasetRepository<Data> seriesRepository,
-                              HibernateSessionStore sessionStore, 
+                              HibernateSessionStore sessionStore,
                               DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.seriesRepository = seriesRepository;

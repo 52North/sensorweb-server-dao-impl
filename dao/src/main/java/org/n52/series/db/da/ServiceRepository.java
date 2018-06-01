@@ -114,8 +114,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             ServiceDao dao = createDao(session);
             return isConfiguredServiceInstance(rawId)
                     || dao.hasInstance(rawId, parameters);
-        }
-        finally {
+        } finally {
             returnSession(session);
         }
     }
@@ -183,8 +182,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                             supportsFirstLatest,
                             parameters,
                             result::setSupportsFirstLatest);
-        }
-        else {
+        } else {
             Map<String, Object> features = new HashMap<>();
             features.put(ServiceOutput.QUANTITIES, quantities);
             features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
@@ -214,8 +212,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             try {
                 IoHandlerFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
-            }
-            catch (DatasetFactoryException e) {
+            } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
             }
         }
@@ -238,14 +235,12 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             if (parameters.shallBehaveBackwardsCompatible()) {
                 quantities.setTimeseriesSize(counter.countTimeseries());
                 quantities.setStationsSize(counter.countStations());
-            }
-            else {
+            } else {
                 quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
                 quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
             }
             return quantities;
-        }
-        catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             throw new InternalServerException("Could not count parameter entities.", e);
         }
     }

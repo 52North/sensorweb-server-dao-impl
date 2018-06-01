@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
@@ -50,11 +51,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DatasetAccessService extends AccessService<DatasetOutput>
-        implements DataService<Data<AbstractValue< ? >>> {
+        implements
+        DataService<Data<AbstractValue< ? >>> {
 
     private final DataRepositoryTypeFactory dataFactory;
 
-    public DatasetAccessService(DataRepositoryTypeFactory dataFactory, DatasetRepository<Data< ? >> repository, DbQueryFactory queryFactory) {
+    public DatasetAccessService(DataRepositoryTypeFactory dataFactory,
+                                DatasetRepository<Data< ? >> repository,
+                                DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;
     }
@@ -85,7 +89,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     }
 
     private DataRepository createRepository(String valueType) throws DataAccessException {
-        if (!("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {

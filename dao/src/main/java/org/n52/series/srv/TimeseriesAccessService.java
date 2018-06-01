@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
@@ -47,11 +48,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
-        implements DataService<Data<QuantityValue>> {
+        implements
+        DataService<Data<QuantityValue>> {
 
     private final DataRepositoryTypeFactory factory;
 
-    public TimeseriesAccessService(DataRepositoryTypeFactory factory, TimeseriesRepository repository, DbQueryFactory queryFactory) {
+    public TimeseriesAccessService(DataRepositoryTypeFactory factory,
+                                   TimeseriesRepository repository,
+                                   DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.factory = factory;
     }

@@ -56,7 +56,7 @@ public class EntityCounter {
     private final DbQueryFactory dbQueryFactory;
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
-    
+
     public EntityCounter(HibernateSessionStore sessionStore,
                          DbQueryFactory dbQueryFactory,
                          DataRepositoryTypeFactory dataRepositoryFactory) {

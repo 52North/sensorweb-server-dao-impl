@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.io.extension.parents;
 
 import java.util.Collections;
@@ -54,24 +55,23 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HierarchicalParameterRepository extends SessionAwareRepository {
+public class ExtrasHierarchicalParameterRepository extends SessionAwareRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            HierarchicalParameterRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtrasHierarchicalParameterRepository.class);
 
     private static final String KEY_PROCEDURES = "procedures";
 
     private final PlatformRepository platformRepository;
 
-    public HierarchicalParameterRepository(PlatformRepository repository, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public ExtrasHierarchicalParameterRepository(PlatformRepository repository,
+                                           HibernateSessionStore sessionStore,
+                                           DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.platformRepository = repository;
     }
 
-    Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId,
-            IoParameters parameters) {
-        Session session = getSession();
-        try {
+    Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId, IoParameters parameters) {
+        try (Session session = getSession()) {
             DbQuery dbQuery = getDbQuery(parameters);
             Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
 
@@ -89,15 +89,15 @@ public class HierarchicalParameterRepository extends SessionAwareRepository {
             LOGGER.debug("Could not convert id '{}' to long.", platformId, e);
         } catch (DataAccessException e) {
             LOGGER.error("Could not query hierarchical parameters for dataset with id '{}'",
-                    platformId, e);
-        } finally {
-            returnSession(session);
+                         platformId,
+                         e);
         }
         return Collections.emptyMap();
     }
 
-    private void addProcedureParents(DatasetEntity instance, DbQuery dbQuery,
-            Map<String, Set<HierarchicalParameterOutput>> extras) {
+    private void addProcedureParents(DatasetEntity instance,
+                                     DbQuery dbQuery,
+                                     Map<String, Set<HierarchicalParameterOutput>> extras) {
         if (!extras.containsKey(KEY_PROCEDURES)) {
             extras.put(KEY_PROCEDURES, new HashSet<>());
         }
@@ -105,13 +105,14 @@ public class HierarchicalParameterRepository extends SessionAwareRepository {
         extras.get(KEY_PROCEDURES).addAll(getProcedureParents(entity, dbQuery));
     }
 
-    private Set<? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity,
-            DbQuery dbQuery) {
+    private Set< ? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity,
+                                                                            DbQuery dbQuery) {
         return !entity.hasParents()
-                ? Collections.singleton(createCondensed(new ProcedureOutput(), entity, dbQuery))
-                : new HashSet<>(entity.getParents().stream()
-                        .map(e -> createCondensed(new ProcedureOutput(), e, dbQuery))
-                        .collect(Collectors.toSet()));
+            ? Collections.singleton(createCondensed(new ProcedureOutput(), entity, dbQuery))
+            : new HashSet<>(entity.getParents()
+                                  .stream()
+                                  .map(e -> createCondensed(new ProcedureOutput(), e, dbQuery))
+                                  .collect(Collectors.toSet()));
     }
 
 }

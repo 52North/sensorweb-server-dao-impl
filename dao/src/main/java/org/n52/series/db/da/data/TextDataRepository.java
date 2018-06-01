@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da.data;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
 
     public TextDataRepository(HibernateSessionStore sessionStore,
                               DbQueryFactory dbQueryFactory) {
-        super( sessionStore, dbQueryFactory);
+        super(sessionStore, dbQueryFactory);
     }
 
     @Override
@@ -83,8 +84,8 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
 
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+            ? observation.getValue()
+            : null;
 
         TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);

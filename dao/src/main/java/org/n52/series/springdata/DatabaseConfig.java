@@ -1,18 +1,19 @@
+
 package org.n52.series.springdata;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.model.TypeContributor;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
+import org.hibernate.type.BasicType;
 import org.n52.hibernate.type.SmallBooleanType;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
@@ -29,15 +30,15 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 @Configuration
 public class DatabaseConfig {
 
+    @Autowired
+    @Qualifier("entityManagerFactory")
+    private EntityManagerFactory entityManagerFactory;
+
     @Bean
     public DbQueryFactory dbQueryFactory(@Value("${database.srid:'EPSG:4326'}") String srid) {
         return new DefaultDbQueryFactory(srid);
     }
 
-    @Autowired
-    @Qualifier("entityManagerFactory")
-    private EntityManagerFactory entityManagerFactory;
-    
     @Bean
     public EntityManagerFactory entityManagerFactory(DataSource datasource, JpaProperties properties)
             throws IOException {
@@ -56,15 +57,11 @@ public class DatabaseConfig {
     }
 
     private TypeContributorList createTypeContributorsList() {
-        List<String> types = new ArrayList<>();
-        types.add("org.n52.hibernate.type.SmallBooleanType");
-        
-        return (TypeContributorList) () -> Collections.singletonList(
-                                                                     (typeContributions, serviceRegistry) ->
-                                                                     typeContributions.contributeType(
-                                                                         SmallBooleanType.INSTANCE, "small_boolean"
-                                                                     )
-                                                             );
+        return (TypeContributorList) Arrays.asList(toTypeContributor(SmallBooleanType.INSTANCE, "small_boolean"));
+    }
+
+    private <T extends BasicType> TypeContributor toTypeContributor(T type, String... keys) {
+        return (typeContributions, serviceRegistry) -> typeContributions.contributeType(type, keys);
     }
 
     @Bean
