@@ -48,6 +48,11 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     }
 
     @Override
+    public DbQuery createDefault() {
+        return createFrom(IoParameters.createDefaults());
+    }
+
+    @Override
     public DbQuery createFrom(IoParameters parameters) {
         DbQuery query = new DbQuery(parameters);
         query.setDatabaseSridCode(databaseSrid);
