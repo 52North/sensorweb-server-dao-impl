@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -46,9 +47,16 @@ import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
+import org.n52.io.crs.JTSGeometryConverter;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -60,12 +68,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class DbQuery {
 
@@ -100,8 +102,10 @@ public class DbQuery {
     /**
      * Create a new instance and replaces given parameter values.
      *
-     * @param parameter the parameter which values to be replaced
-     * @param values the new values
+     * @param parameter
+     *        the parameter which values to be replaced
+     * @param values
+     *        the new values
      * @return a new instance with containing the new parameter values
      */
     public DbQuery replaceWith(String parameter, String... values) {
@@ -158,11 +162,35 @@ public class DbQuery {
             Point ur = spatialFilter.getUpperRight();
             GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
             Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-            Polygon geometry = JTS.toGeometry(envelope, geomFactory);
+
+            // TODO move back to JTS.toGeoemtry once gt uses org.locationtect JTS
+            Geometry geometry = toGeometry(envelope, geomFactory);
+            // Geometry geometry = JTS.toGeometry(envelope, geomFactory);
             geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
             return geometry;
         }
         return null;
+    }
+
+    /*
+     * XXX borrowed from geotools JTS until they include org.locationtech JTS
+     */
+    private Geometry toGeometry(Envelope env, GeometryFactory factory) {
+        if (factory == null) {
+            factory = new GeometryFactory();
+        }
+        Polygon polygon = factory.createPolygon(
+                factory.createLinearRing(new Coordinate[] {
+                        new Coordinate(env.getMinX(), env.getMinY()),
+                        new Coordinate(env.getMaxX(), env.getMinY()),
+                        new Coordinate(env.getMaxX(), env.getMaxY()),
+                        new Coordinate(env.getMinX(), env.getMaxY()),
+                        new Coordinate(env.getMinX(), env.getMinY()) }), null);
+//        if (env instanceof ReferencedEnvelope) {
+//            ReferencedEnvelope refEnv = (ReferencedEnvelope) env;
+//            polygon.setUserData(refEnv.getCoordinateReferenceSystem());
+//        }
+        return polygon;
     }
 
     public boolean isExpanded() {
@@ -192,8 +220,8 @@ public class DbQuery {
 
     public String getHandleAsValueTypeFallback() {
         return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
-                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
-                : ValueType.DEFAULT_VALUE_TYPE;
+            ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+            : ValueType.DEFAULT_VALUE_TYPE;
     }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
@@ -236,14 +264,18 @@ public class DbQuery {
     }
 
     public Criteria addOdataFilterForData(Criteria criteria) {
-        FESCriterionGenerator generator =
-                new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        FESCriterionGenerator generator = new DataFESCriterionGenerator(criteria,
+                                                                        true,
+                                                                        isMatchDomainIds(),
+                                                                        isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
     public Criteria addOdataFilterForDataset(Criteria criteria) {
-        FESCriterionGenerator generator =
-                new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+        FESCriterionGenerator generator = new DatasetFESCriterionGenerator(criteria,
+                                                                           true,
+                                                                           isMatchDomainIds(),
+                                                                           isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
@@ -257,11 +289,11 @@ public class DbQuery {
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
             int limit = (getParameters().containsParameter(Parameters.LIMIT))
-                    ? getParameters().getLimit()
-                    : DEFAULT_LIMIT;
+                ? getParameters().getLimit()
+                : DEFAULT_LIMIT;
             limit = (limit > 0)
-                    ? limit
-                    : DEFAULT_LIMIT;
+                ? limit
+                : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -280,7 +312,7 @@ public class DbQuery {
         Set<String> datasets = parameters.getDatasets();
         Set<String> series = parameters.getSeries();
 
-        if (!(hasValues(platforms)
+        if (! (hasValues(platforms)
                 || hasValues(phenomena)
                 || hasValues(procedures)
                 || hasValues(offerings)
@@ -351,8 +383,8 @@ public class DbQuery {
 
     private Criterion createIdCriterion(Set<String> values, String alias) {
         return parameters.isMatchDomainIds()
-                ? createDomainIdFilter(values, alias)
-                : createIdFilter(values, alias);
+            ? createDomainIdFilter(values, alias)
+            : createIdFilter(values, alias);
     }
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
@@ -406,15 +438,15 @@ public class DbQuery {
     public Criteria addSpatialFilter(Criteria criteria) {
         Criterion filter = createSpatialFilter();
         return filter != null
-                ? criteria.add(filter)
-                : criteria;
+            ? criteria.add(filter)
+            : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
         Criterion filter = createSpatialFilter();
         return filter != null
-                ? criteria.add(filter)
-                : criteria;
+            ? criteria.add(filter)
+            : criteria;
     }
 
     private Criterion createSpatialFilter() {
@@ -422,7 +454,10 @@ public class DbQuery {
         if (bbox != null) {
             Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.intersects(geometryMember, envelope);
+            
+            // TODO remove converter once gt uses org.locationtech JTS
+            com.vividsolutions.jts.geom.Geometry geometry = JTSGeometryConverter.convert(envelope);
+            return SpatialRestrictions.intersects(geometryMember, geometry);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

@@ -53,6 +53,7 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.n52.io.crs.JTSGeometryConverter;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;

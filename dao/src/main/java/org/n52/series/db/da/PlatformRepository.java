@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
@@ -65,8 +66,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO: JavaDoc

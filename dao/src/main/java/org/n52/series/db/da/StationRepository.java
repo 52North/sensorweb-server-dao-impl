@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
@@ -51,8 +52,6 @@ import org.n52.series.spi.search.StationSearchResult;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>

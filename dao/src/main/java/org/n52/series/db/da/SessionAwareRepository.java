@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -67,8 +68,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class SessionAwareRepository implements InitializingBean {
 
