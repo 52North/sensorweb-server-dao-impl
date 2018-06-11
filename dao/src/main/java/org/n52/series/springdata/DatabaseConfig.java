@@ -57,7 +57,7 @@ public class DatabaseConfig {
     }
 
     private TypeContributorList createTypeContributorsList() {
-        return (TypeContributorList) Arrays.asList(toTypeContributor(SmallBooleanType.INSTANCE, "small_boolean"));
+        return (TypeContributorList) () -> Arrays.asList(toTypeContributor(SmallBooleanType.INSTANCE, "small_boolean"));
     }
 
     private <T extends BasicType> TypeContributor toTypeContributor(T type, String... keys) {
