@@ -6,52 +6,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-public class OfferingDataRepositoryTest {
+public class OfferingRepositoryTest {
 
     @Autowired
-    private OfferingDataRepository repository;
+    private OfferingRepository repository;
 
     @Test
     public void given_emptyDatabase_when_findAllQuery_then_emptyCollection() {
         List<OfferingEntity> allEntities = repository.findAll();
         Assertions.assertIterableEquals(allEntities, Collections.emptyList());
     }
-    
+
     @Test
     public void given_emptyDatabase_when_saveOfferingWithRequiredMembersSet_then_entityGetsSavedProperly() {
         OfferingEntity entity = new OfferingEntity();
         entity.setIdentifier("foo");
-        
+
         OfferingEntity savedEntity = repository.save(entity);
         assertAll("saving entity",
                   () -> assertNotNull(savedEntity, "saving entity returned null"),
                   () -> assertNotNull(savedEntity.getId(), "not id generated"),
                   () -> assertEquals("foo", savedEntity.getIdentifier()));
     }
-    
+
     @Test
     public void given_persistentOffering_when_existsByIdentifier_then_entityGetsFound() {
         OfferingEntity entity = new OfferingEntity();
@@ -63,19 +56,15 @@ public class OfferingDataRepositoryTest {
     }
 
     @SpringBootConfiguration
-    @EnableJpaRepositories(basePackageClasses = OfferingDataRepository.class)
-    static class Config {
-        @Bean
-        public EntityManagerFactory entityManagerFactory(DataSource datasource, JpaProperties properties)
-                throws IOException {
-            LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-            emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-            emf.setPersistenceXmlLocation("classpath*:META-INF/persistence.xml");
-            emf.setJpaPropertyMap(properties.getProperties());
-            emf.setDataSource(datasource);
+    @EnableJpaRepositories(basePackageClasses = OfferingRepository.class)
+    static class Config extends TestRepositoryConfig<DatasetEntity> {
+        public Config() {
+            super("/mapping/core/persistence.xml");
+        }
 
-            emf.afterPropertiesSet();
-            return emf.getNativeEntityManagerFactory();
+        @Override
+        public TestRepositories<DatasetEntity> testRepositories() {
+            return new TestRepositories<>();
         }
     }
 }

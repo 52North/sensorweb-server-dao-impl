@@ -454,7 +454,7 @@ public class DbQuery {
         if (bbox != null) {
             Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            
+
             // TODO remove converter once gt uses org.locationtech JTS
             com.vividsolutions.jts.geom.Geometry geometry = JTSGeometryConverter.convert(envelope);
             return SpatialRestrictions.intersects(geometryMember, geometry);
