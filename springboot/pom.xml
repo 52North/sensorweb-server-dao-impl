@@ -21,7 +21,7 @@
 
         <hibernate.version>5.2.12.FINAL</hibernate.version>
         <hibernate-spatial.version>5.2.12-52N.1</hibernate-spatial.version>
-        <postgis.version>2.2.0</postgis.version>
+        <postgis.version>2.2.1</postgis.version>
 
         <docs.context>docs</docs.context>
         <docs.sources.directory>${project.build.directory}/docs-sources</docs.sources.directory>
