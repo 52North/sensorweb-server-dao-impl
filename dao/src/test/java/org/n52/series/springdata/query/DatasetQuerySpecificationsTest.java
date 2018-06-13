@@ -1,5 +1,5 @@
 
-package org.n52.series.springdata.core;
+package org.n52.series.springdata.query;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -28,7 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-public class DatasetRepositoryTest {
+public class DatasetQuerySpecificationsTest {
 
     @Autowired
     private DatasetRepository<QuantityDatasetEntity> datasetRepository;
