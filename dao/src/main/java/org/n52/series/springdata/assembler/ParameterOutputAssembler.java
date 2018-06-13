@@ -1,19 +1,29 @@
 
 package org.n52.series.springdata.assembler;
 
+import static org.springframework.data.util.StreamUtils.createStreamFromIterator;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.springdata.DatasetRepository;
 import org.n52.series.springdata.ParameterDataRepository;
+import org.n52.series.springdata.query.DatasetQuerySpecifications;
+import org.n52.series.springdata.query.OfferingQuerySpecifications;
+
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLQuery;
 
 public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends ParameterOutput> implements
         OutputAssembler<O> {
@@ -47,9 +57,17 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     }
 
     @Override
-    public List<O> getAllCondensed(DbQuery parameters) throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
+    public List<O> getAllCondensed(DbQuery query) throws DataAccessException {
+        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
+        JPQLQuery<DatasetEntity> filteredDatasets = dsFilterSpec.filteredDatasets();
+
+        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+        BooleanExpression predicate = oFilterSpec.subSelectFrom(filteredDatasets);
+
+        Iterable<E> findAll = parameterRepository.findAll(predicate);
+        Stream<E> foundEntities = createStreamFromIterator(findAll.iterator());
+        return foundEntities.map(it -> createCondensed(it, query))
+                            .collect(Collectors.toList());
     }
 
     @Override
@@ -91,8 +109,8 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     @Override
     public boolean exists(String id, DbQuery query) throws DataAccessException {
         return query.isMatchDomainIds()
-            ? parameterRepository.existsById(Long.parseLong(id))
-            : parameterRepository.existsByIdentifier(id);
+            ? parameterRepository.existsByIdentifier(id)
+            : parameterRepository.existsById(Long.parseLong(id));
     }
 
 }

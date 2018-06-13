@@ -9,4 +9,6 @@ public interface ParameterDataRepository<T> extends JpaRepository<T, Long>, Quer
 
     boolean existsByIdentifier(String identifier);
 
+    T findByIdentifier(String identifier);
+
 }

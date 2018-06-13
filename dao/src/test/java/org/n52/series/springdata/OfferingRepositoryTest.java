@@ -39,6 +39,7 @@ public class OfferingRepositoryTest {
         entity.setIdentifier("foo");
 
         OfferingEntity savedEntity = repository.save(entity);
+
         assertAll("saving entity",
                   () -> assertNotNull(savedEntity, "saving entity returned null"),
                   () -> assertNotNull(savedEntity.getId(), "not id generated"),
