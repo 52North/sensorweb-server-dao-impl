@@ -11,16 +11,14 @@ import static org.n52.io.request.Parameters.PHENOMENA;
 import static org.n52.io.request.Parameters.PHENOMENON;
 import static org.n52.io.request.Parameters.PROCEDURE;
 import static org.n52.io.request.Parameters.PROCEDURES;
+import static org.n52.series.test.TestUtils.getIdAsString;
+import static org.n52.series.test.TestUtils.toList;
 
-import java.util.List;
-
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
@@ -32,8 +30,6 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import com.querydsl.core.types.dsl.BooleanExpression;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -330,21 +326,6 @@ public class DatasetQuerySpecificationsTest {
             DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilter())).isEmpty();
         });
-    }
-
-    private String getIdAsString(DescribableEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        Long id = entity.getId();
-        return id != null
-            ? id.toString()
-            : null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> List<T> toList(T... items) {
-        return (List<T>) Arrays.asList(items);
     }
 
     private QuantityDatasetEntity createSimpleQuantityDataset(String phenomenonIdentifier,
