@@ -39,6 +39,15 @@ public class DatasetQuerySpecifications {
     }
 
     /**
+     * Aggregates following filters in an {@literal AND} expression:
+     * <ul>
+     * <li>{@link #isPublic()} (also an aggregate filter)</li>
+     * <li>{@link #matchFeatures()}</li>
+     * <li>{@link #matchOfferings()}</li>
+     * <li>{@link #matchPhenomena()}</li>
+     * <li>{@link #matchProcedures()}</li>
+     * </ul>
+     * 
      * @return a boolean expression matching all filter criteria
      */
     public BooleanExpression matchFilter() {
@@ -49,11 +58,13 @@ public class DatasetQuerySpecifications {
     }
 
     /**
-     * Matches datasets where
+     * Aggregates following filters in an {@literal AND} expression:
      *
-     * <pre>
-     *  where feature not null and published and not deleted and not disabled
-     * </pre>
+     * <ul>
+     * <li>{@link #isPublished()}</li>
+     * <li>{@link #isEnabled()}</li>
+     * <li>{@link #isDeleted()}</li>
+     * </ul>
      *
      * @return a boolean expression
      */
