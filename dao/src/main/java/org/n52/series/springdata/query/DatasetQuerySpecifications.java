@@ -30,12 +30,14 @@ public class DatasetQuerySpecifications {
     }
 
     /**
+     * @param filter
+     *        a filter each selected dataset have to match
      * @return a subquery selection only public datasets.
      */
-    public JPQLQuery<DatasetEntity> filteredDatasets() {
+    public JPQLQuery<DatasetEntity> toSubquery(BooleanExpression filter) {
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return JPAExpressions.selectFrom(dataset)
-                             .where(matchFilter());
+                             .where(filter);
     }
 
     /**
@@ -75,7 +77,7 @@ public class DatasetQuerySpecifications {
                               .and(isEnabled())
                               .and(isPublished());
     }
-    
+
     /**
      * Matches datasets where
      *
@@ -89,7 +91,7 @@ public class DatasetQuerySpecifications {
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dataset.published.isTrue();
     }
-    
+
     /**
      * Matches datasets where
      *
@@ -142,8 +144,8 @@ public class DatasetQuerySpecifications {
         }
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dbQuery.isMatchDomainIds()
-                ? dataset.offering.identifier.in(ids)
-                : dataset.offering.id.in(parseToIds(ids));
+            ? dataset.offering.identifier.in(ids)
+            : dataset.offering.id.in(parseToIds(ids));
     }
 
     /**
@@ -198,8 +200,8 @@ public class DatasetQuerySpecifications {
         }
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dbQuery.isMatchDomainIds()
-                ? dataset.procedure.identifier.in(ids)
-                : dataset.procedure.id.in(parseToIds(ids));
+            ? dataset.procedure.identifier.in(ids)
+            : dataset.procedure.id.in(parseToIds(ids));
     }
 
     /**
@@ -226,8 +228,8 @@ public class DatasetQuerySpecifications {
         }
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dbQuery.isMatchDomainIds()
-                ? dataset.phenomenon.identifier.in(ids)
-                : dataset.phenomenon.id.in(parseToIds(ids));
+            ? dataset.phenomenon.identifier.in(ids)
+            : dataset.phenomenon.id.in(parseToIds(ids));
     }
 
 }

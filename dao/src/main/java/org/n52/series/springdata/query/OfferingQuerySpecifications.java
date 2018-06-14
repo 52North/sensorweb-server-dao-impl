@@ -27,14 +27,14 @@ public class OfferingQuerySpecifications {
      * Matches offerings included in a result of a given subquery, i.e.
      *
      * <pre>
-     *   where id in (select datasetId from dataset where &lt;subquery&gt;)
+     *   where id in (select fk_offering_id from dataset where &lt;subquery&gt;)
      * </pre>
      *
      * @param subquery
      *        the query
      * @return a boolean expression
      */
-    public BooleanExpression subSelectFrom(JPQLQuery<DatasetEntity> subquery) {
+    public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
         QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
         QOfferingEntity offeringentity = QOfferingEntity.offeringEntity;
         return offeringentity.id.in(subquery.select(datasetentity.offering.id));
