@@ -60,9 +60,37 @@ public class DatasetQuerySpecifications {
     public BooleanExpression isPublic() {
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dataset.feature.isNotNull()
-                              .and(dataset.deleted.isFalse())
-                              .and(dataset.disabled.isFalse())
-                              .and(dataset.published.isTrue());
+                              .and(isDeleted())
+                              .and(isEnabled())
+                              .and(isPublished());
+    }
+    
+    /**
+     * Matches datasets where
+     *
+     * <pre>
+     *  where published
+     * </pre>
+     *
+     * @return a boolean expression
+     */
+    public BooleanExpression isPublished() {
+        QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+        return dataset.published.isTrue();
+    }
+    
+    /**
+     * Matches datasets where
+     *
+     * <pre>
+     *  where not disabled
+     * </pre>
+     *
+     * @return a boolean expression
+     */
+    public BooleanExpression isEnabled() {
+        QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+        return dataset.disabled.isFalse();
     }
 
     /**
