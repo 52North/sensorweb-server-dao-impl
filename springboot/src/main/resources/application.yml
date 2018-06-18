@@ -1,13 +1,64 @@
 ##
 ## SPRING BOOT SETTINGS
 ##
-debug: false
 
 server:
   servlet:
     context-path: /api
   tomcat:
     uri-encoding: UTF-8
+
+##
+## DATABASE SETTINGS
+##
+
+spring:
+  datasource:
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:5432/sos-v5
+    #url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+    #data: classpath:/META-INF/data-${spring.datasource.platform}.sql
+    initialization-mode: always
+  jpa:
+    properties:
+      hibernate: 
+        hbm2ddl:
+          # hbm2ddl values: validate | update | create | create-drop
+          auto: update
+        jdbc:
+          time_zone: UTC
+          # https://hibernate.atlassian.net/browse/HHH-12368
+          lob.non_contextual_creation: true
+        format_sql: true
+        default_schema: public
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+
+        # disable driver's feature detection
+        # see https://stackoverflow.com/questions/46493500/hibernate-with-c3p0-createclob-is-not-yet-implemented
+        temp.use_jdbc_metadata_defaults: false
+
+##
+## LOGGING SETTINGS
+##
+debug: false
+logging:
+  config: classpath:logback.xml
+  path: target/logs/dao-series-api
+  level:
+    org.n52: WARN
+    ## Spring
+    org.springframework: INFO
+    org.springframework.web.servlet.mvc.method.annotation: INFO
+    ## Hibernate
+    org.hibernate: INFO
+    #org.hibernate.type: TRACE
+    #org.hibernate.SQL:DEBUG
+    ## other
+    org.apache: WARN
+    org.geotools: WARN
+    com.sun.xml: ERROR
+
 
 ##
 ## REST API SETTINGS
@@ -43,54 +94,3 @@ service.nodata.values: -9999.0,99999,NO_DATA
 # disables all jobs
 job.scheduler.enabled: false
 job.scheduler.task.prerendering.enabled: true
-
-##
-## DATABASE SETTINGS
-##
-
-spring:
-  datasource:
-    username: postgres
-    password: postgres
-    url: jdbc:postgresql://localhost:5432/sos-v5
-    #url: jdbc:h2:mem:testdb;MODE=PostgreSQL
-    #data: classpath:/META-INF/data-${spring.datasource.platform}.sql
-    initialization-mode: always
-  jpa:
-    properties:
-      hibernate: 
-        hbm2ddl:
-          # hbm2ddl values: validate | update | create | create-drop
-          auto: update
-        jdbc:
-          time_zone: UTC
-          # https://hibernate.atlassian.net/browse/HHH-12368
-          lob.non_contextual_creation: true
-        format_sql: true
-        default_schema: public
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
-
-        # disable driver's feature detection
-        # see https://stackoverflow.com/questions/46493500/hibernate-with-c3p0-createclob-is-not-yet-implemented
-        temp.use_jdbc_metadata_defaults: false
-
-##
-## LOGGING SETTINGS
-##
-logging:
-  config: classpath:logback.xml
-  path: target/logs/dao-series-api
-  level:
-    org.n52: WARN
-    ## Spring
-    org.springframework: INFO
-    org.springframework.web.servlet.mvc.method.annotation: INFO
-    ## Hibernate
-    org.hibernate: INFO
-    #org.hibernate.type: TRACE
-    #org.hibernate.SQL:DEBUG
-    ## other
-    org.apache: WARN
-    org.geotools: WARN
-    com.sun.xml: ERROR
-
