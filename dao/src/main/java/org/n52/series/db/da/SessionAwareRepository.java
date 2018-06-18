@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.locationtech.jts.geom.Geometry;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -68,6 +67,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 public abstract class SessionAwareRepository implements InitializingBean {
 
@@ -106,9 +109,18 @@ public abstract class SessionAwareRepository implements InitializingBean {
             return null;
         } else {
             String srid = query.getDatabaseSridCode();
-            geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
+            GeometryFactory geomFactory = createGeometryFactory(srid);
+            geometryEntity.setGeometryFactory(geomFactory);
             return geometryEntity.getGeometry();
         }
+    }
+    
+    private GeometryFactory createGeometryFactory(String srsId) {
+        CRSUtils crsUtils = getCrsUtils();
+        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+        return srsId == null
+                ? new GeometryFactory(pm)
+                : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
     }
 
     // XXX a bit misplaced here

@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -47,16 +46,9 @@ import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
-import org.n52.io.crs.JTSGeometryConverter;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -68,6 +60,11 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 public class DbQuery {
 
@@ -163,34 +160,11 @@ public class DbQuery {
             GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
             Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
-            // TODO move back to JTS.toGeoemtry once gt uses org.locationtect JTS
-            Geometry geometry = toGeometry(envelope, geomFactory);
-            // Geometry geometry = JTS.toGeometry(envelope, geomFactory);
+            Geometry geometry = JTS.toGeometry(envelope, geomFactory);
             geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
             return geometry;
         }
         return null;
-    }
-
-    /*
-     * XXX borrowed from geotools JTS until they include org.locationtech JTS
-     */
-    private Geometry toGeometry(Envelope env, GeometryFactory factory) {
-        if (factory == null) {
-            factory = new GeometryFactory();
-        }
-        Polygon polygon = factory.createPolygon(
-                factory.createLinearRing(new Coordinate[] {
-                        new Coordinate(env.getMinX(), env.getMinY()),
-                        new Coordinate(env.getMaxX(), env.getMinY()),
-                        new Coordinate(env.getMaxX(), env.getMaxY()),
-                        new Coordinate(env.getMinX(), env.getMaxY()),
-                        new Coordinate(env.getMinX(), env.getMinY()) }), null);
-//        if (env instanceof ReferencedEnvelope) {
-//            ReferencedEnvelope refEnv = (ReferencedEnvelope) env;
-//            polygon.setUserData(refEnv.getCoordinateReferenceSystem());
-//        }
-        return polygon;
     }
 
     public boolean isExpanded() {
@@ -455,9 +429,7 @@ public class DbQuery {
             Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
 
-            // TODO remove converter once gt uses org.locationtech JTS
-            com.vividsolutions.jts.geom.Geometry geometry = JTSGeometryConverter.convert(envelope);
-            return SpatialRestrictions.intersects(geometryMember, geometry);
+            return SpatialRestrictions.intersects(geometryMember, envelope);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

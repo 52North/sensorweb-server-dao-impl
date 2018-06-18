@@ -59,7 +59,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     @Override
     public List<O> getAllCondensed(DbQuery query) throws DataAccessException {
         DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilter());
+        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
 
         OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
         BooleanExpression predicate = oFilterSpec.selectFrom(subQuery);

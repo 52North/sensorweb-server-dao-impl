@@ -8,12 +8,15 @@ import java.util.Set;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QDatasetEntity;
+import org.n52.series.db.beans.QGeometryEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.spatial.GeometryPath;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class DatasetQuerySpecifications {
 
@@ -48,34 +51,40 @@ public class DatasetQuerySpecifications {
      * <li>{@link #matchOfferings()}</li>
      * <li>{@link #matchPhenomena()}</li>
      * <li>{@link #matchProcedures()}</li>
+     * <li>{@link #matchesSpatially()}</li>
      * </ul>
      * 
      * @return a boolean expression matching all filter criteria
      */
-    public BooleanExpression matchFilter() {
+    public BooleanExpression matchFilters() {
         return isPublic().and(matchFeatures())
                          .and(matchOfferings())
                          .and(matchPhenomena())
-                         .and(matchProcedures());
+                         .and(matchProcedures())
+                         .and(matchesSpatially());
     }
 
     /**
      * Aggregates following filters in an {@literal AND} expression:
      *
      * <ul>
+     * <li>{@link #hasFeature()}</li>
      * <li>{@link #isPublished()}</li>
      * <li>{@link #isEnabled()}</li>
-     * <li>{@link #isDeleted()}</li>
+     * <li>not {@link #isDeleted()}</li>
      * </ul>
      *
      * @return a boolean expression
      */
     public BooleanExpression isPublic() {
+        return hasFeature().and(isDeleted().not())
+                           .and(isEnabled())
+                           .and(isPublished());
+    }
+
+    private BooleanExpression hasFeature() {
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.feature.isNotNull()
-                              .and(isDeleted())
-                              .and(isEnabled())
-                              .and(isPublished());
+        return dataset.feature.isNotNull();
     }
 
     /**
@@ -230,6 +239,17 @@ public class DatasetQuerySpecifications {
         return dbQuery.isMatchDomainIds()
             ? dataset.phenomenon.identifier.in(ids)
             : dataset.phenomenon.id.in(parseToIds(ids));
+    }
+
+    public BooleanExpression matchesSpatially() {
+        Geometry geometry = dbQuery.getSpatialFilter();
+        if (geometry == null || geometry.isEmpty()) {
+            return null;
+        }
+        QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+        QGeometryEntity geometryEntity = dataset.feature.geometryEntity;
+        return geometryEntity.geometry.intersects(geometry);
+
     }
 
 }

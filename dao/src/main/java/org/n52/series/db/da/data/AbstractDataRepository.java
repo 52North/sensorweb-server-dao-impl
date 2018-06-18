@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.locationtech.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
