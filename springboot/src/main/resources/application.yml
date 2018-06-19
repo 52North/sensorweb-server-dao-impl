@@ -12,6 +12,8 @@ server:
 ## DATABASE SETTINGS
 ##
 
+database.jpa.persistence-location: classpath:META-INF/persistence.xml
+
 spring:
   datasource:
     username: postgres

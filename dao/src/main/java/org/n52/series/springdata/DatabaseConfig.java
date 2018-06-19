@@ -29,7 +29,13 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 @Configuration
 public class DatabaseConfig {
+    
+    @Value("${database.jpa.persistence-location:classpath:META-INF/persistence.xml}")
+    private String persistenceXmlLocation;
 
+    /**
+     * https://docs.spring.io/spring-boot/docs/current/reference/html/howto-data-access.html#howto-use-traditional-persistence-xml
+     */
     @Autowired
     @Qualifier("entityManagerFactory")
     private EntityManagerFactory entityManagerFactory;
@@ -45,6 +51,7 @@ public class DatabaseConfig {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         emf.setJpaPropertyMap(addCustomTypes(properties));
+        emf.setPersistenceXmlLocation(persistenceXmlLocation);
         emf.setDataSource(datasource);
         emf.afterPropertiesSet();
         return emf.getNativeEntityManagerFactory();

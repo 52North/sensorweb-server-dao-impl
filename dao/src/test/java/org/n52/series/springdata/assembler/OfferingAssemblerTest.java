@@ -92,7 +92,6 @@ public class OfferingAssemblerTest {
                                  .anyMatch(it -> it.equals("of2"))
                                  .noneMatch(it -> it.equals("of3"));
         });
-        
     }
 
     @Test
