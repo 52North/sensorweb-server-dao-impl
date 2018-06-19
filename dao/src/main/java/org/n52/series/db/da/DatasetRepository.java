@@ -254,11 +254,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters paramters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         Session session = getSession();
         try {
             DatasetDao< ? extends DatasetEntity> dao = getDatasetDao(DatasetEntity.class, session);
-            DbQuery query = getDbQuery(paramters);
             List< ? extends DatasetEntity> found = dao.find(query);
             return convertToSearchResults(found, query);
         } finally {

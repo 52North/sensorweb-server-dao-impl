@@ -31,7 +31,6 @@ package org.n52.series.db.da;
 import java.util.Collection;
 import java.util.List;
 
-import org.n52.io.request.IoParameters;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 
@@ -45,6 +44,6 @@ public interface OutputAssembler<T> {
 
     T getInstance(String id, DbQuery query);
 
-    Collection<SearchResult> searchFor(IoParameters query);
+    Collection<SearchResult> searchFor(DbQuery query);
 
 }

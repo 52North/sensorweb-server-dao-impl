@@ -109,11 +109,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         Session session = getSession();
         try {
             DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-            DbQuery query = dbQueryFactory.createFrom(parameters);
             List<QuantityDatasetEntity> found = seriesDao.find(query);
             return convertToResults(found, query.getLocale());
         } finally {

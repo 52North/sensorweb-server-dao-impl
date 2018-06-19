@@ -80,13 +80,13 @@ public class StationRepository extends SessionAwareRepository
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         Session session = getSession();
         try {
             FeatureDao stationDao = createDao(session);
-            DbQuery query = addPointLocationOnlyRestriction(getDbQuery(parameters));
-            List<FeatureEntity> found = stationDao.find(query);
-            return convertToSearchResults(found, query);
+            DbQuery pointOnlyQuery = addPointLocationOnlyRestriction(query);
+            List<FeatureEntity> found = stationDao.find(pointOnlyQuery);
+            return convertToSearchResults(found, pointOnlyQuery);
         } finally {
             returnSession(session);
         }

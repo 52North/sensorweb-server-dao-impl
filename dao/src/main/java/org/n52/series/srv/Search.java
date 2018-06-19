@@ -43,6 +43,8 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.series.db.da.OutputAssembler;
+import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.stereotype.Component;
@@ -65,6 +67,8 @@ public class Search implements SearchService {
     private final OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository;
 
     private final OutputAssembler<StationOutput> stationRepository;
+    
+    private final DbQueryFactory dbQueryFactory;
 
     public Search(OutputAssembler<ProcedureOutput> procedureRepository,
                   OutputAssembler<PhenomenonOutput> phenomenonRepository,
@@ -73,7 +77,8 @@ public class Search implements SearchService {
                   OutputAssembler<PlatformOutput> platformRepository,
                   OutputAssembler<DatasetOutput< ? >> datasetRepository,
                   OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository,
-                  OutputAssembler<StationOutput> stationRepository) {
+                  OutputAssembler<StationOutput> stationRepository,
+                  DbQueryFactory dbQueryFactory) {
         this.procedureRepository = procedureRepository;
         this.phenomenonRepository = phenomenonRepository;
         this.featureRepository = featureRepository;
@@ -82,22 +87,25 @@ public class Search implements SearchService {
         this.datasetRepository = datasetRepository;
         this.timeseriesRepository = timeseriesRepository;
         this.stationRepository = stationRepository;
+        this.dbQueryFactory = dbQueryFactory;
     }
 
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
         Set<SearchResult> results = new HashSet<>();
-        results.addAll(phenomenonRepository.searchFor(parameters));
-        results.addAll(procedureRepository.searchFor(parameters));
-        results.addAll(featureRepository.searchFor(parameters));
-        results.addAll(categoryRepository.searchFor(parameters));
+        
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        results.addAll(phenomenonRepository.searchFor(query));
+        results.addAll(procedureRepository.searchFor(query));
+        results.addAll(featureRepository.searchFor(query));
+        results.addAll(categoryRepository.searchFor(query));
 
         if (parameters.shallBehaveBackwardsCompatible()) {
-            results.addAll(timeseriesRepository.searchFor(parameters));
-            results.addAll(stationRepository.searchFor(parameters));
+            results.addAll(timeseriesRepository.searchFor(query));
+            results.addAll(stationRepository.searchFor(query));
         } else {
-            results.addAll(platformRepository.searchFor(parameters));
-            results.addAll(datasetRepository.searchFor(parameters));
+            results.addAll(platformRepository.searchFor(query));
+            results.addAll(datasetRepository.searchFor(query));
         }
         return results;
     }

@@ -183,11 +183,10 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         Session session = getSession();
         try {
             SearchableDao<E> dao = createSearchableDao(session);
-            DbQuery query = getDbQuery(parameters);
             List<E> found = dao.find(query);
             return convertToSearchResults(found, query);
         } finally {

@@ -124,7 +124,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         /*
          * final ServiceSearchResult result = new ServiceSearchResult(serviceInfo.getServiceId(),
          * serviceInfo.getServiceDescription()); String queryString =

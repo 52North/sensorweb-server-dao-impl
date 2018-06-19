@@ -152,7 +152,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery parameters) {
         return Collections.emptyList();
     }
 
