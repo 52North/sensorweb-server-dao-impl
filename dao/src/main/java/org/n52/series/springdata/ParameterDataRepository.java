@@ -1,5 +1,7 @@
 package org.n52.series.springdata;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -9,6 +11,6 @@ public interface ParameterDataRepository<T> extends JpaRepository<T, Long>, Quer
 
     boolean existsByIdentifier(String identifier);
 
-    T findByIdentifier(String identifier);
+    Optional<T> findByIdentifier(String identifier);
 
 }

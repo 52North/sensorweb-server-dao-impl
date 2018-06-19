@@ -81,9 +81,8 @@ public class TestRepositories<T extends DatasetEntity> {
     }
 
     public ProcedureEntity upsertSimpleProcedure(String procedureIdentifier, String format) {
-        return procedureRepository.existsByIdentifier(procedureIdentifier)
-                ? procedureRepository.findByIdentifier(procedureIdentifier)
-                : persistSimpleProcedure(procedureIdentifier, format);
+        return procedureRepository.findByIdentifier(procedureIdentifier)
+                                  .orElseGet(() -> persistSimpleProcedure(procedureIdentifier, format));
     }
 
     public ProcedureEntity persistSimpleProcedure(String procedureIdentifier, String format) {
@@ -95,9 +94,8 @@ public class TestRepositories<T extends DatasetEntity> {
     }
 
     public PhenomenonEntity upsertSimplePhenomenon(String phenomenonIdentifier) {
-        return phenomenonRepository.existsByIdentifier(phenomenonIdentifier)
-                ? phenomenonRepository.findByIdentifier(phenomenonIdentifier)
-                : persistSimplePhenomenon(phenomenonIdentifier);
+        return phenomenonRepository.findByIdentifier(phenomenonIdentifier)
+                                   .orElseGet(() -> persistSimplePhenomenon(phenomenonIdentifier));
     }
 
     public PhenomenonEntity persistSimplePhenomenon(String phenomenonIdentifier) {
@@ -105,9 +103,8 @@ public class TestRepositories<T extends DatasetEntity> {
     }
 
     public FeatureEntity upsertSimpleFeature(String featureIdentifier, String format) {
-        return featureRepository.existsByIdentifier(featureIdentifier)
-                ? featureRepository.findByIdentifier(featureIdentifier)
-                : persistSimpleFeature(featureIdentifier, format);
+        return featureRepository.findByIdentifier(featureIdentifier)
+                                .orElseGet(() -> persistSimpleFeature(featureIdentifier, format));
     }
 
     public FeatureEntity persistSimpleFeature(String featureIdentifier, String format) {
@@ -120,14 +117,13 @@ public class TestRepositories<T extends DatasetEntity> {
 
     private FormatEntity upsertFormat(String format) {
         return formatRepository.existsByFormat(format)
-                ? formatRepository.findByFormat(format)
-                : save(newFormat(format).build());
+            ? formatRepository.findByFormat(format)
+            : save(newFormat(format).build());
     }
 
     public OfferingEntity upsertSimpleOffering(String offeringIdentifier) {
-        return offeringRepository.existsByIdentifier(offeringIdentifier)
-                ? offeringRepository.findByIdentifier(offeringIdentifier)
-                : persistSimpleOffering(offeringIdentifier);
+        return offeringRepository.findByIdentifier(offeringIdentifier)
+                                 .orElseGet(() -> persistSimpleOffering(offeringIdentifier));
     }
 
     public OfferingEntity persistSimpleOffering(String offeringIdentifier) {
