@@ -43,16 +43,17 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.series.srv.OutputAssembler;
 import org.n52.web.exception.ResourceNotFoundException;
 
-public abstract class ParameterRepository<E extends DescribableEntity, O extends ParameterOutput>
+public abstract class ParameterAssembler<E extends DescribableEntity, O extends ParameterOutput>
         extends
-        SessionAwareRepository
+        SessionAwareAssembler
         implements
-        SearchableRepository,
+        SearchableAssembler,
         OutputAssembler<O> {
 
-    public ParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public ParameterAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 

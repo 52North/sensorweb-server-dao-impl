@@ -47,23 +47,23 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.da.PlatformRepository;
-import org.n52.series.db.da.SessionAwareRepository;
+import org.n52.series.db.da.PlatformAssembler;
+import org.n52.series.db.da.SessionAwareAssembler;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExtrasHierarchicalParameterRepository extends SessionAwareRepository {
+public class ExtrasHierarchicalParameterRepository extends SessionAwareAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtrasHierarchicalParameterRepository.class);
 
     private static final String KEY_PROCEDURES = "procedures";
 
-    private final PlatformRepository platformRepository;
+    private final PlatformAssembler platformRepository;
 
-    public ExtrasHierarchicalParameterRepository(PlatformRepository repository,
+    public ExtrasHierarchicalParameterRepository(PlatformAssembler repository,
                                            HibernateSessionStore sessionStore,
                                            DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

@@ -45,7 +45,7 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.parameter.Parameter;
-import org.n52.series.db.da.SessionAwareRepository;
+import org.n52.series.db.da.SessionAwareAssembler;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -56,7 +56,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
-        extends SessionAwareRepository implements DataRepository<S, V> {
+        extends SessionAwareAssembler implements DataRepository<S, V> {
 
     public AbstractDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

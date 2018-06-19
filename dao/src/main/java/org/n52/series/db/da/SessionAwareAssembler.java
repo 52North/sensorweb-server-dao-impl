@@ -71,9 +71,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
-public abstract class SessionAwareRepository implements InitializingBean {
+public abstract class SessionAwareAssembler implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareAssembler.class);
 
     protected UrlHelper urlHelper = new UrlHelper();
 
@@ -88,7 +88,7 @@ public abstract class SessionAwareRepository implements InitializingBean {
     private final HibernateSessionStore sessionStore;
 
     @Autowired
-    public SessionAwareRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public SessionAwareAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         this.sessionStore = sessionStore;
         this.dbQueryFactory = dbQueryFactory == null
             ? new DefaultDbQueryFactory()

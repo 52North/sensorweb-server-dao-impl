@@ -59,6 +59,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.TimeseriesSearchResult;
+import org.n52.series.srv.OutputAssembler;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,17 +69,17 @@ import org.springframework.stereotype.Component;
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
 @Component
-public class TimeseriesRepository extends SessionAwareRepository implements OutputAssembler<TimeseriesMetadataOutput> {
+public class TimeseriesAssembler extends SessionAwareAssembler implements OutputAssembler<TimeseriesMetadataOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesAssembler.class);
 
     private final OutputAssembler<StationOutput> stationRepository;
 
-    private final PlatformRepository platformRepository;
+    private final PlatformAssembler platformRepository;
 
     private final DataRepositoryTypeFactory factory;
 
-    public TimeseriesRepository(PlatformRepository platformRepository,
+    public TimeseriesAssembler(PlatformAssembler platformRepository,
                                 OutputAssembler<StationOutput> stationRepository,
                                 DataRepositoryTypeFactory factory,
                                 HibernateSessionStore sessionStore,
@@ -297,7 +298,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String featurePkid = Long.toString(feature.getId());
 
         // XXX explicit cast here
-        return ((StationRepository) stationRepository).getCondensedInstance(featurePkid, query, session);
+        return ((StationAssembler) stationRepository).getCondensedInstance(featurePkid, query, session);
     }
 
 }

@@ -42,7 +42,6 @@ import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
-import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;

@@ -29,21 +29,11 @@
 package org.n52.series.db.da;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 
-public interface OutputAssembler<T> {
-
-    boolean exists(String id, DbQuery query);
-    
-    List<T> getAllCondensed(DbQuery query);
-
-    List<T> getAllExpanded(DbQuery query);
-
-    T getInstance(String id, DbQuery query);
+public interface SearchableAssembler {
 
     Collection<SearchResult> searchFor(DbQuery query);
-
 }

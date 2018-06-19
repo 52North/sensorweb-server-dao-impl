@@ -26,62 +26,61 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.CategoryOutput;
+import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.beans.CategoryEntity;
-import org.n52.series.db.dao.AbstractDao;
-import org.n52.series.db.dao.CategoryDao;
+import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.CategorySearchResult;
+import org.n52.series.spi.search.OfferingSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
-@Component
-public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
+//@Component
+public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEntity, OfferingOutput> {
 
-    public CategoryRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public OfferingAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected CategoryOutput prepareEmptyParameterOutput() {
-        return new CategoryOutput();
+    protected OfferingOutput prepareEmptyParameterOutput() {
+        return new OfferingOutput();
     }
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new CategorySearchResult(id, label, baseUrl);
+        return new OfferingSearchResult(id, label, baseUrl);
     }
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getCategoriesHrefBaseUrl(hrefBase);
+        return urlHelper.getOfferingsHrefBaseUrl(hrefBase);
     }
 
     @Override
-    protected AbstractDao<CategoryEntity> createDao(Session session) {
-        return new CategoryDao(session);
+    protected OfferingDao createDao(Session session) {
+        return new OfferingDao(session);
     }
 
     @Override
-    protected SearchableDao<CategoryEntity> createSearchableDao(Session session) {
-        return new CategoryDao(session);
+    protected SearchableDao<OfferingEntity> createSearchableDao(Session session) {
+        return new OfferingDao(session);
     }
 
     @Override
-    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        CategoryOutput result = createCondensed(entity, query, session);
+    protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
+        OfferingOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
+            ? getCondensedExtendedService(getServiceEntity(entity), query)
+            : getCondensedService(getServiceEntity(entity), query);
+        result.setValue(OfferingOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
-
 }

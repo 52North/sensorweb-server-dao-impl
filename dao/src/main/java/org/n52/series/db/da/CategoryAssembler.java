@@ -26,32 +26,33 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.AbstractDao;
+import org.n52.series.db.dao.CategoryDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
+public class CategoryAssembler extends ParameterAssembler<CategoryEntity, CategoryOutput> {
 
-    public PhenomenonRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public CategoryAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected PhenomenonOutput prepareEmptyParameterOutput() {
-        return new PhenomenonOutput();
+    protected CategoryOutput prepareEmptyParameterOutput() {
+        return new CategoryOutput();
     }
 
     @Override
@@ -61,26 +62,26 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
+        return urlHelper.getCategoriesHrefBaseUrl(hrefBase);
     }
 
     @Override
-    protected AbstractDao<PhenomenonEntity> createDao(Session session) {
-        return new PhenomenonDao(session);
+    protected AbstractDao<CategoryEntity> createDao(Session session) {
+        return new CategoryDao(session);
     }
 
     @Override
-    protected SearchableDao<PhenomenonEntity> createSearchableDao(Session session) {
-        return new PhenomenonDao(session);
+    protected SearchableDao<CategoryEntity> createSearchableDao(Session session) {
+        return new CategoryDao(session);
     }
 
     @Override
-    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
-        PhenomenonOutput result = createCondensed(entity, query, session);
+    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
+        CategoryOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(PhenomenonOutput.SERVICE, service, query.getParameters(), result::setService);
+            ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+            : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

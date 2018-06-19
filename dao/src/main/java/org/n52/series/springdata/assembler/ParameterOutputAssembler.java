@@ -13,13 +13,13 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.springdata.DatasetRepository;
 import org.n52.series.springdata.ParameterDataRepository;
 import org.n52.series.springdata.query.DatasetQuerySpecifications;
 import org.n52.series.springdata.query.OfferingQuerySpecifications;
+import org.n52.series.srv.OutputAssembler;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;

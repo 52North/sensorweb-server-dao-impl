@@ -38,10 +38,10 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.da.SessionAwareRepository;
+import org.n52.series.db.da.SessionAwareAssembler;
 import org.n52.series.db.dao.DbQueryFactory;
 
-public class MetadataRepository extends SessionAwareRepository {
+public class MetadataRepository extends SessionAwareAssembler {
 
     public MetadataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

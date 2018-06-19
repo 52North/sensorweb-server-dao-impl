@@ -42,12 +42,13 @@ import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.srv.OutputAssembler;
 
-public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput>
-        extends ParameterRepository<E, O>
+public abstract class HierarchicalParameterAssembler<E extends HierarchicalEntity<E>, O extends AbstractOutput>
+        extends ParameterAssembler<E, O>
         implements OutputAssembler<O> {
 
-    public HierarchicalParameterRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public HierarchicalParameterAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 

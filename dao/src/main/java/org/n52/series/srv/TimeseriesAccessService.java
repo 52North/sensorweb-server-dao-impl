@@ -37,7 +37,7 @@ import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.da.TimeseriesRepository;
+import org.n52.series.db.da.TimeseriesAssembler;
 import org.n52.series.db.da.data.DataRepository;
 import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
@@ -54,7 +54,7 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
     private final DataRepositoryTypeFactory factory;
 
     public TimeseriesAccessService(DataRepositoryTypeFactory factory,
-                                   TimeseriesRepository repository,
+                                   TimeseriesAssembler repository,
                                    DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.factory = factory;

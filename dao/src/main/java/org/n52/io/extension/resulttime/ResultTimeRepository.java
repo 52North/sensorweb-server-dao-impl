@@ -43,14 +43,14 @@ import org.n52.io.request.IoParameters;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.da.SessionAwareRepository;
+import org.n52.series.db.da.SessionAwareAssembler;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.QueryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResultTimeRepository extends SessionAwareRepository {
+public class ResultTimeRepository extends SessionAwareAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeRepository.class);
 

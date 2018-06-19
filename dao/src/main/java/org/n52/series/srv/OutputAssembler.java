@@ -26,14 +26,24 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.srv;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 
-public interface SearchableRepository {
+public interface OutputAssembler<T> {
+
+    boolean exists(String id, DbQuery query);
+    
+    List<T> getAllCondensed(DbQuery query);
+
+    List<T> getAllExpanded(DbQuery query);
+
+    T getInstance(String id, DbQuery query);
 
     Collection<SearchResult> searchFor(DbQuery query);
+
 }

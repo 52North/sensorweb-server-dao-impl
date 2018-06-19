@@ -73,21 +73,21 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
 @Component
-public class PlatformRepository extends ParameterRepository<PlatformEntity, PlatformOutput> {
+public class PlatformAssembler extends ParameterAssembler<PlatformEntity, PlatformOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformAssembler.class);
 
     private static final String FILTER_STATIONARY = "stationary";
     private static final String FILTER_MOBILE = "mobile";
     private static final String FILTER_INSITU = "insitu";
     private static final String FILTER_REMOTE = "remote";
 
-    private final DatasetRepository<Data> seriesRepository;
+    private final DatasetAssembler<Data> seriesRepository;
 
     private final DataRepositoryTypeFactory factory;
 
-    public PlatformRepository(DataRepositoryTypeFactory dataRepositoryFactory,
-                              DatasetRepository<Data> seriesRepository,
+    public PlatformAssembler(DataRepositoryTypeFactory dataRepositoryFactory,
+                              DatasetAssembler<Data> seriesRepository,
                               HibernateSessionStore sessionStore,
                               DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

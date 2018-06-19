@@ -39,7 +39,7 @@ import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.da.DatasetRepository;
+import org.n52.series.db.da.DatasetAssembler;
 import org.n52.series.db.da.data.DataRepository;
 import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
@@ -57,7 +57,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
     private final DataRepositoryTypeFactory dataFactory;
 
     public DatasetAccessService(DataRepositoryTypeFactory dataFactory,
-                                DatasetRepository<Data< ? >> repository,
+                                DatasetAssembler<Data< ? >> repository,
                                 DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;

@@ -48,9 +48,9 @@ import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
+public class ProcedureAssembler extends HierarchicalParameterAssembler<ProcedureEntity, ProcedureOutput> {
 
-    public ProcedureRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public ProcedureAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 

@@ -47,6 +47,7 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.StationSearchResult;
+import org.n52.series.srv.OutputAssembler;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
@@ -57,10 +58,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
 @Component
-public class StationRepository extends SessionAwareRepository
-        implements OutputAssembler<StationOutput>, SearchableRepository {
+public class StationAssembler extends SessionAwareAssembler
+        implements OutputAssembler<StationOutput>, SearchableAssembler {
 
-    public StationRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public StationAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 

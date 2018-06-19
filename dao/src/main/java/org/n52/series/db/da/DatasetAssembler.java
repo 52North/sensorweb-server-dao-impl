@@ -59,6 +59,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.series.srv.OutputAssembler;
 import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -74,18 +75,18 @@ import org.springframework.stereotype.Component;
  *        the datasets type this repository is responsible for.
  */
 @Component
-public class DatasetRepository<T extends Data> extends SessionAwareRepository
+public class DatasetAssembler<T extends Data> extends SessionAwareAssembler
         implements
         OutputAssembler<DatasetOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAssembler.class);
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
 
     @Autowired
-    private PlatformRepository platformRepository;
+    private PlatformAssembler platformRepository;
 
-    public DatasetRepository(DataRepositoryTypeFactory dataRepositoryFactory,
+    public DatasetAssembler(DataRepositoryTypeFactory dataRepositoryFactory,
                              // PlatformRepository platformRepository,
                              HibernateSessionStore sessionStore,
                              DbQueryFactory dbQueryFactory) {

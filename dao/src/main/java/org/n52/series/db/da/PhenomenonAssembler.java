@@ -28,63 +28,59 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.hibernate.Session;
-import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.FeatureDao;
+import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
+public class PhenomenonAssembler extends HierarchicalParameterAssembler<PhenomenonEntity, PhenomenonOutput> {
 
-    public FeatureRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public PhenomenonAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected FeatureOutput prepareEmptyParameterOutput() {
-        return new FeatureOutput();
+    protected PhenomenonOutput prepareEmptyParameterOutput() {
+        return new PhenomenonOutput();
     }
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new CategorySearchResult(id, label, baseUrl);
     }
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getFeaturesHrefBaseUrl(hrefBase);
+        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
     }
 
     @Override
-    protected FeatureDao createDao(Session session) {
-        return new FeatureDao(session);
+    protected AbstractDao<PhenomenonEntity> createDao(Session session) {
+        return new PhenomenonDao(session);
     }
 
     @Override
-    protected SearchableDao<FeatureEntity> createSearchableDao(Session session) {
-        return new FeatureDao(session);
+    protected SearchableDao<PhenomenonEntity> createSearchableDao(Session session) {
+        return new PhenomenonDao(session);
     }
 
     @Override
-    protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
-        FeatureOutput result = createCondensed(entity, query, session);
+    protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
+        PhenomenonOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(PhenomenonOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

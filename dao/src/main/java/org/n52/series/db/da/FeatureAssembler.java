@@ -28,58 +28,64 @@
  */
 package org.n52.series.db.da;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.hibernate.Session;
-import org.n52.io.response.OfferingOutput;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.OfferingDao;
+import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.OfferingSearchResult;
+import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
+public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEntity, FeatureOutput> {
 
-    public OfferingRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public FeatureAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    protected OfferingOutput prepareEmptyParameterOutput() {
-        return new OfferingOutput();
+    protected FeatureOutput prepareEmptyParameterOutput() {
+        return new FeatureOutput();
     }
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new OfferingSearchResult(id, label, baseUrl);
+        return new FeatureSearchResult(id, label, baseUrl);
     }
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getOfferingsHrefBaseUrl(hrefBase);
+        return urlHelper.getFeaturesHrefBaseUrl(hrefBase);
     }
 
     @Override
-    protected OfferingDao createDao(Session session) {
-        return new OfferingDao(session);
+    protected FeatureDao createDao(Session session) {
+        return new FeatureDao(session);
     }
 
     @Override
-    protected SearchableDao<OfferingEntity> createSearchableDao(Session session) {
-        return new OfferingDao(session);
+    protected SearchableDao<FeatureEntity> createSearchableDao(Session session) {
+        return new FeatureDao(session);
     }
 
     @Override
-    protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
-        OfferingOutput result = createCondensed(entity, query, session);
+    protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
+        FeatureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query)
-                : getCondensedService(getServiceEntity(entity), query);
-        result.setValue(OfferingOutput.SERVICE, service, query.getParameters(), result::setService);
+                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
+        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
+
 }

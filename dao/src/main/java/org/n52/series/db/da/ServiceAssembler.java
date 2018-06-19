@@ -60,9 +60,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServiceRepository extends ParameterRepository<ServiceEntity, ServiceOutput> {
+public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceAssembler.class);
 
     private static final String SERVICE_TYPE = "Restful series access layer.";
 
@@ -70,7 +70,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     private final DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
 
-    public ServiceRepository(EntityCounter counter,
+    public ServiceAssembler(EntityCounter counter,
                              DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator,
                              HibernateSessionStore sessionStore,
                              DbQueryFactory dbQueryFactory) {

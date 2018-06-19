@@ -36,7 +36,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 
-public class SessionAwareRepositoryTest {
+public class SessionAwareAssemblerTest {
 
     @Test
     public void when_mobileInsituString_then_recognizeType() {
@@ -75,7 +75,7 @@ public class SessionAwareRepositoryTest {
         dataset.setProcedure(procedure);
         dataset.setFeature(feature);
 
-        return SessionAwareRepository.getPlatformId(dataset);
+        return SessionAwareAssembler.getPlatformId(dataset);
     }
 
 }
