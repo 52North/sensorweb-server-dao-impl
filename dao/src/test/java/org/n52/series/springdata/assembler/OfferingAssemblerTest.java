@@ -4,6 +4,7 @@ package org.n52.series.springdata.assembler;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.n52.io.request.Parameters.MATCH_DOMAIN_IDS;
+import static org.n52.series.test.TestUtils.getIdAsString;
 
 import java.util.List;
 
@@ -19,7 +20,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.springdata.DatasetRepository;
 import org.n52.series.springdata.OfferingRepository;
@@ -46,30 +46,34 @@ public class OfferingAssemblerTest {
 
     private OfferingAssembler assembler;
 
-    private DbQueryFactory dbQueryFactory;
+    private DbQuery defaultQuery;
 
     @BeforeEach
     public void setUp() {
+        this.defaultQuery = new DefaultDbQueryFactory().createDefault();
         this.assembler = new OfferingAssembler(offeringRepository, datasetRepository);
-        this.dbQueryFactory = new DefaultDbQueryFactory();
     }
 
     @Test
     @DisplayName("Offering of non-public dataset is not found")
-    public void given_aNonPublicDataset_when_queryingOfferings_then_offeringIsNotFound() {
+    public void given_aNonPublicDataset_when_queryingOfferings_then_offeringIsNotPartOfCollection() {
         DatasetEntity dataset = createDataset("phen", "off", "proc", "sml", "feat", "featFormat");
         dataset.setPublished(false);
 
-        DbQuery query = dbQueryFactory.createDefault();
-        List<OfferingOutput> offerings = assembler.getAllCondensed(query);
+        Assertions.assertAll("Offering is not part of collection", () -> {
+            assertThat(assembler.getAllCondensed(defaultQuery)).isEmpty();
+        });
 
-        OfferingEntity offering = dataset.getOffering();
-        String id = Long.toString(offering.getId());
-        Assertions.assertAll("Assert offering is found", () -> {
-            assertThat(offerings).isEmpty();
-            assertThat(assembler.exists(id, query));
-            DbQuery matchDomainIds = query.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString());
-            assertThat(assembler.exists("off", matchDomainIds));
+        Assertions.assertAll("Offering id does not exist", () -> {
+            String id = getIdAsString(dataset.getOffering());
+            assertThat(assembler.exists(id, defaultQuery)).isFalse();
+            assertThat(assembler.getInstance(id, defaultQuery)).isNull();
+        });
+        
+        Assertions.assertAll("Offering identifier does not exist", () -> {
+            DbQuery matchDomainIds = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString());
+            assertThat(assembler.exists("off", matchDomainIds)).isFalse();
+            assertThat(assembler.getInstance("off", matchDomainIds)).isNull();
         });
     }
 
@@ -80,10 +84,9 @@ public class OfferingAssemblerTest {
         createDataset("ph1", "of2", "pr2", "format3", "fe2", "format4");
         createDataset("ph2", "of3", "pr2", "format3", "fe2", "format4");
 
-        DbQuery query = dbQueryFactory.createDefault();
         Assertions.assertAll("Offerings with matching domainId filters", () -> {
-            DbQuery ph1Query = query.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-                                    .replaceWith(Parameters.PHENOMENA, "ph1");
+            DbQuery ph1Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
+                                           .replaceWith(Parameters.PHENOMENA, "ph1");
             List<OfferingOutput> offerings = assembler.getAllCondensed(ph1Query);
             assertThat(offerings).extracting(OfferingOutput::getDomainId)
                                  .anyMatch(it -> it.equals("of1"))
@@ -100,8 +103,7 @@ public class OfferingAssemblerTest {
         OfferingEntity offering = dataset.getOffering();
         String expectedId = Long.toString(offering.getId());
 
-        DbQuery query = dbQueryFactory.createDefault();
-        List<OfferingOutput> offerings = assembler.getAllCondensed(query);
+        List<OfferingOutput> offerings = assembler.getAllCondensed(defaultQuery);
 
         Assertions.assertAll("Assert members of serialized output assemble", () -> {
             ObjectAssert<OfferingOutput> element = assertThat(offerings).element(0);

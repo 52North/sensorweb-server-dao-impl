@@ -5,13 +5,12 @@ import static org.springframework.data.util.StreamUtils.createStreamFromIterator
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.da.OutputAssembler;
@@ -40,6 +39,14 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     protected abstract O prepareEmptyOutput();
 
+    protected O createExpanded(E entity, DbQuery query) {
+        O output = createCondensed(entity, query);
+
+        // TODO
+
+        return output;
+    }
+
     protected O createCondensed(E entity, DbQuery query) {
         O result = prepareEmptyOutput();
         IoParameters parameters = query.getParameters();
@@ -58,16 +65,9 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     @Override
     public List<O> getAllCondensed(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
+        return findAll(query).map(it -> createCondensed(it, query))
+                             .collect(Collectors.toList());
 
-        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        BooleanExpression predicate = oFilterSpec.selectFrom(subQuery);
-
-        Iterable<E> findAll = parameterRepository.findAll(predicate);
-        Stream<E> foundEntities = createStreamFromIterator(findAll.iterator());
-        return foundEntities.map(it -> createCondensed(it, query))
-                            .collect(Collectors.toList());
 
 
 
@@ -75,30 +75,46 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     @Override
     public List<O> getAllExpanded(DbQuery query) {
-        // TODO Auto-generated method stub
-        return null;
+        return findAll(query).map(it -> createExpanded(it, query))
+                             .collect(Collectors.toList());
     }
 
     @Override
     public O getInstance(String id, DbQuery query) {
-        Optional<E> entity = query.isMatchDomainIds()
-                ? parameterRepository.findByIdentifier(id)
-                : parameterRepository.findById(Long.parseLong(id));
-        entity.o
-        return createExpanded(ElseThrow(exceptionSupplier));
+        BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
+        Optional<E> entity = parameterRepository.findOne(publicOffering);
+        return entity.map(it -> createExpanded(it, query)).orElse(null);
     }
 
     @Override
-    public Collection<SearchResult> searchFor(IoParameters parameters) {
+    public Collection<SearchResult> searchFor(DbQuery query) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public boolean exists(String id, DbQuery query) {
-        return query.isMatchDomainIds()
-            ? parameterRepository.existsByIdentifier(id)
-            : parameterRepository.existsById(Long.parseLong(id));
+        BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
+        return parameterRepository.exists(publicOffering);
+    }
+
+    private BooleanExpression createPublicOfferingPredicate(String id, DbQuery query) {
+        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+        return oFilterSpec.matchesPublicOffering(id);
+    }
+
+    private Stream<E> findAll(DbQuery query) {
+        BooleanExpression predicate = createFilterPredicate(query);
+        Iterable<E> entities = parameterRepository.findAll(predicate);
+        return createStreamFromIterator(entities.iterator());
+    }
+
+    private BooleanExpression createFilterPredicate(DbQuery query) {
+        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
+        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
+
+        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+        return oFilterSpec.selectFrom(subQuery);
     }
 
 }

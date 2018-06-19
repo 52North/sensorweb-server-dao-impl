@@ -3,6 +3,8 @@ package org.n52.series.springdata.query;
 
 import static org.n52.series.db.dao.QueryUtils.parseToIds;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
 import org.n52.io.request.IoParameters;
@@ -15,7 +17,6 @@ import org.n52.series.db.dao.DefaultDbQueryFactory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.spatial.GeometryPath;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class DatasetQuerySpecifications {
@@ -151,6 +152,35 @@ public class DatasetQuerySpecifications {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
+        return matchOfferings(ids);
+    }
+
+    /**
+     * Matches datasets having offerings with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchOfferings()
+     */
+    public BooleanExpression matchOfferings(String... ids) {
+        return ids != null
+            ? matchOfferings(Arrays.asList(ids))
+            : null;
+    }
+
+    /**
+     * Matches datasets having offerings with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchOfferings()
+     */
+    public BooleanExpression matchOfferings(Collection<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dbQuery.isMatchDomainIds()
             ? dataset.offering.identifier.in(ids)
@@ -176,6 +206,35 @@ public class DatasetQuerySpecifications {
     public BooleanExpression matchFeatures() {
         IoParameters parameters = dbQuery.getParameters();
         Set<String> ids = parameters.getFeatures();
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
+        return matchFeatures(ids);
+    }
+
+    /**
+     * Matches datasets having features with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchFeatures()
+     */
+    public BooleanExpression matchFeatures(String... ids) {
+        return ids != null
+            ? matchFeatures(Arrays.asList(ids))
+            : null;
+    }
+
+    /**
+     * Matches datasets having features with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchFeatures()
+     */
+    public BooleanExpression matchFeatures(Collection<String> ids) {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
@@ -207,6 +266,35 @@ public class DatasetQuerySpecifications {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
+        return matchFeatures(ids);
+    }
+
+    /**
+     * Matches datasets having procedures with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchProcedures()
+     */
+    public BooleanExpression matchProcedures(String... ids) {
+        return ids != null
+            ? matchProcedures(Arrays.asList(ids))
+            : null;
+    }
+
+    /**
+     * Matches datasets having procedures with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchProcedures()
+     */
+    public BooleanExpression matchProcedures(Collection<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
         QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         return dbQuery.isMatchDomainIds()
             ? dataset.procedure.identifier.in(ids)
@@ -232,6 +320,35 @@ public class DatasetQuerySpecifications {
     public BooleanExpression matchPhenomena() {
         IoParameters parameters = dbQuery.getParameters();
         Set<String> ids = parameters.getPhenomena();
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
+        return matchFeatures(ids);
+    }
+
+    /**
+     * Matches datasets having phenomena with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchPhenomena()
+     */
+    public BooleanExpression matchPhenomena(String... ids) {
+        return ids != null
+            ? matchFeatures(Arrays.asList(ids))
+            : null;
+    }
+
+    /**
+     * Matches datasets having phenomena with given ids.
+     * 
+     * @param ids
+     *        the ids to match
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     * @see #matchPhenomena()
+     */
+    public BooleanExpression matchPhenomena(Collection<String> ids) {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
