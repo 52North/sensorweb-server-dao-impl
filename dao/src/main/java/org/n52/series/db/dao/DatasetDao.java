@@ -34,7 +34,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -111,7 +110,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery query) {
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         return query.addFilters(criteria, getDatasetProperty())

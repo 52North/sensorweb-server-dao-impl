@@ -45,7 +45,6 @@ import org.n52.io.response.PlatformType;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
@@ -114,13 +113,13 @@ public abstract class SessionAwareRepository implements InitializingBean {
             return geometryEntity.getGeometry();
         }
     }
-    
+
     private GeometryFactory createGeometryFactory(String srsId) {
         CRSUtils crsUtils = getCrsUtils();
         PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
         return srsId == null
-                ? new GeometryFactory(pm)
-                : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
+            ? new GeometryFactory(pm)
+            : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
     }
 
     // XXX a bit misplaced here
@@ -157,8 +156,7 @@ public abstract class SessionAwareRepository implements InitializingBean {
     }
 
     protected Map<String, DatasetParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
-                                                                  DbQuery parameters)
-            throws DataAccessException {
+                                                                  DbQuery parameters) {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
         for (QuantityDatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
@@ -170,8 +168,7 @@ public abstract class SessionAwareRepository implements InitializingBean {
         return timeseriesOutputs;
     }
 
-    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity dataset, DbQuery parameters)
-            throws DataAccessException {
+    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity dataset, DbQuery parameters) {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);
         metadata.setService(getCondensedService(service, parameters));
@@ -183,8 +180,7 @@ public abstract class SessionAwareRepository implements InitializingBean {
         return metadata;
     }
 
-    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
+    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session) {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);
         metadata.setService(getCondensedExtendedService(service, query));

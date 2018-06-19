@@ -34,7 +34,6 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.RecordDataEntity;
 import org.n52.series.db.beans.RecordDatasetEntity;
@@ -58,8 +57,7 @@ public class RecordDataRepository
     }
 
     @Override
-    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
         List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

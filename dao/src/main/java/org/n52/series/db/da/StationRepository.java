@@ -34,11 +34,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import com.vividsolutions.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -52,6 +50,8 @@ import org.n52.series.spi.search.StationSearchResult;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
@@ -69,7 +69,7 @@ public class StationRepository extends SessionAwareRepository
     }
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
+    public boolean exists(String id, DbQuery parameters) {
         Session session = getSession();
         try {
             FeatureDao dao = createDao(session);
@@ -104,7 +104,7 @@ public class StationRepository extends SessionAwareRepository
     }
 
     @Override
-    public List<StationOutput> getAllCondensed(DbQuery parameters) throws DataAccessException {
+    public List<StationOutput> getAllCondensed(DbQuery parameters) {
         Session session = getSession();
         try {
             return getAllCondensed(parameters, session);
@@ -113,8 +113,7 @@ public class StationRepository extends SessionAwareRepository
         }
     }
 
-    @Override
-    public List<StationOutput> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
+    private List<StationOutput> getAllCondensed(DbQuery parameters, Session session) {
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
         List<StationOutput> results = new ArrayList<>();
         for (FeatureEntity featureEntity : allFeatures) {
@@ -124,7 +123,7 @@ public class StationRepository extends SessionAwareRepository
     }
 
     @Override
-    public List<StationOutput> getAllExpanded(DbQuery parameters) throws DataAccessException {
+    public List<StationOutput> getAllExpanded(DbQuery parameters) {
         Session session = getSession();
         try {
             return getAllExpanded(parameters, session);
@@ -133,8 +132,7 @@ public class StationRepository extends SessionAwareRepository
         }
     }
 
-    @Override
-    public List<StationOutput> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
+    private List<StationOutput> getAllExpanded(DbQuery parameters, Session session) {
         List<FeatureEntity> allFeatures = getAllInstances(parameters, session);
 
         List<StationOutput> results = new ArrayList<>();
@@ -144,13 +142,13 @@ public class StationRepository extends SessionAwareRepository
         return results;
     }
 
-    private List<FeatureEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
+    private List<FeatureEntity> getAllInstances(DbQuery parameters, Session session) {
         FeatureDao featureDao = createDao(session);
         return featureDao.getAllInstances(addPointLocationOnlyRestriction(parameters));
     }
 
     @Override
-    public StationOutput getInstance(String id, DbQuery parameters) throws DataAccessException {
+    public StationOutput getInstance(String id, DbQuery parameters) {
         Session session = getSession();
         try {
             return getInstance(id, parameters, session);
@@ -159,8 +157,7 @@ public class StationRepository extends SessionAwareRepository
         }
     }
 
-    @Override
-    public StationOutput getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
+    private StationOutput getInstance(String id, DbQuery parameters, Session session) {
         FeatureEntity result = getFeatureEntity(id, parameters, session);
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
@@ -169,20 +166,19 @@ public class StationRepository extends SessionAwareRepository
     }
 
     private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session)
-            throws DataAccessException, BadRequestException {
+         // XXX avoid throwing BRE in data layer
+            throws BadRequestException {
         DbQuery query = addPointLocationOnlyRestriction(parameters);
         return createDao(session).getInstance(parseId(id), query);
     }
 
-    public StationOutput getCondensedInstance(String id, DbQuery parameters, Session session)
-            throws DataAccessException {
+    public StationOutput getCondensedInstance(String id, DbQuery parameters, Session session) {
         FeatureDao featureDao = createDao(session);
         FeatureEntity result = featureDao.getInstance(parseId(id), getDbQuery(IoParameters.createDefaults()));
         return createCondensed(result, parameters);
     }
 
-    private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session)
-            throws DataAccessException {
+    private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session) {
         StationOutput result = createCondensed(feature, query);
 
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;

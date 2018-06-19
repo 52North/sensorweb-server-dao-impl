@@ -34,7 +34,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.RelatedFeatureEntity;
 
@@ -48,8 +47,7 @@ public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<RelatedFeatureEntity> getAllInstances(DbQuery query)
-            throws DataAccessException {
+    public List<RelatedFeatureEntity> getAllInstances(DbQuery query) {
         final Criteria criteria = session.createCriteria(RelatedFeatureEntity.class);
         if (query.getParameters().containsParameter(IoParameters.OFFERINGS)) {
             criteria.createCriteria(RelatedFeatureEntity.OFFERINGS)

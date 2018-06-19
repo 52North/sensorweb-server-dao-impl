@@ -34,7 +34,6 @@ import java.util.List;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.OutputCollection;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
@@ -63,7 +62,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             List<T> results = repository.getAllExpanded(dbQuery);
             return createOutputCollection(results);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             throw new InternalServerException("Could not get expanded data.", e);
         }
     }
@@ -74,7 +73,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             List<T> results = repository.getAllCondensed(dbQuery);
             return createOutputCollection(results);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             throw new InternalServerException("Could not get condensed data.", e);
         }
     }
@@ -88,7 +87,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
                 results.add(repository.getInstance(id, dbQuery));
             }
             return createOutputCollection(results);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             throw new InternalServerException("Could not get multiple instance data.", e);
         }
     }
@@ -98,7 +97,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
         try {
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             return repository.getInstance(id, dbQuery);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             throw new InternalServerException("Could not get instance data.", e);
         }
     }
@@ -107,7 +106,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
     public boolean exists(String id, IoParameters parameters) {
         try {
             return repository.exists(id, dbQueryFactory.createFrom(parameters));
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             throw new InternalServerException("Could not check if resource '" + id + "' does exist.");
         }
     }

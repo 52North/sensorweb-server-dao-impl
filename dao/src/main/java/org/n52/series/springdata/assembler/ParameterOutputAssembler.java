@@ -57,7 +57,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     }
 
     @Override
-    public List<O> getAllCondensed(DbQuery query) throws DataAccessException {
+    public List<O> getAllCondensed(DbQuery query) {
         DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
         JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
 
@@ -68,36 +68,24 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
         Stream<E> foundEntities = createStreamFromIterator(findAll.iterator());
         return foundEntities.map(it -> createCondensed(it, query))
                             .collect(Collectors.toList());
+
+
+
     }
 
     @Override
-    public List<O> getAllCondensed(DbQuery parameters, Session session) throws DataAccessException {
+    public List<O> getAllExpanded(DbQuery query) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<O> getAllExpanded(DbQuery parameters) throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<O> getAllExpanded(DbQuery parameters, Session session) throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public O getInstance(String id, DbQuery parameters) throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public O getInstance(String id, DbQuery parameters, Session session) throws DataAccessException {
-        // TODO Auto-generated method stub
-        return null;
+    public O getInstance(String id, DbQuery query) {
+        Optional<E> entity = query.isMatchDomainIds()
+                ? parameterRepository.findByIdentifier(id)
+                : parameterRepository.findById(Long.parseLong(id));
+        entity.o
+        return createExpanded(ElseThrow(exceptionSupplier));
     }
 
     @Override
@@ -107,7 +95,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     }
 
     @Override
-    public boolean exists(String id, DbQuery query) throws DataAccessException {
+    public boolean exists(String id, DbQuery query) {
         return query.isMatchDomainIds()
             ? parameterRepository.existsByIdentifier(id)
             : parameterRepository.existsById(Long.parseLong(id));

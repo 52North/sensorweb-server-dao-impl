@@ -33,7 +33,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.CountDatasetEntity;
@@ -57,8 +56,7 @@ public class CountDataRepository
     }
 
     @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<CountValue> result = new Data<>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

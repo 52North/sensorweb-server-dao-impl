@@ -44,7 +44,6 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -129,19 +128,18 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createPlatformDao(session);
     }
 
-    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
+    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session) {
         PlatformEntity entity = getEntity(getPlatformId(dataset), query, session);
         return createCondensed(entity, query, session);
     }
 
-    PlatformOutput createCondensedPlatform(String id, DbQuery query, Session session) throws DataAccessException {
+    PlatformOutput createCondensedPlatform(String id, DbQuery query, Session session) {
         PlatformEntity entity = getEntity(id, query, session);
         return createCondensed(entity, query, session);
     }
 
     @Override
-    public boolean exists(String id, DbQuery query) throws DataAccessException {
+    public boolean exists(String id, DbQuery query) {
         Session session = getSession();
         try {
             Long parsedId = parseId(PlatformType.extractId(id));
@@ -154,13 +152,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         }
     }
 
-    @Override
-    public PlatformOutput getInstance(String id, DbQuery query, Session session) throws DataAccessException {
+    private PlatformOutput getInstance(String id, DbQuery query, Session session) {
         PlatformEntity entity = getEntity(id, query, session);
         return createExpanded(entity, query, session);
     }
 
-    public PlatformEntity getEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
+    public PlatformEntity getEntity(String id, DbQuery parameters, Session session) {
         if (PlatformType.isStationaryId(id)) {
             return getStation(id, parameters, session);
         } else {
@@ -179,8 +176,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
                                                 .extendWith(Parameters.PLATFORMS, result.getId())
@@ -208,8 +204,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
-            throws DataAccessException {
+    private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session) {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
         DatasetEntity lastDataset = getLastDataset(datasets, query, session);
@@ -227,8 +222,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return null;
     }
 
-    private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
-            throws DataAccessException {
+    private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session) {
         DatasetEntity currentLastDataset = null;
         for (DatasetOutput dataset : datasets) {
             String id = dataset.getId();
@@ -275,7 +269,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return true;
     }
 
-    private PlatformEntity getStation(String id, DbQuery query, Session session) throws DataAccessException {
+    private PlatformEntity getStation(String id, DbQuery query, Session session) {
         String featureId = PlatformType.extractId(id);
         FeatureDao featureDao = createFeatureDao(session);
         FeatureEntity feature = featureDao.getInstance(Long.parseLong(featureId), query);
@@ -287,7 +281,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                 : convertRemote(feature, query);
     }
 
-    private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) throws DataAccessException {
+    private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) {
         PlatformDao dao = createPlatformDao(session);
         String platformId = PlatformType.extractId(id);
         PlatformEntity result = dao.getInstance(Long.parseLong(platformId), parameters);
@@ -298,7 +292,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected List<PlatformEntity> getAllInstances(DbQuery query, Session session) throws DataAccessException {
+    protected List<PlatformEntity> getAllInstances(DbQuery query, Session session) {
         List<PlatformEntity> platforms = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeStationaryPlatformTypes()) {
@@ -310,7 +304,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return platforms;
     }
 
-    private List<PlatformEntity> getAllStationary(DbQuery query, Session session) throws DataAccessException {
+    private List<PlatformEntity> getAllStationary(DbQuery query, Session session) {
         List<PlatformEntity> platforms = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeInsituPlatformTypes()) {
@@ -322,21 +316,19 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return platforms;
     }
 
-    private List<PlatformEntity> getAllStationaryInsitu(DbQuery parameters, Session session)
-            throws DataAccessException {
+    private List<PlatformEntity> getAllStationaryInsitu(DbQuery parameters, Session session) {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
         return convertAllInsitu(featureDao.getAllInstances(query), query);
     }
 
-    private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session)
-            throws DataAccessException {
+    private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session) {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
         return convertAllRemote(featureDao.getAllInstances(query), query);
     }
 
-    private List<PlatformEntity> getAllMobile(DbQuery query, Session session) throws DataAccessException {
+    private List<PlatformEntity> getAllMobile(DbQuery query, Session session) {
         List<PlatformEntity> platforms = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeInsituPlatformTypes()) {
@@ -348,12 +340,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return platforms;
     }
 
-    private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) throws DataAccessException {
+    private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_INSITU);
         return createPlatformDao(session).getAllInstances(query);
     }
 
-    private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) throws DataAccessException {
+    private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) {
         DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_REMOTE);
         return createPlatformDao(session).getAllInstances(query);
     }
@@ -399,8 +391,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
+    protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session) {
         // platform has to be handled dynamically (see #309)
         return getEntity(getPlatformId(dataset), query, session);
     }

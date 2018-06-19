@@ -58,8 +58,7 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<BooleanValue> result = new Data<>();
         DataDao<BooleanDataEntity> dao = createDataDao(session);
         List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

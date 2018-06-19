@@ -45,7 +45,6 @@ import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.AbstractDao;
@@ -55,7 +54,6 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
-import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +105,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
+    public boolean exists(String id, DbQuery parameters) {
         Session session = getSession();
         try {
             Long rawId = parseId(id);
@@ -143,15 +141,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
+    protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) {
         return serviceEntity != null
             ? Collections.singletonList(serviceEntity)
             : createDao(session).getAllInstances(parameters);
     }
 
     @Override
-    protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
-            throws DataAccessException {
+    protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query) {
         ServiceEntity result = !isConfiguredServiceInstance(id)
             ? dao.getInstance(id, query)
             : serviceEntity;
@@ -220,29 +217,25 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private ParameterCount countParameters(ServiceOutput service, DbQuery query) {
-        try {
-            IoParameters parameters = query.getParameters();
-            ParameterCount quantities = new ServiceOutput.ParameterCount();
-            DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
-                                                        .removeAllOf("offset")
-                                                        .removeAllOf("limit"));
-            quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
-            quantities.setProceduresSize(counter.countProcedures(serviceQuery));
-            quantities.setCategoriesSize(counter.countCategories(serviceQuery));
-            quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
-            quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
+        IoParameters parameters = query.getParameters();
+        ParameterCount quantities = new ServiceOutput.ParameterCount();
+        DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
+                                                    .removeAllOf("offset")
+                                                    .removeAllOf("limit"));
+        quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
+        quantities.setProceduresSize(counter.countProcedures(serviceQuery));
+        quantities.setCategoriesSize(counter.countCategories(serviceQuery));
+        quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
+        quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
 
-            if (parameters.shallBehaveBackwardsCompatible()) {
-                quantities.setTimeseriesSize(counter.countTimeseries());
-                quantities.setStationsSize(counter.countStations());
-            } else {
-                quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-                quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
-            }
-            return quantities;
-        } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count parameter entities.", e);
+        if (parameters.shallBehaveBackwardsCompatible()) {
+            quantities.setTimeseriesSize(counter.countTimeseries());
+            quantities.setStationsSize(counter.countStations());
+        } else {
+            quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+            quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
         }
+        return quantities;
     }
 
 }

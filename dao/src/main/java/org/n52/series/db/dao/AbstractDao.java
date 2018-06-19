@@ -53,7 +53,6 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -129,7 +128,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     @Override
-    public Integer getCount(DbQuery query) throws DataAccessException {
+    public Integer getCount(DbQuery query) {
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
         Object result = criteria.uniqueResult();
         if (result == null) {

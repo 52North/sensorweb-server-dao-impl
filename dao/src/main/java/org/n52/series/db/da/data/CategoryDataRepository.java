@@ -36,7 +36,6 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CategoryDatasetEntity;
@@ -60,8 +59,7 @@ public class CategoryDataRepository
     }
 
     @Override
-    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

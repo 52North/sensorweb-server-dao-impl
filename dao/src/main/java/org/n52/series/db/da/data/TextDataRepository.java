@@ -34,7 +34,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
@@ -57,8 +56,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

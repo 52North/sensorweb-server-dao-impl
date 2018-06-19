@@ -42,7 +42,6 @@ import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -87,8 +86,7 @@ public class QuantityDataRepository extends
     @Override
     protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
                                                                   DbQuery dbQuery,
-                                                                  Session session)
-            throws DataAccessException {
+                                                                  Session session) {
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
         List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
@@ -101,8 +99,7 @@ public class QuantityDataRepository extends
 
     private Map<String, Data<QuantityValue>> assembleReferenceSeries(List<QuantityDatasetEntity> referenceValues,
                                                                      DbQuery query,
-                                                                     Session session)
-            throws DataAccessException {
+                                                                     Session session) {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
@@ -135,8 +132,7 @@ public class QuantityDataRepository extends
 
     private Data<QuantityValue> expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity,
                                                                DbQuery query,
-                                                               Session session)
-            throws DataAccessException {
+                                                               Session session) {
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
@@ -153,8 +149,7 @@ public class QuantityDataRepository extends
     }
 
     @Override
-    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);

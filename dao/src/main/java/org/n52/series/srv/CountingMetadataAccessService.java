@@ -29,13 +29,11 @@
 package org.n52.series.srv;
 
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.EntityCounter;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
-import org.n52.web.exception.InternalServerException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -60,106 +58,56 @@ public class CountingMetadataAccessService implements CountingMetadataService {
 
     @Override
     public int getOfferingCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countOfferings(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("offering", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countOfferings(query);
     }
 
     @Override
     public int getCategoryCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countCategories(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("category", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countCategories(query);
     }
 
     @Override
     public int getFeatureCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countFeatures(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("feature", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countFeatures(query);
     }
 
     @Override
     public int getProcedureCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countProcedures(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("procedure", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countProcedures(query);
     }
 
     @Override
     public int getPhenomenaCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countPhenomena(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("phenomena", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countPhenomena(query);
     }
 
     @Override
     public int getPlatformCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countPlatforms(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("platform", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countPlatforms(query);
     }
 
     @Override
     public int getDatasetCount(IoParameters parameters) {
-        try {
-            DbQuery query = dbQueryFactory.createFrom(parameters);
-            return counter.countDatasets(query);
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("dataset", e);
-            return -1;
-        }
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countDatasets(query);
     }
 
     @Override
     @Deprecated
     public int getStationCount() {
-        try {
-            return counter.countStations();
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("station", e);
-            return -1;
-        }
+        return counter.countStations();
     }
 
     @Override
     @Deprecated
     public int getTimeseriesCount() {
-        try {
-            return counter.countTimeseries();
-        } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("timeseries", e);
-            return -1;
-        }
-    }
-
-    private void throwCouldNotCountEntityException(String entity, DataAccessException e)
-            throws InternalServerException {
-        throw new InternalServerException("Could not count " + entity + " entities.", e);
+        return counter.countTimeseries();
     }
 
 }

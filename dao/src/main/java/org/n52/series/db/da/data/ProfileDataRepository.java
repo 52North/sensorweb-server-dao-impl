@@ -40,7 +40,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
@@ -87,8 +86,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     }
 
     @Override
-    protected Data<ProfileValue<T>> assembleData(P datasetEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<ProfileValue<T>> assembleData(P datasetEntity, DbQuery query, Session session) {
         query.setComplexParent(true);
         Data<ProfileValue<T>> result = new Data<>();
         DataDao<ProfileDataEntity> dao = createDataDao(session);

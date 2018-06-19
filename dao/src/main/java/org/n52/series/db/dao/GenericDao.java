@@ -31,20 +31,18 @@ package org.n52.series.db.dao;
 import java.io.Serializable;
 import java.util.List;
 
-import org.n52.series.db.DataAccessException;
-
 /**
  * @param <T> entity type
  * @param <K> primary key
  */
 public interface GenericDao<T, K extends Serializable> {
 
-    T getInstance(K key, DbQuery parameters) throws DataAccessException;
+    T getInstance(K key, DbQuery parameters);
 
-    List<T> getAllInstances(DbQuery parameters) throws DataAccessException;
+    List<T> getAllInstances(DbQuery parameters);
 
-    Integer getCount(DbQuery query) throws DataAccessException;
+    Integer getCount(DbQuery query);
 
-    boolean hasInstance(K id, DbQuery query) throws DataAccessException;
+    boolean hasInstance(K id, DbQuery query);
 
 }

@@ -98,7 +98,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public boolean exists(String id, DbQuery parameters) throws DataAccessException {
+    public boolean exists(String id, DbQuery parameters) {
         Session session = getSession();
         try {
             DatasetDao<QuantityDatasetEntity> dao = createDatasetDao(session);
@@ -141,7 +141,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query) throws DataAccessException {
+    public List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query) {
         Session session = getSession();
         try {
             return getAllCondensed(query, session);
@@ -150,8 +150,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    @Override
-    public List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query, Session session) throws DataAccessException {
+    private List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query, Session session) {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
         DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
@@ -161,7 +160,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query) throws DataAccessException {
+    public List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query) {
         Session session = getSession();
         try {
             return getAllExpanded(query, session);
@@ -170,8 +169,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    @Override
-    public List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query, Session session) throws DataAccessException {
+    private List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query, Session session) {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
         DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
@@ -181,7 +179,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     }
 
     @Override
-    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery dbQuery) throws DataAccessException {
+    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery dbQuery) {
         Session session = getSession();
         try {
             return getInstance(timeseriesId, dbQuery, session);
@@ -190,9 +188,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         }
     }
 
-    @Override
-    public TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session)
-            throws DataAccessException {
+    private TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session) {
         DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
         if (result == null) {
@@ -202,8 +198,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         return createExpanded(result, query, session);
     }
 
-    protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
-            throws DataAccessException {
+    protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session) {
         TimeseriesMetadataOutput result = createCondensed(series, query, session);
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
@@ -223,7 +218,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         return result;
     }
 
-    private QuantityDataRepository createRepository(String valueType) throws DataAccessException {
+    private QuantityDataRepository createRepository(String valueType) {
         if (!ValueType.DEFAULT_VALUE_TYPE.equalsIgnoreCase(valueType)) {
             throw new ResourceNotFoundException("unknown value type: " + valueType);
         }
@@ -237,8 +232,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
                                                                                   DbQuery query,
                                                                                   QuantityDataRepository repository,
-                                                                                  Session session)
-            throws DataAccessException {
+                                                                                  Session session) {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
@@ -261,8 +255,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         return outputs;
     }
 
-    private TimeseriesMetadataOutput createCondensed(QuantityDatasetEntity entity, DbQuery query, Session session)
-            throws DataAccessException {
+    private TimeseriesMetadataOutput createCondensed(QuantityDatasetEntity entity, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
         String locale = query.getLocale();
@@ -300,8 +293,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                  .toString();
     }
 
-    private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session)
-            throws DataAccessException {
+    private StationOutput createCondensedStation(QuantityDatasetEntity entity, DbQuery query, Session session) {
         AbstractFeatureEntity feature = entity.getFeature();
         String featurePkid = Long.toString(feature.getId());
 

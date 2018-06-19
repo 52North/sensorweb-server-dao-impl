@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.OfferingOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
@@ -57,7 +56,7 @@ public class OfferingAssemblerTest {
 
     @Test
     @DisplayName("Offering of non-public dataset is not found")
-    public void given_aNonPublicDataset_when_queryingOfferings_then_offeringIsNotFound() throws DataAccessException {
+    public void given_aNonPublicDataset_when_queryingOfferings_then_offeringIsNotFound() {
         DatasetEntity dataset = createDataset("phen", "off", "proc", "sml", "feat", "featFormat");
         dataset.setPublished(false);
 
@@ -76,8 +75,7 @@ public class OfferingAssemblerTest {
 
     @Test
     @DisplayName("Filtering works properly")
-    public void given_publicDatasets_when_filteringViaParameters_then_outputContainsMatchingOfferings()
-            throws DataAccessException {
+    public void given_publicDatasets_when_filteringViaParameters_then_outputContainsMatchingOfferings() {
         createDataset("ph1", "of1", "pr1", "format1", "fe1", "format2");
         createDataset("ph1", "of2", "pr2", "format3", "fe2", "format4");
         createDataset("ph2", "of3", "pr2", "format3", "fe2", "format4");
@@ -96,7 +94,7 @@ public class OfferingAssemblerTest {
 
     @Test
     @DisplayName("Offering output assembled properly")
-    public void foo() throws DataAccessException {
+    public void given_validDataset_when_queryingOffering_then_outputGetsAssembledProperly() {
         OfferingAssembler assembler = new OfferingAssembler(offeringRepository, datasetRepository);
         DatasetEntity dataset = createDataset("phen", "off", "proc", "sml", "feat", "featFormat");
         OfferingEntity offering = dataset.getOffering();

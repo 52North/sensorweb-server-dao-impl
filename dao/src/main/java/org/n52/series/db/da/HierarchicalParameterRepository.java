@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -53,8 +52,7 @@ public abstract class HierarchicalParameterRepository<E extends HierarchicalEnti
     }
 
     @Override
-    protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session)
-            throws DataAccessException {
+    protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session) {
         Set<O> results = new HashSet<>();
         if (entities != null) {
             for (E entity : entities) {

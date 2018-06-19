@@ -40,7 +40,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
@@ -85,12 +84,10 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      * @param parameters
      *        query parameters.
      * @return all instances matching the given query parameters.
-     * @throws DataAccessException
-     *         if accessing database fails.
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery parameters) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery parameters) {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
@@ -105,11 +102,9 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      * @param query
      *        some query parameters to restrict result.
      * @return all observation entities belonging to the given series which match the given query.
-     * @throws DataAccessException
-     *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
+    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query){
         final Long id = series.getId();
         LOGGER.debug("get all instances for series '{}': {}", id, query);
         Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));

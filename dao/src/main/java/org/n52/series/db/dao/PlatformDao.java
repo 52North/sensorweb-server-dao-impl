@@ -35,7 +35,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.n52.io.request.FilterResolver;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -52,7 +51,7 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     }
 
     @Override
-    public Integer getCount(DbQuery query) throws DataAccessException {
+    public Integer getCount(DbQuery query) {
         DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileSubquery(true));
         DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
                                                               createMobileSubquery(false));

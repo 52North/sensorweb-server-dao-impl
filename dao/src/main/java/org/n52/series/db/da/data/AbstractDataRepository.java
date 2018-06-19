@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import com.vividsolutions.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -41,7 +40,6 @@ import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -53,6 +51,8 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              E extends DataEntity< ? >,
                                              V extends AbstractValue< ? >>
@@ -63,7 +63,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     }
 
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) throws DataAccessException {
+    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
@@ -153,10 +153,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
-    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session) throws DataAccessException;
+    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
 
-    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session)
-            throws DataAccessException {
+    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session) {
         return assembleData(datasetEntity, dbQuery, session);
     }
 

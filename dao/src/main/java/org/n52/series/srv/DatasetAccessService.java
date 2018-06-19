@@ -65,22 +65,17 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
 
     @Override
     public DataCollection<Data<AbstractValue< ? >>> getData(IoParameters parameters) {
-        try {
-            TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
-            for (String seriesId : parameters.getDatasets()) {
-                Data<AbstractValue< ? >> data = getDataFor(seriesId, parameters);
-                if (data != null) {
-                    dataCollection.addNewSeries(seriesId, data);
-                }
+        TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
+        for (String seriesId : parameters.getDatasets()) {
+            Data<AbstractValue< ? >> data = getDataFor(seriesId, parameters);
+            if (data != null) {
+                dataCollection.addNewSeries(seriesId, data);
             }
-            return dataCollection;
-        } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get series data from database.", e);
         }
+        return dataCollection;
     }
 
-    private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters)
-            throws DataAccessException {
+    private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters) {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
@@ -88,8 +83,9 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         return dataRepository.getData(datasetId, dbQuery);
     }
 
-    private DataRepository createRepository(String valueType) throws DataAccessException {
+    private DataRepository createRepository(String valueType) {
         if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+            // XXX avoid RNFE in data layer
             throw new ResourceNotFoundException("unknown type: " + valueType);
         }
         try {

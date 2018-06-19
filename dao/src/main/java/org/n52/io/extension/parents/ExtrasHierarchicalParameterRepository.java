@@ -87,10 +87,6 @@ public class ExtrasHierarchicalParameterRepository extends SessionAwareRepositor
             return extras;
         } catch (NumberFormatException e) {
             LOGGER.debug("Could not convert id '{}' to long.", platformId, e);
-        } catch (DataAccessException e) {
-            LOGGER.error("Could not query hierarchical parameters for dataset with id '{}'",
-                         platformId,
-                         e);
         }
         return Collections.emptyMap();
     }

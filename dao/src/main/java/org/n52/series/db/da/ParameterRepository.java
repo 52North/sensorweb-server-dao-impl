@@ -36,7 +36,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.AbstractDao;
@@ -68,7 +67,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     protected abstract SearchableDao<E> createSearchableDao(Session session);
 
     @Override
-    public boolean exists(String id, DbQuery query) throws DataAccessException {
+    public boolean exists(String id, DbQuery query) {
         Session session = getSession();
         try {
             return createDao(session).hasInstance(id, query);
@@ -78,7 +77,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     @Override
-    public List<O> getAllCondensed(DbQuery query) throws DataAccessException {
+    public List<O> getAllCondensed(DbQuery query) {
         Session session = getSession();
         try {
             return getAllCondensed(query, session);
@@ -87,8 +86,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         }
     }
 
-    @Override
-    public List<O> getAllCondensed(DbQuery query, Session session) throws DataAccessException {
+    private List<O> getAllCondensed(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
         List<O> results = createCondensed(allInstances, query, session);
         return results;
@@ -119,7 +117,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     }
 
     @Override
-    public List<O> getAllExpanded(DbQuery query) throws DataAccessException {
+    public List<O> getAllExpanded(DbQuery query) {
         Session session = getSession();
         try {
             return getAllExpanded(query, session);
@@ -128,16 +126,14 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         }
     }
 
-    @Override
-    public List<O> getAllExpanded(DbQuery query, Session session) throws DataAccessException {
+    private List<O> getAllExpanded(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
         return createExpanded(allInstances, query, session);
     }
 
-    protected abstract O createExpanded(E instance, DbQuery query, Session session) throws DataAccessException;
+    protected abstract O createExpanded(E instance, DbQuery query, Session session);
 
-    protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session)
-            throws DataAccessException {
+    protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session) {
         List<O> results = new ArrayList<>();
         for (E entity : allInstances) {
             O instance = createExpanded(entity, query, session);
@@ -153,12 +149,12 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         return results;
     }
 
-    protected List<E> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
+    protected List<E> getAllInstances(DbQuery parameters, Session session) {
         return createDao(session).getAllInstances(parameters);
     }
 
     @Override
-    public O getInstance(String id, DbQuery query) throws DataAccessException {
+    public O getInstance(String id, DbQuery query) {
         Session session = getSession();
         try {
             return getInstance(id, query, session);
@@ -167,19 +163,18 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         }
     }
 
-    @Override
-    public O getInstance(String id, DbQuery query, Session session) throws DataAccessException {
+    private O getInstance(String id, DbQuery query, Session session) {
         AbstractDao<E> dao = createDao(session);
         E entity = getEntity(parseId(id), dao, query);
         return createExpanded(entity, query, session);
     }
 
-    protected E getInstance(Long id, DbQuery query, Session session) throws DataAccessException {
+    protected E getInstance(Long id, DbQuery query, Session session) {
         AbstractDao<E> dao = createDao(session);
         return getEntity(id, dao, query);
     }
 
-    protected E getEntity(Long id, AbstractDao<E> dao, DbQuery query) throws DataAccessException {
+    protected E getEntity(Long id, AbstractDao<E> dao, DbQuery query) {
         E entity = dao.getInstance(id, query);
         if (entity == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
