@@ -46,7 +46,7 @@ spring:
 debug: false
 logging:
   config: classpath:logback.xml
-  path: target/logs/dao-series-api
+  file: target/logs/dao-series-api.log
   level:
     org.n52: WARN
     ## Spring

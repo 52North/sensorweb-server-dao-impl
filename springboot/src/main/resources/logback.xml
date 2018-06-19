@@ -2,8 +2,9 @@
 
     <!-- refer to http://logback.qos.ch/manual/appenders.html -->
 
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}auth-proxy.log}"/>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logFile}.log</file>
+        <file>${LOG_FILE}</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logFile}/%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -31,7 +32,7 @@
     
     <root level="INFO">
         <appender-ref ref="STDOUT" />
-<!--         <appender-ref ref="FILE" /> -->
+        <appender-ref ref="FILE" />
     </root>
 
 </configuration>
