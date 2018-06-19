@@ -6,7 +6,9 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.springdata.DatasetRepository;
 import org.n52.series.springdata.OfferingRepository;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput> {
 
     public OfferingAssembler(OfferingRepository offeringRepository,

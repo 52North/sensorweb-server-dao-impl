@@ -53,13 +53,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"org.n52.series.db", "org.n52.series.srv"})
+@EnableJpaRepositories(basePackages = "org.n52.series.springdata")
+@ComponentScan(basePackages = {"org.n52.series.db.da", "org.n52.series.db", "org.n52.series.springdata", "org.n52.series.srv"})
 public class SpiImplConfig {
-
+    
     @Bean
     public DataRepositoryTypeFactory dataRepositoryFactory(ApplicationContext appContext) {
         return new AnnotationBasedDataRepositoryFactory(appContext);

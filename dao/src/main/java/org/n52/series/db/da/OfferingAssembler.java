@@ -40,7 +40,6 @@ import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.OfferingSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.springframework.stereotype.Component;
 
 //@Component
 public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEntity, OfferingOutput> {
