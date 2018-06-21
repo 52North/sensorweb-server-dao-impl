@@ -266,7 +266,7 @@ public class DatasetQuerySpecifications {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
-        return matchFeatures(ids);
+        return matchProcedures(ids);
     }
 
     /**
@@ -323,7 +323,7 @@ public class DatasetQuerySpecifications {
         if (ids == null || ids.isEmpty()) {
             return null;
         }
-        return matchFeatures(ids);
+        return matchPhenomena(ids);
     }
 
     /**
@@ -336,7 +336,7 @@ public class DatasetQuerySpecifications {
      */
     public BooleanExpression matchPhenomena(String... ids) {
         return ids != null
-            ? matchFeatures(Arrays.asList(ids))
+            ? matchPhenomena(Arrays.asList(ids))
             : null;
     }
 
