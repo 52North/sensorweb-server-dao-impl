@@ -59,9 +59,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
         result.setId(Long.toString(id));
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        
-        // TODO remove dependency to REST module
-        // result.setValue(ParameterOutput.HREF_BASE, createHref(hrefBase), parameters, result::setHrefBase);
+        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         return result;
     }
 
