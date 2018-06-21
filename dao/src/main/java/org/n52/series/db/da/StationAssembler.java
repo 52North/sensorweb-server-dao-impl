@@ -48,8 +48,8 @@ import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.StationSearchResult;
 import org.n52.series.srv.OutputAssembler;
-import org.n52.web.exception.BadRequestException;
-import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -60,6 +60,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @Component
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(StationAssembler.class);
 
     public StationAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -161,14 +163,13 @@ public class StationAssembler extends SessionAwareAssembler
     private StationOutput getInstance(String id, DbQuery parameters, Session session) {
         FeatureEntity result = getFeatureEntity(id, parameters, session);
         if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
+            LOGGER.debug("Resource with id '" + id + "' could not be found.");
+            return null;
         }
         return createExpanded(result, parameters, session);
     }
 
-    private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session)
-         // XXX avoid throwing BRE in data layer
-            throws BadRequestException {
+    private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session) {
         DbQuery query = addPointLocationOnlyRestriction(parameters);
         return createDao(session).getInstance(parseId(id), query);
     }

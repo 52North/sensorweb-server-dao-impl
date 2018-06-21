@@ -60,11 +60,6 @@ public class PhenomenonAssembler extends HierarchicalParameterAssembler<Phenomen
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected AbstractDao<PhenomenonEntity> createDao(Session session) {
         return new PhenomenonDao(session);
     }

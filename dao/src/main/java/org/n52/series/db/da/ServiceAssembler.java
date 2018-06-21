@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -54,7 +55,6 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,11 +87,6 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new ServiceSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getServicesHrefBaseUrl(hrefBase);
     }
 
     @Override
@@ -148,14 +143,14 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
     }
 
     @Override
-    protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query) {
+    protected Optional<ServiceEntity> getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query) {
         ServiceEntity result = !isConfiguredServiceInstance(id)
             ? dao.getInstance(id, query)
             : serviceEntity;
         if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
+            LOGGER.debug("Resource with id '" + id + "' could not be found.");
         }
-        return result;
+        return Optional.ofNullable(result);
     }
 
     @Override
@@ -189,10 +184,10 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
                 ? entity.getVersion()
                 : "2.0";
 
-            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
+//            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+//            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         }
         return result;
     }

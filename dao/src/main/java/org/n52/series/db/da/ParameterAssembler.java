@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
@@ -44,7 +45,6 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
-import org.n52.web.exception.ResourceNotFoundException;
 
 public abstract class ParameterAssembler<E extends DescribableEntity, O extends ParameterOutput>
         extends
@@ -60,8 +60,6 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
     protected abstract O prepareEmptyParameterOutput();
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
-
-    protected abstract String createHref(String hrefBase);
 
     protected abstract AbstractDao<E> createDao(Session session);
 
@@ -113,7 +111,7 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
         result.setId(Long.toString(id));
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(ParameterOutput.HREF_BASE, createHref(hrefBase), parameters, result::setHrefBase);
+        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         return result;
     }
 
@@ -166,21 +164,17 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
 
     private O getInstance(String id, DbQuery query, Session session) {
         AbstractDao<E> dao = createDao(session);
-        E entity = getEntity(parseId(id), dao, query);
-        return createExpanded(entity, query, session);
+        return getEntity(parseId(id), dao, query).map(it -> createExpanded(it, query, session)).orElse(null);
     }
 
     protected E getInstance(Long id, DbQuery query, Session session) {
         AbstractDao<E> dao = createDao(session);
-        return getEntity(id, dao, query);
+        return getEntity(id, dao, query).orElse(null);
     }
 
-    protected E getEntity(Long id, AbstractDao<E> dao, DbQuery query) {
+    protected Optional<E> getEntity(Long id, AbstractDao<E> dao, DbQuery query) {
         E entity = dao.getInstance(id, query);
-        if (entity == null) {
-            throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
-        }
-        return entity;
+        return Optional.ofNullable(entity);
     }
 
     @Override
@@ -197,7 +191,7 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
 
     protected List<SearchResult> convertToSearchResults(List<E> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = createHref(query.getHrefBase());
+        String hrefBase = query.getHrefBase();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String label = searchResult.getLabelFrom(locale);

@@ -61,11 +61,6 @@ public class CategoryAssembler extends ParameterAssembler<CategoryEntity, Catego
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getCategoriesHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected AbstractDao<CategoryEntity> createDao(Session session) {
         return new CategoryDao(session);
     }

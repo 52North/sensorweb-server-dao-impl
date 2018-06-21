@@ -39,7 +39,7 @@ import org.hibernate.Session;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.GeometryInfo;
+import org.n52.io.response.GeometryOutput;
 import org.n52.io.response.GeometryType;
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.DataModelUtil;
@@ -62,7 +62,7 @@ import com.vividsolutions.jts.geom.Point;
 
 
 @Component
-public class GeometriesAssembler extends SessionAwareAssembler implements OutputAssembler<GeometryInfo> {
+public class GeometriesAssembler extends SessionAwareAssembler implements OutputAssembler<GeometryOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeometriesAssembler.class);
 
@@ -106,7 +106,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
     }
 
     @Override
-    public List<GeometryInfo> getAllCondensed(DbQuery parameters) {
+    public List<GeometryOutput> getAllCondensed(DbQuery parameters) {
         Session session = getSession();
         try {
             return getAllCondensed(parameters, session);
@@ -115,12 +115,12 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         }
     }
 
-    private List<GeometryInfo> getAllCondensed(DbQuery parameters, Session session) {
+    private List<GeometryOutput> getAllCondensed(DbQuery parameters, Session session) {
         return getAllInstances(parameters, session, false);
     }
 
     @Override
-    public List<GeometryInfo> getAllExpanded(DbQuery parameters) {
+    public List<GeometryOutput> getAllExpanded(DbQuery parameters) {
         Session session = getSession();
         try {
             return getAllExpanded(parameters, session);
@@ -129,12 +129,12 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         }
     }
 
-    private List<GeometryInfo> getAllExpanded(DbQuery parameters, Session session) {
+    private List<GeometryOutput> getAllExpanded(DbQuery parameters, Session session) {
         return getAllInstances(parameters, session, true);
     }
 
     @Override
-    public GeometryInfo getInstance(String id, DbQuery parameters) {
+    public GeometryOutput getInstance(String id, DbQuery parameters) {
         Session session = getSession();
         try {
             return getInstance(id, parameters, session);
@@ -143,7 +143,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         }
     }
 
-    private GeometryInfo getInstance(String id, DbQuery parameters, Session session) {
+    private GeometryOutput getInstance(String id, DbQuery parameters, Session session) {
         if (GeometryType.isPlatformGeometryId(id)) {
             return getPlatformLocationGeometry(id, parameters, session);
         } else {
@@ -157,8 +157,8 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return Collections.emptyList();
     }
 
-    private List<GeometryInfo> getAllInstances(DbQuery query, Session session, boolean expanded) {
-        List<GeometryInfo> geometries = new ArrayList<>();
+    private List<GeometryOutput> getAllInstances(DbQuery query, Session session, boolean expanded) {
+        List<GeometryOutput> geometries = new ArrayList<>();
         final FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.shallIncludeInsituPlatformTypes()) {
             if (filterResolver.shallIncludePlatformGeometriesSite()) {
@@ -179,7 +179,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return geometries;
     }
 
-    private GeometryInfo getPlatformLocationGeometry(String id, DbQuery parameters, Session session) {
+    private GeometryOutput getPlatformLocationGeometry(String id, DbQuery parameters, Session session) {
         String geometryId = GeometryType.extractId(id);
         FeatureEntity featureEntity = getFeatureEntity(geometryId, parameters, session);
         if (featureEntity != null) {
@@ -198,14 +198,14 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return dao.getInstance(geometryId, parameters);
     }
 
-    private List<GeometryInfo> getAllSites(DbQuery query, Session session, boolean expanded) {
+    private List<GeometryOutput> getAllSites(DbQuery query, Session session, boolean expanded) {
         IoParameters parameters = query.getParameters();
-        List<GeometryInfo> geometryInfoList = new ArrayList<>();
+        List<GeometryOutput> geometryInfoList = new ArrayList<>();
         DbQuery siteQuery = getDbQuery(parameters.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "stationary"));
 
         FeatureDao dao = createFeatureDao(session);
         for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
-            GeometryInfo geometryInfo = createSite(featureEntity, query, expanded);
+            GeometryOutput geometryInfo = createSite(featureEntity, query, expanded);
             if (geometryInfo != null) {
                 geometryInfoList.add(geometryInfo);
             }
@@ -213,15 +213,15 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return geometryInfoList;
     }
 
-    private GeometryInfo createSite(FeatureEntity entity, DbQuery query, boolean expanded) {
-        GeometryInfo geometryInfo = createGeometryInfo(GeometryType.PLATFORM_SITE, entity, query);
+    private GeometryOutput createSite(FeatureEntity entity, DbQuery query, boolean expanded) {
+        GeometryOutput geometryInfo = createGeometryInfo(GeometryType.PLATFORM_SITE, entity, query);
         return expanded
             ? addGeometry(geometryInfo, entity, query)
             : geometryInfo;
     }
 
-    private Collection<GeometryInfo> getAllTracks(DbQuery query, Session session, boolean expanded) {
-        List<GeometryInfo> geometryInfoList = new ArrayList<>();
+    private Collection<GeometryOutput> getAllTracks(DbQuery query, Session session, boolean expanded) {
+        List<GeometryOutput> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery mobileQuery = query.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
         if (isFilterViaSamplingGeometries()) {
@@ -229,7 +229,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
             // if possible, keep a LINESTRING geometry updated in feature-Table for each trackv
             DbQuery trackQuery = mobileQuery.removeSpatialFilter();
             for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
-                GeometryInfo track = createTrack(featureEntity, trackQuery, expanded, session);
+                GeometryOutput track = createTrack(featureEntity, trackQuery, expanded, session);
                 Geometry spatialFilter = query.getSpatialFilter();
                 if (spatialFilter == null || spatialFilter.intersects(track.getGeometry())) {
                     geometryInfoList.add(track);
@@ -249,8 +249,8 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return true;
     }
 
-    private GeometryInfo createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session) {
-        GeometryInfo geometryInfo = createGeometryInfo(GeometryType.PLATFORM_TRACK, entity, query);
+    private GeometryOutput createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session) {
+        GeometryOutput geometryInfo = createGeometryInfo(GeometryType.PLATFORM_TRACK, entity, query);
         if (expanded) {
             if (entity.isSetGeometry()) {
                 // track available from feature table
@@ -258,17 +258,17 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
             } else {
                 IoParameters parameters = query.getParameters();
                 Geometry lineString = createTrajectory(entity, query, session);
-                geometryInfo.setValue(GeometryInfo.GEOMETRY, lineString, parameters, geometryInfo::setGeometry);
+                geometryInfo.setValue(GeometryOutput.GEOMETRY, lineString, parameters, geometryInfo::setGeometry);
                 return geometryInfo;
             }
         }
         return geometryInfo;
     }
 
-    private GeometryInfo addGeometry(GeometryInfo geometryInfo, FeatureEntity entity, DbQuery query) {
+    private GeometryOutput addGeometry(GeometryOutput geometryInfo, FeatureEntity entity, DbQuery query) {
         IoParameters parameters = query.getParameters();
         Geometry geometry = getGeometry(entity.getGeometryEntity(), query);
-        geometryInfo.setValue(GeometryInfo.GEOMETRY, geometry, parameters, geometryInfo::setGeometry);
+        geometryInfo.setValue(GeometryOutput.GEOMETRY, geometry, parameters, geometryInfo::setGeometry);
         return geometryInfo;
     }
 
@@ -313,7 +313,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return getCrsUtils().createLineString(points, query.getDatabaseSridCode());
     }
 
-    private Collection<GeometryInfo> getAllObservedGeometriesStatic(DbQuery parameters,
+    private Collection<GeometryOutput> getAllObservedGeometriesStatic(DbQuery parameters,
                                                                     Session session,
                                                                     boolean expanded) {
         LOGGER.warn("Static ObservedGeometries not yet supported!");
@@ -321,7 +321,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return new ArrayList<>();
     }
 
-    private Collection<GeometryInfo> getAllObservedGeometriesDynamic(DbQuery parameters,
+    private Collection<GeometryOutput> getAllObservedGeometriesDynamic(DbQuery parameters,
                                                                      Session session,
                                                                      boolean expanded) {
         LOGGER.warn("Dynamic ObservedGeometries not yet supported!");
@@ -335,16 +335,16 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
         return null;
     }
 
-    private GeometryInfo createGeometryInfo(GeometryType type, FeatureEntity featureEntity, DbQuery query) {
-        GeometryInfo geometryInfo = new GeometryInfo();
+    private GeometryOutput createGeometryInfo(GeometryType type, FeatureEntity featureEntity, DbQuery query) {
+        GeometryOutput geometryInfo = new GeometryOutput();
         IoParameters parameters = query.getParameters();
-        String hrefBase = urlHelper.getGeometriesHrefBaseUrl(query.getHrefBase());
+//        String hrefBase = urlHelper.getGeometriesHrefBaseUrl(query.getHrefBase());
         PlatformOutput platform = getPlatfom(featureEntity, query);
 
         geometryInfo.setId(Long.toString(featureEntity.getId()));
-        geometryInfo.setValue(GeometryInfo.PROPERTIES, type, parameters, geometryInfo::setGeometryType);
-        geometryInfo.setValue(GeometryInfo.PROPERTIES, hrefBase, parameters, geometryInfo::setHrefBase);
-        geometryInfo.setValue(GeometryInfo.PROPERTIES, platform, parameters, geometryInfo::setPlatform);
+        geometryInfo.setValue(GeometryOutput.PROPERTIES, type, parameters, geometryInfo::setGeometryType);
+//        geometryInfo.setValue(GeometryInfo.PROPERTIES, hrefBase, parameters, geometryInfo::setHrefBase);
+        geometryInfo.setValue(GeometryOutput.PROPERTIES, platform, parameters, geometryInfo::setPlatform);
         return geometryInfo;
     }
 

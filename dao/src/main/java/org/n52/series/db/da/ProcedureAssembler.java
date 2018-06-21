@@ -65,11 +65,6 @@ public class ProcedureAssembler extends HierarchicalParameterAssembler<Procedure
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getProceduresHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected ProcedureDao createDao(Session session) {
         return new ProcedureDao(session);
     }

@@ -34,11 +34,11 @@ import java.util.List;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.OutputCollection;
 import org.n52.io.response.ParameterOutput;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.ParameterService;
-import org.n52.web.exception.InternalServerException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,7 +62,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             List<T> results = repository.getAllExpanded(dbQuery);
             return createOutputCollection(results);
         } catch (Exception e) {
-            throw new InternalServerException("Could not get expanded data.", e);
+            throw new DataAccessException("Could not get expanded data.", e);
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             List<T> results = repository.getAllCondensed(dbQuery);
             return createOutputCollection(results);
         } catch (Exception e) {
-            throw new InternalServerException("Could not get condensed data.", e);
+            throw new DataAccessException("Could not get condensed data.", e);
         }
     }
 
@@ -87,7 +87,7 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             }
             return createOutputCollection(results);
         } catch (Exception e) {
-            throw new InternalServerException("Could not get multiple instance data.", e);
+            throw new DataAccessException("Could not get multiple instance data.", e);
         }
     }
 
@@ -97,17 +97,13 @@ public abstract class AccessService<T extends ParameterOutput> extends Parameter
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             return repository.getInstance(id, dbQuery);
         } catch (Exception e) {
-            throw new InternalServerException("Could not get instance data.", e);
+            throw new DataAccessException("Could not get instance data.", e);
         }
     }
 
     @Override
     public boolean exists(String id, IoParameters parameters) {
-        try {
-            return repository.exists(id, dbQueryFactory.createFrom(parameters));
-        } catch (Exception e) {
-            throw new InternalServerException("Could not check if resource '" + id + "' does exist.");
-        }
+        return repository.exists(id, dbQueryFactory.createFrom(parameters));
     }
 
 }

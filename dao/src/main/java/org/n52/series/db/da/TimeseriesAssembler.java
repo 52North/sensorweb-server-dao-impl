@@ -60,7 +60,6 @@ import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.series.srv.OutputAssembler;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -192,16 +191,20 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
         DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
         QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
         if (result == null) {
-            throw new ResourceNotFoundException("Resource with id '" + timeseriesId + "' could not be found.");
+            LOGGER.debug("Resource with id '" + timeseriesId + "' could not be found.");
+            return null;
         }
         result.setPlatform(platformRepository.getPlatformEntity(result, query, session));
         return createExpanded(result, query, session);
     }
 
-    protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session) {
+    private TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session) {
         TimeseriesMetadataOutput result = createCondensed(series, query, session);
         IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
+        if (repository == null) {
+            return null;
+        }
 
         List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(series,
                                                                                                 query,
@@ -220,7 +223,8 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
     private QuantityDataRepository createRepository(String valueType) {
         if (!ValueType.DEFAULT_VALUE_TYPE.equalsIgnoreCase(valueType)) {
-            throw new ResourceNotFoundException("unknown value type: " + valueType);
+            LOGGER.debug("unknown value type: " + valueType);
+            return null;
         }
         try {
             return (QuantityDataRepository) factory.create(ValueType.DEFAULT_VALUE_TYPE);

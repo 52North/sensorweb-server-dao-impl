@@ -1,13 +1,13 @@
 package org.n52.series.srv;
 
-import org.n52.io.response.GeometryInfo;
+import org.n52.io.response.GeometryOutput;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GeometryService extends AccessService<GeometryInfo> {
+public class GeometryService extends AccessService<GeometryOutput> {
 
-    public GeometryService(OutputAssembler<GeometryInfo> repository, DbQueryFactory queryFactory) {
+    public GeometryService(OutputAssembler<GeometryOutput> repository, DbQueryFactory queryFactory) {
         super(repository, queryFactory);
     }
 

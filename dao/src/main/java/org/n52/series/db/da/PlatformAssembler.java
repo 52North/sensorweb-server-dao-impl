@@ -60,7 +60,6 @@ import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -103,11 +102,6 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new PlatformSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getPlatformsHrefBaseUrl(hrefBase);
     }
 
     @Override
@@ -272,9 +266,10 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
     private PlatformEntity getStation(String id, DbQuery query, Session session) {
         String featureId = PlatformType.extractId(id);
         FeatureDao featureDao = createFeatureDao(session);
-        FeatureEntity feature = featureDao.getInstance(Long.parseLong(featureId), query);
+        FeatureEntity feature = featureDao.getInstance(featureId, query);
         if (feature == null) {
-            throwNewResourceNotFoundException("Station", id);
+            LOGGER.debug("Unknown station with id '{}'", id);
+            return null;
         }
         return PlatformType.isInsitu(id)
                 ? convertInsitu(feature, query)
@@ -286,7 +281,8 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
         String platformId = PlatformType.extractId(id);
         PlatformEntity result = dao.getInstance(Long.parseLong(platformId), parameters);
         if (result == null) {
-            throwNewResourceNotFoundException("Platform", id);
+            LOGGER.debug("Unknown platform with id '{}'", id);
+            return null;
         }
         return result;
     }
@@ -394,10 +390,6 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
     protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session) {
         // platform has to be handled dynamically (see #309)
         return getEntity(getPlatformId(dataset), query, session);
-    }
-
-    private void throwNewResourceNotFoundException(String resource, String id) throws ResourceNotFoundException {
-        throw new ResourceNotFoundException(resource + " with id '" + id + "' could not be found.");
     }
 
 }

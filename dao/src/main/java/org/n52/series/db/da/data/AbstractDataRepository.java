@@ -73,9 +73,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
                                                                       .removeAllOf(Parameters.NEAR)
                                                                       .removeAllOf(Parameters.ODATA_FILTER)));
-            if (series.getService() == null) {
-                series.setService(getServiceEntity());
-            }
+            series.setService(getServiceEntity(series));
             return dbQuery.isExpanded()
                     ? assembleDataWithReferenceValues(series, dbQuery, session)
                     : assembleData(series, dbQuery, session);

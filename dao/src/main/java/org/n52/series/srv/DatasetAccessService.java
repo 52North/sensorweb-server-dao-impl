@@ -45,14 +45,16 @@ import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
-import org.n52.web.exception.InternalServerException;
-import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DatasetAccessService extends AccessService<DatasetOutput>
         implements
         DataService<Data<AbstractValue< ? >>> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
     private final DataRepositoryTypeFactory dataFactory;
 
@@ -79,15 +81,17 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+        
+        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+            LOGGER.debug("unknown type: " + valueType);
+            return new Data<>();
+        }
+        
         DataRepository dataRepository = createRepository(valueType);
         return dataRepository.getData(datasetId, dbQuery);
     }
 
     private DataRepository createRepository(String valueType) {
-        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
-            // XXX avoid RNFE in data layer
-            throw new ResourceNotFoundException("unknown type: " + valueType);
-        }
         try {
             return dataFactory.create(valueType);
         } catch (DatasetFactoryException e) {

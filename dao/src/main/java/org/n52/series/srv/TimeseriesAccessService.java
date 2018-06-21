@@ -43,7 +43,6 @@ import org.n52.series.db.da.data.DataRepositoryTypeFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
-import org.n52.web.exception.InternalServerException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -62,18 +61,14 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     @Override
     public DataCollection<Data<QuantityValue>> getData(IoParameters parameters) {
-        try {
-            TvpDataCollection<Data<QuantityValue>> dataCollection = new TvpDataCollection<>();
-            for (String timeseriesId : parameters.getDatasets()) {
-                Data<QuantityValue> data = getDataFor(timeseriesId, parameters);
-                if (data != null) {
-                    dataCollection.addNewSeries(timeseriesId, data);
-                }
+        TvpDataCollection<Data<QuantityValue>> dataCollection = new TvpDataCollection<>();
+        for (String timeseriesId : parameters.getDatasets()) {
+            Data<QuantityValue> data = getDataFor(timeseriesId, parameters);
+            if (data != null) {
+                dataCollection.addNewSeries(timeseriesId, data);
             }
-            return dataCollection;
-        } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get series data from database.", e);
         }
+        return dataCollection;
     }
 
     private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {

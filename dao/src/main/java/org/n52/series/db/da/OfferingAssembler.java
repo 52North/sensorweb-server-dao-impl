@@ -59,11 +59,6 @@ public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEn
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getOfferingsHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected OfferingDao createDao(Session session) {
         return new OfferingDao(session);
     }

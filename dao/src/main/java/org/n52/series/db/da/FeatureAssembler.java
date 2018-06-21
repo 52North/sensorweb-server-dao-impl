@@ -62,11 +62,6 @@ public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEnti
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getFeaturesHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected FeatureDao createDao(Session session) {
         return new FeatureDao(session);
     }
