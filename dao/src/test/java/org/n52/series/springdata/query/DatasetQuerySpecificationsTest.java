@@ -21,8 +21,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.springdata.DatasetRepository;
@@ -41,10 +43,10 @@ import com.vividsolutions.jts.io.ParseException;
 public class DatasetQuerySpecificationsTest {
 
     @Autowired
-    private DatasetRepository<QuantityDatasetEntity> datasetRepository;
+    private DatasetRepository<DatasetEntity> datasetRepository;
 
     @Autowired
-    private TestRepositories<QuantityDatasetEntity> testRepositories;
+    private TestRepositories<DatasetEntity> testRepositories;
 
     private DbQuery defaultQuery;
 
@@ -59,7 +61,7 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Dataset without a feature is not found")
     public void given_aDatasetWithoutFeature_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
-        createSimpleQuantityDataset("ph1", "of1", "pr1", "format1");
+        quantityDataset("ph1", "of1", "pr1", "format1");
         assertFalse(datasetRepository.exists(defaultFilterSpec.isPublic()), "dataset without feature found");
 
     }
@@ -67,39 +69,53 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Unpublished dataset is not found")
     public void given_anUnpublishedDataset_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
-        createSimpleQuantityDataset("ph1", "of1", "pr1", "format1").setPublished(false);
+        quantityDataset("ph1", "of1", "pr1", "format1").setPublished(false);
         assertFalse(datasetRepository.exists(defaultFilterSpec.isPublic()), "non public dataset found");
     }
 
     @Test
     @DisplayName("Disabled dataset is not found")
     public void given_aDisabledDataset_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
-        createSimpleQuantityDataset("ph1", "of1", "pr1", "format1").setDisabled(true);
+        quantityDataset("ph1", "of1", "pr1", "format1").setDisabled(true);
         assertFalse(datasetRepository.exists(defaultFilterSpec.isPublic()), "disabled dataset found");
     }
 
     @Test
     @DisplayName("Deleted dataset are not found")
     public void given_aDeletedDataset_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
-        createSimpleQuantityDataset("ph1", "of1", "pr1", "format1").setDeleted(true);
+        quantityDataset("ph1", "of1", "pr1", "format1").setDeleted(true);
         assertFalse(datasetRepository.exists(defaultFilterSpec.isPublic()), "deleted dataset found");
     }
 
     @Test
     @DisplayName("Filter datasets via offering ids")
     public void given_multipleDatasets_whenNoFilter_then_returnAllDatasets() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2");
-        QuantityDatasetEntity d3 = createSimpleQuantityDataset("ph1", "of2", "pr2", "format2");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2");
+        DatasetEntity d3 = quantityDataset("ph1", "of2", "pr2", "format2");
         assertThat(datasetRepository.findAll()).containsAll(toList(d1, d2, d3));
+    }
+
+    @Test
+    @DisplayName("Auto backwards compatible filter")
+    public void given_textDatasets_whenQueryingWithDefault_then_returnedDatasetsAreFilteredProperly() {
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = textDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+
+        Assertions.assertAll("Return text datasets only", () -> {
+            DbQuery query = defaultQuery.replaceWith(Parameters.FILTER_VALUE_TYPES, "text");
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d2);
+        });
+
     }
 
     @Test
     @SuppressWarnings("deprecation")
     @DisplayName("Filter datasets via single value offering filter (backwards compatible)")
     public void given_multipleDatasets_whenQueryingWithSingleValueOfferingFilter_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getOffering());
         String id2 = getIdAsString(d2.getOffering());
@@ -121,8 +137,8 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Filter datasets via offering ids")
     public void given_multipleDatasets_whenQueryingWithOfferingList_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getOffering());
         String id2 = getIdAsString(d2.getOffering());
@@ -151,8 +167,8 @@ public class DatasetQuerySpecificationsTest {
     @SuppressWarnings("deprecation")
     @DisplayName("Filter datasets via single value procedure filter (backwards compatible)")
     public void given_multipleDatasets_whenQueryingWithSingleValueProcedureFilter_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getProcedure());
         String id2 = getIdAsString(d2.getProcedure());
@@ -174,8 +190,8 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Filter datasets via procedure ids")
     public void given_multipleDatasets_whenQueryingWithProcedureList_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getProcedure());
         String id2 = getIdAsString(d2.getProcedure());
@@ -204,8 +220,8 @@ public class DatasetQuerySpecificationsTest {
     @SuppressWarnings("deprecation")
     @DisplayName("Filter datasets via single value phenomenon filter (backwards compatible)")
     public void given_multipleDatasets_whenQueryingWithSingleValuePhenomenonFilter_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getPhenomenon());
         String id2 = getIdAsString(d2.getPhenomenon());
@@ -227,8 +243,8 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Filter datasets via phenomenon ids")
     public void given_multipleDatasets_whenQueryingWithPhenomenonList_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String id1 = getIdAsString(d1.getPhenomenon());
         String id2 = getIdAsString(d2.getPhenomenon());
@@ -257,8 +273,8 @@ public class DatasetQuerySpecificationsTest {
     @SuppressWarnings("deprecation")
     @DisplayName("Filter datasets via single value feature filter (backwards compatible)")
     public void given_multipleDatasets_whenQueryingWithSingleValueFeatureFilter_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe2", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe2", "fe_format");
 
         String id1 = getIdAsString(d1.getFeature());
         String id2 = getIdAsString(d2.getFeature());
@@ -280,8 +296,8 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Filter datasets via feature ids")
     public void given_multipleDatasets_whenQueryingWithFeatureList_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format3", "fe2", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format3", "fe2", "fe_format");
 
         String id1 = getIdAsString(d1.getFeature());
         String id2 = getIdAsString(d2.getFeature());
@@ -309,16 +325,16 @@ public class DatasetQuerySpecificationsTest {
     @Test
     @DisplayName("Filter datasets via mixed parameter ids")
     public void given_multipleDatasets_whenQueryingWithMixedParameterList_then_returnedDatasetsAreFilteredProperly() {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         String offId1 = getIdAsString(d1.getOffering());
         String offId2 = getIdAsString(d2.getOffering());
 
         Assertions.assertAll("Mixed filter with existing parameters", () -> {
-            String procId1 = getIdAsString(d1.getProcedure());
-            String procId2 = getIdAsString(d2.getProcedure());
-            DbQuery query = defaultQuery.replaceWith(PHENOMENA, procId1, procId2)
+            String phId1 = getIdAsString(d1.getPhenomenon());
+            String phId2 = getIdAsString(d2.getPhenomenon());
+            DbQuery query = defaultQuery.replaceWith(PHENOMENA, phId1, phId2)
                                         .replaceWith(OFFERINGS, offId1, offId2);
             DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
@@ -332,35 +348,35 @@ public class DatasetQuerySpecificationsTest {
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
-    
+
     @Test
     @DisplayName("Filter datasets via bbox")
-    public void given_datasetsWithGeometries_whenQueryingWithMixedParameterList_then_returnedDatasetsAreFilteredProperly() throws ParseException {
-        QuantityDatasetEntity d1 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1");
+    public void given_datasetsWithGeometries_whenQueryingWithMixedParameterList_then_returnedDatasetsAreFilteredProperly()
+            throws ParseException {
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1");
         FeatureEntity f1 = testRepositories.persistSimpleFeature("f1", "format1");
         f1.setGeometry(fromWkt("SRID=4326;POINT (7.3 52.8)"));
         d1.setFeature(f1);
-        
+
         Assertions.assertAll("No match when laying outside bbox", () -> {
             DbQuery query = defaultQuery.replaceWith(Parameters.BBOX, "5, 50, 6, 51");
             DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
 
-        QuantityDatasetEntity d2 = createSimpleQuantityDataset("ph1", "of1", "pr1", "format1");
+        DatasetEntity d2 = quantityDataset("ph1", "of1", "pr1", "format1");
         FeatureEntity f2 = testRepositories.persistSimpleFeature("f2", "format1");
         f2.setGeometry(fromWkt("SRID=4326;POINT (7.2 55)"));
         d2.setFeature(f2);
-        
+
         Assertions.assertAll("Match when laying inside bbox", () -> {
             DbQuery query = defaultQuery.replaceWith(Parameters.BBOX, "7, 52, 7.5, 53");
             DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).hasSize(1);
         });
-
     }
 
-    private QuantityDatasetEntity createSimpleQuantityDataset(String phenomenonIdentifier,
+    private DatasetEntity quantityDataset(String phenomenonIdentifier,
                                                               String offeringIdentifier,
                                                               String procedureIdentifier,
                                                               String procedureFormat) {
@@ -371,12 +387,12 @@ public class DatasetQuerySpecificationsTest {
                                                      new QuantityDatasetEntity());
     }
 
-    private QuantityDatasetEntity createSimpleQuantityDataset(String phenomenonIdentifier,
-                                                              String offeringIdentifier,
-                                                              String procedureIdentifier,
-                                                              String procedureFormat,
-                                                              String featureIdentifier,
-                                                              String featureFormat) {
+    private DatasetEntity quantityDataset(String phenomenonIdentifier,
+                                                  String offeringIdentifier,
+                                                  String procedureIdentifier,
+                                                  String procedureFormat,
+                                                  String featureIdentifier,
+                                                  String featureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,
@@ -386,15 +402,30 @@ public class DatasetQuerySpecificationsTest {
                                                      new QuantityDatasetEntity());
     }
 
+    private DatasetEntity textDataset(String phenomenonIdentifier,
+                                              String offeringIdentifier,
+                                              String procedureIdentifier,
+                                              String procedureFormat,
+                                              String featureIdentifier,
+                                              String featureFormat) {
+        return testRepositories.persistSimpleDataset(phenomenonIdentifier,
+                                                     offeringIdentifier,
+                                                     procedureIdentifier,
+                                                     procedureFormat,
+                                                     featureIdentifier,
+                                                     featureFormat,
+                                                     new TextDatasetEntity());
+    }
+
     @SpringBootConfiguration
     @EnableJpaRepositories(basePackageClasses = DatasetRepository.class)
-    static class Config extends TestRepositoryConfig<QuantityDatasetEntity> {
+    static class Config extends TestRepositoryConfig<DatasetEntity> {
         public Config() {
             super("/mapping/core/persistence.xml");
         }
 
         @Override
-        public TestRepositories<QuantityDatasetEntity> testRepositories() {
+        public TestRepositories<DatasetEntity> testRepositories() {
             return new TestRepositories<>();
         }
     }

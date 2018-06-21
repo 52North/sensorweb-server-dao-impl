@@ -52,6 +52,7 @@ public class DatasetQuerySpecifications {
      * <li>{@link #matchOfferings()}</li>
      * <li>{@link #matchPhenomena()}</li>
      * <li>{@link #matchProcedures()}</li>
+     * <li>{@link #matchValueTypes()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
      * 
@@ -62,6 +63,7 @@ public class DatasetQuerySpecifications {
                          .and(matchOfferings())
                          .and(matchPhenomena())
                          .and(matchProcedures())
+                         .and(matchValueTypes())
                          .and(matchesSpatially());
     }
 
@@ -358,6 +360,59 @@ public class DatasetQuerySpecifications {
             : dataset.phenomenon.id.in(parseToIds(ids));
     }
 
+    /**
+     * Matches datasets matching given value types. For example:
+     *
+     * <pre>
+     *  where valueType in (&lt;valueTypes&gt;)
+     * </pre>
+     *
+     * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
+     */
+    public BooleanExpression matchValueTypes() {
+        IoParameters parameters = dbQuery.getParameters();
+        Set<String> valueTypes = parameters.getValueTypes();
+        if (valueTypes == null || valueTypes.isEmpty()) {
+            return null;
+        }
+        return matchValueTypes(valueTypes);
+    }
+
+    /**
+     * Matches datasets matching given value types.
+     * 
+     * @param valueTypes
+     *        the value types to match
+     * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
+     * @see #matchValueTypes()
+     */
+    public BooleanExpression matchValueTypes(String... valueTypes) {
+        return valueTypes != null
+            ? matchValueTypes(Arrays.asList(valueTypes))
+            : null;
+    }
+
+    /**
+     * Matches datasets matching given value types.
+     * 
+     * @param valueTypes
+     *        the value types to match
+     * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
+     * @see #matchValueTypes()
+     */
+    public BooleanExpression matchValueTypes(Collection<String> valueTypes) {
+        if (valueTypes == null || valueTypes.isEmpty()) {
+            return null;
+        }
+        QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+        return dataset.valueType.in(valueTypes);
+    }
+
+    /**
+     * Matches datasets which have a feature laying within the given bbox using an intersects query.
+     * 
+     * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
+     */
     public BooleanExpression matchesSpatially() {
         Geometry geometry = dbQuery.getSpatialFilter();
         if (geometry == null || geometry.isEmpty()) {
