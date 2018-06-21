@@ -20,7 +20,7 @@ spring:
 logging:
   config: classpath:logback-test.xml
   level:
-    root: DEBUG
+    root: INFO
     org:
       n52: DEBUG
       hibernate: INFO
