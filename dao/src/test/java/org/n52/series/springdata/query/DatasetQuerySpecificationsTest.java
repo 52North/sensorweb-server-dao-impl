@@ -5,12 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.n52.io.request.Parameters.FEATURE;
 import static org.n52.io.request.Parameters.FEATURES;
+import static org.n52.io.request.Parameters.FILTER_PLATFORM_TYPES;
 import static org.n52.io.request.Parameters.OFFERING;
 import static org.n52.io.request.Parameters.OFFERINGS;
 import static org.n52.io.request.Parameters.PHENOMENA;
 import static org.n52.io.request.Parameters.PHENOMENON;
 import static org.n52.io.request.Parameters.PROCEDURE;
 import static org.n52.io.request.Parameters.PROCEDURES;
+import static org.n52.io.response.PlatformType.PLATFORM_TYPE_MOBILE;
+import static org.n52.io.response.PlatformType.PLATFORM_TYPE_REMOTE;
+import static org.n52.io.response.PlatformType.PLATFORM_TYPE_STATIONARY;
 import static org.n52.series.test.TestUtils.fromWkt;
 import static org.n52.series.test.TestUtils.getIdAsString;
 import static org.n52.series.test.TestUtils.toList;
@@ -23,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -63,7 +68,6 @@ public class DatasetQuerySpecificationsTest {
     public void given_aDatasetWithoutFeature_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
         quantityDataset("ph1", "of1", "pr1", "format1");
         assertFalse(datasetRepository.exists(defaultFilterSpec.isPublic()), "dataset without feature found");
-
     }
 
     @Test
@@ -120,6 +124,56 @@ public class DatasetQuerySpecificationsTest {
         });
 
     }
+
+    @Test
+    @DisplayName("Filter platform types")
+    public void given_mobileDatasets_when_queryingWithDefault_then_returnedDatasetsAreFilteredProperly() {
+        DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
+        DatasetEntity d2 = quantityDataset("ph1", "of1", "pr2", "format1", "fe1", "fe_format");
+        ProcedureEntity p2 = d2.getProcedure();
+        p2.setMobile(true);
+
+        // assert test requirement
+        assertThat(d1.getProcedure()).as("Datasets share the same procedure").isNotSameAs(d2.getProcedure());
+
+        Assertions.assertAll("Empty Query matches all", () -> {
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(defaultQuery);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1, d2);
+        });
+        
+        Assertions.assertAll("Query matches 'stationary' datasets", () -> {
+            DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_STATIONARY);
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_STATIONARY))).containsOnly(d1);
+        });
+
+        Assertions.assertAll("Default query does not match 'mobile' datasets", () -> {
+            DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE);
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE))).containsOnly(d2);
+        });
+
+        Assertions.assertAll("Default query does match 'remote' datasets ", () -> {
+            p2.setInsitu(false);
+            DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_REMOTE);
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_REMOTE))).containsOnly(d2);
+        });
+        
+        Assertions.assertAll("Default query does match 'mobile/remote' datasets ", () -> {
+            p2.setInsitu(false);
+            p2.setMobile(true);
+            DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE);
+            DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE))).containsOnly(d2);
+        });
+    }
+
+    // TODO data types ... different repositories?
 
     @Test
     @SuppressWarnings("deprecation")

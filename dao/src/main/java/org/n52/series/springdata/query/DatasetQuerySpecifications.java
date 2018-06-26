@@ -1,6 +1,7 @@
 
 package org.n52.series.springdata.query;
 
+import static org.n52.io.request.Parameters.FILTER_PLATFORM_TYPES;
 import static org.n52.series.db.dao.QueryUtils.parseToIds;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import org.n52.series.db.beans.QProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -56,6 +58,7 @@ public class DatasetQuerySpecifications {
      * <li>{@link #matchPhenomena()}</li>
      * <li>{@link #matchProcedures()}</li>
      * <li>{@link #matchValueTypes()}</li>
+     * <li>{@link #matchPlatformTypes()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
      * 
@@ -67,6 +70,7 @@ public class DatasetQuerySpecifications {
                          .and(matchPhenomena())
                          .and(matchProcedures())
                          .and(matchValueTypes())
+                         .and(matchPlatformTypes())
                          .and(matchesSpatially());
     }
 
@@ -393,7 +397,84 @@ public class DatasetQuerySpecifications {
     }
 
     /**
-     * Matches datasets which have a feature laying within the given bbox using an intersects query.
+     * Matches datasets matching given platform types.
+     *
+     * @return a boolean expression
+     * @see #matchPlatformTypes(Collection)
+     */
+    public BooleanExpression matchPlatformTypes() {
+        IoParameters parameters = dbQuery.getParameters();
+        Set<String> platformTypes = parameters.getPlatformTypes();
+        return matchPlatformTypes(platformTypes);
+    }
+
+    /**
+     * Matches datasets matching given platform types.
+     * 
+     * @param platformTypes
+     *        the platform types to match
+     * @return a boolean expression
+     * @see #matchPlatformTypes(Collection)
+     */
+    public BooleanExpression matchPlatformTypes(String... platformTypes) {
+        return platformTypes != null
+            ? matchPlatformTypes(Arrays.asList(platformTypes))
+            : null;
+    }
+
+    /**
+     * Matches datasets matching given value types. For example:
+     *
+     * <pre>
+     *  where is_mobile &lt;false&gt; and is_insitu &lt;true&gt;
+     * </pre>
+     * 
+     * @param platformTypes
+     *        the platform types to match
+     * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
+     */
+    public BooleanExpression matchPlatformTypes(Collection<String> platformTypes) {
+        if (platformTypes == null || platformTypes.isEmpty()) {
+            return null;
+        }
+        DbQuery filterQuery = dbQuery.replaceWith(FILTER_PLATFORM_TYPES, platformTypes.toArray(new String[0]));
+        FilterResolver filterResolver = filterQuery.getFilterResolver();
+
+        QProcedureEntity procedure = QDatasetEntity.datasetEntity.procedure;
+        return isMobileOrStationary(filterResolver, procedure).and(isInsituOrRemote(filterResolver, procedure));
+    }
+
+    private BooleanExpression isInsituOrRemote(FilterResolver filterResolver, QProcedureEntity procedure) {
+        return isRemote(procedure, filterResolver).or(isInsitu(procedure, filterResolver));
+    }
+
+    private BooleanExpression isMobileOrStationary(FilterResolver filterResolver, QProcedureEntity procedure) {
+        return isMobile(procedure, filterResolver).or(isStationary(procedure, filterResolver));
+    }
+
+    private BooleanExpression isRemote(QProcedureEntity procedure, FilterResolver filterResolver) {
+        return procedure.insitu.eq(filterResolver.shallIncludeRemotePlatformTypes()).not();
+    }
+
+    private BooleanExpression isStationary(QProcedureEntity procedure, FilterResolver filterResolver) {
+        return procedure.mobile.eq(filterResolver.shallIncludeStationaryPlatformTypes()).not();
+    }
+
+    private BooleanExpression isMobile(QProcedureEntity procedure, FilterResolver filterResolver) {
+        return procedure.mobile.eq(filterResolver.shallIncludeMobilePlatformTypes());
+    }
+
+    private BooleanExpression isInsitu(QProcedureEntity procedure, FilterResolver filterResolver) {
+        return procedure.insitu.eq(filterResolver.shallIncludeInsituPlatformTypes());
+    }
+
+    /**
+     * Matches datasets which have a feature laying within the given bbox using an intersects query. For
+     * example:
+     * 
+     * <pre>
+     *   where ST_INTERSECTS(feature.geom, &lt;filter_geometry&gt;)=1
+     * </pre>
      * 
      * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
      */
