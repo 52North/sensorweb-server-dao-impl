@@ -32,6 +32,7 @@ package org.n52.series.db.dao;
 import java.util.Optional;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MoreRestrictions;
@@ -67,12 +68,14 @@ public class DataFESCriterionGenerator extends FESCriterionGenerator {
      *        their respective domain identifiers or on the primary keys in the database
      * @param complexParent
      *        if the queries should result in the parent observation and hide the child observations
+     * @param session the session
      */
     public DataFESCriterionGenerator(Criteria criteria,
                                      boolean unsupportedIsTrue,
                                      boolean matchDomainIds,
-                                     boolean complexParent) {
-        super(criteria, unsupportedIsTrue, matchDomainIds, complexParent);
+                                     boolean complexParent,
+                                     Session session) {
+    super(criteria, unsupportedIsTrue, matchDomainIds, complexParent, session);
     }
 
     @Override

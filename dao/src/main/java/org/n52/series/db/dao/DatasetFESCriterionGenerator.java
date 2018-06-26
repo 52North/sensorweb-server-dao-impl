@@ -31,6 +31,7 @@ package org.n52.series.db.dao;
 import java.util.Optional;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MoreRestrictions;
@@ -61,17 +62,19 @@ public class DatasetFESCriterionGenerator extends FESCriterionGenerator {
      * @param matchDomainIds    if filter on observation parameters like feature, offering or procedure should match on
      *                          their respective domain identifiers or on the primary keys in the database
      * @param complexParent     if the queries should result in the parent observation and hide the child observations
+     * @param session           the session
      */
     public DatasetFESCriterionGenerator(Criteria criteria,
                                         boolean unsupportedIsTrue,
                                         boolean matchDomainIds,
-                                        boolean complexParent) {
-        super(criteria, unsupportedIsTrue, matchDomainIds, complexParent);
+                                        boolean complexParent,
+                                        Session session) {
+        super(criteria, unsupportedIsTrue, matchDomainIds, complexParent, session);
     }
 
     @Override
     protected Criterion createDataCriterion(Criterion criterion) {
-        DetachedCriteria subquery = DetachedCriteria.forClass(DataEntity.class)
+        DetachedCriteria subquery = DetachedCriteria.forClass(getDataClass())
                 .setProjection(Projections.property(DataEntity.PROPERTY_DATASET))
                 .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
                 .add(criterion);

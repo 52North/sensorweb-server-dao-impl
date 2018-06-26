@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MoreRestrictions;
@@ -53,6 +54,8 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.n52.series.db.DataModelUtil;
+import org.n52.series.db.beans.BooleanDataEntity;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
@@ -62,6 +65,9 @@ import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.TextDataEntity;
+import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.data.Data.*;
+import org.n52.series.db.beans.dataset.Dataset;
 import org.n52.shetland.ogc.filter.BinaryLogicFilter;
 import org.n52.shetland.ogc.filter.ComparisonFilter;
 import org.n52.shetland.ogc.filter.Filter;
@@ -106,6 +112,8 @@ public abstract class FESCriterionGenerator {
     private final boolean unsupportedIsTrue;
     private final boolean matchDomainIds;
     private final boolean complexParent;
+    private final Session session;
+
     private final Criteria criteria;
     private final Set<String> aliases = new HashSet<>();
 
@@ -122,15 +130,19 @@ public abstract class FESCriterionGenerator {
      *        their respective domain identifiers or on the primary keys in the database
      * @param complexParent
      *        if the queries should result in the parent observation and hide the child observations
+     * @param session
+     *        the session
      */
     public FESCriterionGenerator(Criteria criteria,
-                                 boolean unsupportedIsTrue,
-                                 boolean matchDomainIds,
-                                 boolean complexParent) {
+                                boolean unsupportedIsTrue,
+                                boolean matchDomainIds,
+                                boolean complexParent,
+                                Session session) {
         this.criteria = Objects.requireNonNull(criteria);
         this.unsupportedIsTrue = unsupportedIsTrue;
         this.matchDomainIds = matchDomainIds;
         this.complexParent = complexParent;
+        this.session = session;
     }
 
     /**
@@ -1159,24 +1171,24 @@ public abstract class FESCriterionGenerator {
         Optional<DetachedCriteria> count = parseInt(filter.getValue())
                 // we can't apply PropertyIsLike to count values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
-                .map(lv -> DetachedCriteria.forClass(CountDataEntity.class)
+                .map(lv -> DetachedCriteria.forClass(getCountDataClass())
                 .add(createComparison(filter, lv)));
         /* TODO uncomment when BooleanDataEntity exists
         Optional<DetachedCriteria> bool = parseBoolean(filter.getValue())
                 // we can't apply PropertyIsLike to boolean values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
-                .map(lv -> DetachedCriteria.forClass(BooleanDataEntity.class)
+                .map(lv -> DetachedCriteria.forClass(getBooleantDataClass())
                 .add(createComparison(filter, lv)));
         */
         Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
                 // we can't apply PropertyIsLike to numeric values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
-                .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
+                .map(dv -> DetachedCriteria.forClass(getQuantityDataClass())
                 .add(createComparison(filter, dv)));
 
-        Optional<DetachedCriteria> text = Optional.of(DetachedCriteria.forClass(TextDataEntity.class)
+        Optional<DetachedCriteria> text = Optional.of(DetachedCriteria.forClass(getTextDataClass())
                 .add(createComparison(filter)));
-        Optional<DetachedCriteria> category = Optional.of(DetachedCriteria.forClass(CategoryDataEntity.class)
+        Optional<DetachedCriteria> category = Optional.of(DetachedCriteria.forClass(getCategoryDataClass())
                 .add(createComparison(filter)));
         // subqueries resulting in the ids of matching observations
         List<DetachedCriteria> subqueries = Stream.of(count, quantity, text, category/*, bool*/)
@@ -1192,7 +1204,7 @@ public abstract class FESCriterionGenerator {
         }
 
         // we are only returning top-level observations
-        DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
+        DetachedCriteria profile = DetachedCriteria.forClass(getProfileDataClass())
                 .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
                 .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
                 .add(subqueries.stream()
@@ -1259,6 +1271,44 @@ public abstract class FESCriterionGenerator {
      */
     private Criterion createResultTimeCriterion(ComparisonFilter filter) {
         return createDataCriterion(createTemporalCriterion(filter, DataEntity.PROPERTY_RESULT_TIME));
+    }
+
+    protected Class<?> getDatasetClass() {
+        return session != null ? DataModelUtil.getSupportedEntity(Dataset.class, session) : DatasetEntity.class;
+    }
+
+    protected Class<?> getDataClass() {
+        return session != null ? DataModelUtil.getSupportedEntity(Data.class, session) : DataEntity.class;
+    }
+
+    protected Class<?> getCountDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(CountData.class, session)
+                : CountDataEntity.class;
+    }
+
+    protected Class<?> getBooleantDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(BooleanData.class, session)
+                : BooleanDataEntity.class;
+    }
+
+    protected Class<?> getQuantityDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(QuantityData.class, session)
+                : QuantityDataEntity.class;
+    }
+
+    protected Class<?> getTextDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(TextData.class, session)
+                : TextDataEntity.class;
+    }
+
+    protected Class<?> getCategoryDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(CategoryData.class, session)
+                : CategoryDataEntity.class;
+    }
+
+    protected Class<?> getProfileDataClass() {
+        return session != null ? DataModelUtil.getSupportedConcreteEntity(ProfileData.class, session)
+                : ProfileDataEntity.class;
     }
 
     /**
