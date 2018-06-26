@@ -9,10 +9,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.n52.io.request.IoParameters;
-import org.n52.io.response.ParameterOutput;
+import org.n52.io.crs.CRSUtils;
+import org.n52.io.response.AbstractOutput;
+import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.springdata.DatasetRepository;
@@ -20,16 +23,26 @@ import org.n52.series.springdata.ParameterDataRepository;
 import org.n52.series.springdata.query.DatasetQuerySpecifications;
 import org.n52.series.springdata.query.OfferingQuerySpecifications;
 import org.n52.series.srv.OutputAssembler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
-public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends ParameterOutput> implements
+public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends AbstractOutput> implements
         OutputAssembler<O> {
+
+    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     private final ParameterDataRepository<E> parameterRepository;
 
     private final DatasetRepository< ? > datasetRepository;
+
+    // via database or config
+    @Autowired(required = false)
+    private ServiceEntity serviceEntity;
 
     public ParameterOutputAssembler(ParameterDataRepository<E> parameterRepository,
                                     DatasetRepository< ? > datasetRepository) {
@@ -40,32 +53,16 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     protected abstract O prepareEmptyOutput();
 
     protected O createExpanded(E entity, DbQuery query) {
-        O output = createCondensed(entity, query);
-
-        // TODO add service
-
+        ServiceEntity serviceEntity = getServiceEntity(entity);
+        O output = ParameterOutputMapper.createCondensed(entity, prepareEmptyOutput(), query);
+        ServiceOutput serviceOutput = ParameterOutputMapper.createCondensed(serviceEntity, new ServiceOutput(), query);
+        output.setValue(AbstractOutput.SERVICE, serviceOutput, query.getParameters(), output::setService);
         return output;
-    }
-
-    protected O createCondensed(E entity, DbQuery query) {
-        O result = prepareEmptyOutput();
-        IoParameters parameters = query.getParameters();
-
-        Long id = entity.getId();
-        String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getIdentifier();
-        String hrefBase = query.getHrefBase();
-
-        result.setId(Long.toString(id));
-        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-        return result;
     }
 
     @Override
     public List<O> getAllCondensed(DbQuery query) {
-        return findAll(query).map(it -> createCondensed(it, query))
+        return findAll(query).map(it -> ParameterOutputMapper.createCondensed(it, prepareEmptyOutput(), query))
                              .collect(Collectors.toList());
 
 
@@ -115,6 +112,42 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
         OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
         return oFilterSpec.selectFrom(subQuery);
+    }
+
+    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
+        if (geometryEntity == null) {
+            return null;
+        } else {
+            String srid = query.getDatabaseSridCode();
+            GeometryFactory geomFactory = createGeometryFactory(srid);
+            geometryEntity.setGeometryFactory(geomFactory);
+            return geometryEntity.getGeometry();
+        }
+    }
+
+    private GeometryFactory createGeometryFactory(String srsId) {
+        CRSUtils crsUtils = getCrsUtils();
+        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+        return srsId == null
+            ? new GeometryFactory(pm)
+            : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
+    }
+
+    protected CRSUtils getCrsUtils() {
+        return internalCrsUtils;
+    }
+
+    protected ServiceEntity getServiceEntity(DescribableEntity entity) {
+        assertServiceAvailable(entity);
+        return entity.getService() != null
+            ? entity.getService()
+            : serviceEntity;
+    }
+
+    private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
+        if (serviceEntity == null && entity == null) {
+            throw new IllegalStateException("No service instance available");
+        }
     }
 
 }
