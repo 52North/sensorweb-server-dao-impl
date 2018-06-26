@@ -84,7 +84,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         return results;
     }
 
-    protected List<O> createCondensed(Iterable<E> allInstances, DbQuery query, Session session) {
+    protected List<O> createCondensed(Collection<E> allInstances, DbQuery query, Session session) {
         List<O> results = new ArrayList<>();
         for (E entity : allInstances) {
             results.add(createCondensed(entity, query, session));
@@ -126,7 +126,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected abstract O createExpanded(E instance, DbQuery query, Session session) throws DataAccessException;
 
-    protected List<O> createExpanded(Iterable<E> allInstances, DbQuery query, Session session)
+    protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {
         List<O> results = new ArrayList<>();
         for (E entity : allInstances) {

@@ -172,11 +172,13 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
                                                 .extendWith(Parameters.PLATFORMS, result.getId())
-                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES));
+                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
+                                                .removeAllOf(Parameters.FILTER_FIELDS));
         DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR)
-                                                       .removeAllOf(Parameters.ODATA_FILTER));
+                                                       .removeAllOf(Parameters.ODATA_FILTER)
+                                                       .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
         Geometry geometry = entity.getGeometry() == null
@@ -186,7 +188,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         if (!matchesSpatialFilter(geometry, query)) {
             return null;
         }
-
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
 
         result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);

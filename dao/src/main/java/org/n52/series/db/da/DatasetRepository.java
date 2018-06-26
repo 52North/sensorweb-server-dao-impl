@@ -283,7 +283,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         String uom = dataset.getUnitI18nName(query.getLocale());
         String label = createDatasetLabel(dataset, query.getLocale());
         String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
-        String platformtype = getCondensedPlatform(dataset, query, session).getPlatformType();
+        String platformtype = getCondensedPlatform(dataset, query.withoutFieldsFilter(), session).getPlatformType();
 
         result.setId(id.toString());
         result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
@@ -301,8 +301,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             IoParameters params = query.getParameters();
             DatasetOutput result = createCondensed(dataset, query, session);
 
-            DatasetParameters datasetParameters = createDatasetParameters(dataset, query, session);
-            datasetParameters.setPlatform(getCondensedPlatform(dataset, query, session));
+            DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
+            datasetParams.setPlatform(getCondensedPlatform(dataset, query, session));
             if (dataset.getService() == null) {
                 dataset.setService(getServiceEntity());
             }
@@ -318,7 +318,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                     : lastValue;
 
             result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
-            result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParameters, params, result::setDatasetParameters);
+            result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
 
