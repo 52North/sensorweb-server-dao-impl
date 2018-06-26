@@ -57,6 +57,8 @@ import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.dataset.Dataset;
+import org.n52.series.db.beans.dataset.QuantityDataset;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
@@ -124,7 +126,7 @@ public abstract class SessionAwareRepository {
     }
 
     // XXX a bit misplaced here
-    protected String getPlatformId(DatasetEntity dataset) {
+    protected String getPlatformId(Dataset dataset) {
         ProcedureEntity procedure = dataset.getProcedure();
         boolean mobile = procedure.isMobile();
         boolean insitu = procedure.isInsitu();
@@ -170,7 +172,7 @@ public abstract class SessionAwareRepository {
         return timeseriesOutputs;
     }
 
-    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity dataset, DbQuery parameters)
+    protected DatasetParameters createTimeseriesOutput(QuantityDataset dataset, DbQuery parameters)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);

@@ -59,7 +59,7 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
+import org.n52.series.db.beans.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,15 +237,15 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addOdataFilterForData(Criteria criteria) {
+    public Criteria addOdataFilterForData(Criteria criteria, Session session) {
         FESCriterionGenerator generator =
-                new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+                new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent(), session);
         return addOdataFilter(generator, criteria);
     }
 
-    public Criteria addOdataFilterForDataset(Criteria criteria) {
+    public Criteria addOdataFilterForDataset(Criteria criteria, Session session) {
         FESCriterionGenerator generator =
-                new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
+                new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent(), session);
         return addOdataFilter(generator, criteria);
     }
 
@@ -442,9 +442,7 @@ public class DbQuery {
     }
 
     protected Class<?> getDatasetClass(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session)
-                ? EReportingDatasetEntity.class
-                : DatasetEntity.class;
+        return DataModelUtil.getSupportedEntity(Dataset.class, session);
     }
 
     @Override
