@@ -35,11 +35,9 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.BooleanDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.data.Data.BooleanData;
 import org.n52.series.db.beans.dataset.BooleanDataset;
-import org.n52.series.db.beans.ereporting.EReportingBooleanDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -48,9 +46,7 @@ public class BooleanDataRepository
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingBooleanDatasetEntity.class, session)
-                ? EReportingBooleanDatasetEntity.class
-                : BooleanDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(BooleanDataset.class, session);
     }
 
     @Override

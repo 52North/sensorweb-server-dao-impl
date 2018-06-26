@@ -43,7 +43,6 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.dataset.Dataset;
-import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -65,10 +64,7 @@ public class DatasetDao<T extends Dataset> extends AbstractDao<T> implements Sea
 
     @SuppressWarnings("unchecked")
     public DatasetDao(Session session) {
-        this(session,
-                (Class<T>) (DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session)
-                        ? EReportingDatasetEntity.class
-                        : DatasetEntity.class));
+        this(session, (Class<T>) DataModelUtil.getSupportedEntity(Dataset.class, session));
     }
 
     public DatasetDao(Session session, Class<T> clazz) {

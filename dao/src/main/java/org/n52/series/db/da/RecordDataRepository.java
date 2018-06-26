@@ -36,11 +36,9 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.data.Data.RecordData;
 import org.n52.series.db.beans.dataset.RecordDataset;
-import org.n52.series.db.beans.ereporting.EReportingRecordDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -49,9 +47,7 @@ public class RecordDataRepository
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingRecordDatasetEntity.class, session)
-                ? EReportingRecordDatasetEntity.class
-                : RecordDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(RecordDataset.class, session);
     }
 
     @Override

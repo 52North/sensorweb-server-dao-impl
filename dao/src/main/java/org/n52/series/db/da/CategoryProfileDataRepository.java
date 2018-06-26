@@ -37,12 +37,10 @@ import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.CategoryDataEntity;
-import org.n52.series.db.beans.CategoryProfileDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.data.Data.ProfileData;
 import org.n52.series.db.beans.dataset.CategoryProfileDataset;
 import org.n52.series.db.beans.dataset.ProfileDataset;
-import org.n52.series.db.beans.ereporting.EReportingCategoryProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDataset> {
@@ -55,9 +53,7 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingCategoryProfileDatasetEntity.class, session)
-                ? EReportingCategoryProfileDatasetEntity.class
-                : CategoryProfileDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(CategoryProfileDataset.class, session);
     }
 
     @Override

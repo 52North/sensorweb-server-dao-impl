@@ -80,20 +80,23 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     @Autowired
     private IDataRepositoryFactory factory;
 
-    private DatasetDao<QuantityDatasetEntity> createDatasetDao(Session session) {
-        return new DatasetDao<>(session, QuantityDatasetEntity.class);
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private DatasetDao<QuantityDataset> createDatasetDao(Session session) {
+        return new DatasetDao(session, DataModelUtil.getSupportedConcreteEntity(QuantityDataset.class, session));
     }
 
-    private DataDao<QuantityDataEntity> createDataDao(Session session) {
-        return new DataDao<>(session, QuantityDataEntity.class);
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private DataDao<QuantityData> createDataDao(Session session) {
+        return new DataDao(session, DataModelUtil.getSupportedConcreteEntity(QuantityData.class, session));
     }
 
     @Override
     public boolean exists(String id, DbQuery parameters) throws DataAccessException {
         Session session = getSession();
         try {
-            DatasetDao<QuantityDatasetEntity> dao = createDatasetDao(session);
-            return dao.hasInstance(parseId(id), parameters, QuantityDatasetEntity.class);
+            DatasetDao<QuantityDataset> dao = createDatasetDao(session);
+            return dao.hasInstance(parseId(id), parameters,
+                    DataModelUtil.getSupportedConcreteEntity(QuantityDataset.class, session));
         } finally {
             returnSession(session);
         }

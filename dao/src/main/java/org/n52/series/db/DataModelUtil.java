@@ -28,10 +28,13 @@
  */
 package org.n52.series.db;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.EntityType;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -127,6 +130,30 @@ public final class DataModelUtil {
         return false;
     }
 
+    public static Class<?> getSupportedConcreteEntity(Class<?> clazz, Session session) {
+        EntityManagerFactory factory = session.getEntityManagerFactory();
+
+        if (factory != null) {
+            Optional<EntityType<?>> findFirst = factory
+                    .getMetamodel()
+                    .getEntities().stream()
+                    .filter(e -> clazz.isAssignableFrom(e.getJavaType())).findFirst();
+            return findFirst.isPresent() ? findFirst.get().getJavaType() : null;
+        }
+        return null;
+    }
+
+    public static Class<?> getSupportedEntity(Class<?> clazz, Session session) {
+        EntityManagerFactory factory = session.getEntityManagerFactory();
+
+        if (factory != null) {
+            Optional<EntityType<?>> findFirst =
+                    factory.getMetamodel().getEntities().stream().filter(e -> clazz.isAssignableFrom(e.getJavaType())
+                            && Modifier.isAbstract(e.getJavaType().getModifiers())).findFirst();
+            return findFirst.isPresent() ? findFirst.get().getJavaType() : null;
+        }
+        return null;
+    }
 
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
         SharedSessionContractImplementor session = getSessionImplementor(criteria);

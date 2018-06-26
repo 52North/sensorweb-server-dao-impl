@@ -37,11 +37,9 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.data.Data.CategoryData;
 import org.n52.series.db.beans.dataset.CategoryDataset;
-import org.n52.series.db.beans.ereporting.EReportingCategoryDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -50,9 +48,7 @@ public class CategoryDataRepository
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingCategoryDatasetEntity.class, session)
-                ? EReportingCategoryDatasetEntity.class
-                : CategoryDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(CategoryDataset.class, session);
     }
 
     @Override

@@ -59,7 +59,8 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.ereporting.EReportingDatasetEntity;
+import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.Dataset;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -340,8 +341,10 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected Class<?> getDatasetClass(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingDatasetEntity.class, session)
-                ? EReportingDatasetEntity.class
-                : DatasetEntity.class;
+        return DataModelUtil.getSupportedEntity(Dataset.class, session);
+    }
+
+    protected Class<?> getDataClass(Session session) {
+        return DataModelUtil.getSupportedEntity(Data.class, session);
     }
 }

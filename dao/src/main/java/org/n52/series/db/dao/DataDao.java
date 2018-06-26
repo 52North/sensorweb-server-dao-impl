@@ -47,7 +47,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.data.Data;
 import org.n52.series.db.beans.dataset.Dataset;
-import org.n52.series.db.beans.ereporting.EReportingDataEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,9 +69,8 @@ public class DataDao<T extends Data> extends AbstractDao<T> {
     @SuppressWarnings("unchecked")
     public DataDao(Session session) {
         this(session,
-                (Class<T>) (DataModelUtil.isEntitySupported(EReportingDataEntity.class, session)
-                        ? EReportingDataEntity.class
-                        : DataEntity.class));
+                (Class<T>) DataModelUtil.getSupportedEntity(Data.class, session));
+
     }
 
     public DataDao(Session session, Class<T> clazz) {
@@ -146,7 +144,7 @@ public class DataDao<T extends Data> extends AbstractDao<T> {
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
-        query.addOdataFilterForData(criteria);
+        query.addOdataFilterForData(criteria, session);
 
         criteria = query.isComplexParent()
                 ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
@@ -157,7 +155,7 @@ public class DataDao<T extends Data> extends AbstractDao<T> {
 
     @Deprecated
     @SuppressWarnings("unchecked")
-    public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
+    public T getDataValueViaTimeend(Dataset series, DbQuery query) {
         Date timeend = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
         return (T) criteria.uniqueResult();
@@ -179,7 +177,7 @@ public class DataDao<T extends Data> extends AbstractDao<T> {
         return (GeometryEntity) criteria.uniqueResult();
     }
 
-    private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity dataset, DbQuery query) {
+    private Criteria createDataAtCriteria(Date timestamp, String column, Dataset dataset, DbQuery query) {
         LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getId());
         String dsAlias = DatasetEntity.ENTITY_ALIAS;
         String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_ID);

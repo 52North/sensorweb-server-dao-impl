@@ -37,10 +37,8 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.beans.data.Data.TextData;
 import org.n52.series.db.beans.dataset.TextDataset;
-import org.n52.series.db.beans.ereporting.EReportingTextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -48,9 +46,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDataset, Text
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingTextDatasetEntity.class, session)
-                ? EReportingTextDatasetEntity.class
-                : TextDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(TextDataset.class, session);
     }
 
     @Override

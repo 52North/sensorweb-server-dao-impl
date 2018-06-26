@@ -37,13 +37,11 @@ import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.dataset.ProfileDataset;
-import org.n52.series.db.beans.dataset.QuantityProfileDataset;
-import org.n52.series.db.beans.ereporting.EReportingQuantityProfileDatasetEntity;
-import org.n52.series.db.beans.data.Data.ProfileData;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
+import org.n52.series.db.beans.data.Data.ProfileData;
+import org.n52.series.db.beans.dataset.ProfileDataset;
+import org.n52.series.db.beans.dataset.QuantityProfileDataset;
 import org.n52.series.db.dao.DbQuery;
 
 public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDataset> {
@@ -56,9 +54,7 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingQuantityProfileDatasetEntity.class, session)
-                ? EReportingQuantityProfileDatasetEntity.class
-                : QuantityProfileDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(QuantityProfileDataset.class, session);
     }
 
     @Override

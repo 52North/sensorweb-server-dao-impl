@@ -50,7 +50,6 @@ import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.data.Data.QuantityData;
 import org.n52.series.db.beans.dataset.QuantityDataset;
-import org.n52.series.db.beans.ereporting.EReportingQuantityDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -59,9 +58,7 @@ public class QuantityDataRepository extends
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingQuantityDatasetEntity.class, session)
-                ? EReportingQuantityDatasetEntity.class
-                : QuantityDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(QuantityDataset.class, session);
     }
 
     @Override

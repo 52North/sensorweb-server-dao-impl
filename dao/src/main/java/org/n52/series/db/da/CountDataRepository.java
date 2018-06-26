@@ -35,11 +35,9 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
-import org.n52.series.db.beans.CountDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.data.Data.CountData;
 import org.n52.series.db.beans.dataset.CountDataset;
-import org.n52.series.db.beans.ereporting.EReportingCountDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -48,9 +46,7 @@ public class CountDataRepository
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingCountDatasetEntity.class, session)
-                ? EReportingCountDatasetEntity.class
-                : CountDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(CountDataset.class, session);
     }
 
     @Override

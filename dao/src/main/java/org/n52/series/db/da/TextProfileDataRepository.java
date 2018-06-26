@@ -38,11 +38,9 @@ import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextProfileDatasetEntity;
 import org.n52.series.db.beans.data.Data.ProfileData;
 import org.n52.series.db.beans.dataset.ProfileDataset;
 import org.n52.series.db.beans.dataset.TextProfileDataset;
-import org.n52.series.db.beans.ereporting.EReportingTextProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDataset> {
@@ -55,9 +53,7 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Tex
 
     @Override
     public Class<?> getDatasetEntityType(Session session) {
-        return DataModelUtil.isEntitySupported(EReportingTextProfileDatasetEntity.class, session)
-                ? EReportingTextProfileDatasetEntity.class
-                : TextProfileDatasetEntity.class;
+        return DataModelUtil.getSupportedConcreteEntity(TextProfileDataset.class, session);
     }
 
     @Override
