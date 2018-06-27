@@ -15,6 +15,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QDatasetEntity;
 import org.n52.series.db.beans.QGeometryEntity;
 import org.n52.series.db.beans.QProcedureEntity;
+import org.n52.series.db.beans.dataset.NotInitializedDataset;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 
@@ -388,12 +389,16 @@ public class DatasetQuerySpecifications {
      *        the value types to match
      * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
      */
-    public BooleanExpression matchValueTypes(Collection<String> valueTypes) {
-        if (valueTypes == null || valueTypes.isEmpty()) {
-            return null;
+    public BooleanExpression matchValueTypes(final Collection<String> valueTypes) {
+        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+        if ((valueTypes == null) || valueTypes.isEmpty()) {
+            return isInitializedDataset(dataset);
         }
-        QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.valueType.in(valueTypes);
+        return isInitializedDataset(dataset).and(dataset.valueType.in(valueTypes));
+    }
+
+    private BooleanExpression isInitializedDataset(final QDatasetEntity dataset) {
+        return dataset.valueType.notEqualsIgnoreCase(NotInitializedDataset.DATASET_TYPE);
     }
 
     /**
