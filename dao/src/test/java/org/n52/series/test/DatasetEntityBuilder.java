@@ -1,5 +1,6 @@
 package org.n52.series.test;
 
+import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
@@ -13,6 +14,8 @@ public class DatasetEntityBuilder {
 
     private OfferingEntity offering;
 
+    private CategoryEntity category;
+
     private DatasetEntityBuilder() {
     }
 
@@ -20,6 +23,7 @@ public class DatasetEntityBuilder {
         entity.setOffering(offering);
         entity.setProcedure(procedure);
         entity.setPhenomenon(phenomenon);
+        entity.setCategory(category);
         return entity;
     }
 
@@ -40,6 +44,11 @@ public class DatasetEntityBuilder {
 
     public DatasetEntityBuilder setPhenomemon(PhenomenonEntity entity) {
         this.phenomenon = entity;
+        return this;
+    }
+
+    public DatasetEntityBuilder setCategory(CategoryEntity entity) {
+        this.category = entity;
         return this;
     }
 }

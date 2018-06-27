@@ -8,12 +8,14 @@ import static org.n52.series.test.OfferingBuilder.newOffering;
 import static org.n52.series.test.PhenomenonBuilder.newPhenomenon;
 import static org.n52.series.test.ProcedureBuilder.newProcedure;
 
+import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.test.CategoryBuilder;
 import org.n52.series.test.FeatureBuilder;
 import org.n52.series.test.ProcedureBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class TestRepositories<T extends DatasetEntity> {
     @Autowired
     private ProcedureRepository procedureRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+    
     @Autowired
     private FormatRepository formatRepository;
 
@@ -77,6 +82,7 @@ public class TestRepositories<T extends DatasetEntity> {
         return newDataset().setOffering(upsertSimpleOffering(offeringIdentifier))
                            .setPhenomemon(upsertSimplePhenomenon(phenomenonIdentifier))
                            .setProcedure(upsertSimpleProcedure(procedureIdentifier, procedureFormat))
+                           .setCategory(upsertSimpleCategory(phenomenonIdentifier))
                            .build(emptyDatasetEntity);
     }
 
@@ -100,6 +106,15 @@ public class TestRepositories<T extends DatasetEntity> {
 
     public PhenomenonEntity persistSimplePhenomenon(String phenomenonIdentifier) {
         return save(newPhenomenon(phenomenonIdentifier).build());
+    }
+
+    public CategoryEntity upsertSimpleCategory(String categoryIdentifier) {
+        return categoryRepository.findByIdentifier(categoryIdentifier)
+                                   .orElseGet(() -> persistSimpleCategory(categoryIdentifier));
+    }
+
+    public CategoryEntity persistSimpleCategory(String categoryIdentifier) {
+        return save(CategoryBuilder.newCategory(categoryIdentifier).build());
     }
 
     public FeatureEntity upsertSimpleFeature(String featureIdentifier, String format) {
@@ -144,6 +159,10 @@ public class TestRepositories<T extends DatasetEntity> {
 
     public ProcedureEntity save(ProcedureEntity entity) {
         return procedureRepository.save(entity);
+    }
+
+    public CategoryEntity save(CategoryEntity entity) {
+        return categoryRepository.save(entity);
     }
 
     public FormatEntity save(FormatEntity entity) {

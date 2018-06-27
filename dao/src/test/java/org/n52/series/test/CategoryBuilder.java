@@ -9,7 +9,7 @@ public class CategoryBuilder extends DescribableEntityBuilder<CategoryEntity> {
         super(identifier);
     }
 
-    public static CategoryBuilder create(String identifier) {
+    public static CategoryBuilder newCategory(String identifier) {
         return new CategoryBuilder(identifier);
     }
 
