@@ -29,16 +29,16 @@ public class OfferingRepositoryTest {
 
     @Test
     public void given_emptyDatabase_when_findAllQuery_then_emptyCollection() {
-        List<OfferingEntity> allEntities = repository.findAll();
+        final List<OfferingEntity> allEntities = repository.findAll();
         Assertions.assertIterableEquals(allEntities, Collections.emptyList());
     }
 
     @Test
     public void given_emptyDatabase_when_saveOfferingWithRequiredMembersSet_then_entityGetsSavedProperly() {
-        OfferingEntity entity = new OfferingEntity();
+        final OfferingEntity entity = new OfferingEntity();
         entity.setIdentifier("foo");
 
-        OfferingEntity savedEntity = repository.save(entity);
+        final OfferingEntity savedEntity = repository.save(entity);
 
         assertAll("saving entity",
                   () -> assertNotNull(savedEntity, "saving entity returned null"),
@@ -48,7 +48,7 @@ public class OfferingRepositoryTest {
 
     @Test
     public void given_persistentOffering_when_existsByIdentifier_then_entityGetsFound() {
-        OfferingEntity entity = new OfferingEntity();
+        final OfferingEntity entity = new OfferingEntity();
         entity.setIdentifier("foo");
 
         repository.save(entity);
