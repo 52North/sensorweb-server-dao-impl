@@ -7,16 +7,13 @@ import static org.n52.io.request.Parameters.FILTER_VALUE_TYPES;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.NotInitializedDatasetEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.dataset.QuantityDataset;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.series.springdata.query.DatasetQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -26,23 +23,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-public class DatasetRepositoryTest {
-
-    @Autowired
-    private TestRepositories<DatasetEntity> testRepositories;
+public class DatasetRepositoryTest extends TestBase {
 
     @Autowired
     private DatasetRepository<DatasetEntity> datasetRepository;
-
-    private DbQuery defaultQuery;
-
-    private DatasetQuerySpecifications defaultFilterSpec;
-
-    @BeforeEach
-    public void setUp() {
-        this.defaultQuery = new DefaultDbQueryFactory().createDefault();
-        this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery);
-    }
 
     @Test
     @DisplayName("Uninitialized valueType is not found")
@@ -67,32 +51,6 @@ public class DatasetRepositoryTest {
             final Optional<DatasetEntity> result = datasetRepository.findOne(filterSpec.matchValueTypes());
             assertThat(result).get().isInstanceOf(QuantityDatasetEntity.class);
         });
-    }
-
-    private DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
-                                               final String offeringIdentifier,
-                                               final String procedureIdentifier,
-                                               final String procedureFormat) {
-        return testRepositories.persistSimpleDataset(phenomenonIdentifier,
-                                                     offeringIdentifier,
-                                                     procedureIdentifier,
-                                                     procedureFormat,
-                                                     new NotInitializedDatasetEntity());
-    }
-
-    private DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
-                                               final String offeringIdentifier,
-                                               final String procedureIdentifier,
-                                               final String procedureFormat,
-                                               final String featureIdentifier,
-                                               final String featureFormat) {
-        return testRepositories.persistSimpleDataset(phenomenonIdentifier,
-                                                     offeringIdentifier,
-                                                     procedureIdentifier,
-                                                     procedureFormat,
-                                                     featureIdentifier,
-                                                     featureFormat,
-                                                     new NotInitializedDatasetEntity());
     }
 
     @SpringBootConfiguration
