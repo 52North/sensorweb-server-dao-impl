@@ -3,18 +3,18 @@ package org.n52.series.springdata.assembler;
 
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.n52.io.request.Parameters.HREF_BASE;
 import static org.n52.io.request.Parameters.MATCH_DOMAIN_IDS;
+import static org.n52.io.request.Parameters.PHENOMENA;
 import static org.n52.series.test.TestUtils.getIdAsString;
 
 import java.util.List;
 
-import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.OfferingOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -81,7 +81,7 @@ public class OfferingAssemblerTest extends TestBase {
 
         Assertions.assertAll("Offerings with matching domainId filters", () -> {
             final DbQuery ph1Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-                                           .replaceWith(Parameters.PHENOMENA, "ph1");
+                                                 .replaceWith(PHENOMENA, "ph1");
             final List<OfferingOutput> offerings = assembler.getAllCondensed(ph1Query);
             assertThat(offerings).extracting(OfferingOutput::getDomainId)
                                  .anyMatch(it -> it.equals("of1"))
@@ -98,15 +98,17 @@ public class OfferingAssemblerTest extends TestBase {
         final OfferingEntity offering = dataset.getOffering();
         final String expectedId = Long.toString(offering.getId());
 
-        final List<OfferingOutput> offerings = assembler.getAllCondensed(defaultQuery);
-
+        final DbQuery query = defaultQuery.replaceWith(HREF_BASE, "https://foo.com/");
         Assertions.assertAll("Assert members of serialized output assemble", () -> {
-            final ObjectAssert<OfferingOutput> element = assertThat(offerings).element(0);
-            element.extracting(OfferingOutput::getId).anyMatch(it -> it.equals(expectedId));
-            element.extracting(OfferingOutput::getDomainId).anyMatch(it -> it.equals("off"));
+            final List<OfferingOutput> offerings = assembler.getAllCondensed(query);
+            assertThat(offerings).element(0)
+                                 .returns(expectedId, OfferingOutput::getId)
+                                 .returns("off", OfferingOutput::getDomainId)
+                                 .returns("https://foo.com/offerings/" + expectedId, OfferingOutput::getHref);
 
-            // TODO check href, service, etc.
+            // TODO check service, etc.
         });
+
     }
 
     @SpringBootConfiguration
