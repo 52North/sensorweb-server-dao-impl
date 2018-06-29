@@ -17,25 +17,20 @@ import org.n52.series.db.beans.QGeometryEntity;
 import org.n52.series.db.beans.QProcedureEntity;
 import org.n52.series.db.beans.dataset.NotInitializedDataset;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.vividsolutions.jts.geom.Geometry;
 
-public class DatasetQuerySpecifications {
-
-    private final DbQuery dbQuery;
+public class DatasetQuerySpecifications extends QuerySpecifications {
 
     public static DatasetQuerySpecifications of(final DbQuery dbQuery) {
         return new DatasetQuerySpecifications(dbQuery);
     }
 
     private DatasetQuerySpecifications(final DbQuery dbQuery) {
-        this.dbQuery = dbQuery == null
-            ? new DefaultDbQueryFactory().createDefault()
-            : dbQuery;
+        super(dbQuery);
     }
 
     /**

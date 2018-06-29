@@ -1,16 +1,15 @@
 package org.n52.series.springdata.query;
 
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
 
-public class ParameterQuerySpecifications {
+public class ParameterQuerySpecifications extends QuerySpecifications {
 
-    protected final DbQuery dbQuery;
-    
-    protected ParameterQuerySpecifications(DbQuery dbQuery) {
-        this.dbQuery = dbQuery == null
-                ? new DefaultDbQueryFactory().createDefault()
-                : dbQuery;
+    public static ParameterQuerySpecifications of(final DbQuery dbQuery) {
+        return new ParameterQuerySpecifications(dbQuery);
+    }
+
+    protected ParameterQuerySpecifications(final DbQuery dbQuery) {
+        super(dbQuery);
     }
 
 }

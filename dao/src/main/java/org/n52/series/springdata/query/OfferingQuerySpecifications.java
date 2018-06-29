@@ -1,26 +1,21 @@
 
 package org.n52.series.springdata.query;
 
-import static org.n52.series.db.dao.QueryUtils.parseToId;
-import static org.n52.series.db.dao.QueryUtils.parseToIds;
-
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QDatasetEntity;
 import org.n52.series.db.beans.QOfferingEntity;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.QueryUtils;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPQLQuery;
 
 public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
 
-    public static OfferingQuerySpecifications of(DbQuery dbQuery) {
+    public static OfferingQuerySpecifications of(final DbQuery dbQuery) {
         return new OfferingQuerySpecifications(dbQuery);
     }
 
-    private OfferingQuerySpecifications(DbQuery dbQuery) {
+    private OfferingQuerySpecifications(final DbQuery dbQuery) {
         super(dbQuery);
     }
 
@@ -35,15 +30,15 @@ public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
      *        the query
      * @return a boolean expression
      */
-    public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
-        QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
-        QOfferingEntity offeringentity = QOfferingEntity.offeringEntity;
+    public BooleanExpression selectFrom(final JPQLQuery<DatasetEntity> subquery) {
+        final QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
+        final QOfferingEntity offeringentity = QOfferingEntity.offeringEntity;
         return offeringentity.id.in(subquery.select(datasetentity.offering.id));
     }
 
-    public BooleanExpression matchesPublicOffering(String id) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(dbQuery);
-        BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id)
+    public BooleanExpression matchesPublicOffering(final String id) {
+        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(dbQuery);
+        final BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id)
                                                          .and(dsFilterSpec.isPublic());
         return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
