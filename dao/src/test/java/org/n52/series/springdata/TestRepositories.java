@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TestRepositories<T extends DatasetEntity> {
+public class TestRepositories {
 
     @Autowired
     private PhenomenonRepository phenomenonRepository;
@@ -38,19 +38,19 @@ public class TestRepositories<T extends DatasetEntity> {
 
     @Autowired
     private CategoryRepository categoryRepository;
-    
+
     @Autowired
     private FormatRepository formatRepository;
 
     @Autowired
-    private DatasetRepository<T> datasetRepository;
+    private DatasetRepository<? super DatasetEntity> datasetRepository;
 
-    public T persistSimpleDataset(String phenomenonIdentifier,
-                                  String offeringIdentifier,
-                                  String procedureIdentifier,
-                                  String procedureFormat,
-                                  T emptyDatasetEntity) {
-        T dataset = buildNewDataset(procedureFormat,
+    public <T extends DatasetEntity> T persistSimpleDataset(final String phenomenonIdentifier,
+                                  final String offeringIdentifier,
+                                  final String procedureIdentifier,
+                                  final String procedureFormat,
+                                  final T emptyDatasetEntity) {
+        final T dataset = buildNewDataset(procedureFormat,
                                     procedureIdentifier,
                                     phenomenonIdentifier,
                                     offeringIdentifier,
@@ -58,14 +58,14 @@ public class TestRepositories<T extends DatasetEntity> {
         return save(dataset);
     }
 
-    public T persistSimpleDataset(String phenomenonIdentifier,
-                                  String offeringIdentifier,
-                                  String procedureIdentifier,
-                                  String procedureFormat,
-                                  String featureIdentifier,
-                                  String featureFormat,
-                                  T emptyDatasetEntity) {
-        T dataset = buildNewDataset(procedureFormat,
+    public <T extends DatasetEntity> T persistSimpleDataset(final String phenomenonIdentifier,
+                                  final String offeringIdentifier,
+                                  final String procedureIdentifier,
+                                  final String procedureFormat,
+                                  final String featureIdentifier,
+                                  final String featureFormat,
+                                  final T emptyDatasetEntity) {
+        final T dataset = buildNewDataset(procedureFormat,
                                     procedureIdentifier,
                                     phenomenonIdentifier,
                                     offeringIdentifier,
@@ -74,11 +74,11 @@ public class TestRepositories<T extends DatasetEntity> {
         return save(dataset);
     }
 
-    private T buildNewDataset(String procedureFormat,
-                              String procedureIdentifier,
-                              String phenomenonIdentifier,
-                              String offeringIdentifier,
-                              T emptyDatasetEntity) {
+    private <T extends DatasetEntity> T buildNewDataset(final String procedureFormat,
+                              final String procedureIdentifier,
+                              final String phenomenonIdentifier,
+                              final String offeringIdentifier,
+                              final T emptyDatasetEntity) {
         return newDataset().setOffering(upsertSimpleOffering(offeringIdentifier))
                            .setPhenomemon(upsertSimplePhenomenon(phenomenonIdentifier))
                            .setProcedure(upsertSimpleProcedure(procedureIdentifier, procedureFormat))
@@ -86,90 +86,90 @@ public class TestRepositories<T extends DatasetEntity> {
                            .build(emptyDatasetEntity);
     }
 
-    public ProcedureEntity upsertSimpleProcedure(String procedureIdentifier, String format) {
+    public ProcedureEntity upsertSimpleProcedure(final String procedureIdentifier, final String format) {
         return procedureRepository.findByIdentifier(procedureIdentifier)
                                   .orElseGet(() -> persistSimpleProcedure(procedureIdentifier, format));
     }
 
-    public ProcedureEntity persistSimpleProcedure(String procedureIdentifier, String format) {
-        FormatEntity formatEntity = upsertFormat(format);
-        ProcedureBuilder builder = newProcedure(procedureIdentifier);
-        ProcedureEntity entity = builder.setFormat(formatEntity)
+    public ProcedureEntity persistSimpleProcedure(final String procedureIdentifier, final String format) {
+        final FormatEntity formatEntity = upsertFormat(format);
+        final ProcedureBuilder builder = newProcedure(procedureIdentifier);
+        final ProcedureEntity entity = builder.setFormat(formatEntity)
                                         .build();
         return save(entity);
     }
 
-    public PhenomenonEntity upsertSimplePhenomenon(String phenomenonIdentifier) {
+    public PhenomenonEntity upsertSimplePhenomenon(final String phenomenonIdentifier) {
         return phenomenonRepository.findByIdentifier(phenomenonIdentifier)
                                    .orElseGet(() -> persistSimplePhenomenon(phenomenonIdentifier));
     }
 
-    public PhenomenonEntity persistSimplePhenomenon(String phenomenonIdentifier) {
+    public PhenomenonEntity persistSimplePhenomenon(final String phenomenonIdentifier) {
         return save(newPhenomenon(phenomenonIdentifier).build());
     }
 
-    public CategoryEntity upsertSimpleCategory(String categoryIdentifier) {
+    public CategoryEntity upsertSimpleCategory(final String categoryIdentifier) {
         return categoryRepository.findByIdentifier(categoryIdentifier)
                                    .orElseGet(() -> persistSimpleCategory(categoryIdentifier));
     }
 
-    public CategoryEntity persistSimpleCategory(String categoryIdentifier) {
+    public CategoryEntity persistSimpleCategory(final String categoryIdentifier) {
         return save(CategoryBuilder.newCategory(categoryIdentifier).build());
     }
 
-    public FeatureEntity upsertSimpleFeature(String featureIdentifier, String format) {
+    public FeatureEntity upsertSimpleFeature(final String featureIdentifier, final String format) {
         return featureRepository.findByIdentifier(featureIdentifier)
                                 .orElseGet(() -> persistSimpleFeature(featureIdentifier, format));
     }
 
-    public FeatureEntity persistSimpleFeature(String featureIdentifier, String format) {
-        FormatEntity formatEntity = upsertFormat(format);
-        FeatureBuilder builder = newFeature(featureIdentifier);
-        FeatureEntity entity = builder.setFormat(formatEntity)
+    public FeatureEntity persistSimpleFeature(final String featureIdentifier, final String format) {
+        final FormatEntity formatEntity = upsertFormat(format);
+        final FeatureBuilder builder = newFeature(featureIdentifier);
+        final FeatureEntity entity = builder.setFormat(formatEntity)
                                       .build();
         return save(entity);
     }
 
-    private FormatEntity upsertFormat(String format) {
+    private FormatEntity upsertFormat(final String format) {
         return formatRepository.existsByFormat(format)
             ? formatRepository.findByFormat(format)
             : save(newFormat(format).build());
     }
 
-    public OfferingEntity upsertSimpleOffering(String offeringIdentifier) {
+    public OfferingEntity upsertSimpleOffering(final String offeringIdentifier) {
         return offeringRepository.findByIdentifier(offeringIdentifier)
                                  .orElseGet(() -> persistSimpleOffering(offeringIdentifier));
     }
 
-    public OfferingEntity persistSimpleOffering(String offeringIdentifier) {
+    public OfferingEntity persistSimpleOffering(final String offeringIdentifier) {
         return save(newOffering(offeringIdentifier).build());
     }
 
-    public PhenomenonEntity save(PhenomenonEntity entity) {
+    public PhenomenonEntity save(final PhenomenonEntity entity) {
         return phenomenonRepository.save(entity);
     }
 
-    public FeatureEntity save(FeatureEntity entity) {
+    public FeatureEntity save(final FeatureEntity entity) {
         return featureRepository.save(entity);
     }
 
-    public OfferingEntity save(OfferingEntity entity) {
+    public OfferingEntity save(final OfferingEntity entity) {
         return offeringRepository.save(entity);
     }
 
-    public ProcedureEntity save(ProcedureEntity entity) {
+    public ProcedureEntity save(final ProcedureEntity entity) {
         return procedureRepository.save(entity);
     }
 
-    public CategoryEntity save(CategoryEntity entity) {
+    public CategoryEntity save(final CategoryEntity entity) {
         return categoryRepository.save(entity);
     }
 
-    public FormatEntity save(FormatEntity entity) {
+    public FormatEntity save(final FormatEntity entity) {
         return formatRepository.save(entity);
     }
 
-    public T save(T entity) {
+    public <T extends DatasetEntity> T save(final T entity) {
         return datasetRepository.save(entity);
     }
 

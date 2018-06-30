@@ -64,8 +64,8 @@ public class OfferingRepositoryTest {
         }
 
         @Override
-        public TestRepositories<DatasetEntity> testRepositories() {
-            return new TestRepositories<>();
+        public TestRepositories testRepositories() {
+            return new TestRepositories();
         }
     }
 }

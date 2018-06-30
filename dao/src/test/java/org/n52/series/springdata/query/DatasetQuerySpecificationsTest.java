@@ -29,8 +29,8 @@ import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.springdata.DatasetRepository;
-import org.n52.series.springdata.TestRepositories;
 import org.n52.series.springdata.TestBase;
+import org.n52.series.springdata.TestRepositories;
 import org.n52.series.springdata.TestRepositoryConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -432,8 +432,8 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         }
 
         @Override
-        public TestRepositories<DatasetEntity> testRepositories() {
-            return new TestRepositories<>();
+        public TestRepositories testRepositories() {
+            return new TestRepositories();
         }
     }
 }

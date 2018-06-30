@@ -1,9 +1,10 @@
+
 package org.n52.series.springdata;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.NotInitializedDatasetEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class TestBase {
 
     @Autowired
-    protected TestRepositories<DatasetEntity> testRepositories;
+    protected TestRepositories testRepositories;
 
     protected DatasetQuerySpecifications defaultFilterSpec;
 
@@ -25,10 +26,10 @@ public abstract class TestBase {
         this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery);
     }
 
-    protected DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
-                                               final String offeringIdentifier,
-                                               final String procedureIdentifier,
-                                               final String procedureFormat) {
+    protected NotInitializedDatasetEntity uninitializedDataset(final String phenomenonIdentifier,
+                                                        final String offeringIdentifier,
+                                                        final String procedureIdentifier,
+                                                        final String procedureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,
@@ -36,12 +37,12 @@ public abstract class TestBase {
                                                      new NotInitializedDatasetEntity());
     }
 
-    protected DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
-                                               final String offeringIdentifier,
-                                               final String procedureIdentifier,
-                                               final String procedureFormat,
-                                               final String featureIdentifier,
-                                               final String featureFormat) {
+    protected NotInitializedDatasetEntity uninitializedDataset(final String phenomenonIdentifier,
+                                                               final String offeringIdentifier,
+                                                               final String procedureIdentifier,
+                                                               final String procedureFormat,
+                                                               final String featureIdentifier,
+                                                               final String featureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,
@@ -51,10 +52,10 @@ public abstract class TestBase {
                                                      new NotInitializedDatasetEntity());
     }
 
-    protected DatasetEntity quantityDataset(final String phenomenonIdentifier,
-                                          final String offeringIdentifier,
-                                          final String procedureIdentifier,
-                                          final String procedureFormat) {
+    protected QuantityDatasetEntity quantityDataset(final String phenomenonIdentifier,
+                                                    final String offeringIdentifier,
+                                                    final String procedureIdentifier,
+                                                    final String procedureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,
@@ -62,12 +63,12 @@ public abstract class TestBase {
                                                      new QuantityDatasetEntity());
     }
 
-    protected DatasetEntity quantityDataset(final String phenomenonIdentifier,
-                                          final String offeringIdentifier,
-                                          final String procedureIdentifier,
-                                          final String procedureFormat,
-                                          final String featureIdentifier,
-                                          final String featureFormat) {
+    protected QuantityDatasetEntity quantityDataset(final String phenomenonIdentifier,
+                                                    final String offeringIdentifier,
+                                                    final String procedureIdentifier,
+                                                    final String procedureFormat,
+                                                    final String featureIdentifier,
+                                                    final String featureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,
@@ -77,12 +78,27 @@ public abstract class TestBase {
                                                      new QuantityDatasetEntity());
     }
 
-    protected DatasetEntity textDataset(final String phenomenonIdentifier,
-                                      final String offeringIdentifier,
-                                      final String procedureIdentifier,
-                                      final String procedureFormat,
-                                      final String featureIdentifier,
-                                      final String featureFormat) {
+    protected QuantityProfileDatasetEntity quantityProfileDataset(final String phenomenonIdentifier,
+                                                  final String offeringIdentifier,
+                                                  final String procedureIdentifier,
+                                                  final String procedureFormat,
+                                                  final String featureIdentifier,
+                                                  final String featureFormat) {
+        return testRepositories.persistSimpleDataset(phenomenonIdentifier,
+                                                     offeringIdentifier,
+                                                     procedureIdentifier,
+                                                     procedureFormat,
+                                                     featureIdentifier,
+                                                     featureFormat,
+                                                     new QuantityProfileDatasetEntity());
+    }
+
+    protected TextDatasetEntity textDataset(final String phenomenonIdentifier,
+                                            final String offeringIdentifier,
+                                            final String procedureIdentifier,
+                                            final String procedureFormat,
+                                            final String featureIdentifier,
+                                            final String featureFormat) {
         return testRepositories.persistSimpleDataset(phenomenonIdentifier,
                                                      offeringIdentifier,
                                                      procedureIdentifier,

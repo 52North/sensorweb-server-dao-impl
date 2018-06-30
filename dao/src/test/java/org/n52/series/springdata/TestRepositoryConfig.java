@@ -7,7 +7,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.n52.series.db.beans.DatasetEntity;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,25 +30,25 @@ public abstract class TestRepositoryConfig<T extends DatasetEntity> {
 
     private final String xmlPersistenceLocation;
 
-    public TestRepositoryConfig(String xmlPersistenceLocation) {
+    public TestRepositoryConfig(final String xmlPersistenceLocation) {
         this.xmlPersistenceLocation = xmlPersistenceLocation;
     }
 
     @Bean
-    public abstract TestRepositories<T> testRepositories();
+    public abstract TestRepositories testRepositories();
 
     @Bean
-    public EntityManagerFactory entityManagerFactory(DataSource datasource, JpaProperties properties)
+    public EntityManagerFactory entityManagerFactory(final DataSource datasource, final JpaProperties properties)
             throws IOException {
-        LocalContainerEntityManagerFactoryBean emf = createEntityManagerFactoryBean(datasource,
+        final LocalContainerEntityManagerFactoryBean emf = createEntityManagerFactoryBean(datasource,
                                                                                     properties,
                                                                                     xmlPersistenceLocation);
         return emf.getNativeEntityManagerFactory();
     }
 
-    private LocalContainerEntityManagerFactoryBean createEntityManagerFactoryBean(DataSource datasource,
-                                                                                  JpaProperties properties,
-                                                                                  String xmlPersistenceLocation) {
+    private LocalContainerEntityManagerFactoryBean createEntityManagerFactoryBean(final DataSource datasource,
+                                                                                  final JpaProperties properties,
+                                                                                  final String xmlPersistenceLocation) {
         return new HibernatePersistenceLoadingLocalContainerEntityManagerFactoryBean(datasource,
                                                                                      properties,
                                                                                      xmlPersistenceLocation);
