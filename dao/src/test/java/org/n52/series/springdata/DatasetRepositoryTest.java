@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
-import org.n52.series.db.beans.dataset.QuantityDataset;
+import org.n52.series.db.beans.data.Data;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.springdata.query.DatasetQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +43,10 @@ public class DatasetRepositoryTest extends TestBase {
         final DatasetEntity entity = uninitializedDataset("ph", "of", "pr", "pr_format");
 
         entity.setFeature(testRepositories.persistSimpleFeature("f1", "format_xy"));
-        datasetRepository.qualifyDataset(QuantityDataset.DATASET_TYPE, entity.getId());
+        datasetRepository.initValueType(Data.QuantityData.VALUE_TYPE, entity.getId());
 
         assertAll("qualified quantity dataset is found", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, QuantityDataset.DATASET_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
             final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             final Optional<DatasetEntity> result = datasetRepository.findOne(filterSpec.matchValueTypes());
             assertThat(result).get().isInstanceOf(QuantityDatasetEntity.class);
