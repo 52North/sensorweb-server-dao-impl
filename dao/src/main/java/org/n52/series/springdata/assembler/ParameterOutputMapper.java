@@ -4,23 +4,33 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.n52.series.db.dao.DefaultDbQueryFactory;
 
-public final class ParameterOutputMapper {
-    
-    public static <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O result, DbQuery query) {
-        IoParameters parameters = query.getParameters();
+public final class ParameterOutputMapper implements OutputMapper {
 
-        Long id = entity.getId();
-        String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getIdentifier();
-        String hrefBase = query.getHrefBase();
+    private final DbQuery query;
 
-        result.setId(Long.toString(id));
-        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
+    public ParameterOutputMapper(final DbQuery query) {
+        this.query = query == null
+                ? new DefaultDbQueryFactory().createDefault()
+                : query;
+    }
+
+    @Override
+    public <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(final E entity, final O output) {
+        final IoParameters parameters = query.getParameters();
+
+        final Long id = entity.getId();
+        final String label = entity.getLabelFrom(query.getLocale());
+        final String domainId = entity.getIdentifier();
+        final String hrefBase = query.getHrefBase();
+
+        output.setId(Long.toString(id));
+        output.setValue(ParameterOutput.LABEL, label, parameters, output::setLabel);
+        output.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, output::setDomainId);
         if (!parameters.shallBehaveBackwardsCompatible()) {
-            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            output.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, output::setHrefBase);
         }
-        return result;
+        return output;
     }
 }

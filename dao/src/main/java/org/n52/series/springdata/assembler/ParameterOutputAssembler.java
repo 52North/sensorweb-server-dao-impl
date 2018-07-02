@@ -37,82 +37,83 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     @Autowired(required = false)
     private ServiceEntity serviceEntity;
 
-    public ParameterOutputAssembler(ParameterDataRepository<E> parameterRepository,
-                                    DatasetRepository< ? > datasetRepository) {
+    public ParameterOutputAssembler(final ParameterDataRepository<E> parameterRepository,
+                                    final DatasetRepository< ? > datasetRepository) {
         this.parameterRepository = parameterRepository;
         this.datasetRepository = datasetRepository;
     }
 
     protected abstract O prepareEmptyOutput();
 
-    protected O createExpanded(E entity, DbQuery query) {
-        ServiceEntity serviceEntity = getServiceEntity(entity);
-        O output = ParameterOutputMapper.createCondensed(entity, prepareEmptyOutput(), query);
-        ServiceOutput serviceOutput = ParameterOutputMapper.createCondensed(serviceEntity, new ServiceOutput(), query);
+    protected O createExpanded(final E entity, final DbQuery query) {
+        final ServiceEntity serviceEntity = getServiceEntity(entity);
+        final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
+        final O output = mapper.createCondensed(entity, prepareEmptyOutput());
+        final ServiceOutput serviceOutput = mapper.createCondensed(serviceEntity, new ServiceOutput());
         output.setValue(AbstractOutput.SERVICE, serviceOutput, query.getParameters(), output::setService);
         return output;
     }
 
     @Override
-    public List<O> getAllCondensed(DbQuery query) {
-        return findAll(query).map(it -> ParameterOutputMapper.createCondensed(it, prepareEmptyOutput(), query))
+    public List<O> getAllCondensed(final DbQuery query) {
+        final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
+        return findAll(query).map(it -> mapper.createCondensed(it, prepareEmptyOutput()))
                              .collect(Collectors.toList());
-
     }
 
     @Override
-    public List<O> getAllExpanded(DbQuery query) {
+    public List<O> getAllExpanded(final DbQuery query) {
         return findAll(query).map(it -> createExpanded(it, query))
                              .collect(Collectors.toList());
     }
 
     @Override
-    public O getInstance(String id, DbQuery query) {
-        BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
-        Optional<E> entity = parameterRepository.findOne(publicOffering);
+    public O getInstance(final String id, final DbQuery query) {
+        final BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
+        final Optional<E> entity = parameterRepository.findOne(publicOffering);
         return entity.map(it -> createExpanded(it, query)).orElse(null);
     }
 
     @Override
-    public Collection<SearchResult> searchFor(DbQuery query) {
+    public Collection<SearchResult> searchFor(final DbQuery query) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public boolean exists(String id, DbQuery query) {
-        BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
+    public boolean exists(final String id, final DbQuery query) {
+        final BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
         return parameterRepository.exists(publicOffering);
     }
 
-    private BooleanExpression createPublicOfferingPredicate(String id, DbQuery query) {
-        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+    private BooleanExpression createPublicOfferingPredicate(final String id, final DbQuery query) {
+        final OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
         return oFilterSpec.matchesPublicOffering(id);
     }
 
-    private Stream<E> findAll(DbQuery query) {
-        BooleanExpression predicate = createFilterPredicate(query);
-        Iterable<E> entities = parameterRepository.findAll(predicate);
+    private Stream<E> findAll(final DbQuery query) {
+        final BooleanExpression predicate = createFilterPredicate(query);
+        final Iterable<E> entities = parameterRepository.findAll(predicate);
         return createStreamFromIterator(entities.iterator());
     }
 
-    private BooleanExpression createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
+    private BooleanExpression createFilterPredicate(final DbQuery query) {
+        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
+        final JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
 
-        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+        final OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
         return oFilterSpec.selectFrom(subQuery);
     }
 
-    protected ServiceEntity getServiceEntity(DescribableEntity entity) {
+    protected ServiceEntity getServiceEntity(final DescribableEntity entity) {
         assertServiceAvailable(entity);
         return entity.getService() != null
             ? entity.getService()
             : serviceEntity;
     }
 
-    private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if (serviceEntity == null && entity == null) {
+    private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {
+        if ((serviceEntity == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }
