@@ -9,12 +9,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.n52.io.crs.CRSUtils;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
@@ -27,14 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends AbstractOutput> implements
         OutputAssembler<O> {
-
-    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
 
     private final ParameterDataRepository<E> parameterRepository;
 
@@ -64,9 +57,6 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     public List<O> getAllCondensed(DbQuery query) {
         return findAll(query).map(it -> ParameterOutputMapper.createCondensed(it, prepareEmptyOutput(), query))
                              .collect(Collectors.toList());
-
-
-
 
     }
 
@@ -112,29 +102,6 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
         OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
         return oFilterSpec.selectFrom(subQuery);
-    }
-
-    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
-        if (geometryEntity == null) {
-            return null;
-        } else {
-            String srid = query.getDatabaseSridCode();
-            GeometryFactory geomFactory = createGeometryFactory(srid);
-            geometryEntity.setGeometryFactory(geomFactory);
-            return geometryEntity.getGeometry();
-        }
-    }
-
-    private GeometryFactory createGeometryFactory(String srsId) {
-        CRSUtils crsUtils = getCrsUtils();
-        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
-        return srsId == null
-            ? new GeometryFactory(pm)
-            : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
-    }
-
-    protected CRSUtils getCrsUtils() {
-        return internalCrsUtils;
     }
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
