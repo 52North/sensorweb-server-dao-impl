@@ -75,7 +75,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
                                                                       .removeAllOf(Parameters.ODATA_FILTER)));
             series.setService(getServiceEntity(series));
             return dbQuery.isExpanded()
-                    ? assembleDataWithReferenceValues(series, dbQuery, session)
+                    ? assembleExpandedData(series, dbQuery, session)
                     : assembleData(series, dbQuery, session);
         } finally {
             returnSession(session);
@@ -153,7 +153,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
 
-    protected Data<V> assembleDataWithReferenceValues(S datasetEntity, DbQuery dbQuery, Session session) {
+    protected Data<V> assembleExpandedData(S datasetEntity, DbQuery dbQuery, Session session) {
         return assembleData(datasetEntity, dbQuery, session);
     }
 

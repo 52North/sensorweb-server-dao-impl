@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.dao;
 
 import java.util.Date;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -43,6 +45,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.IdEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataDao.class);
+
+    private static final Order DEFAULT_ORDER = Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END);
 
     private final Class<T> entityType;
 
@@ -125,22 +130,46 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @Override
-    public Criteria getDefaultCriteria(DbQuery query) {
+    public Criteria getDefaultCriteria(final DbQuery query) {
+        return getDefaultCriteria(query, DEFAULT_ORDER);
+    }
+
+    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
         Criteria criteria = session.createCriteria(entityType)
+                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
                                    // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END))
-                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+                                   .addOrder(order);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
         query.addOdataFilterForData(criteria);
 
         criteria = query.isComplexParent()
-                ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
-                : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
+            ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
+            : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
 
         return criteria;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
+        final Order order = Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_START);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
+        final Order order = Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
     }
 
     @Deprecated
@@ -167,11 +196,23 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (GeometryEntity) criteria.uniqueResult();
     }
 
-    private Criteria createDataAtCriteria(Date timestamp, String column, DatasetEntity dataset, DbQuery query) {
+    private Criteria createDataAtCriteria(final Date timestamp,
+                                          final String column,
+                                          final DatasetEntity dataset,
+                                          final DbQuery query) {
         LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getId());
-        String dsAlias = DatasetEntity.ENTITY_ALIAS;
-        String dsId = QueryUtils.createAssociation(dsAlias, DatasetEntity.PROPERTY_ID);
-        Criteria criteria = getDefaultCriteria(query).add(Restrictions.eq(column, timestamp));
+
+        return createDataCriteria(column, dataset, query).add(Restrictions.eq(column, timestamp));
+    }
+
+    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query) {
+        return createDataCriteria(column, dataset, query, DEFAULT_ORDER);
+    }
+
+    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+        final String dsAlias = DatasetEntity.ENTITY_ALIAS;
+        final String dsId = QueryUtils.createAssociation(dsAlias, IdEntity.PROPERTY_ID);
+        final Criteria criteria = getDefaultCriteria(query, order);
         criteria.createCriteria(DataEntity.PROPERTY_DATASET, dsAlias)
                 .add(Restrictions.eq(dsId, dataset.getId()));
 

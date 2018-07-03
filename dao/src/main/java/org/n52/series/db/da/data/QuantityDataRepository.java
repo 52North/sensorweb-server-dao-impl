@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -84,15 +86,25 @@ public class QuantityDataRepository extends
     }
 
     @Override
-    protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                                  DbQuery dbQuery,
-                                                                  Session session) {
-        Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
-        List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<Data<QuantityValue>> metadata = new DatasetMetadata<>();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
+    protected Data<QuantityValue> assembleExpandedData(final QuantityDatasetEntity timeseries,
+                                                       final DbQuery query,
+                                                       final Session session) {
+        final Data<QuantityValue> result = assembleData(timeseries, query, session);
+        final DatasetMetadata<Data<QuantityValue>> metadata = result.getMetadata();
+        final DataDao<QuantityDataEntity> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+
+        final DateTime lowerBound = timespan.getStart();
+        final QuantityDataEntity previousValue = dao.getClosestOuterPreviousValue(timeseries, lowerBound, query);
+        metadata.setValueBeforeTimespan(createValue(previousValue, timeseries, query));
+
+        final DateTime upperBound = timespan.getEnd();
+        final QuantityDataEntity nextValue = dao.getClosestOuterNextValue(timeseries, upperBound, query);
+        metadata.setValueAfterTimespan(createValue(nextValue, timeseries, query));
+
+        final List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
+        if ( (referenceValues != null) && !referenceValues.isEmpty()) {
+            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
         }
         return result;
     }
