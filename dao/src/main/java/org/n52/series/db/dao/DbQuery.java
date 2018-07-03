@@ -58,6 +58,7 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.IdEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 public class DbQuery {
 
@@ -76,14 +78,26 @@ public class DbQuery {
 
     private static final int DEFAULT_LIMIT = 10000;
 
+    private final GeometryFactory geometryFactory;
+
+    private final String databaseSridCode;
+
     private IoParameters parameters = IoParameters.createDefaults();
 
-    private String databaseSridCode = "EPSG:4326";
+    public DbQuery(final IoParameters parameters) {
+        this(parameters, CRSUtils.DEFAULT_CRS);
+    }
 
-    public DbQuery(IoParameters parameters) {
+    public DbQuery(final IoParameters parameters, final String databaseSridCode) {
         if (parameters != null) {
             this.parameters = parameters;
         }
+        this.databaseSridCode= databaseSridCode == null
+                ? CRSUtils.DEFAULT_CRS
+                : databaseSridCode;
+
+        final PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+        this.geometryFactory = new GeometryFactory(pm, CRSUtils.getSrsIdFrom(databaseSridCode));
     }
 
     /**
@@ -94,6 +108,10 @@ public class DbQuery {
     public DbQuery removeSpatialFilter() {
         return new DbQuery(parameters.removeAllOf(Parameters.BBOX)
                                      .removeAllOf(Parameters.NEAR));
+    }
+
+    public GeometryFactory getGeometryFactory() {
+        return geometryFactory;
     }
 
     /**
@@ -130,10 +148,6 @@ public class DbQuery {
         return databaseSridCode;
     }
 
-    public void setDatabaseSridCode(String databaseSridCode) {
-        this.databaseSridCode = databaseSridCode;
-    }
-
     public String getHrefBase() {
         return parameters.getHrefBase();
     }
@@ -165,6 +179,10 @@ public class DbQuery {
             return geometry;
         }
         return null;
+    }
+
+    private CRSUtils getCrsUtils() {
+        return CRSUtils.createEpsgForcedXYAxisOrder();
     }
 
     public boolean isExpanded() {

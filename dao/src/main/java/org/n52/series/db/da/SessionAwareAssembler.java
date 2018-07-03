@@ -65,8 +65,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public abstract class SessionAwareAssembler implements InitializingBean {
 
@@ -98,23 +96,10 @@ public abstract class SessionAwareAssembler implements InitializingBean {
         return internalCrsUtils;
     }
 
-    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
-        if (geometryEntity == null) {
-            return null;
-        } else {
-            String srid = query.getDatabaseSridCode();
-            GeometryFactory geomFactory = createGeometryFactory(srid);
-            geometryEntity.setGeometryFactory(geomFactory);
-            return geometryEntity.getGeometry();
-        }
-    }
-
-    private GeometryFactory createGeometryFactory(String srsId) {
-        CRSUtils crsUtils = getCrsUtils();
-        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
-        return srsId == null
-            ? new GeometryFactory(pm)
-            : new GeometryFactory(pm, crsUtils.getSrsIdFrom(srsId));
+    protected Geometry getGeometry(final GeometryEntity geometryEntity, final DbQuery query) {
+        return geometryEntity != null
+            ? geometryEntity.getGeometry(query.getGeometryFactory())
+            : null;
     }
 
     // XXX a bit misplaced here

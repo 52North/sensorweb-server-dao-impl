@@ -36,7 +36,7 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
 
     private static final String DEFAULT_DATABASE_SRID = "EPSG:4326";
 
-    private String databaseSrid;
+    private final String databaseSrid;
 
     public DefaultDbQueryFactory() {
         this(DEFAULT_DATABASE_SRID);
@@ -53,10 +53,8 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     }
 
     @Override
-    public DbQuery createFrom(IoParameters parameters) {
-        DbQuery query = new DbQuery(parameters);
-        query.setDatabaseSridCode(databaseSrid);
-        return query;
+    public DbQuery createFrom(final IoParameters parameters) {
+        return new DbQuery(parameters, databaseSrid);
     }
 
 }
