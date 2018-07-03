@@ -1,7 +1,6 @@
 
 package org.n52.springboot.init;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -22,9 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // @ImportResource({"classpath*:/spring/dispatcher-servlet.xml"})
 @ImportResource({"classpath*:/spring/application-context.xml"})
 public class WebConfig implements WebMvcConfigurer {
-
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
 
     @Bean
     public WebMvcConfigurer createCORSFilter() {
@@ -63,21 +59,16 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     private View createJsonView() {
-        MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
+        final MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         jsonView.setExtractValueFromSingleKeyModel(true);
-        jsonView.setObjectMapper(getObjectMapper());
+        jsonView.setObjectMapper(configureObjectMapper());
         return jsonView;
     }
 
-    private ObjectMapper getObjectMapper() {
-        ObjectMapper om = objectMapper == null
-            ? createDefaultObjectMapper()
-            : objectMapper;
+    private ObjectMapper configureObjectMapper() {
+        final ObjectMapper om = new ObjectMapper();
+        om.setSerializationInclusion(Include.NON_NULL);
         return om;
-    }
-
-    private ObjectMapper createDefaultObjectMapper() {
-        return new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
     }
 
 }
