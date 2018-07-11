@@ -76,16 +76,11 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        DataRepository< ? , ? > dataRepository = createRepository();
-        return (Data<QuantityValue>) dataRepository.getData(timeseriesId, dbQuery);
+        return createRepository().getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository< ? , ? > createRepository() throws DataAccessException {
-        try {
-            return factory.create(QuantityValue.TYPE);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+    private  ValueAssembler<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
+        return factory.create(QuantityValue.TYPE, QuantityDatasetEntity.class);
     }
 
 }

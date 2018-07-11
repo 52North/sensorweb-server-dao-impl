@@ -9,11 +9,26 @@ import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 
 public abstract class QuerySpecifications {
 
-    protected final DbQuery dbQuery;
+    protected final DbQuery query;
 
-    protected QuerySpecifications(final DbQuery dbQuery) {
-        this.dbQuery = dbQuery == null
+    protected QuerySpecifications(final DbQuery query) {
+        this.query = query == null
             ? new DefaultDbQueryFactory().createDefault()
-            : dbQuery;
+            : query;
     }
+
+    protected Date getTimespanStart() {
+        DateTime start = getTimespan().getStart();
+        return start.toDate();
+    }
+
+    protected Date getTimespanEnd() {
+        DateTime end = getTimespan().getEnd();
+        return end.toDate();
+    }
+
+    private Interval getTimespan() {
+        return query.getTimespan();
+    }
+
 }

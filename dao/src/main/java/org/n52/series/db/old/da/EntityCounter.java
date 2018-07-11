@@ -126,10 +126,10 @@ public class EntityCounter {
                         "valueTypes",
                         dataRepositoryFactory.getKnownTypes().toArray(new String[0])
                 );
-                return getCount(new DatasetDao<>(session, DatasetEntity.class),
+                return getCount(new DatasetDao<>(session),
                                 dbQueryFactory.createFrom(parameters));
             }
-            return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
+            return getCount(new DatasetDao<>(session), query);
         } finally {
             sessionStore.returnSession(session);
         }

@@ -46,18 +46,11 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("category")
-public class CategoryDataRepository
-        extends
-        AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+@ValueAssemblerComponent(value = "category", datasetEntityType = CategoryDatasetEntity.class)
+public class CategoryDataRepository extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue, String> {
 
     public CategoryDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    public Class<CategoryDatasetEntity> getDatasetEntityType() {
-        return CategoryDatasetEntity.class;
     }
 
     @Override
@@ -67,7 +60,7 @@ public class CategoryDataRepository
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
@@ -79,20 +72,17 @@ public class CategoryDataRepository
     }
 
     @Override
-    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
-                                              CategoryDatasetEntity series,
-                                              DbQuery query) {
+    public CategoryValue assembleDataValue(CategoryDataEntity observation, CategoryDatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
             ? observation.getValue()
             : null;
 
-        CategoryValue value = createValue(observation, series, query, observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return createValue(observation, series, query, observationValue);
     }
 
     private CategoryValue createValue(CategoryDataEntity observation,
-                                      CategoryDatasetEntity series,
+                                      DatasetEntity series,
                                       DbQuery query,
                                       String observationValue) {
         ServiceEntity service = getServiceEntity(series);

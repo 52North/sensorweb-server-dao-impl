@@ -44,28 +44,24 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("text-profile")
-public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDatasetEntity> {
+@ValueAssemblerComponent(value = "text-profile", datasetEntityType = TextProfileDatasetEntity.class)
+public class TextProfileDataRepository extends ProfileDataRepository<TextProfileDatasetEntity, String, String> {
 
     private final TextDataRepository textRepository;
 
-    public TextProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public TextProfileDataRepository(HibernateSessionStore sessionStore,
+                                     DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.textRepository = new TextDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public Class<TextProfileDatasetEntity> getDatasetEntityType() {
-        return TextProfileDatasetEntity.class;
-    }
-
-    @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
+    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
+                                               TextProfileDatasetEntity dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             TextDataEntity textEntity = (TextDataEntity) dataEntity;
             TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
             addParameters(textEntity, valueItem, query);

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,21 +48,27 @@ import org.springframework.context.ApplicationContext;
 
 public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationBasedDataRepositoryFactory.class);
+
     private final ApplicationContext applicationContext;
 
-    private final Map<String, DataRepository< ? , ? >> cache;
+    private final Map<String, ? super ValueAssembler< ?, ?, ?, ? >> cache;
 
     public AnnotationBasedDataRepositoryFactory(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.cache = new HashMap<>();
     }
 
-    private Stream<DataRepository< ? , ? >> getAllDataAssemblers() {
-        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(DataAssembler.class);
+    private Stream<ValueAssembler<? extends DatasetEntity, ? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
+        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(ValueAssemblerComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
+        LOGGER.debug("Found following " + ValueAssemblerComponent.class.getSimpleName() + ": {}",
+                     dataAssembleTypes.stream()
+                                      .map(it -> it.getClass().getSimpleName())
+                                      .collect(Collectors.joining(", ")));
         return dataAssembleTypes.stream()
-                                .filter(DataRepository.class::isInstance)
-                                .map(DataRepository.class::cast);
+                                .filter(ValueAssembler.class::isInstance)
+                                .map(ValueAssembler.class::cast);
     }
 
     @Override
@@ -72,7 +79,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
                                                                  .isPresent();
     }
 
-    private Optional<DataRepository< ? , ? >> findDataAssembler(String type) {
+    private Optional<ValueAssembler<? extends DatasetEntity, ? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> findDataAssembler(String type) {
         return getAllDataAssemblers().filter(it -> getDataType(it).equals(type)).findFirst();
     }
 
@@ -82,19 +89,31 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
                                      .collect(Collectors.toSet());
     }
 
-    private String getDataType(DataRepository< ? , ? > it) {
-        return it.getClass().getAnnotation(DataAssembler.class).value();
+    private String getDataType(ValueAssembler<? extends DatasetEntity, ? extends DataEntity<?>, ? extends AbstractValue<?>, ?> it) {
+        return it.getClass().getAnnotation(ValueAssemblerComponent.class).value();
     }
 
     @Override
-    public DataRepository< ? , ? > create(String type) throws DatasetFactoryException {
-        Optional<DataRepository< ? , ? >> assemblers = findDataAssembler(type);
-        return addToCache(type, assemblers.orElseThrow(() -> new DatasetFactoryException("Unknown type: " + type)));
+    @SuppressWarnings("unchecked")
+    public <S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> ValueAssembler<S, E, V, T> create(String type, Class<S> entityType) {
+        return (ValueAssembler<S, E, V, T>) addToCache(type, findDataAssembler(type).orElseThrow(throwAccessException(type)));
     }
 
-    private DataRepository< ? , ? > addToCache(String valueType, DataRepository< ? , ? > assembler) {
+    private <A extends ValueAssembler<? extends DatasetEntity, ? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> A addToCache(String valueType, A assembler) {
         cache.put(valueType, assembler);
         return assembler;
+    }
+
+    private Supplier< ? extends DataAccessException> throwAccessException(String type) {
+        return () -> new DataAccessException("Unknown type: " + type);
+    }
+
+    @Override
+    public Class< ? extends DatasetEntity> getDatasetEntityType(String valueType) {
+        return findDataAssembler(valueType).map(Object::getClass)
+                                           .map(it -> it.getAnnotation(ValueAssemblerComponent.class))
+                                           .map(ValueAssemblerComponent::datasetEntityType)
+                                           .get();
     }
 
     @Override

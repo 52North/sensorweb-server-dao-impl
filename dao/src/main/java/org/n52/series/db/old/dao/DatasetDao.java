@@ -64,6 +64,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         this(session, (Class<T>) DatasetEntity.class);
     }
 
+    /**
+     * Constructs a dao to access datasets of given type.
+     *
+     * @param session
+     *        the session
+     * @param clazz
+     *        the dataset type
+     */
     public DatasetDao(Session session, Class<T> clazz) {
         super(session);
         this.entityType = clazz;
@@ -83,10 +91,10 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         Criteria criteria = getDefaultCriteria(query);
         // default criteria performs join on procedure table
 
-        criteria.add(Restrictions.or(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm),
-                                     Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm),
-                                     Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm),
-                                     Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm)));
+        criteria.add(Restrictions.or(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(DescribableEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(DescribableEntity.PROPERTY_NAME, searchTerm),
+                                     Restrictions.ilike(DescribableEntity.PROPERTY_NAME, searchTerm)));
 
         i18n(I18nOfferingEntity.class, criteria, query);
         i18n(I18nPhenomenonEntity.class, criteria, query);
@@ -99,7 +107,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public T getInstance(Long key, DbQuery query) {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
-        return (T) criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
+        return (T) criteria.add(Restrictions.eq(IdEntity.PROPERTY_ID, key))
                            .uniqueResult();
     }
 
@@ -121,7 +129,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, DatasetEntity.PROPERTY_ID);
+        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, IdEntity.PROPERTY_ID);
         return criteria.add(Restrictions.eq(path, feature.getId()))
                        .list();
     }

@@ -43,18 +43,11 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("boolean")
-public class BooleanDataRepository
-        extends
-        AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue> {
+@ValueAssemblerComponent(value = "boolean", datasetEntityType = BooleanDatasetEntity.class)
+public class BooleanDataRepository extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
 
     public BooleanDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    public Class<BooleanDatasetEntity> getDatasetEntityType() {
-        return BooleanDatasetEntity.class;
     }
 
     @Override
@@ -64,7 +57,7 @@ public class BooleanDataRepository
         List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (BooleanDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
@@ -76,7 +69,7 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
+    public BooleanValue assembleDataValue(BooleanDataEntity observation,
                                              BooleanDatasetEntity series,
                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
@@ -86,7 +79,7 @@ public class BooleanDataRepository
 
         BooleanValue value = prepareValue(observation, query);
         value.setValue(observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return value;
     }
 
 }

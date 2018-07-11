@@ -27,7 +27,7 @@
  * for more details.
  */
 
-package org.n52.series.db.old.da.data;
+package org.n52.series.db.assembler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,36 +36,53 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.DataRepository;
+import org.n52.series.db.DatasetRepository;
+import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityProfileDatasetEntity;
-import org.n52.series.db.old.HibernateSessionStore;
+import org.n52.series.db.beans.dataset.QuantityProfileDataset;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
-//@ValueAssemblerComponent(value = "quantity-profile", datasetEntityType = QuantityProfileDatasetEntity.class)
-public class QuantityProfileDataRepository extends
-        ProfileDataRepository<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
+@ValueAssemblerComponent(value = QuantityProfileDataset.VALUE_TYPE, datasetEntityType = QuantityProfileDatasetEntity.class)
+public class QuantityProfileValueAssembler extends
+        ProfileValueAssembler<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
 
-    private final QuantityDataRepository dataAssembler;
-
-    public QuantityProfileDataRepository(HibernateSessionStore sessionStore,
-                                         DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
-        this.dataAssembler = new QuantityDataRepository(sessionStore, dbQueryFactory);
+    public QuantityProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
+                                         DatasetRepository<QuantityProfileDatasetEntity> datasetRepository) {
+        super(profileDataRepository, datasetRepository);
     }
 
     @Override
     public ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
                                                       QuantityProfileDatasetEntity datasetEntity,
                                                       DbQuery query) {
-        ProfileValue<BigDecimal> profile = prepareValue(observation, query);
+        ProfileValue<BigDecimal> profile = prepareValue(new ProfileValue<>(), observation, query);
+        return assembleDataValue(observation, datasetEntity, query, profile);
+    }
+
+    private ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
+                                                       QuantityProfileDatasetEntity datasetEntity,
+                                                       DbQuery query,
+                                                       ProfileValue<BigDecimal> profile) {
+        profile.setValue(getDataValue(observation, datasetEntity, profile, query));
+        return profile;
+    }
+
+    private List<ProfileDataItem<BigDecimal>> getDataValue(ProfileDataEntity observation,
+                                                           QuantityProfileDatasetEntity datasetEntity,
+                                                           ProfileValue<BigDecimal> profile,
+                                                           DbQuery query) {
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = dataAssembler.createValue(quantityEntity.getValue(), quantityEntity, query);
-            addParameters(quantityEntity, valueItem, query);
+            QuantityValue valueItem = prepareValue(new QuantityValue(), dataEntity, query);
+
+            addParameters(quantityEntity, valueItem, query); // XXX still needed?
+
+
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
             } else {
@@ -76,8 +93,7 @@ public class QuantityProfileDataRepository extends
                                                query));
             }
         }
-        profile.setValue(dataItems);
-        return profile;
+        return dataItems;
     }
 
 }

@@ -37,7 +37,7 @@ public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
     }
 
     public BooleanExpression matchesPublicOffering(final String id) {
-        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(dbQuery);
+        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
         final BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id)
                                                          .and(dsFilterSpec.isPublic());
         return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));

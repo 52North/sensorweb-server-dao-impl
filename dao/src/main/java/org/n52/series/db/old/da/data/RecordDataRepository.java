@@ -43,9 +43,9 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("record")
+@ValueAssemblerComponent(value = "record", datasetEntityType = RecordDatasetEntity.class)
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue, Map<String, Object>> {
 
     public RecordDataRepository(HibernateSessionStore sessionStore,
                                 DbQueryFactory dbQueryFactory) {
@@ -53,8 +53,8 @@ public class RecordDataRepository
     }
 
     @Override
-    public Class<RecordDatasetEntity> getDatasetEntityType() {
-        return RecordDatasetEntity.class;
+    protected RecordValue createEmptyValue() {
+        return new RecordValue();
     }
 
     @Override
@@ -65,19 +65,14 @@ public class RecordDataRepository
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
     @Override
-    protected RecordValue createEmptyValue() {
-        return new RecordValue();
-    }
-
-    @Override
-    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public RecordValue assembleDataValue(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
@@ -90,7 +85,7 @@ public class RecordDataRepository
 
         RecordValue value = prepareValue(observation, query);
         value.setValue(observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return value;
     }
 
 }

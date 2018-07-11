@@ -27,78 +27,41 @@
  * for more details.
  */
 
-package org.n52.series.db.old.da.data;
+package org.n52.series.db.assembler;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
+import org.n52.series.db.DataRepository;
+import org.n52.series.db.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
-import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
-public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T>
+public abstract class ProfileValueAssembler<P extends ProfileDatasetEntity, V, T>
         extends
-        AbstractDataRepository<P, ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
+        AbstractValueAssembler<P, ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
 
     private static final String PARAMETER_NAME = "name";
     private static final String PARAMETER_VALUE = "value";
     private static final String PARAMETER_UNIT = "unit";
 
-    public ProfileDataRepository(HibernateSessionStore sessionStore,
-                                 DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
+    public ProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
+                                 DatasetRepository<P> datasetRepository) {
+        super(profileDataRepository, datasetRepository);
     }
 
     @Override
-    protected ProfileValue<V> createEmptyValue() {
-        return new ProfileValue<>();
-    }
-
-    protected boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
-        if (parameterObject.containsKey(PARAMETER_NAME)) {
-            String value = (String) parameterObject.get(PARAMETER_NAME);
-            return value.equalsIgnoreCase(verticalName);
-        }
-        return false;
-    }
-
-    @Override
-    protected Data<ProfileValue<V>> assembleData(P dataset, DbQuery query, Session session) {
+    protected Data<ProfileValue<V>> assembleDataValues(P dataset, DbQuery query) {
         query.setComplexParent(true);
-        Data<ProfileValue<V>> result = new Data<>();
-        DataDao<ProfileDataEntity> dao = createDataDao(session);
-        List<ProfileDataEntity> observations = dao.getAllInstancesFor(dataset, query);
-        for (ProfileDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, dataset, query));
-            }
-        }
-        return result;
-    }
-
-    protected ProfileValue<V> createProfileValue(ProfileDataEntity observation, DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        ProfileValue<V> profile = parameters.isShowTimeIntervals()
-            ? new ProfileValue<>(start, end, null)
-            : new ProfileValue<>(end, null);
-        return profile;
+        return super.assembleDataValues(dataset, query);
     }
 
     @Override
@@ -106,7 +69,7 @@ public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T
 
     protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
-                                                                            ProfileDataEntity observation,
+                                                                            ProfileDataEntity parent,
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
@@ -119,9 +82,9 @@ public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T
         if (parameters.isShowVerticalIntervals() && dataEntity.hasVerticalFrom()) {
             dataItem.setVerticalFrom(verticalFrom);
         }
-        if (observation.hasVerticalUnit()) {
-            dataItem.setVerticalUnit(observation.getVerticalUnit()
-                                                .getIdentifier());
+        if (parent.hasVerticalUnit()) {
+            dataItem.setVerticalUnit(parent.getVerticalUnit()
+                                           .getIdentifier());
         }
         return dataItem;
     }
@@ -155,15 +118,6 @@ public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T
         return dataItem;
     }
 
-    private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
-        for (Map<String, Object> parameterObject : parameters) {
-            if (isVertical(parameterObject, verticalName)) {
-                return (BigDecimal) parameterObject.get(PARAMETER_VALUE);
-            }
-        }
-        return null;
-    }
-
     private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
         String unit = null;
         for (Map<String, Object> parameter : parameters) {
@@ -180,6 +134,23 @@ public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T
             }
         }
         return unit;
+    }
+
+    private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
+        for (Map<String, Object> parameterObject : parameters) {
+            if (isVertical(parameterObject, verticalName)) {
+                return (BigDecimal) parameterObject.get(PARAMETER_VALUE);
+            }
+        }
+        return null;
+    }
+
+    private boolean isVertical(Map<String, Object> parameterObject, String verticalName) {
+        if (parameterObject.containsKey(PARAMETER_NAME)) {
+            String value = (String) parameterObject.get(PARAMETER_NAME);
+            return value.equalsIgnoreCase(verticalName);
+        }
+        return false;
     }
 
     private Set<String> getParameterNames(Set<Map<String, Object>> parameters) {

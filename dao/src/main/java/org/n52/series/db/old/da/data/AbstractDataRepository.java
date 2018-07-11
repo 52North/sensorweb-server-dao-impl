@@ -29,17 +29,17 @@
 
 package org.n52.series.db.old.da.data;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -54,73 +54,76 @@ import org.n52.series.db.old.dao.DbQueryFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-public abstract class AbstractDataRepository<S extends DatasetEntity,
-                                             E extends DataEntity< ? >,
-                                             V extends AbstractValue< ? >>
-        extends SessionAwareAssembler implements DataRepository<S, V> {
+public abstract class AbstractDataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T>
+        extends
+        SessionAwareAssembler implements
+        DataRepository<S, E, V, T> {
 
     public AbstractDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public Data< ? extends AbstractValue< ? >> getData(String datasetId, DbQuery dbQuery) {
+    public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
             String id = ValueType.extractId(datasetId);
-            DatasetDao<S> seriesDao = getSeriesDao(session);
+            DatasetDao<S> dao = new DatasetDao<>(session);
             IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
-            S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)
-                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
-            series.setService(getServiceEntity(series));
+            S dataset = dao.getInstance(id,
+                                        getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                                             .removeAllOf(Parameters.NEAR)
+                                                             .removeAllOf(Parameters.ODATA_FILTER)));
+            dataset.setService(getServiceEntity(dataset));
             return dbQuery.isExpanded()
-                    ? assembleExpandedData(series, dbQuery, session)
-                    : assembleData(series, dbQuery, session);
+                ? assembleExpandedData(dataset, dbQuery, session)
+                : assembleData(dataset, dbQuery, session);
         } finally {
             returnSession(session);
         }
     }
 
-//    private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
-//            throws DataAccessException {
-//        // platform has to be handled dynamically (see #309)
-//        return platformRepository.getEntity(getPlatformId(dataset), query, session);
-//    }
 
     @Override
-    public V getFirstValue(S entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        E valueEntity = dao.getDataValueViaTimestart(entity, query);
-        E valueEntity = (E) entity.getFirstObservation();
-        return valueEntity != null
-                ? createSeriesValueFor(valueEntity, entity, query)
-                : null;
+    public E getClosestValueBeforeStart(S dataset, DbQuery query) {
+        try (Session session = getSession()) {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
+
+            final DateTime lowerBound = timespan.getStart();
+            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+        }
     }
 
     @Override
-    public V getLastValue(S entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        E valueEntity = dao.getDataValueViaTimeend(entity, query);
-        E valueEntity = (E) entity.getLastObservation();
-        return valueEntity != null
-                ? createSeriesValueFor(valueEntity, entity, query)
-                : null;
+    public E getClosestValueAfterEnd(S dataset, DbQuery query) {
+        try (Session session = getSession()) {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
+
+            final DateTime upperBound = timespan.getEnd();
+            return dao.getClosestOuterNextValue(dataset, upperBound, query);
+        }
+    }
+
+
+    // private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
+    // throws DataAccessException {
+    // // platform has to be handled dynamically (see #309)
+    // return platformRepository.getEntity(getPlatformId(dataset), query, session);
+    // }
+
+    @Override
+    public V getFirstValue(S entity, DbQuery query) {
+        E data = (E) entity.getFirstObservation();
+        return assembleDataValue(data, entity, query);
     }
 
     @Override
-    public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        return dao.getValueGeometryViaTimeend(entity, query);
-        org.n52.series.db.beans.data.Data<?> lastObservation = entity.getLastObservation();
-        return lastObservation != null
-                ? lastObservation.getGeometryEntity()
-                : null;
-    }
-
-    protected DatasetDao<S> getSeriesDao(Session session) {
-        return new DatasetDao<>(session);
+    public V getLastValue(S entity, DbQuery query) {
+        E data = (E) entity.getLastObservation();
+        return assembleDataValue(data, entity, query);
     }
 
     protected DataDao<E> createDataDao(Session session) {
@@ -138,7 +141,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         IoParameters parameters = query.getParameters();
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
-        if (parameters.isShowTimeIntervals() && timestart != null) {
+        if (parameters.isShowTimeIntervals() && (timestart != null)) {
             emptyValue.setTimestart(timestart.getTime());
         }
         emptyValue.setTimestamp(timeend.getTime());
@@ -146,11 +149,10 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     }
 
     @Override
-    public List<ReferenceValueOutput<V>> createReferenceValueOutputs(S datasetEntity, DbQuery query) {
-        return new ArrayList<>();
+    public V assembleDataValueWithMetadata(E data, S dataset, DbQuery query) {
+        V value = assembleDataValue(data, dataset, query);
+        return addMetadatasIfNeeded(data, value, dataset, query);
     }
-
-    protected abstract V createSeriesValueFor(E valueEntity, S datasetEntity, DbQuery query);
 
     protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
 
@@ -194,13 +196,13 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
             Long validFrom = observation.isSetValidStartTime()
-                    ? observation.getValidTimeStart()
-                                 .getTime()
-                    : null;
+                ? observation.getValidTimeStart()
+                             .getTime()
+                : null;
             Long validUntil = observation.isSetValidEndTime()
-                    ? observation.getValidTimeEnd()
-                                 .getTime()
-                    : null;
+                ? observation.getValidTimeEnd()
+                             .getTime()
+                : null;
             value.setValidTime(new ValidTime(validFrom, validUntil));
         }
     }

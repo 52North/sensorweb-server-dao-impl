@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Component
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StationAssembler.class);
 
     public StationAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
@@ -183,8 +183,7 @@ public class StationAssembler extends SessionAwareAssembler
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session) {
         StationOutput result = createCondensed(feature, query);
 
-        Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
         List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);

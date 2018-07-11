@@ -58,8 +58,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @EnableWebMvc
 @Configuration
-@EnableJpaRepositories(basePackages = "org.n52.series.springdata")
-@ComponentScan(basePackages = {"org.n52.series.db.da", "org.n52.series.db", "org.n52.series.springdata", "org.n52.series.srv"})
+@EnableJpaRepositories(basePackages = "org.n52.series.db")
+@ComponentScan(basePackages = {"org.n52.series.db", "org.n52.series.srv"})
 public class SpiImplConfig {
 
     @Bean

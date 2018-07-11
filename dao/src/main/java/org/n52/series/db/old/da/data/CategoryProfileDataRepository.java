@@ -43,23 +43,19 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDatasetEntity> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<CategoryProfileDatasetEntity, String, String> {
 
     private final CategoryDataRepository categoryRepository;
 
-    public CategoryProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public CategoryProfileDataRepository(HibernateSessionStore sessionStore,
+                                         DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.categoryRepository = new CategoryDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public Class<CategoryProfileDatasetEntity> getDatasetEntityType() {
-        return CategoryProfileDatasetEntity.class;
-    }
-
-    @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
+    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
+                                               CategoryProfileDatasetEntity dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();

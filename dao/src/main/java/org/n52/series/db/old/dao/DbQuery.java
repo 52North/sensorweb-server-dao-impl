@@ -32,6 +32,7 @@ package org.n52.series.db.old.dao;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
@@ -127,6 +128,10 @@ public class DbQuery {
         return new DbQuery(parameters.replaceWith(parameter, values));
     }
 
+    public DbQuery replaceWith(String parameter, List<String> values) {
+        return new DbQuery(parameters.replaceWith(parameter, values));
+    }
+
     /**
      * Creates a new instance and removes all given parameters.
      *
@@ -175,7 +180,7 @@ public class DbQuery {
             Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
 
             Geometry geometry = JTS.toGeometry(envelope, geomFactory);
-            geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
+            geometry.setSRID(CRSUtils.getSrsIdFromEPSG(databaseSridCode));
             return geometry;
         }
         return null;
@@ -223,7 +228,7 @@ public class DbQuery {
     }
 
     public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
-        if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, criteria)) {
+        if ((getLocale() != null) && DataModelUtil.isEntitySupported(clazz, criteria)) {
             Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
                                              Restrictions.isNull(PROPERTY_LOCALE)));
@@ -331,7 +336,7 @@ public class DbQuery {
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(datasets, filter);
 
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
+        criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, filter));
         return criteria;
     }
 
@@ -341,7 +346,7 @@ public class DbQuery {
         if (hasValues(values)) {
             String itemAlias = property + "_filter";
             String parentAlias = property + "_parent";
-            String parentId = QueryUtils.createAssociation(parentAlias, DescribableEntity.PROPERTY_ID);
+            String parentId = QueryUtils.createAssociation(parentAlias, IdEntity.PROPERTY_ID);
             filter.createCriteria(property, itemAlias)
                   // join the parents to enable filtering via parent ids
                   .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
@@ -358,7 +363,7 @@ public class DbQuery {
     private DetachedCriteria addFilterRestriction(Set<String> values, String entity, DetachedCriteria filter) {
         if (hasValues(values)) {
             Criterion restriction = createIdCriterion(values);
-            if (entity == null || entity.isEmpty()) {
+            if ((entity == null) || entity.isEmpty()) {
                 return filter.add(restriction);
             } else {
                 // return subquery for further chaining
@@ -380,7 +385,7 @@ public class DbQuery {
     }
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
+        String column = QueryUtils.createAssociation(alias, DescribableEntity.PROPERTY_DOMAIN_ID);
         return filterValues.stream()
                            .map(filter -> Restrictions.ilike(column, filter))
                            .collect(Restrictions::disjunction,
@@ -390,12 +395,12 @@ public class DbQuery {
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, DescribableEntity.PROPERTY_ID);
+        String column = QueryUtils.createAssociation(alias, IdEntity.PROPERTY_ID);
         return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
     }
 
     private boolean hasValues(Set<String> values) {
-        return values != null && !values.isEmpty();
+        return (values != null) && !values.isEmpty();
     }
 
     private Set<String> getStationaryIds(Set<String> platforms) {

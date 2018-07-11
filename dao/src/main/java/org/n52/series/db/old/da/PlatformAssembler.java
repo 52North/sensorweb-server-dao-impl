@@ -44,13 +44,12 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.series.db.DataRepositoryTypeFactory;
-import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.data.Data;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
 import org.n52.series.db.old.dao.DbQuery;
@@ -83,15 +82,11 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
 
     private final DatasetAssembler<AbstractValue<?>> datasetAssembler;
 
-    private final DataRepositoryTypeFactory factory;
-
-    public PlatformAssembler(DataRepositoryTypeFactory dataRepositoryFactory,
-                             DatasetAssembler<AbstractValue<?>> datasetAssembler,
+    public PlatformAssembler(DatasetAssembler<AbstractValue<?>> datasetAssembler,
                              HibernateSessionStore sessionStore,
                              DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.datasetAssembler = datasetAssembler;
-        this.factory = dataRepositoryFactory;
     }
 
     @Override
@@ -198,10 +193,23 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
         DatasetEntity lastDataset = getDatasetOfLatestTrack(datasets, query, session);
 
-        ValueAssembler<DatasetEntity, ?, AbstractValue< ? >, ?> assembler = factory.create(lastDataset.getValueType());
-        GeometryEntity lastKnownGeometry = assembler.getLastKnownGeometry(lastDataset, query);
+        GeometryEntity lastKnownGeometry = getLastKnownGeometry(lastDataset, query);
         return isValidGeometry(lastKnownGeometry)
             ? lastKnownGeometry.getGeometry()
+            : null;
+    }
+
+    /**
+     * @param dataset
+     *        the dataset
+     * @param query
+     *        the query
+     * @return the last known geometry for the given dataset
+     */
+    private GeometryEntity getLastKnownGeometry(DatasetEntity lastDataset, DbQuery query) {
+        Data< ? > lastObservation = lastDataset.getLastObservation();
+        return lastObservation != null
+            ? lastObservation.getGeometryEntity()
             : null;
     }
 

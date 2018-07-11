@@ -43,17 +43,12 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("text")
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
+@ValueAssemblerComponent(value = "text", datasetEntityType = TextDatasetEntity.class)
+public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue, String> {
 
     public TextDataRepository(HibernateSessionStore sessionStore,
                               DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    public Class<TextDatasetEntity> getDatasetEntityType() {
-        return TextDatasetEntity.class;
     }
 
     @Override
@@ -63,7 +58,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
@@ -75,7 +70,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
+    public TextValue assembleDataValue(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
@@ -88,7 +83,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
 
         TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return value;
     }
 
     TextValue createValue(String observationValue,

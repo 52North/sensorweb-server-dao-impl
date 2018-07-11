@@ -41,7 +41,7 @@ public interface DataRepositoryTypeFactory {
 
     Set<String> getKnownTypes();
 
-    <S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> ValueAssembler<S, E, V, T> create(String valueType);
+    <S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> ValueAssembler<S, E, V, T> create(String valueType, Class<S> entityType);
 
     Class< ? extends DatasetEntity> getDatasetEntityType(String valueType);
 

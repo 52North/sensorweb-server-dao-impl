@@ -1,14 +1,13 @@
 {
 	"info": {
+		"_postman_id": "cfd31501-7e37-4fe0-b741-ef9ce9b19c7a",
 		"name": "sos-example-data",
-		"_postman_id": "708d0de5-d0dc-e12c-6b58-dbb4dc1ecfd5",
-		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "initialize",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "init-test-helperes",
@@ -16,7 +15,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "f96f8b30-7da7-4894-a6eb-879df7efa99b",
+								"id": "a17ac50a-51a7-4ffc-bea2-ba757e8c0d21",
 								"type": "text/javascript",
 								"exec": [
 									"// https://github.com/postmanlabs/postman-app-support/issues/882#issuecomment-278759032",
@@ -64,6 +63,7 @@
 									"    ",
 									"    helpers.testContentTypeStartsWith = function testContentTypeStartsWith(contentType) {",
 									"        var actualContentType = postman.getResponseHeader(\"Content-Type\");",
+									"        actualContentType = actualContentType || \"\";",
 									"        tests[\"Content-Type is \" + contentType] = actualContentType.startsWith(contentType)",
 									"                                                    || logFailWarning(\"Content-Type\", contentType, actualContentType);",
 									"    };",
@@ -189,7 +189,10 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://{{host}}:{{port}}{{context}}/api/services",
 							"protocol": "http",
@@ -201,8 +204,7 @@
 								"api",
 								"services"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -210,7 +212,7 @@
 		},
 		{
 			"name": "TODO",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "Dataset via DomainId",
@@ -245,27 +247,22 @@
 							"query": [
 								{
 									"key": "datasets",
-									"value": "http://to.be/done/8",
-									"equals": true
+									"value": "http://to.be/done/8"
 								},
 								{
 									"key": "matchDomainIds",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								},
 								{
 									"key": "timespan",
-									"value": "PT36H/2012-11-20T16:00:00Z",
-									"equals": true
+									"value": "PT36H/2012-11-20T16:00:00Z"
 								},
 								{
 									"key": "handleAs",
-									"value": "meansurement",
-									"equals": true
+									"value": "meansurement"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -299,8 +296,7 @@
 								"datasets",
 								"quantity_7"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -336,17 +332,14 @@
 							"query": [
 								{
 									"key": "datasets",
-									"value": "http://to.be/done/8",
-									"equals": true
+									"value": "http://to.be/done/8"
 								},
 								{
 									"key": "matchDomainIds",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -365,7 +358,10 @@
 								"disabled": true
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.zip?timespan=P10M/2012-12-01",
 							"protocol": "http",
@@ -382,12 +378,10 @@
 							"query": [
 								{
 									"key": "timespan",
-									"value": "P10M/2012-12-01",
-									"equals": true
+									"value": "P10M/2012-12-01"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -395,11 +389,11 @@
 		},
 		{
 			"name": "parameters",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "expanded",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET services expanded",
@@ -466,22 +460,18 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "datasets",
-											"value": "foo",
-											"equals": true
+											"value": "foo"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -535,17 +525,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -598,17 +585,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -662,17 +646,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -726,17 +707,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -793,17 +771,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -856,17 +831,14 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -875,7 +847,7 @@
 				},
 				{
 					"name": "filtered",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET phenomena (mobile)",
@@ -927,12 +899,10 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "mobile",
-											"equals": true
+											"value": "mobile"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -985,22 +955,18 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "features",
-											"value": "9",
-											"equals": true
+											"value": "9"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1066,22 +1032,18 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "bbox",
-											"value": "7.0,50.5,7.9,52",
-											"equals": true
+											"value": "7.0,50.5,7.9,52"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -1090,7 +1052,7 @@
 				},
 				{
 					"name": "HTTP errors",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET platform, HTTP 404 (unknown platform type)",
@@ -1140,8 +1102,7 @@
 										"platforms",
 										"unknown_7"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1192,12 +1153,10 @@
 									"query": [
 										{
 											"key": "expanded",
-											"value": "invalid",
-											"equals": true
+											"value": "invalid"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -1253,17 +1212,14 @@
 							"query": [
 								{
 									"key": "q",
-									"value": "dlz",
-									"equals": true
+									"value": "dlz"
 								},
 								{
 									"key": "platformtypes",
-									"value": "all",
-									"equals": true
+									"value": "all"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -1271,11 +1227,11 @@
 		},
 		{
 			"name": "datasets",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "HTTP errors",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET dataset, HTTP 406 (wrong accept header)",
@@ -1324,8 +1280,7 @@
 										"datasets",
 										"quantity_7"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1374,8 +1329,7 @@
 										"datasets",
 										"unknown_7"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1424,8 +1378,7 @@
 										"datasets",
 										"quantity_999"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -1434,7 +1387,7 @@
 				},
 				{
 					"name": "filtered",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET datasets (mobile)",
@@ -1485,12 +1438,10 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "mobile",
-											"equals": true
+											"value": "mobile"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1544,18 +1495,15 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "phenomena",
 											"value": "9,5,6"
 										},
 										{
-											"equals": true,
 											"key": "expanded",
 											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1608,13 +1556,11 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "platformtypes",
 											"value": "stationary,insitu"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1668,13 +1614,11 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "valueTypes",
 											"value": "text"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -1727,13 +1671,11 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "valueTypes",
 											"value": "text,quantity"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -1793,8 +1735,7 @@
 								"datasets",
 								""
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -1867,12 +1808,10 @@
 							"query": [
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -1882,6 +1821,7 @@
 						{
 							"listen": "test",
 							"script": {
+								"id": "3ffa66bd-2ee0-411e-939c-7ae0c99ae320",
 								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
@@ -1891,9 +1831,9 @@
 									"",
 									"var jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"dataset has resultTime extras\"] = jsonData.resultTimes !== undefined;",
-									"tests[\"result times has 2012-11-18T14:00:00.000+01:00\"] = jsonData.resultTimes.includes(\"2012-11-18T14:00:00.000+01:00\");",
-									"tests[\"result times has 2012-11-19T14:00:00.000+01:00\"] = jsonData.resultTimes.includes(\"2012-11-19T14:00:00.000+01:00\");"
+									"var resultTimes = jsonData.resultTimes || [];",
+									"tests[\"missing result time '2012-11-18T14:00:00.000+01:00'\"] = resultTimes.includes(\"2012-11-18T14:00:00.000+01:00\");",
+									"tests[\"missing result time '2012-11-19T14:00:00.000+01:00'\"] = resultTimes.includes(\"2012-11-19T14:00:00.000+01:00\");"
 								]
 							}
 						}
@@ -1927,8 +1867,7 @@
 								"quantity_8",
 								"extras"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -1983,22 +1922,18 @@
 							"query": [
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								},
 								{
 									"key": "platformtypes",
-									"value": "all",
-									"equals": true
+									"value": "all"
 								},
 								{
 									"key": "showTimeIntervals",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -2075,8 +2010,7 @@
 								"quantity-profile_1",
 								""
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -2128,8 +2062,7 @@
 								"datasets",
 								"quantity_13"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -2137,11 +2070,11 @@
 		},
 		{
 			"name": "data",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "filtered",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET mobile data via bbox filter (quantity_8)",
@@ -2219,17 +2152,14 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P200D/2012-11-20TZ",
-											"equals": true
+											"value": "P200D/2012-11-20TZ"
 										},
 										{
 											"key": "bbox",
-											"value": "7.0,50.5,7.9,52",
-											"equals": true
+											"value": "7.0,50.5,7.9,52"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -2237,8 +2167,8 @@
 					"_postman_isSubFolder": true
 				},
 				{
-					"name": "application/png",
-					"description": "",
+					"name": "image/png",
+					"description": null,
 					"item": [
 						{
 							"name": "GET data (quantity_7) PNG via header",
@@ -2246,12 +2176,13 @@
 								{
 									"listen": "test",
 									"script": {
+										"id": "ac7f09fd-3e76-4b00-a0ce-a751d1f771a8",
 										"type": "text/javascript",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
 											"",
 											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"image/png\");"
+											"//helpers.testContentTypeStartsWith(\"image/png\");"
 										]
 									}
 								}
@@ -2269,7 +2200,10 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
 									"protocol": "http",
@@ -2286,17 +2220,14 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01",
-											"equals": true
+											"value": "P10M/2012-12-01"
 										},
 										{
 											"key": "locale",
-											"value": "de",
-											"equals": true
+											"value": "de"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2329,7 +2260,10 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
 									"protocol": "http",
@@ -2346,17 +2280,14 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01",
-											"equals": true
+											"value": "P10M/2012-12-01"
 										},
 										{
 											"key": "locale",
-											"value": "de",
-											"equals": true
+											"value": "de"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2404,17 +2335,38 @@
 										"datasets",
 										"data"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "89188a7a-7500-4ed2-b716-fd6f1ed54c91",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "43b667c7-40a4-4737-b2df-7f728b1a7a77",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
 						}
 					],
 					"_postman_isSubFolder": true
 				},
 				{
 					"name": "application/json",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "POST data (quantity_6, quantity_7)",
@@ -2460,8 +2412,296 @@
 										"datasets",
 										"data"
 									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "application/pdf",
+					"description": null,
+					"item": [
+						{
+							"name": "POST data (quantity_6, quantity_7)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1b7f0975-a897-434f-ac12-54c27d6bceb8",
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/pdf\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/pdf"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n\t    \"quantity_7\",\n\t    \"quantity_6\"\n    ],\n    \"styleOptions\": {\n        \"quantity_7\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#0000FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 1\n\t      }\n        },\n        \"quantity_6\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#FF00FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 2\n\t      }\n        }\n    }\n}"
 								},
-								"description": ""
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"datasets",
+										"data"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3b406935-95e9-438e-ae69-f9de7c4d56a5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "75ec9813-9805-4bd3-ac46-4065633ec90e",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "csv/zip",
+					"description": "",
+					"item": [
+						{
+							"name": "GET data (quantity_7), csv via header",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"text/csv\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/csv"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"datasets",
+										"quantity_7",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (quantity_7), zip via header",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/zip\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/zip"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"datasets",
+										"quantity_7",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (timeseries  7), csv via header",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"text/csv\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/csv"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"timeseries",
+										"7",
+										"getData"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (timeseries  7), zip via header",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/zip\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/zip"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"timeseries",
+										"7",
+										"getData"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										}
+									]
+								}
 							},
 							"response": []
 						}
@@ -2470,7 +2710,7 @@
 				},
 				{
 					"name": "HTTP errors",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET data, HTTP 406",
@@ -2518,8 +2758,7 @@
 										"quantity_7",
 										"data.xls"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2572,17 +2811,14 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P200D/2012-11-20TZ",
-											"equals": true
+											"value": "P200D/2012-11-20TZ"
 										},
 										{
 											"key": "bbox",
-											"value": "_7.0,50.5,7.9,52",
-											"equals": true
+											"value": "_7.0,50.5,7.9,52"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2629,8 +2865,7 @@
 										"datasets",
 										"data"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2678,8 +2913,7 @@
 										"datasets",
 										"data"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2702,7 +2936,10 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/text_5/data?timespan=P10M/2012-12-01&expanded=false",
 									"protocol": "http",
@@ -2719,17 +2956,14 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01",
-											"equals": true
+											"value": "P10M/2012-12-01"
 										},
 										{
 											"key": "expanded",
-											"value": "false",
-											"equals": true
+											"value": "false"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -2738,7 +2972,7 @@
 				},
 				{
 					"name": "prerendered",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET prerendered images",
@@ -2775,9 +3009,12 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images",
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images?",
 									"protocol": "http",
 									"host": [
 										"{{host}}"
@@ -2791,14 +3028,12 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "resultTime",
 											"value": "2012-11-19T13:00:00.000Z",
 											"disabled": true
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2837,9 +3072,12 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images",
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images?",
 									"protocol": "http",
 									"host": [
 										"{{host}}"
@@ -2853,14 +3091,12 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "resultTime",
 											"value": "2012-11-19T13:00:00.000Z",
 											"disabled": true
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -2869,7 +3105,7 @@
 				},
 				{
 					"name": "resultTimes/ensembles",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET dataset (quantity_8) extras",
@@ -2908,9 +3144,12 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/extras",
+									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/extras?",
 									"protocol": "http",
 									"host": [
 										"{{host}}"
@@ -2924,14 +3163,12 @@
 									],
 									"query": [
 										{
-											"equals": true,
 											"key": "resultTime",
 											"value": "2012-11-19T13:00:00.000Z",
 											"disabled": true
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -2970,7 +3207,10 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=2012-11-18T14:00:00.000%2b01:00",
 									"protocol": "http",
@@ -2987,28 +3227,23 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01",
-											"equals": true
+											"value": "P10M/2012-12-01"
 										},
 										{
 											"key": "locale",
-											"value": "de",
-											"equals": true
+											"value": "de"
 										},
 										{
 											"key": "resultTimes",
-											"value": "2012-11-18T14:00:00.000%2b01:00",
-											"equals": true
+											"value": "2012-11-18T14:00:00.000%2b01:00"
 										},
 										{
-											"equals": true,
 											"key": "resultTime",
 											"value": "2012-11-19T13:00:00.000Z",
 											"disabled": true
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -3060,7 +3295,10 @@
 										"disabled": true
 									}
 								],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=all",
 									"protocol": "http",
@@ -3077,28 +3315,23 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P10M/2012-12-01",
-											"equals": true
+											"value": "P10M/2012-12-01"
 										},
 										{
 											"key": "locale",
-											"value": "de",
-											"equals": true
+											"value": "de"
 										},
 										{
 											"key": "resultTimes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
-											"equals": true,
 											"key": "resultTime",
 											"value": "2012-11-19T13:00:00.000Z",
 											"disabled": true
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -3107,7 +3340,7 @@
 				},
 				{
 					"name": "mobile",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "GET mobile data (quantity_8)",
@@ -3158,12 +3391,10 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P200D/2012-11-20TZ",
-											"equals": true
+											"value": "P200D/2012-11-20TZ"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -3230,22 +3461,18 @@
 									"query": [
 										{
 											"key": "timespan",
-											"value": "P200D/2012-11-20TZ",
-											"equals": true
+											"value": "P200D/2012-11-20TZ"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "showTimeIntervals",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -3278,7 +3505,10 @@
 								"disabled": true
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7",
 							"protocol": "http",
@@ -3291,8 +3521,7 @@
 								"datasets",
 								"quantity_7"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -3323,7 +3552,10 @@
 								"disabled": true
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/extras",
 							"protocol": "http",
@@ -3337,208 +3569,7 @@
 								"quantity_7",
 								"extras"
 							]
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "GET data (quantity_7), csv via header",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var helpers = eval(globals.loadHelpers);",
-									"",
-									"helpers.test200();",
-									"helpers.testContentTypeStartsWith(\"text/csv\");"
-								]
-							}
 						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "text/csv"
-							}
-						],
-						"body": {},
-						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}{{context}}",
-							"path": [
-								"api",
-								"datasets",
-								"quantity_7",
-								"data"
-							],
-							"query": [
-								{
-									"key": "timespan",
-									"value": "P10M/2012-12-01",
-									"equals": true
-								}
-							]
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "GET data (quantity_7), zip via header",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var helpers = eval(globals.loadHelpers);",
-									"",
-									"helpers.test200();",
-									"helpers.testContentTypeStartsWith(\"application/zip\");"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/zip"
-							}
-						],
-						"body": {},
-						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}{{context}}",
-							"path": [
-								"api",
-								"datasets",
-								"quantity_7",
-								"data"
-							],
-							"query": [
-								{
-									"key": "timespan",
-									"value": "P10M/2012-12-01",
-									"equals": true
-								}
-							]
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "GET data (timeseries  7), csv via header",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var helpers = eval(globals.loadHelpers);",
-									"",
-									"helpers.test200();",
-									"helpers.testContentTypeStartsWith(\"text/csv\");"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "text/csv"
-							}
-						],
-						"body": {},
-						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}{{context}}",
-							"path": [
-								"api",
-								"timeseries",
-								"7",
-								"getData"
-							],
-							"query": [
-								{
-									"key": "timespan",
-									"value": "P10M/2012-12-01",
-									"equals": true
-								}
-							]
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "GET data (timeseries  7), zip via header",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var helpers = eval(globals.loadHelpers);",
-									"",
-									"helpers.test200();",
-									"helpers.testContentTypeStartsWith(\"application/zip\");"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/zip"
-							}
-						],
-						"body": {},
-						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}{{context}}",
-							"path": [
-								"api",
-								"timeseries",
-								"7",
-								"getData"
-							],
-							"query": [
-								{
-									"key": "timespan",
-									"value": "P10M/2012-12-01",
-									"equals": true
-								}
-							]
-						},
-						"description": ""
 					},
 					"response": []
 				},
@@ -3620,12 +3651,10 @@
 							"query": [
 								{
 									"key": "timespan",
-									"value": "P1D/2012-11-20TZ",
-									"equals": true
+									"value": "P1D/2012-11-20TZ"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -3686,17 +3715,14 @@
 							"query": [
 								{
 									"key": "timespan",
-									"value": "P200D/2012-11-20TZ",
-									"equals": true
+									"value": "P200D/2012-11-20TZ"
 								},
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -3704,7 +3730,7 @@
 		},
 		{
 			"name": "geometries",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "GET geometries (quantity_8)",
@@ -3755,13 +3781,11 @@
 							"query": [
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								},
 								{
 									"key": "datasets",
-									"value": "quantity_8",
-									"equals": true
+									"value": "quantity_8"
 								}
 							]
 						},
@@ -3875,13 +3899,11 @@
 							"query": [
 								{
 									"key": "phenomena",
-									"value": "9,5",
-									"equals": true
+									"value": "9,5"
 								},
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								}
 							]
 						},
@@ -3939,8 +3961,7 @@
 							"query": [
 								{
 									"key": "valuetypes",
-									"value": "quantity",
-									"equals": true
+									"value": "quantity"
 								}
 							]
 						},
@@ -4062,22 +4083,18 @@
 							"query": [
 								{
 									"key": "platformtypes",
-									"value": "mobile",
-									"equals": true
+									"value": "mobile"
 								},
 								{
 									"key": "expanded",
-									"value": "true",
-									"equals": true
+									"value": "true"
 								},
 								{
 									"key": "bbox",
-									"value": "7.0,50.5,7.9,52",
-									"equals": true
+									"value": "7.0,50.5,7.9,52"
 								}
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				}
@@ -4085,15 +4102,15 @@
 		},
 		{
 			"name": "backwards compatible",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "parameters (backwards compatible)",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "expanded",
-							"description": "",
+							"description": null,
 							"item": [
 								{
 									"name": "GET services expanded",
@@ -4156,12 +4173,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4216,12 +4231,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4274,12 +4287,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4332,12 +4343,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4391,12 +4400,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4450,12 +4457,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4510,12 +4515,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "true",
-													"equals": true
+													"value": "true"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								}
@@ -4524,7 +4527,7 @@
 						},
 						{
 							"name": "filtered",
-							"description": "",
+							"description": null,
 							"item": [
 								{
 									"name": "GET phenomena (mobile)",
@@ -4576,12 +4579,10 @@
 											"query": [
 												{
 													"key": "platformtypes",
-													"value": "mobile",
-													"equals": true
+													"value": "mobile"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								}
@@ -4590,7 +4591,7 @@
 						},
 						{
 							"name": "HTTP errors",
-							"description": "",
+							"description": null,
 							"item": [
 								{
 									"name": "GET platform, HTTP 404 (unknown platform type)",
@@ -4640,8 +4641,7 @@
 												"platforms",
 												"unknown_7"
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -4692,12 +4692,10 @@
 											"query": [
 												{
 													"key": "expanded",
-													"value": "invalid",
-													"equals": true
+													"value": "invalid"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								}
@@ -4750,22 +4748,18 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										},
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "features",
-											"value": "9",
-											"equals": true
+											"value": "9"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -4818,12 +4812,10 @@
 									"query": [
 										{
 											"key": "platformtypes",
-											"value": "all",
-											"equals": true
+											"value": "all"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -4874,12 +4866,10 @@
 									"query": [
 										{
 											"key": "q",
-											"value": "DLZ",
-											"equals": true
+											"value": "DLZ"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -4888,11 +4878,11 @@
 				},
 				{
 					"name": "timeseries",
-					"description": "",
+					"description": null,
 					"item": [
 						{
 							"name": "filtered",
-							"description": "",
+							"description": null,
 							"item": [
 								{
 									"name": "GET timeseries via bbox",
@@ -4952,12 +4942,10 @@
 											"query": [
 												{
 													"key": "bbox",
-													"value": "7.0,50.5,7.9,52",
-													"equals": true
+													"value": "7.0,50.5,7.9,52"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -5017,12 +5005,10 @@
 											"query": [
 												{
 													"key": "bbox",
-													"value": "7.0,50.5,7.9,52",
-													"equals": true
+													"value": "7.0,50.5,7.9,52"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -5077,13 +5063,11 @@
 											],
 											"query": [
 												{
-													"equals": true,
 													"key": "features",
 													"value": "7"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								}
@@ -5112,7 +5096,10 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries",
 									"protocol": "http",
@@ -5124,8 +5111,48 @@
 										"api",
 										"timeseries"
 									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET timeseries filtered",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200(\"application/json\");",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"helpers.testAllMembersPresent(jsonData, [\"id\", \"label\", \"uom\", \"station\"]);",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
 								},
-								"description": ""
+								"url": {
+									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries",
+									"protocol": "http",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{context}}",
+									"path": [
+										"api",
+										"timeseries"
+									]
+								}
 							},
 							"response": []
 						},
@@ -5150,7 +5177,10 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7",
 									"protocol": "http",
@@ -5163,8 +5193,7 @@
 										"timeseries",
 										"7"
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -5189,7 +5218,10 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {},
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
 								"url": {
 									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7?status_intervals=true&rendering_hints=true",
 									"protocol": "http",
@@ -5205,17 +5237,14 @@
 									"query": [
 										{
 											"key": "status_intervals",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										},
 										{
 											"key": "rendering_hints",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						},
@@ -5269,12 +5298,10 @@
 									"query": [
 										{
 											"key": "expanded",
-											"value": "true",
-											"equals": true
+											"value": "true"
 										}
 									]
-								},
-								"description": ""
+								}
 							},
 							"response": []
 						}
@@ -5283,11 +5310,11 @@
 				},
 				{
 					"name": "getData",
-					"description": "",
+					"description": null,
 					"item": [
 						{
-							"name": "application/png",
-							"description": "",
+							"name": "image/png",
+							"description": null,
 							"item": [
 								{
 									"name": "GET data (quantity_7) PNG via header",
@@ -5318,7 +5345,10 @@
 												"disabled": true
 											}
 										],
-										"body": {},
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
 										"url": {
 											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
 											"protocol": "http",
@@ -5335,17 +5365,14 @@
 											"query": [
 												{
 													"key": "timespan",
-													"value": "P10M/2012-12-01",
-													"equals": true
+													"value": "P10M/2012-12-01"
 												},
 												{
 													"key": "locale",
-													"value": "de",
-													"equals": true
+													"value": "de"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -5374,7 +5401,10 @@
 												"disabled": true
 											}
 										],
-										"body": {},
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
 										"url": {
 											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData.png?timespan=P10M/2012-12-01&locale=de",
 											"protocol": "http",
@@ -5391,26 +5421,45 @@
 											"query": [
 												{
 													"key": "timespan",
-													"value": "P10M/2012-12-01",
-													"equals": true
+													"value": "P10M/2012-12-01"
 												},
 												{
 													"key": "locale",
-													"value": "de",
-													"equals": true
+													"value": "de"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e809c65e-f943-4319-bc84-766eeded4ba2",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "478616c1-5e5c-4f1e-9748-773467ccdd00",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
 								}
 							],
 							"_postman_isSubFolder": true
 						},
 						{
 							"name": "application/json",
-							"description": "",
+							"description": null,
 							"item": [
 								{
 									"name": "GET data (quantity_7)",
@@ -5440,7 +5489,10 @@
 												"disabled": true
 											}
 										],
-										"body": {},
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
 										"url": {
 											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
 											"protocol": "http",
@@ -5457,17 +5509,14 @@
 											"query": [
 												{
 													"key": "timespan",
-													"value": "P10M/2012-12-01",
-													"equals": true
+													"value": "P10M/2012-12-01"
 												},
 												{
 													"key": "locale",
-													"value": "de",
-													"equals": true
+													"value": "de"
 												}
 											]
-										},
-										"description": ""
+										}
 									},
 									"response": []
 								},
@@ -5519,8 +5568,77 @@
 												"timeseries",
 												"getData"
 											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET data (quantity_7) -- beyond timespan",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "351c41c0-99be-4c8b-862e-c4d047c7864c",
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"var data = jsonData[\"7\"] || {};",
+													"var extra = data.extra || {};",
+													"tests[\"previous value before timespan\"] = extra.valueBeforeTimespan !== undefined",
+													"tests[\"next value after timespan\"] = extra.valueAfterTimespan !== undefined"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "en",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
 										},
-										"description": ""
+										"url": {
+											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=2012-11-19T14:02:00/2012-11-19T14:08:00&locale=de&expanded=true",
+											"protocol": "http",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{context}}",
+											"path": [
+												"api",
+												"timeseries",
+												"7",
+												"getData"
+											],
+											"query": [
+												{
+													"key": "timespan",
+													"value": "2012-11-19T14:02:00/2012-11-19T14:08:00"
+												},
+												{
+													"key": "locale",
+													"value": "de"
+												},
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
 									},
 									"response": []
 								}
@@ -5574,8 +5692,7 @@
 						"api",
 						""
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		}

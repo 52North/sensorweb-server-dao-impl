@@ -141,7 +141,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchOfferings(Collection)
      */
     public BooleanExpression matchOfferings() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         return matchOfferings(parameters.getOfferings());
     }
 
@@ -182,7 +182,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
             return null;
         }
         final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dbQuery.isMatchDomainIds()
+        return query.isMatchDomainIds()
             ? dataset.offering.identifier.in(ids)
             : dataset.offering.id.in(parseToIds(ids));
     }
@@ -194,7 +194,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchFeatures(Collection)
      */
     public BooleanExpression matchFeatures() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         return matchFeatures(parameters.getFeatures());
     }
 
@@ -236,7 +236,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
             return null;
         }
         final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dbQuery.isMatchDomainIds()
+        return query.isMatchDomainIds()
             ? dataset.feature.identifier.in(ids)
             : dataset.feature.id.in(parseToIds(ids));
     }
@@ -248,7 +248,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchProcedures(Collection)
      */
     public BooleanExpression matchProcedures() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         return matchProcedures(parameters.getProcedures());
     }
 
@@ -289,7 +289,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
             return null;
         }
         final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dbQuery.isMatchDomainIds()
+        return query.isMatchDomainIds()
             ? dataset.procedure.identifier.in(ids)
             : dataset.procedure.id.in(parseToIds(ids));
     }
@@ -301,7 +301,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchPhenomena(Collection)
      */
     public BooleanExpression matchPhenomena() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         return matchPhenomena(parameters.getPhenomena());
     }
 
@@ -342,7 +342,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
             return null;
         }
         final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dbQuery.isMatchDomainIds()
+        return query.isMatchDomainIds()
             ? dataset.phenomenon.identifier.in(ids)
             : dataset.phenomenon.id.in(parseToIds(ids));
     }
@@ -354,7 +354,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchValueTypes(Collection)
      */
     public BooleanExpression matchValueTypes() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         return matchValueTypes(parameters.getValueTypes());
     }
 
@@ -402,7 +402,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @see #matchPlatformTypes(Collection)
      */
     public BooleanExpression matchPlatformTypes() {
-        final IoParameters parameters = dbQuery.getParameters();
+        final IoParameters parameters = query.getParameters();
         final Set<String> platformTypes = parameters.getPlatformTypes();
         return matchPlatformTypes(platformTypes);
     }
@@ -436,7 +436,7 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
         if ((platformTypes == null) || platformTypes.isEmpty()) {
             return null;
         }
-        final DbQuery filterQuery = dbQuery.replaceWith(FILTER_PLATFORM_TYPES, platformTypes.toArray(new String[0]));
+        final DbQuery filterQuery = query.replaceWith(FILTER_PLATFORM_TYPES, platformTypes.toArray(new String[0]));
         final FilterResolver filterResolver = filterQuery.getFilterResolver();
 
         final QProcedureEntity procedure = QDatasetEntity.datasetEntity.procedure;
@@ -478,14 +478,13 @@ public class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
      */
     public BooleanExpression matchesSpatially() {
-        final Geometry geometry = dbQuery.getSpatialFilter();
+        final Geometry geometry = query.getSpatialFilter();
         if ((geometry == null) || geometry.isEmpty()) {
             return null;
         }
         final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
         final QGeometryEntity geometryEntity = dataset.feature.geometryEntity;
         return geometryEntity.geometry.intersects(geometry);
-
     }
 
 }

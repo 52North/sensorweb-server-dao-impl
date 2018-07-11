@@ -89,20 +89,10 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return getInstance(id, query) != null;
     }
 
-    public boolean hasInstance(String id, DbQuery query, Class< ? > clazz) {
-        return getInstance(id, query) != null;
-    }
-
     @Override
     public boolean hasInstance(Long id, DbQuery query) {
         return id != null
                 ? hasInstance(id.toString(), query)
-                : false;
-    }
-
-    public boolean hasInstance(Long id, DbQuery query, Class< ? > clazz) {
-        return id != null
-                ? hasInstance(id.toString(), query, clazz)
                 : false;
     }
 
@@ -125,7 +115,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
         Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+                : criteria.add(Restrictions.eq(IdEntity.PROPERTY_ID, Long.parseLong(key)));
         return clazz.cast(instanceCriteria.uniqueResult());
     }
 
@@ -141,13 +131,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return ((Long) result).intValue();
     }
 
-    protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
+    protected <I extends I18nEntity<?>> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
         return hasTranslation(query, clazz)
                 ? query.addLocaleTo(criteria, clazz)
                 : criteria;
     }
 
-    private <I extends I18nEntity> boolean hasTranslation(DbQuery parameters, Class<I> clazz) {
+    private <I extends I18nEntity<?>> boolean hasTranslation(DbQuery parameters, Class<I> clazz) {
         Criteria i18nCriteria = session.createCriteria(clazz);
         return parameters.checkTranslationForLocale(i18nCriteria);
     }
@@ -169,7 +159,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -179,7 +169,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
         DetachedCriteria filter = createDatasetSubqueryViaExplicitJoin(query);
-        return criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
+        return criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, filter));
     }
 
     private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
@@ -187,11 +177,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                                                     .add(createPublishedDatasetFilter());
         if (getDatasetProperty().equalsIgnoreCase(DatasetEntity.PROPERTY_FEATURE)) {
             DetachedCriteria featureCriteria = addSpatialFilter(query, subquery);
-            return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
+            return featureCriteria.setProjection(Projections.property(IdEntity.PROPERTY_ID));
         } else {
             addSpatialFilter(query, subquery);
             return subquery.createCriteria(getDatasetProperty())
-                           .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
+                           .setProjection(Projections.property(IdEntity.PROPERTY_ID));
         }
     }
 
@@ -219,14 +209,14 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                if (parameter == null || parameter.isEmpty()) {
+                if ((parameter == null) || parameter.isEmpty()) {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
                     c.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                     QueryUtils.setFilterProjectionOn(parameter, c);
-                    criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
+                    criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, c));
                 }
             }
         }
@@ -237,7 +227,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         IoParameters parameters = query.getParameters();
         FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
-            if (parameter == null || parameter.isEmpty()) {
+            if ((parameter == null) || parameter.isEmpty()) {
                 // join starts from dataset table
                 criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_PATH_ALIAS, filterResolver));
             } else if (parameter.endsWith(DatasetEntity.PROPERTY_PROCEDURE)) {
@@ -250,7 +240,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                  .add(createPlatformTypeRestriction(filterResolver));
 
                 QueryUtils.setFilterProjectionOn(parameter, c);
-                criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
+                criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, c));
             }
         }
         return criteria;

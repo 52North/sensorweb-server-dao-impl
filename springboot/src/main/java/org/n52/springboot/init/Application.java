@@ -17,14 +17,13 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @Import(DatabaseConfig.class)
 public class Application {
-    
-    @Value("${service.name:52°North Dataset REST API}")
+
+    @Value("${service.name:52n REST API}")
     private String name;
-    
+
     @Value("${service.nodata.values}:''")
     private String noDataValues;
-    
-    
+
     @Bean
     public ServiceEntity serviceEntity() {
         ServiceEntity serviceEntity = new ServiceEntity();

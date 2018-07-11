@@ -35,21 +35,12 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 
-public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
-
-    Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery);
-
-    V getFirstValue(E entity, Session session, DbQuery query);
-
-    V getLastValue(E entity, Session session, DbQuery query);
-
-    GeometryEntity getLastKnownGeometry(DatasetEntity lastDataset, Session session, DbQuery query);
-
-    List<ReferenceValueOutput<V>> createReferenceValueOutputs(E datasetEntity, DbQuery query);
+public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T>
+        extends
+        ValueAssembler<S, E, V, T> {
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void
     }
 
-    Class<E> getDatasetEntityType();
 }

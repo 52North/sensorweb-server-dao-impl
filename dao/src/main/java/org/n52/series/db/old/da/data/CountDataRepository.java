@@ -42,18 +42,13 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@DataAssembler("count")
+@ValueAssemblerComponent(value = "count", datasetEntityType = CountDatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
+        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue, Integer> {
 
     public CountDataRepository(HibernateSessionStore sessionStore,
                                DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    public Class<CountDatasetEntity> getDatasetEntityType() {
-        return CountDatasetEntity.class;
     }
 
     @Override
@@ -63,7 +58,7 @@ public class CountDataRepository
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
@@ -75,7 +70,7 @@ public class CountDataRepository
     }
 
     @Override
-    public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    public CountValue assembleDataValue(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
@@ -88,7 +83,7 @@ public class CountDataRepository
 
         CountValue value = prepareValue(observation, query);
         value.setValue(observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        return value;
     }
 
 }

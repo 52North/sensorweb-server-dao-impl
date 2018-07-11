@@ -49,26 +49,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DatasetAccessService extends AccessService<DatasetOutput>
+public class DatasetAccessService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
         implements
-        DataService<Data<AbstractValue< ? >>> {
-    
+        DataService<Data<V>> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
     private final DataRepositoryTypeFactory dataFactory;
 
     public DatasetAccessService(DataRepositoryTypeFactory dataFactory,
-                                DatasetAssembler<Data< ? >> repository,
+                                DatasetAssembler<V> repository,
                                 DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;
     }
 
+
+
     @Override
-    public DataCollection<Data<AbstractValue< ? >>> getData(IoParameters parameters) {
-        TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
+    public DataCollection<Data<V>> getData(IoParameters parameters) {
+        TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
         for (String seriesId : parameters.getDatasets()) {
-            Data<AbstractValue< ? >> data = getDataFor(seriesId, parameters);
+            Data<V> data = getDataFor(seriesId, parameters);
             if (data != null) {
                 dataCollection.addNewSeries(seriesId, data);
             }
@@ -76,26 +78,19 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         return dataCollection;
     }
 
-    private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters) {
+    private Data<V> getDataFor(String datasetId, IoParameters parameters) {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-        
+
         if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
             LOGGER.debug("unknown type: " + valueType);
             return new Data<>();
         }
-        
-        DataRepository dataRepository = createRepository(valueType);
-        return dataRepository.getData(datasetId, dbQuery);
+        Class<? extends DatasetEntity> entityType = dataFactory.getDatasetEntityType(valueType);
+        ValueAssembler<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create(valueType, entityType);
+        return assembler.getData(datasetId, dbQuery);
     }
 
-    private DataRepository createRepository(String valueType) {
-        try {
-            return dataFactory.create(valueType);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
 
 }
