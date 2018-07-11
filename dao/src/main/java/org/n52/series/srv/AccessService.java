@@ -34,10 +34,10 @@ import java.util.List;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.OutputCollection;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
+import org.n52.series.db.old.DataAccessException;
+import org.n52.series.db.old.dao.DbQuery;
+import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.ParameterService;
 import org.springframework.stereotype.Service;
 

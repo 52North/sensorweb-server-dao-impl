@@ -29,7 +29,6 @@
 
 package org.n52.series.srv;
 
-import org.n52.io.DatasetFactoryException;
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -38,12 +37,12 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.da.DatasetAssembler;
-import org.n52.series.db.da.data.DataRepository;
-import org.n52.series.db.da.data.DataRepositoryTypeFactory;
-import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.ValueAssembler;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.old.da.DatasetAssembler;
+import org.n52.series.db.old.dao.DbQuery;
+import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

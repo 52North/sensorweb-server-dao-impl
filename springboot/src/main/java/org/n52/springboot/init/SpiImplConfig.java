@@ -37,8 +37,8 @@ import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.series.db.da.data.AnnotationBasedDataRepositoryFactory;
-import org.n52.series.db.da.data.DataRepositoryTypeFactory;
+import org.n52.series.db.AnnotationBasedDataRepositoryFactory;
+import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.spi.srv.ParameterService;
 import org.n52.series.srv.AccessService;
 import org.n52.series.srv.CategoryService;
@@ -61,7 +61,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableJpaRepositories(basePackages = "org.n52.series.springdata")
 @ComponentScan(basePackages = {"org.n52.series.db.da", "org.n52.series.db", "org.n52.series.springdata", "org.n52.series.srv"})
 public class SpiImplConfig {
-    
+
     @Bean
     public DataRepositoryTypeFactory dataRepositoryFactory(ApplicationContext appContext) {
         return new AnnotationBasedDataRepositoryFactory(appContext);

@@ -40,13 +40,13 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.da.SessionAwareAssembler;
-import org.n52.series.db.dao.DataDao;
-import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.QueryUtils;
+import org.n52.series.db.old.HibernateSessionStore;
+import org.n52.series.db.old.da.SessionAwareAssembler;
+import org.n52.series.db.old.dao.DataDao;
+import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.old.dao.QueryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

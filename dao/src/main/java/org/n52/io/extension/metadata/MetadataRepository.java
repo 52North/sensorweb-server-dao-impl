@@ -37,9 +37,9 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.HibernateSessionStore;
-import org.n52.series.db.da.SessionAwareAssembler;
-import org.n52.series.db.dao.DbQueryFactory;
+import org.n52.series.db.old.HibernateSessionStore;
+import org.n52.series.db.old.da.SessionAwareAssembler;
+import org.n52.series.db.old.dao.DbQueryFactory;
 
 public class MetadataRepository extends SessionAwareAssembler {
 

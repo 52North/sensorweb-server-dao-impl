@@ -29,10 +29,10 @@
 package org.n52.series.srv;
 
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.da.EntityCounter;
-import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.DbQueryFactory;
-import org.n52.series.db.dao.DefaultDbQueryFactory;
+import org.n52.series.db.old.da.EntityCounter;
+import org.n52.series.db.old.dao.DbQuery;
+import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.srv.CountingMetadataService;
 import org.springframework.stereotype.Component;
 

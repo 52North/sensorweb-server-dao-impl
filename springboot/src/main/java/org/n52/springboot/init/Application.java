@@ -6,8 +6,8 @@
 
 package org.n52.springboot.init;
 
+import org.n52.series.db.DatabaseConfig;
 import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.springdata.DatabaseConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
 @Import(DatabaseConfig.class)
 public class Application {
     
-    @Value("${service.name:52°North Dataset REST API}")
+    @Value("${service.name:52Â°North Dataset REST API}")
     private String name;
     
     @Value("${service.nodata.values}:''")
