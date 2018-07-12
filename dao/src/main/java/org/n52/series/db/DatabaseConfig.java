@@ -29,7 +29,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 @Configuration
 public class DatabaseConfig {
-    
+
     @Value("${database.jpa.persistence-location:classpath:META-INF/persistence.xml}")
     private String persistenceXmlLocation;
 

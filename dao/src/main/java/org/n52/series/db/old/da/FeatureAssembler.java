@@ -44,7 +44,7 @@ import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEntity, FeatureOutput> {
 
     public FeatureAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {

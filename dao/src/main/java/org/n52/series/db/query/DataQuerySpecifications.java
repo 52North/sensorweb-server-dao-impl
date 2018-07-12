@@ -83,7 +83,7 @@ public class DataQuerySpecifications extends QuerySpecifications {
     }
 
     /**
-     * Matches entities so that {@link DataEntity#isParent() is {@literal true}.
+     * Matches entities so that {@link DataEntity#isParent()} is {@literal true}.
      *
      * @return a boolean expression
      */

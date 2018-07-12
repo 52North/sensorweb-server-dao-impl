@@ -45,8 +45,8 @@ public abstract class AbstractValueAssembler<S extends DatasetEntity, E extends 
     private EntityManager entityManager;
 
     /**
-     * Preconfigured service entity. Alternative to {@link #serviceRepository} used for accessing service
-     * entities from a database (in case there data model and mappings supports it).
+     * Preconfigured service entity. Alternative to accessing service entities from a database (in case there
+     * data model and mappings supports it).
      *
      * @see #assertServiceAvailable(DescribableEntity)
      */
@@ -163,6 +163,8 @@ public abstract class AbstractValueAssembler<S extends DatasetEntity, E extends 
     /**
      * Prepares data value by setting time/time interval depending on actual query.
      *
+     * @param <O>
+     *        the type of the assembled output value
      * @param value
      *        the actual (empty) value
      * @param observation

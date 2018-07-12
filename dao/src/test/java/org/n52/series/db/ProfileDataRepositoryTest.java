@@ -14,8 +14,6 @@ import org.assertj.core.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.n52.series.db.DataRepository;
-import org.n52.series.db.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
