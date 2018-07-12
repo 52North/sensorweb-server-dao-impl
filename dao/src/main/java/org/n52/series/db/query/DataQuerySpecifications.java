@@ -11,8 +11,6 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -148,11 +146,9 @@ public class DataQuerySpecifications extends QuerySpecifications {
     }
 
     public Optional<DataEntity< ? >> matchClosestBeforeStart(DatasetEntity dataset, EntityManager entityManager) {
-        Interval interval = query.getTimespan();
-        DateTime start = interval.getStart();
         QDataEntity dataentity = QDataEntity.dataEntity;
         OrderSpecifier<Date> order = new OrderSpecifier<>(Order.DESC, dataentity.samplingTimeEnd);
-        BooleanExpression beforeSamplingTime = dataentity.samplingTimeStart.before(start.toDate());
+        BooleanExpression beforeSamplingTime = dataentity.samplingTimeStart.before(getTimespanStart());
         BooleanExpression matchesDatasetId = matchDatasets(dataset.getId().toString());
         BooleanExpression predicate = matchesDatasetId.and(beforeSamplingTime);
         JPAQuery<DataEntity< ? >> query = new JPAQuery<>(entityManager);
@@ -166,11 +162,9 @@ public class DataQuerySpecifications extends QuerySpecifications {
     }
 
     public Optional<DataEntity< ? >> matchClosestAfterEnd(DatasetEntity dataset, EntityManager entityManager) {
-        Interval interval = query.getTimespan();
-        DateTime end = interval.getEnd();
         QDataEntity dataentity = QDataEntity.dataEntity;
         OrderSpecifier<Date> order = new OrderSpecifier<>(Order.ASC, dataentity.samplingTimeEnd);
-        BooleanExpression afterSamplingTime = dataentity.samplingTimeEnd.after(end.toDate());
+        BooleanExpression afterSamplingTime = dataentity.samplingTimeEnd.after(getTimespanEnd());
         BooleanExpression matchesDatasetId = matchDatasets(dataset.getId().toString());
         BooleanExpression predicate = matchesDatasetId.and(afterSamplingTime);
         JPAQuery<DataEntity< ? >> query = new JPAQuery<>(entityManager);
