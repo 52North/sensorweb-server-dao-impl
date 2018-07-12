@@ -53,7 +53,7 @@ import org.springframework.stereotype.Component;
 public class DatasetAccessService extends AccessService<DatasetOutput>
         implements
         DataService<Data<AbstractValue< ? >>> {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
     private final DataRepositoryTypeFactory dataFactory;
@@ -81,12 +81,12 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-        
+
         if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
             LOGGER.debug("unknown type: " + valueType);
             return new Data<>();
         }
-        
+
         DataRepository dataRepository = createRepository(valueType);
         return dataRepository.getData(datasetId, dbQuery);
     }

@@ -48,7 +48,7 @@ public class GeneralDataRepositoryTest extends TestBase {
         dataRepository.saveAndFlush(dataEntity);
 
         assertAll("Query quantity data", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.DATASET_TYPE);
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
             assertThat(dataRepository.findAll()).isNotEmpty();
             final Optional<DataEntity< ? >> result = dataRepository.findOne(filterSpec.matchDatasets());

@@ -42,7 +42,7 @@ import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PhenomenonAssembler extends HierarchicalParameterAssembler<PhenomenonEntity, PhenomenonOutput> {
 
     public PhenomenonAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {

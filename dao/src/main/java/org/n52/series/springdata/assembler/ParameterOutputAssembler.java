@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -20,13 +19,11 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.springdata.DatasetRepository;
 import org.n52.series.springdata.ParameterDataRepository;
-import org.n52.series.springdata.query.DatasetQuerySpecifications;
 import org.n52.series.springdata.query.OfferingQuerySpecifications;
 import org.n52.series.srv.OutputAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -64,10 +61,6 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     public List<O> getAllCondensed(DbQuery query) {
         return findAll(query).map(it -> ParameterOutputMapper.createCondensed(it, prepareEmptyOutput(), query))
                              .collect(Collectors.toList());
-
-
-
-
     }
 
     @Override
@@ -106,13 +99,13 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
         return createStreamFromIterator(entities.iterator());
     }
 
-    private BooleanExpression createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
-
-        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        return oFilterSpec.selectFrom(subQuery);
-    }
+    abstract BooleanExpression createFilterPredicate(DbQuery query);
+//        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
+//        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
+//
+//        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
+//        return oFilterSpec.selectFrom(subQuery);
+//    }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
         if (geometryEntity == null) {

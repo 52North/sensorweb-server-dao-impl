@@ -19,7 +19,7 @@
         <series-dao.version>3.0.0-SNAPSHOT</series-dao.version>
         <series-hbm.version>1-SNAPSHOT</series-hbm.version>
 
-        <hibernate.version>5.2.12.FINAL</hibernate.version>
+        <hibernate.version>5.2.12.Final</hibernate.version>
         <hibernate-spatial.version>5.2.12-52N.1</hibernate-spatial.version>
         <postgis.version>2.2.1</postgis.version>
 
@@ -141,7 +141,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>
-            <version>${hibernate-spatial.version}</version>
+            <version>${hibernate-spatial.version}</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -219,7 +219,6 @@
             <artifactId>h2</artifactId>
 <!--             <scope>test</scope> -->
         </dependency>
-
     </dependencies>
 
     <repositories>

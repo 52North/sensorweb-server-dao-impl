@@ -6,7 +6,7 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public final class ParameterOutputMapper {
-    
+
     public static <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O result, DbQuery query) {
         IoParameters parameters = query.getParameters();
 

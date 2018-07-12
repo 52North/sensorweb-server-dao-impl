@@ -66,7 +66,7 @@ public class Search implements SearchService {
     private final OutputAssembler<TimeseriesMetadataOutput> timeseriesRepository;
 
     private final OutputAssembler<StationOutput> stationRepository;
-    
+
     private final DbQueryFactory dbQueryFactory;
 
     public Search(OutputAssembler<ProcedureOutput> procedureRepository,
@@ -92,7 +92,7 @@ public class Search implements SearchService {
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
         Set<SearchResult> results = new HashSet<>();
-        
+
         DbQuery query = dbQueryFactory.createFrom(parameters);
         results.addAll(phenomenonRepository.searchFor(query));
         results.addAll(procedureRepository.searchFor(query));

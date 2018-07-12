@@ -237,7 +237,7 @@ public class DatasetAssembler<T extends Data> extends SessionAwareAssembler
 
     DatasetEntity getInstanceEntity(String id, DbQuery query, Session session) {
         String rawId = ValueType.extractId(id);
-        
+
         String handleAsFallback = query.getHandleAsValueTypeFallback();
         final String valueType = ValueType.extractType(id, handleAsFallback);
         if (!dataRepositoryFactory.isKnown(valueType)) {

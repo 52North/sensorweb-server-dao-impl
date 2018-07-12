@@ -43,10 +43,10 @@ public class DatasetRepositoryTest extends TestBase {
         final DatasetEntity entity = uninitializedDataset("ph", "of", "pr", "pr_format");
 
         entity.setFeature(testRepositories.persistSimpleFeature("f1", "format_xy"));
-        datasetRepository.initValueType(Data.QuantityData.VALUE_TYPE, entity.getId());
+        datasetRepository.initValueType(Data.QuantityData.DATASET_TYPE, entity.getId());
 
         assertAll("qualified quantity dataset is found", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.DATASET_TYPE);
             final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             final Optional<DatasetEntity> result = datasetRepository.findOne(filterSpec.matchValueTypes());
             assertThat(result).get().isInstanceOf(QuantityDatasetEntity.class);

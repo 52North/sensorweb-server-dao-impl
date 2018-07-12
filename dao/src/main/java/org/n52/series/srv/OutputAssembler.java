@@ -37,7 +37,7 @@ import org.n52.series.spi.search.SearchResult;
 public interface OutputAssembler<T> {
 
     boolean exists(String id, DbQuery query);
-    
+
     List<T> getAllCondensed(DbQuery query);
 
     List<T> getAllExpanded(DbQuery query);

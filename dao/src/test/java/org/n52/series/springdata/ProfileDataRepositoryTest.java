@@ -46,7 +46,7 @@ public class ProfileDataRepositoryTest extends TestBase {
         saveProfileValues(dataset, 20.3, 42d, 0d, -1d);
 
         assertAll("Query quantity data", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.DATASET_TYPE);
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
             final Iterable< ? super DataEntity< ? >> results = dataRepository.findAll(filterSpec.matchDatasets());
             assertThat(results).allMatch(it -> it instanceof QuantityDataEntity)

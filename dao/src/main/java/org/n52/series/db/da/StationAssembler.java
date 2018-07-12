@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @Component
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StationAssembler.class);
 
     public StationAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {

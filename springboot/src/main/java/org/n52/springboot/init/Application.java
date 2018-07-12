@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
 @Import(DatabaseConfig.class)
 public class Application {
     
-    @Value("${service.name:52°North Dataset REST API}")
+    @Value("${service.name:52North Dataset REST API}")
     private String name;
     
     @Value("${service.nodata.values}:''")
