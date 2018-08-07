@@ -36,6 +36,8 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.ParameterOutput;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.StationOutput;
@@ -186,19 +188,18 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
         TimeseriesMetadataOutput result = createCondensed(series, query, session);
-        IoParameters params = query.getParameters();
         QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
-
         List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query, repository);
         DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());
 
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
         QuantityValue lastValue = repository.getLastValue(series, session, query);
 
-        result.setValue(TimeseriesMetadataOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
-        result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
-        result.setValue(TimeseriesMetadataOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
-        result.setValue(TimeseriesMetadataOutput.LAST_VALUE, lastValue, params, result::setLastValue);
+        IoParameters params = query.getParameters();
+        result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
+        result.setValue(DatasetOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
+        result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
+        result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
         return result;
     }
 
@@ -257,8 +258,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         StationOutput station = createCondensedStation(entity, query.withoutFieldsFilter(), session);
 
         result.setId(pkid.toString());
-        result.setValue(TimeseriesMetadataOutput.LABEL, label, parameters, result::setLabel);
-        result.setValue(TimeseriesMetadataOutput.UOM, uom, parameters, result::setUom);
+        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
+        result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
         result.setValue(TimeseriesMetadataOutput.STATION, station, parameters, result::setStation);
 
         return result;

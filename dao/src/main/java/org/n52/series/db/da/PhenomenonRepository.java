@@ -30,6 +30,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.PhenomenonEntity;
@@ -53,11 +54,6 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected AbstractDao<PhenomenonEntity> createDao(Session session) {
         return new PhenomenonDao(session);
     }
@@ -73,7 +69,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(PhenomenonOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

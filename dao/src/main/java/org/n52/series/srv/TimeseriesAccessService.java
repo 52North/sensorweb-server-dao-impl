@@ -30,12 +30,12 @@
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
-import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.IDataRepositoryFactory;
@@ -74,11 +74,11 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        DataRepository< ? , ? > dataRepository = createRepository();
+        DataRepository< ? , ? , ? > dataRepository = createRepository();
         return (Data<QuantityValue>) dataRepository.getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository< ? , ? > createRepository() throws DataAccessException {
+    private DataRepository< ? , ?, ? > createRepository() throws DataAccessException {
         try {
             return factory.create(QuantityValue.TYPE);
         } catch (DatasetFactoryException e) {

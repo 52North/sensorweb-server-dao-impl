@@ -52,7 +52,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hibernate.version>4.3.11.Final</hibernate.version>
-        <series.api.version>2.0.0-alpha.6</series.api.version>
+        <series.api.version>2.0.0-SNAPSHOT</series.api.version>
         <hibernate.spatial.version>4.3.2-52N</hibernate.spatial.version>
         <artic-sea.version>3.1.0</artic-sea.version>
         

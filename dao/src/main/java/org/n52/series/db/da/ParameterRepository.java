@@ -52,8 +52,6 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected abstract SearchResult createEmptySearchResult(String id, String label, String baseUrl);
 
-    protected abstract String createHref(String hrefBase);
-
     protected abstract AbstractDao<E> createDao(Session session);
 
     protected abstract SearchableDao<E> createSearchableDao(Session session);
@@ -106,7 +104,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
         result.setId(Long.toString(pkid));
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(ParameterOutput.HREF_BASE, createHref(hrefBase), parameters, result::setHrefBase);
+        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         return result;
     }
 
@@ -195,7 +193,7 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
 
     protected List<SearchResult> convertToSearchResults(List<E> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = createHref(query.getHrefBase());
+        String hrefBase = query.getHrefBase();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String label = searchResult.getLabelFrom(locale);

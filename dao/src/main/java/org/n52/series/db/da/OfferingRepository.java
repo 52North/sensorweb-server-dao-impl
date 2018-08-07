@@ -30,6 +30,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.OfferingEntity;
@@ -52,11 +53,6 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getOfferingsHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected OfferingDao createDao(Session session) {
         return new OfferingDao(session);
     }
@@ -72,7 +68,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query)
                 : getCondensedService(getServiceEntity(entity), query);
-        result.setValue(OfferingOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 }

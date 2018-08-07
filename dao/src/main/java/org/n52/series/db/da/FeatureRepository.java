@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.OutputWithParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -55,11 +57,6 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getFeaturesHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected FeatureDao createDao(Session session) {
         return new FeatureDao(session);
     }
@@ -76,8 +73,8 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(OutputWithParameters.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

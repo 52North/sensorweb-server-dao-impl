@@ -31,9 +31,9 @@ package org.n52.series.db.da;
 
 import java.io.File;
 
-import org.n52.io.ConfigTypedFactory;
+import org.n52.io.handler.ConfigTypedFactory;
 
-public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ? >>
+public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ?, ? >>
         implements IDataRepositoryFactory {
 
     private static final String DEFAULT_CONFIG_FILE = "dataset-repository-factory.properties";

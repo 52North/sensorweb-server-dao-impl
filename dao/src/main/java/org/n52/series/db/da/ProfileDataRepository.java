@@ -136,7 +136,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         if (profile.getVerticalUnit() == null) {
             profile.setVerticalUnit(verticalUnit);
         }
-        if (profile.getVerticalUnit() == null
+        if ((profile.getVerticalUnit() == null)
                 || !profile.getVerticalUnit()
                            .equals(verticalUnit)) {
             dataItem.setVerticalUnit(verticalUnit);
@@ -150,7 +150,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         dataItem.setValue(dataEntity.getValue());
         String verticalUnit = getVerticalUnit(parameters, dataset);
         addValues(dataItem, parameters, dataset);
-        if (profile.getVerticalUnit() == null
+        if ((profile.getVerticalUnit() == null)
                 || !profile.getVerticalUnit()
                            .equals(verticalUnit)) {
             dataItem.setVerticalUnit(verticalUnit);
@@ -165,7 +165,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
                 && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
             dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
-            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
         }
     }
 
@@ -181,7 +181,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
         String unit = null;
         for (Map<String, Object> parameter : parameters) {
-            if (unit == null && parameter.containsKey(PARAMETER_NAME) &&
+            if ((unit == null) && parameter.containsKey(PARAMETER_NAME) &&
                     (parameter.get(PARAMETER_NAME).equals(dataset.getVerticalParameterName())
                     || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalFromParameterName())
                     || parameter.get(PARAMETER_NAME).equals(dataset.getVerticalToParameterName()))) {

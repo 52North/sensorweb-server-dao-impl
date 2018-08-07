@@ -37,29 +37,30 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public interface DataRepository<E extends DatasetEntity< ? >, V extends AbstractValue< ? >> {
+public interface DataRepository<S extends DatasetEntity< ? >, E extends DataEntity< ? >, V extends AbstractValue< ? >> {
 
     Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery) throws DataAccessException;
 
-    V getFirstValue(E entity, Session session, DbQuery query);
+    V getFirstValue(S dataset, Session session, DbQuery query);
 
-    V getLastValue(E entity, Session session, DbQuery query);
+    V getLastValue(S dataset, Session session, DbQuery query);
 
-    GeometryEntity getLastKnownGeometry(E lastDataset, Session session, DbQuery query);
+    GeometryEntity getLastKnownGeometry(S lastDataset, Session session, DbQuery query);
 
     void setSessionStore(HibernateSessionStore sessionStore);
 
-    List<ReferenceValueOutput<V>> createReferenceValueOutputs(E datasetEntity, DbQuery query);
+    List<ReferenceValueOutput<V>> createReferenceValueOutputs(S datasetEntity, DbQuery query);
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void
     }
 
-    Class<E> getDatasetEntityType();
+    Class<S> getDatasetEntityType();
 
 }
