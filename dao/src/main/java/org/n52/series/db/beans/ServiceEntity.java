@@ -74,7 +74,7 @@ public class ServiceEntity extends DescribableEntity {
 
     @JsonIgnore
     public boolean isNoDataValue(DataEntity< ? > observation) {
-        return observation.isNoDataValue(noDataValues);
+        return (observation == null) || observation.isNoDataValue(noDataValues);
     }
 
     public String getNoDataValues() {
@@ -86,7 +86,7 @@ public class ServiceEntity extends DescribableEntity {
 
     public void setNoDataValues(String noDataValues) {
         LOGGER.debug("Set noData values: {}", noDataValues);
-        if (noDataValues == null || noDataValues.isEmpty()) {
+        if ((noDataValues == null) || noDataValues.isEmpty()) {
             this.noDataValues = Collections.emptyList();
         } else {
             String[] values = noDataValues.split(",");

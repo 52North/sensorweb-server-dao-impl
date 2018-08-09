@@ -29,12 +29,12 @@
 
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -42,7 +42,6 @@ import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.FeatureEntity;
@@ -56,8 +55,6 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -68,14 +65,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Deprecated
 public class TimeseriesRepository extends SessionAwareRepository implements OutputAssembler<TimeseriesMetadataOutput> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesRepository.class);
-
     @Autowired
     @Qualifier(value = "stationRepository")
     private OutputAssembler<StationOutput> stationRepository;
 
     @Autowired
-    private IDataRepositoryFactory factory;
+    private DataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> repository;
 
     private DatasetDao<QuantityDatasetEntity> createDao(Session session) {
         return new DatasetDao<>(session, QuantityDatasetEntity.class);
@@ -188,8 +183,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
     protected TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity series, DbQuery query, Session session)
             throws DataAccessException {
         TimeseriesMetadataOutput result = createCondensed(series, query, session);
-        QuantityDataRepository repository = createRepository(ValueType.DEFAULT_VALUE_TYPE);
-        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query, repository);
+        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(series, query);
         DatasetParameters timeseries = createTimeseriesOutput(series, query.withoutFieldsFilter());
 
         QuantityValue firstValue = repository.getFirstValue(series, session, query);
@@ -203,20 +197,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         return result;
     }
 
-    private QuantityDataRepository createRepository(String valueType) throws DataAccessException {
-        if (!ValueType.DEFAULT_VALUE_TYPE.equalsIgnoreCase(valueType)) {
-            throw new ResourceNotFoundException("unknown value type: " + valueType);
-        }
-        try {
-            return (QuantityDataRepository) factory.create(ValueType.DEFAULT_VALUE_TYPE);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
     private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
-                                                                           DbQuery query,
-                                                                           QuantityDataRepository repository)
+                                                                                  DbQuery query)
             throws DataAccessException {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
@@ -228,10 +210,10 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
                                                                             .toString());
 
-                QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
-                refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
-                                                                                referenceSeriesEntity,
-                                                                                query));
+                QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastValue();
+                refenceValueOutput.setLastValue(repository.assembleDataValue(lastValue,
+                                                                             referenceSeriesEntity,
+                                                                             query));
                 outputs.add(refenceValueOutput);
             }
         }

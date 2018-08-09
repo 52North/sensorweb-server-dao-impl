@@ -29,7 +29,6 @@
 
 package org.n52.series.srv;
 
-import org.n52.io.DatasetFactoryException;
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -39,13 +38,15 @@ import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
-import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
-import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -53,22 +54,24 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class DatasetAccessService extends AccessService<DatasetOutput>
-        implements DataService<Data<AbstractValue< ? >>> {
+public class DatasetAccessService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
+        implements DataService<Data<V>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
     @Autowired
-    private IDataRepositoryFactory dataFactory;
+    private DataRepositoryTypeFactory dataFactory;
 
-    public DatasetAccessService(DatasetRepository<Data< ? >> repository) {
+    public DatasetAccessService(DatasetRepository<V> repository) {
         super(repository);
     }
 
     @Override
-    public DataCollection<Data<AbstractValue< ? >>> getData(IoParameters parameters) {
+    public DataCollection<Data<V>> getData(IoParameters parameters) {
         try {
-            TvpDataCollection<Data<AbstractValue< ? >>> dataCollection = new TvpDataCollection<>();
+            TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
             for (String seriesId : parameters.getDatasets()) {
-                Data<AbstractValue< ? >> data = getDataFor(seriesId, parameters);
+                Data<V> data = getDataFor(seriesId, parameters);
                 if (data != null) {
                     dataCollection.addNewSeries(seriesId, data);
                 }
@@ -79,24 +82,18 @@ public class DatasetAccessService extends AccessService<DatasetOutput>
         }
     }
 
-    private Data<AbstractValue< ? >> getDataFor(String datasetId, IoParameters parameters)
+    private Data<V> getDataFor(String datasetId, IoParameters parameters)
             throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
         String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-        DataRepository dataRepository = createRepository(valueType);
-        return dataRepository.getData(datasetId, dbQuery);
-    }
-
-    private DataRepository createRepository(String valueType) throws DataAccessException {
-        if (!("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
-            throw new ResourceNotFoundException("unknown type: " + valueType);
+        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+            LOGGER.debug("unknown type: " + valueType);
+            return new Data<>();
         }
-        try {
-            return dataFactory.create(valueType);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        Class<? extends DatasetEntity> entityType = dataFactory.getDatasetEntityType(valueType);
+        DataRepository<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create(valueType, entityType);
+        return assembler.getData(datasetId, dbQuery);
     }
 
 }

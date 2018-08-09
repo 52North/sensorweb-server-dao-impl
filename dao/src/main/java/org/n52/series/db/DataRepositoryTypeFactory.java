@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,34 +27,28 @@
  * for more details.
  */
 
-package org.n52.series.db.da;
+package org.n52.series.db;
 
-import java.io.File;
+import java.util.Set;
 
-import org.n52.io.handler.ConfigTypedFactory;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.da.DataRepository;
 
-public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ?, ? >>
-        implements IDataRepositoryFactory {
+public interface DataRepositoryTypeFactory {
 
-    private static final String DEFAULT_CONFIG_FILE = "dataset-repository-factory.properties";
+    boolean isKnown(String valueType);
 
-    public DefaultDataRepositoryFactory() {
-        super(DEFAULT_CONFIG_FILE);
-    }
+    Set<String> getKnownTypes();
 
-    public DefaultDataRepositoryFactory(File configFile) {
-        super(configFile);
-    }
+    <S extends DatasetEntity,
+     E extends DataEntity<T>,
+     V extends AbstractValue< ? >,
+     T> DataRepository<S, E, V, T> create(String valueType, Class<S> entityType);
 
-    @Override
-    protected String getFallbackConfigResource() {
-        return DEFAULT_CONFIG_FILE;
-    }
+    Class< ? extends DatasetEntity> getDatasetEntityType(String valueType);
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected Class<DataRepository> getTargetType() {
-        return DataRepository.class;
-    }
+    boolean hasCacheEntry(String valueType);
 
 }

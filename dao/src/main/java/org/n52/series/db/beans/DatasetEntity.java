@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataModelUtil;
 
-public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity {
+public class DatasetEntity extends DescribableEntity {
 
     public static final String ENTITY_ALIAS = "dataset";
     public static final String PROPERTY_PROCEDURE = "procedure";
@@ -72,17 +72,17 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     private Boolean deleted = Boolean.FALSE;
 
-    private List<T> observations;
+    private List<DataEntity< ? >> observations;
 
     private String valueType;
 
     private Set<Date> resultTimes;
 
     @Deprecated
-    private T firstValue;
+    private DataEntity< ? > firstValue;
 
     @Deprecated
-    private T lastValue;
+    private DataEntity< ? > lastValue;
 
     private Date firstValueAt;
 
@@ -149,11 +149,11 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
         this.platform = platform;
     }
 
-    public List<T> getObservations() {
+    public List<DataEntity< ? >> getObservations() {
         return observations;
     }
 
-    public void setObservations(List<T> observations) {
+    public void setObservations(List<DataEntity< ? >> observations) {
         this.observations = observations;
     }
 
@@ -178,7 +178,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
      * @deprecated since 2.0.0, use {@link #getFirstValueAt()}
      */
     @Deprecated
-    public T getFirstValue() {
+    public DataEntity< ? > getFirstValue() {
         return firstValue;
     }
 
@@ -188,7 +188,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
      * @deprecated since 2.0.0, use {@link #setFirstValueAt(Date)}
      */
     @Deprecated
-    public void setFirstValue(T firstValue) {
+    public void setFirstValue(DataEntity< ? > firstValue) {
         this.firstValue = firstValue;
     }
 
@@ -197,7 +197,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
      * @deprecated since 2.0.0, use {@link #getLastValueAt()}
      */
     @Deprecated
-    public T getLastValue() {
+    public DataEntity< ? > getLastValue() {
         return lastValue;
     }
 
@@ -207,7 +207,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
      * @deprecated since 2.0.0, use {@link #setLastValueAt(Date)}
      */
     @Deprecated
-    public void setLastValue(T lastValue) {
+    public void setLastValue(DataEntity< ? > lastValue) {
         this.lastValue = lastValue;
     }
 
@@ -228,7 +228,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     }
 
     public String getValueType() {
-        return valueType == null || valueType.isEmpty()
+        return (valueType == null) || valueType.isEmpty()
                 // backward compatible
                 ? QuantityValue.TYPE
                 : valueType;
@@ -292,10 +292,6 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     public long getObservationCount() {
         return observationCount;
-    }
-
-    public <D extends DatasetEntity<T>> List<D> getReferenceValues() {
-        return null;
     }
 
     @Override

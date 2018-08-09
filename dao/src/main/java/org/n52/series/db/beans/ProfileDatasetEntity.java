@@ -28,7 +28,7 @@
  */
 package org.n52.series.db.beans;
 
-public class ProfileDatasetEntity extends DatasetEntity<ProfileDataEntity> {
+public class ProfileDatasetEntity extends DatasetEntity {
 
     private String verticalParameterName;
     private String verticalFromParameterName;

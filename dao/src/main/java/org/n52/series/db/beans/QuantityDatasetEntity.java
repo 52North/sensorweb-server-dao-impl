@@ -29,14 +29,13 @@
 
 package org.n52.series.db.beans;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.n52.io.response.dataset.quantity.QuantityValue;
 
-public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
+public class QuantityDatasetEntity extends DatasetEntity {
 
     private int numberOfDecimals;
 
@@ -46,7 +45,6 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         super(QuantityValue.TYPE);
     }
 
-    @Override
     public List<QuantityDatasetEntity> getReferenceValues() {
         return referenceValues;
     }
@@ -64,12 +62,12 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
     }
 
     @Override
-    public QuantityDataEntity getFirstValue() {
-        final QuantityDataEntity firstValue = super.getFirstValue();
+    public DataEntity< ? > getFirstValue() {
+        final DataEntity< ? > firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
-            BigDecimal value = firstValue.getValue();
-            if (when == null || value == null) {
+            Object value = firstValue.getValue();
+            if ((when == null) || (value == null)) {
                 // empty component
                 return null;
             }
@@ -78,12 +76,12 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
     }
 
     @Override
-    public QuantityDataEntity getLastValue() {
-        final QuantityDataEntity lastValue = super.getLastValue();
+    public DataEntity< ? > getLastValue() {
+        final DataEntity< ? > lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
-            BigDecimal value = lastValue.getValue();
-            if (when == null || value == null) {
+            Object value = lastValue.getValue();
+            if ((when == null) || (value == null)) {
                 // empty component
                 return null;
             }

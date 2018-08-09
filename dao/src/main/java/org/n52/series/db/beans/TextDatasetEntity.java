@@ -31,7 +31,7 @@ package org.n52.series.db.beans;
 
 import org.n52.io.response.dataset.text.TextValue;
 
-public class TextDatasetEntity extends DatasetEntity<TextDataEntity> {
+public class TextDatasetEntity extends DatasetEntity {
 
     public TextDatasetEntity() {
         super(TextValue.TYPE);

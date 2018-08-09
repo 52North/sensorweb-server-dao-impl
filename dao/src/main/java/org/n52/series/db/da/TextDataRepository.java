@@ -36,36 +36,31 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue> {
+@DataRepositoryComponent(value = "text", datasetEntityType = TextDatasetEntity.class)
+public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue, String> {
 
     @Override
-    public Class<TextDatasetEntity> getDatasetEntityType() {
-        return TextDatasetEntity.class;
-    }
-
-    @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)  {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
     @Override
-    public TextValue createSeriesValueFor(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
+    public TextValue assembleDataValue(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()

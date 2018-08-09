@@ -198,14 +198,14 @@ public class StationRepository extends SessionAwareRepository
 
         String id = Long.toString(entity.getPkid());
         String label = entity.getLabelFrom(query.getLocale());
-        Geometry geometry = createPoint(entity, query);
+        Geometry geometry = getGeometry(entity, query);
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
         return result;
     }
 
-    private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
+    private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
         return featureEntity.isSetGeometry()
                 ? getGeometry(featureEntity.getGeometryEntity(), query)
                 : null;

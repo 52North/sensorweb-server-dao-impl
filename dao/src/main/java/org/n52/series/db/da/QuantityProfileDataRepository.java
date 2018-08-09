@@ -36,14 +36,16 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, QuantityProfileDatasetEntity> {
+@DataRepositoryComponent(value = "quantity-profile", datasetEntityType = QuantityProfileDatasetEntity.class)
+public class QuantityProfileDataRepository extends
+        ProfileDataRepository<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -51,15 +53,10 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
         this.quantityRepository = new QuantityDataRepository();
     }
 
-  @Override
-  public Class<QuantityProfileDatasetEntity> getDatasetEntityType() {
-      return QuantityProfileDatasetEntity.class;
-  }
-
     @Override
-    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
-                                               DbQuery query) {
+    public ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
+                                                         QuantityProfileDatasetEntity dataset,
+                                                         DbQuery query) {
         ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
