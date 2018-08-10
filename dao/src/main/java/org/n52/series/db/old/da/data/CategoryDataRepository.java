@@ -60,7 +60,7 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;

@@ -155,7 +155,7 @@ public class QuantityDataRepository extends
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (QuantityDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;

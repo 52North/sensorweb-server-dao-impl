@@ -57,7 +57,7 @@ public class BooleanDataRepository extends AbstractDataRepository<BooleanDataset
         List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (BooleanDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;

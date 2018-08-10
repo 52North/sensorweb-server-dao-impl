@@ -58,7 +58,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;

@@ -58,7 +58,7 @@ public class CountDataRepository
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
