@@ -83,6 +83,10 @@ public class QuantityDataRepository extends
         Data<QuantityValue> result = assembleData(dataset, query, session);
         DatasetMetadata<Data<QuantityValue>> metadata = result.getMetadata();
 
+        QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
+        QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
+        metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
+        metadata.setValueAfterTimespan(createValue(nextValue, dataset, query));
 
         List<QuantityDatasetEntity> referenceValues = dataset.getReferenceValues();
         if ((referenceValues != null) && !referenceValues.isEmpty()) {

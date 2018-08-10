@@ -126,6 +126,26 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria.list();
     }
 
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_TIMESTART;
+        final Order order = Order.desc(column);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_TIMEEND;
+        final Order order = Order.asc(column);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
+    }
+
     @Override
     protected Class<T> getEntityClass() {
         return entityType;
@@ -186,7 +206,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                           final DatasetEntity dataset,
                                           final DbQuery query) {
         LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getPkid());
-
         return createDataCriteria(column, dataset, query).add(Restrictions.eq(column, timestamp));
     }
 

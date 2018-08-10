@@ -132,5 +132,25 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
     GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query);
 
     /**
+     * Finds the closest value before a given timespan.
+     *
+     * @param dataset
+     *        the dataset
+     * @param query
+     *        the query containing the timespan
+     * @return the closest value before a given timespan
+     */
+    E getClosestValueBeforeStart(S dataset, DbQuery query);
+
+    /**
+     * Finds the closest value after a given timespan.
+     *
+     * @param dataset
+     *        the dataset
+     * @param query
+     *        the query containing the timespan
+     * @return the closest value after a given timespan
+     */
+    E getClosestValueAfterEnd(S dataset, DbQuery query);
 
 }

@@ -184,4 +184,30 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     }
 
     @Override
+    public E getClosestValueBeforeStart(S dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
+
+            final DateTime lowerBound = timespan.getStart();
+            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+        } finally {
+            returnSession(session);
+        }
+    }
+
+    @Override
+    public E getClosestValueAfterEnd(S dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
+
+            final DateTime upperBound = timespan.getEnd();
+            return dao.getClosestOuterNextValue(dataset, upperBound, query);
+        } finally {
+            returnSession(session);
+        }
+    }
 }
