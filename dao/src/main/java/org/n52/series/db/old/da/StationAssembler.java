@@ -87,9 +87,8 @@ public class StationAssembler extends SessionAwareAssembler
         Session session = getSession();
         try {
             FeatureDao stationDao = createDao(session);
-            DbQuery pointOnlyQuery = addPointLocationOnlyRestriction(query);
-            List<FeatureEntity> found = stationDao.find(pointOnlyQuery);
-            return convertToSearchResults(found, pointOnlyQuery);
+            List<FeatureEntity> found = stationDao.find(query);
+            return convertToSearchResults(found, query);
         } finally {
             returnSession(session);
         }
@@ -145,9 +144,9 @@ public class StationAssembler extends SessionAwareAssembler
         return results;
     }
 
-    private List<FeatureEntity> getAllInstances(DbQuery parameters, Session session) {
+    private List<FeatureEntity> getAllInstances(DbQuery query, Session session) {
         FeatureDao featureDao = createDao(session);
-        return featureDao.getAllInstances(addPointLocationOnlyRestriction(parameters));
+        return featureDao.getAllInstances(query);
     }
 
     @Override
@@ -169,8 +168,7 @@ public class StationAssembler extends SessionAwareAssembler
         return createExpanded(result, parameters, session);
     }
 
-    private FeatureEntity getFeatureEntity(String id, DbQuery parameters, Session session) {
-        DbQuery query = addPointLocationOnlyRestriction(parameters);
+    private FeatureEntity getFeatureEntity(String id, DbQuery query, Session session) {
         return createDao(session).getInstance(parseId(id), query);
     }
 
@@ -197,22 +195,17 @@ public class StationAssembler extends SessionAwareAssembler
 
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
-        Geometry geometry = createPoint(entity, query);
+        Geometry geometry = getGeometry(entity, query);
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
         return result;
     }
 
-    private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
+    private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
         return featureEntity.isSetGeometry()
                 ? getGeometry(featureEntity.getGeometryEntity(), query)
                 : null;
-    }
-
-    private DbQuery addPointLocationOnlyRestriction(DbQuery query) {
-        return dbQueryFactory.createFrom(query.getParameters()
-                                              .extendWith("geometryTypes", "Point"));
     }
 
 }
