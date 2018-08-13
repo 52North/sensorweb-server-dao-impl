@@ -29,7 +29,7 @@
 
 package org.n52.series.db;
 
-public class DataAccessException extends Exception {
+public class DataAccessException extends RuntimeException {
 
     private static final long serialVersionUID = 4112723724626544387L;
 

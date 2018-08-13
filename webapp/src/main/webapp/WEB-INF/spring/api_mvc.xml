@@ -20,7 +20,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.SearchController">
-        <property name="searchService" ref="searchService" />
+        <constructor-arg index="0" ref="searchService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
@@ -32,55 +32,62 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController">
-        <property name="parameterService">
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="offeringParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
-        <property name="parameterService">
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="serviceParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
-        <property name="parameterService">
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="categoryParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
-        <property name="parameterService">
+         <constructor-arg index="0" ref="metadataService" />
+         <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="featureParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
-        <property name="parameterService">
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="procedureParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
-        <property name="parameterService">
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="phenomenonParameterService" />
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
-        <property name="parameterService" ref="platformParameterService" />
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1" ref="platformParameterService" />
         <property name="metadataExtensions">
             <list merge="true">
                 <bean class="org.n52.io.extension.parents.HierarchicalParameterExtension">
@@ -91,11 +98,13 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
-        <property name="parameterService" ref="geometriesService" />
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1" ref="geometriesService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
-        <property name="parameterService" ref="datasetService" />
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1" ref="datasetService" />
         <property name="metadataExtensions">
             <list merge="true">
 
@@ -103,9 +112,9 @@
                     refactor out rendering_hints && status_intervals and autowire them
                     in TimeseriesMetadataController to set them in case of
                     rendering_hints=true or status_intervals=true
-                <bean class="org.n52.io.extension.RenderingHintsExtension" />
-                <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-                 -->
+                    <bean class="org.n52.io.extension.RenderingHintsExtension" />
+                    <bean class="org.n52.io.extension.StatusIntervalsExtension" />
+                -->
                 <ref bean="renderingHintsExtension" />
                 <ref bean="statusIntervalsExtension" />
                 <bean class="org.n52.io.extension.resulttime.ResultTimeExtension">
@@ -119,8 +128,9 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.DataController">
-        <property name="dataService" ref="datasetService" />
-        <property name="datasetService" ref="datasetService" />
+        <constructor-arg index="0" ref="ioFactory" />
+        <constructor-arg index="1" ref="datasetService" />
+        <constructor-arg index="2" ref="datasetService" />
         <property name="preRenderingTask" ref="preRenderingJob" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction}" />
     </bean>
@@ -133,11 +143,13 @@
     <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
     <bean class="org.n52.web.ctrl.StationsParameterController">
-        <property name="parameterService" ref="stationParameterService" />
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1" ref="stationParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.TimeseriesMetadataController" parent="parameterController">
-        <property name="parameterService" ref="timeseriesService" />
+        <constructor-arg index="0" ref="metadataService" />
+        <constructor-arg index="1" ref="timeseriesService" />
         <property name="metadataExtensions">
             <list merge="true">
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
@@ -150,8 +162,8 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.TimeseriesDataController">
-        <property name="timeseriesMetadataService" ref="timeseriesService" />
-        <property name="timeseriesDataService" ref="timeseriesService" />
+        <constructor-arg index="0" ref="timeseriesService" />
+        <constructor-arg index="1" ref="timeseriesService" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction}" />
         <!-- reference task here so that controller is able to serve prerendered charts -->
         <property name="preRenderingTask" ref="preRenderingJob" />

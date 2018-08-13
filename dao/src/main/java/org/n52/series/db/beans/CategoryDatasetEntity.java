@@ -31,7 +31,7 @@ package org.n52.series.db.beans;
 
 import org.n52.io.response.dataset.category.CategoryValue;
 
-public class CategoryDatasetEntity extends DatasetEntity<CategoryDataEntity> {
+public class CategoryDatasetEntity extends DatasetEntity {
 
     public CategoryDatasetEntity() {
         super(CategoryValue.TYPE);

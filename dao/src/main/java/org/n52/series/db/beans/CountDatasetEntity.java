@@ -31,7 +31,7 @@ package org.n52.series.db.beans;
 
 import org.n52.io.response.dataset.count.CountValue;
 
-public class CountDatasetEntity extends DatasetEntity<CountDataEntity> {
+public class CountDatasetEntity extends DatasetEntity {
 
     public CountDatasetEntity() {
         super(CountValue.TYPE);

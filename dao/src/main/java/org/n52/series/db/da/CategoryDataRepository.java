@@ -36,37 +36,32 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
+@DataRepositoryComponent(value = "category", datasetEntityType = CategoryDatasetEntity.class)
 public class CategoryDataRepository
-        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue> {
+        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue, String> {
 
     @Override
-    public Class<CategoryDatasetEntity> getDatasetEntityType() {
-        return CategoryDatasetEntity.class;
-    }
-
-    @Override
-    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
     @Override
-    public CategoryValue createSeriesValueFor(CategoryDataEntity observation,
+    public CategoryValue assembleDataValue(CategoryDataEntity observation,
                                               CategoryDatasetEntity series,
                                               DbQuery query) {
         ServiceEntity service = getServiceEntity(series);

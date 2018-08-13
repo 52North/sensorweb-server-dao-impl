@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,15 +27,27 @@
  * for more details.
  */
 
-package org.n52.series.db.da;
+package org.n52.series.db;
 
-import org.n52.io.DatasetFactoryException;
+import java.util.Set;
 
-public interface IDataRepositoryFactory {
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.da.DataRepository;
+
+public interface DataRepositoryTypeFactory {
 
     boolean isKnown(String valueType);
 
-    DataRepository create(String valueType) throws DatasetFactoryException;
+    Set<String> getKnownTypes();
+
+    <S extends DatasetEntity,
+     E extends DataEntity<T>,
+     V extends AbstractValue< ? >,
+     T> DataRepository<S, E, V, T> create(String valueType, Class<S> entityType);
+
+    Class< ? extends DatasetEntity> getDatasetEntityType(String valueType);
 
     boolean hasCacheEntry(String valueType);
 

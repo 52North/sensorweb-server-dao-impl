@@ -29,7 +29,7 @@
 
 package org.n52.series.db.beans;
 
-public class RecordDatasetEntity extends DatasetEntity<RecordDataEntity> {
+public class RecordDatasetEntity extends DatasetEntity {
 
     public RecordDatasetEntity() {
         super();

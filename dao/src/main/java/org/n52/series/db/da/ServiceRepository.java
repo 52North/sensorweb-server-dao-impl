@@ -38,9 +38,11 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
-import org.n52.io.DefaultIoFactory;
-import org.n52.io.IoFactory;
+import org.n52.io.handler.DefaultIoFactory;
+import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
+import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
@@ -82,11 +84,6 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getServicesHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected ServiceDao createDao(Session session) {
         return new ServiceDao(session);
     }
@@ -110,7 +107,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return serviceEntity != null
+        return (serviceEntity != null)
                 && serviceEntity.getPkid()
                                 .equals(id);
     }
@@ -182,10 +179,10 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                     ? entity.getVersion()
                     : "2.0";
 
-            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
+            String hrefBase = query.getHrefBase();
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         }
         return result;
     }
@@ -200,7 +197,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoHandlerFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
@@ -213,7 +210,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         try {
             IoParameters parameters = query.getParameters();
             ParameterCount quantities = new ServiceOutput.ParameterCount();
-            DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
+            DbQuery serviceQuery = getDbQuery(parameters.extendWith(Parameters.SERVICES, service.getId())
                                                         .removeAllOf("offset")
                                                         .removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));

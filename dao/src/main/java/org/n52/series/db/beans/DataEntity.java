@@ -175,7 +175,7 @@ public abstract class DataEntity<T> {
     }
 
     public boolean isSetGeometry() {
-        return geometryEntity != null && !geometryEntity.isEmpty();
+        return (geometryEntity != null) && !geometryEntity.isEmpty();
     }
 
     public boolean getDeleted() {
@@ -255,7 +255,7 @@ public abstract class DataEntity<T> {
     }
 
     public boolean hasParameters() {
-        return getParameters() != null && !getParameters().isEmpty();
+        return (getParameters() != null) && !getParameters().isEmpty();
     }
 
     @Override

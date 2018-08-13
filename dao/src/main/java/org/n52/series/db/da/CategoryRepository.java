@@ -30,6 +30,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
@@ -53,11 +54,6 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getCategoriesHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected AbstractDao<CategoryEntity> createDao(Session session) {
         return new CategoryDao(session);
     }
@@ -73,7 +69,7 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

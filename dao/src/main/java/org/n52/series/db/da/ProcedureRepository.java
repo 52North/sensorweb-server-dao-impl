@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -57,11 +58,6 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     }
 
     @Override
-    protected String createHref(String hrefBase) {
-        return urlHelper.getProceduresHrefBaseUrl(hrefBase);
-    }
-
-    @Override
     protected ProcedureDao createDao(Session session) {
         return new ProcedureDao(session);
     }
@@ -77,7 +73,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(ProcedureOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         result.setParents(createCondensed(entity.getParents(), query, session));
         result.setChildren(createCondensed(entity.getChildren(), query, session));
         return result;
