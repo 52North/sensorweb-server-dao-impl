@@ -81,7 +81,7 @@ public class QuantityDataRepository extends
                                                        Session session)
             throws DataAccessException {
         Data<QuantityValue> result = assembleData(dataset, query, session);
-        DatasetMetadata<Data<QuantityValue>> metadata = result.getMetadata();
+        DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
         QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
         QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
