@@ -38,6 +38,7 @@ import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
@@ -53,7 +54,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getPhenomenaHrefBaseUrl(hrefBase);
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PHENOMENA).toString();
     }
 
     @Override

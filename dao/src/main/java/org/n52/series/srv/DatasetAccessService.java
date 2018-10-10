@@ -29,6 +29,7 @@
 package org.n52.series.srv;
 
 import org.n52.io.DatasetFactoryException;
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -36,7 +37,6 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ValueType;
-import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
@@ -52,13 +52,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class DatasetAccessService extends AccessService<DatasetOutput>
-        implements DataService<Data<AbstractValue< ? >>> {
+public class DatasetAccessService extends AccessService<DatasetOutput<AbstractValue<?>>>
+        implements DataService<Data<AbstractValue<?>>> {
 
     @Autowired
     private IDataRepositoryFactory dataFactory;
 
-    public DatasetAccessService(DatasetRepository<Data< ? >> repository) {
+    public DatasetAccessService(DatasetRepository<Data<AbstractValue<?>>> repository) {
         super(repository);
     }
 

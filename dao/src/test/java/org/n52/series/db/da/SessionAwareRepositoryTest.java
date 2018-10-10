@@ -35,6 +35,7 @@ import org.n52.io.response.PlatformType;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 
 public class SessionAwareRepositoryTest {
 
@@ -71,7 +72,7 @@ public class SessionAwareRepositoryTest {
         FeatureEntity feature = new FeatureEntity();
         feature.setId(id);
 
-        DatasetEntity dataset = new DatasetEntity();
+        DatasetEntity dataset = new QuantityDatasetEntity();
         dataset.setProcedure(procedure);
         dataset.setFeature(feature);
 

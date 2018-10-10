@@ -84,9 +84,34 @@ public class QuantityDataRepository extends
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
         List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<Data<QuantityValue>> metadata = new DatasetMetadata<>();
+            DatasetMetadata<QuantityValue> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
+            result = assembleData(timeseries, dbQuery, metadata, session);
+        }
+        return result;
+    }
+
+    @Override
+    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session)
+            throws DataAccessException {
+        Data<QuantityValue> result = new Data<>();
+        return assembleData(result, seriesEntity, query, session);
+    }
+
+    private Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query,
+            DatasetMetadata<QuantityValue> metadata, Session session) throws DataAccessException {
+        Data<QuantityValue> result = new Data<>(metadata);
+        return assembleData(result, seriesEntity, query, session);
+    }
+
+    private Data<QuantityValue> assembleData(Data<QuantityValue> result, QuantityDatasetEntity seriesEntity,
+            DbQuery query, Session session) throws DataAccessException {
+        DataDao<QuantityDataEntity> dao = createDataDao(session);
+        List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (QuantityDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
+            }
         }
         return result;
     }
@@ -140,20 +165,6 @@ public class QuantityDataRepository extends
         if (hasSingleValidReferenceValue(observations)) {
             QuantityDataEntity entity = observations.get(0);
             result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
-    }
-
-    @Override
-    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        Data<QuantityValue> result = new Data<>();
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (QuantityDataEntity observation : observations) {
-            if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
-            }
         }
         return result;
     }

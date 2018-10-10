@@ -88,7 +88,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
         for (ProfileDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, datasetEntity, query));
+                result.addNewValue(createSeriesValueFor(observation, datasetEntity, query));
             }
         }
         return result;

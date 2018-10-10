@@ -59,7 +59,7 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
-import org.n52.web.ctrl.UrlHelper;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -71,8 +71,6 @@ import com.vividsolutions.jts.geom.Geometry;
 public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
-
-    protected UrlHelper urlHelper = new UrlHelper();
 
     // via xml or db
     @Autowired(required = false)
@@ -208,7 +206,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new PhenomenonOutput(),
                                entity,
                                parameters,
-                               urlHelper.getPhenomenaHrefBaseUrl(parameters.getHrefBase()));
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_PHENOMENA));
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -224,8 +222,7 @@ public abstract class SessionAwareRepository {
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
         return createCondensed(new OfferingOutput(),
                                entity,
-                               parameters,
-                               urlHelper.getOfferingsHrefBaseUrl(parameters.getHrefBase()));
+                               parameters);
     }
 
     public void setServiceEntity(ServiceEntity serviceEntity) {
@@ -244,7 +241,7 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        final String hrefBase = urlHelper.getServicesHrefBaseUrl(parameters.getHrefBase());
+        final String hrefBase = createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_SERVICES);
         return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
@@ -276,7 +273,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new ProcedureOutput(),
                                entity,
                                parameters,
-                               urlHelper.getProceduresHrefBaseUrl(parameters.getHrefBase()));
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_PROCEDURES));
     }
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
@@ -287,7 +284,7 @@ public abstract class SessionAwareRepository {
         return createCondensed(new FeatureOutput(),
                                entity,
                                parameters,
-                               urlHelper.getFeaturesHrefBaseUrl(parameters.getHrefBase()));
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_FEATURES));
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
@@ -298,13 +295,17 @@ public abstract class SessionAwareRepository {
         return createCondensed(new CategoryOutput(),
                                entity,
                                parameters,
-                               urlHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_CATEGORIES));
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
         if (serviceEntity == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
+    }
+
+    protected String createHref(String hrefBase, String collection) {
+        return new StringBuilder(hrefBase).append("/").append(collection).toString();
     }
 
 }

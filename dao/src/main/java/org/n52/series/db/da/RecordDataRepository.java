@@ -58,7 +58,7 @@ public class RecordDataRepository
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
             }
         }
         return result;

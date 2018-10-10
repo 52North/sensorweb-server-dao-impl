@@ -42,6 +42,7 @@ import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
@@ -57,6 +58,7 @@ import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +76,11 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformRepository.class);
 
     private static final String FILTER_STATIONARY = "stationary";
+
     private static final String FILTER_MOBILE = "mobile";
+
     private static final String FILTER_INSITU = "insitu";
+
     private static final String FILTER_REMOTE = "remote";
 
     @Autowired
@@ -96,7 +101,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getPlatformsHrefBaseUrl(hrefBase);
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PLATFORMS).toString();
     }
 
     @Override
@@ -133,9 +138,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         Session session = getSession();
         try {
             Long parsedId = parseId(PlatformType.extractId(id));
-            AbstractDao< ? extends DescribableEntity> dao = PlatformType.isStationaryId(id)
-                    ? createFeatureDao(session)
-                    : createPlatformDao(session);
+            AbstractDao<? extends DescribableEntity> dao =
+                    PlatformType.isStationaryId(id) ? createFeatureDao(session) : createPlatformDao(session);
             return dao.hasInstance(parsedId, query);
         } finally {
             returnSession(session);
@@ -170,19 +174,14 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
-        DbQuery platformQuery = getDbQuery(query.getParameters()
-                                                .extendWith(Parameters.PLATFORMS, result.getId())
-                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
-                                                .removeAllOf(Parameters.FILTER_FIELDS));
-        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
-                                                       .removeAllOf(Parameters.BBOX)
-                                                       .removeAllOf(Parameters.NEAR)
-                                                       .removeAllOf(Parameters.ODATA_FILTER)
-                                                       .removeAllOf(Parameters.FILTER_FIELDS));
+        DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS, result.getId())
+                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES).removeAllOf(Parameters.FILTER_FIELDS));
+        DbQuery datasetQuery =
+                getDbQuery(platformQuery.getParameters().removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR)
+                        .removeAllOf(Parameters.ODATA_FILTER).removeAllOf(Parameters.FILTER_FIELDS));
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        Geometry geometry = entity.getGeometry() == null
-                ? getLastSamplingGeometry(datasets, platformQuery, session)
+        List<DatasetOutput<AbstractValue<?>>> datasets = seriesRepository.getAllCondensed(datasetQuery);
+        Geometry geometry = entity.getGeometry() == null ? getLastSamplingGeometry(datasets, platformQuery, session)
                 : entity.getGeometry();
 
         if (!matchesSpatialFilter(geometry, query)) {
@@ -196,8 +195,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return result;
     }
 
-    private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
-            throws DataAccessException {
+    private Geometry getLastSamplingGeometry(List<DatasetOutput<AbstractValue<?>>> datasets, DbQuery query,
+            Session session) throws DataAccessException {
         // XXX fix generics and inheritance of Data, AbstractValue, etc.
         // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
         DatasetEntity lastDataset = getLastDataset(datasets, query, session);
@@ -205,30 +204,26 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
 
-            return isValidGeometry(lastKnownGeometry)
-                    ? lastKnownGeometry.getGeometry()
-                    : null;
+            return isValidGeometry(lastKnownGeometry) ? lastKnownGeometry.getGeometry() : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
-                         lastDataset.getId());
+                    lastDataset.getId());
         }
         return null;
     }
 
-    private DatasetEntity getLastDataset(List<DatasetOutput> datasets, DbQuery query, Session session)
-            throws DataAccessException {
+    private DatasetEntity getLastDataset(List<DatasetOutput<AbstractValue<?>>> datasets, DbQuery query,
+            Session session) throws DataAccessException {
         DatasetEntity currentLastDataset = null;
-        for (DatasetOutput dataset : datasets) {
+        for (DatasetOutput<AbstractValue<?>> dataset : datasets) {
             String id = dataset.getId();
-            DbQuery datasetQuery = getDbQuery(query.getParameters()
-                                                   .removeAllOf(Parameters.BBOX)
-                                                   .removeAllOf(Parameters.NEAR));
+            DbQuery datasetQuery =
+                    getDbQuery(query.getParameters().removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR));
             DatasetEntity entity = seriesRepository.getInstanceEntity(id, datasetQuery, session);
             if (currentLastDataset == null) {
                 currentLastDataset = entity;
             } else {
-                if (currentLastDataset.getLastValueAt()
-                                      .after(entity.getLastValueAt())) {
+                if (currentLastDataset.getLastValueAt().after(entity.getLastValueAt())) {
                     currentLastDataset = entity;
                 }
             }
@@ -241,24 +236,22 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     /**
-     * Checks if the given <code>geometry</code> matches a spatial filter, optionally given
-     * by the passed <code>query</code>. If the filter is omitted, no filter is assumed at all
-     * and <code>true</code> is returned.
+     * Checks if the given <code>geometry</code> matches a spatial filter,
+     * optionally given by the passed <code>query</code>. If the filter is
+     * omitted, no filter is assumed at all and <code>true</code> is returned.
      *
      * @param geometry
-     *        the geometry to check
+     *            the geometry to check
      * @param query
-     *        the query, possibly containing a spatial filter
-     * @return <code>true</code> if spatial filter matches, <code>false</code> otherwise or when
-     *         <code>geometry</code> is <code>null</code>.
+     *            the query, possibly containing a spatial filter
+     * @return <code>true</code> if spatial filter matches, <code>false</code>
+     *         otherwise or when <code>geometry</code> is <code>null</code>.
      */
     private boolean matchesSpatialFilter(Geometry geometry, DbQuery query) {
         Geometry filter = query.getSpatialFilter();
         if (filter != null) {
             Geometry envelope = filter.getEnvelope();
-            return envelope == null
-                    || geometry != null
-                    && envelope.contains(geometry);
+            return envelope == null || geometry != null && envelope.contains(geometry);
         }
         return true;
     }
@@ -270,9 +263,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         if (feature == null) {
             throwNewResourceNotFoundException("Station", id);
         }
-        return PlatformType.isInsitu(id)
-                ? convertInsitu(feature, query)
-                : convertRemote(feature, query);
+        return PlatformType.isInsitu(id) ? convertInsitu(feature, query) : convertRemote(feature, query);
     }
 
     private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) throws DataAccessException {
@@ -347,20 +338,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private DbQuery createPlatformFilter(DbQuery parameters, String... filterValues) {
-        return getDbQuery(parameters.getParameters()
-                                    .replaceWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
+        return getDbQuery(parameters.getParameters().replaceWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
     }
 
     private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream()
-                       .map(x -> convertInsitu(x, query))
-                       .collect(toList());
+        return entities.stream().map(x -> convertInsitu(x, query)).collect(toList());
     }
 
     private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream()
-                       .map(x -> convertRemote(x, query))
-                       .collect(toList());
+        return entities.stream().map(x -> convertRemote(x, query)).collect(toList());
     }
 
     private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {

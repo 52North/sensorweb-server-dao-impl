@@ -54,7 +54,7 @@
         <version.geolatte>1.3.0</version.geolatte>
         <version.series-api>2.0.0-SNAPSHOT</version.series-api>
         <version.series-hibernate>1-SNAPSHOT</version.series-hibernate>
-        <version.arctic-sea>3.1.0</version.arctic-sea>
+        <version.arctic-sea>5.0.0</version.arctic-sea>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -437,6 +437,12 @@
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-all</artifactId>
+                <version>${version.hamcrest}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
                 <version>${version.hamcrest}</version>
                 <scope>test</scope>
             </dependency>

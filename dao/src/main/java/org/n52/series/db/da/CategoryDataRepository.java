@@ -58,7 +58,7 @@ public class CategoryDataRepository
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
             }
         }
         return result;

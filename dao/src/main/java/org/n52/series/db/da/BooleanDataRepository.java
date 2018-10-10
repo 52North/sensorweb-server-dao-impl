@@ -56,7 +56,7 @@ public class BooleanDataRepository
         List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (BooleanDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
             }
         }
         return result;
