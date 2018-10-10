@@ -32,6 +32,7 @@ package org.n52.series.db.da;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +41,10 @@ import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
+import org.n52.io.response.OptionalOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.PlatformType;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
@@ -58,6 +61,7 @@ import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +101,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getPlatformsHrefBaseUrl(hrefBase);
+        return hrefBase + "/" + UrlSettings.COLLECTION_PLATFORMS;
     }
 
     @Override

@@ -38,6 +38,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
 
@@ -53,7 +54,7 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getCategoriesHrefBaseUrl(hrefBase);
+        return hrefBase + "/" + UrlSettings.COLLECTION_CATEGORIES;
     }
 
     @Override

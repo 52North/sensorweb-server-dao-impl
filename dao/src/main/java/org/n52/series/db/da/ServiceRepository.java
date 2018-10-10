@@ -37,8 +37,8 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.DatasetFactoryException;
-import org.n52.io.DefaultIoFactory;
-import org.n52.io.IoFactory;
+import org.n52.io.handler.DefaultIoFactory;
+import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
@@ -52,6 +52,7 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getServicesHrefBaseUrl(hrefBase);
+        return hrefBase + "/" + UrlSettings.COLLECTION_SERVICES;
     }
 
     @Override
@@ -181,7 +182,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                     ? entity.getVersion()
                     : "2.0";
 
-            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
+            String hrefBase = createHref(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
             result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
@@ -199,7 +200,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoHandlerFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);

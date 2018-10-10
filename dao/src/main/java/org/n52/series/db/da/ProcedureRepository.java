@@ -42,6 +42,7 @@ import org.n52.series.db.dao.ProcedureDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
@@ -57,7 +58,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     @Override
     protected String createHref(String hrefBase) {
-        return urlHelper.getProceduresHrefBaseUrl(hrefBase);
+        return hrefBase + "/" + UrlSettings.COLLECTION_PROCEDURES;
     }
 
     @Override

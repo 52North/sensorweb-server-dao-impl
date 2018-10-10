@@ -54,6 +54,7 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -257,9 +258,14 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
+
+    protected String createHref(String hrefBase) {
+        return hrefBase + "/" + UrlSettings.COLLECTION_DATASETS;
+    }
+
     public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
+        String hrefBase = createHref(query.getHrefBase());
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String id = searchResult.getId()
@@ -282,7 +288,7 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         String domainId = dataset.getIdentifier();
         String uom = dataset.getUnitI18nName(query.getLocale());
         String label = createDatasetLabel(dataset, query.getLocale());
-        String hrefBase = urlHelper.getDatasetsHrefBaseUrl(query.getHrefBase());
+        String hrefBase = createHref(query.getHrefBase());
         String platformtype = getCondensedPlatform(dataset, query.withoutFieldsFilter(), session).getPlatformType();
 
         result.setId(id.toString());

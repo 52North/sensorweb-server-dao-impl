@@ -84,14 +84,22 @@ public class QuantityDataRepository extends
                                                                   DbQuery dbQuery,
                                                                   Session session)
             throws DataAccessException {
-        Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
+        Data<QuantityValue> result;
         List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
             DatasetMetadata<Data<QuantityValue>> metadata = new DatasetMetadata<>();
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
+            result = assembleData(timeseries, dbQuery, metadata, session);
+        } else {
+            result = assembleData(timeseries, dbQuery, session);
         }
         return result;
+    }
+
+    private Data<QuantityValue> assembleData(QuantityDataset timeseries, DbQuery dbQuery,
+            DatasetMetadata<Data<QuantityValue>> metadata, Session session) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private Map<String, Data<QuantityValue>> assembleReferenceSeries(List<QuantityDatasetEntity> referenceValues,
@@ -155,7 +163,7 @@ public class QuantityDataRepository extends
         List<QuantityData> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (QuantityData observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
             }
         }
         return result;

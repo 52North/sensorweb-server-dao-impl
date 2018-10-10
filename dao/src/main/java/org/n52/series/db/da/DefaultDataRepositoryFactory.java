@@ -30,7 +30,8 @@ package org.n52.series.db.da;
 
 import java.io.File;
 
-import org.n52.io.ConfigTypedFactory;
+import org.n52.io.handler.ConfigTypedFactory;
+
 
 public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataRepository< ? , ? >>
         implements IDataRepositoryFactory {
