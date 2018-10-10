@@ -56,7 +56,7 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_FEATURES;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_FEATURES).toString();
     }
 
     @Override

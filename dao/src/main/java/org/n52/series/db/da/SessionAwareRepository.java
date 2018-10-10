@@ -62,6 +62,7 @@ import org.n52.series.db.beans.dataset.QuantityDataset;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
+import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -207,7 +208,8 @@ public abstract class SessionAwareRepository {
     protected PhenomenonOutput getCondensedExtendedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
         return createCondensed(new PhenomenonOutput(),
                                entity,
-                               parameters);
+                               parameters,
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_PHENOMENA));
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
@@ -242,7 +244,8 @@ public abstract class SessionAwareRepository {
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        return createCondensed(new ServiceOutput(), entity, parameters);
+        final String hrefBase = createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_SERVICES);
+        return createCondensed(new ServiceOutput(), entity, parameters, hrefBase);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T result,
@@ -250,10 +253,15 @@ public abstract class SessionAwareRepository {
                                                             DbQuery parameters) {
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(parameters.getLocale());
-        String hrefBase = parameters.getHrefBase();
-        String href = hrefBase + "/" + result.getId();
         result.setId(id);
         result.setValue(ParameterOutput.LABEL, label, parameters.getParameters(), result::setLabel);
+        return result;
+    }
+
+    protected <T extends ParameterOutput> T createCondensed(T result, DescribableEntity entity, DbQuery parameters,
+            String hrefBase) {
+        createCondensed(result, entity, parameters);
+        String href = hrefBase + "/" + result.getId();
         result.setValue(ParameterOutput.HREF, href, parameters.getParameters(), result::setHref);
         return result;
     }
@@ -265,7 +273,8 @@ public abstract class SessionAwareRepository {
     protected ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
         return createCondensed(new ProcedureOutput(),
                                entity,
-                               parameters);
+                               parameters,
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_PROCEDURES));
     }
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
@@ -275,7 +284,8 @@ public abstract class SessionAwareRepository {
     protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(),
                                entity,
-                               parameters);
+                               parameters,
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_FEATURES));
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
@@ -285,13 +295,18 @@ public abstract class SessionAwareRepository {
     protected CategoryOutput getCondensedExtendedCategory(DescribableEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(),
                                entity,
-                               parameters);
+                               parameters,
+                               createHref(parameters.getHrefBase(), UrlSettings.COLLECTION_CATEGORIES));
     }
 
     private void assertServiceAvailable(Describable entity) throws IllegalStateException {
         if (serviceEntity == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
+    }
+
+    protected String createHref(String hrefBase, String collection) {
+        return new StringBuilder(hrefBase).append("/").append(collection).toString();
     }
 
 }

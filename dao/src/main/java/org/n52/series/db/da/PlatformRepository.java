@@ -102,7 +102,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_PLATFORMS;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PLATFORMS).toString();
     }
 
     @Override
@@ -216,7 +216,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     private DatasetEntity getLastDataset(List<DatasetOutput<AbstractValue<?>>> datasets, DbQuery query,
             Session session) throws DataAccessException {
         DatasetEntity currentLastDataset = null;
-        for (DatasetOutput dataset : datasets) {
+        for (DatasetOutput<AbstractValue<?>> dataset : datasets) {
             String id = dataset.getId();
             DbQuery datasetQuery =
                     getDbQuery(query.getParameters().removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR));

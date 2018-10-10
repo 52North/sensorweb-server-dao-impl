@@ -58,7 +58,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_PROCEDURES;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PROCEDURES).toString();
     }
 
     @Override

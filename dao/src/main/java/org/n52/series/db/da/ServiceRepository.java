@@ -83,7 +83,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_SERVICES;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_SERVICES).toString();
     }
 
     @Override

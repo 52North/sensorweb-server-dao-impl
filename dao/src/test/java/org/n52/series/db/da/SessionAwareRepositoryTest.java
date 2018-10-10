@@ -36,6 +36,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.NotInitializedDatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 
 public class SessionAwareRepositoryTest {
 

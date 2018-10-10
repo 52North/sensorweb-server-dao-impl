@@ -50,6 +50,7 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SamplingGeometryDao;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.web.ctrl.UrlSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -338,7 +339,7 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
             throws DataAccessException {
         GeometryOutput GeometryOutput = new GeometryOutput();
         IoParameters parameters = query.getParameters();
-        String hrefBase = query.getHrefBase();
+        String hrefBase = createHref(query.getHrefBase(), UrlSettings.COLLECTION_GEOMETRIES);
         PlatformOutput platform = getPlatfom(featureEntity, query);
 
         GeometryOutput.setId(Long.toString(featureEntity.getId()));

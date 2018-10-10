@@ -57,8 +57,6 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.BadQueryParameterException;
 import org.n52.web.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -70,8 +68,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DatasetRepository<T extends Data> extends SessionAwareRepository
         implements OutputAssembler<DatasetOutput<AbstractValue<?>>> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetRepository.class);
 
     @Autowired
     private IDataRepositoryFactory dataRepositoryFactory;
@@ -251,10 +247,6 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         }
     }
 
-    protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_DATASETS;
-    }
-
     public List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         String hrefBase = createHref(query.getHrefBase());
@@ -265,6 +257,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             results.add(new DatasetSearchResult(id, label, hrefBase));
         }
         return results;
+    }
+
+    protected String createHref(String hrefBase) {
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_DATASETS).toString();
     }
 
     // XXX refactor generics

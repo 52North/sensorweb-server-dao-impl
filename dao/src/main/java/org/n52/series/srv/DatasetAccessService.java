@@ -58,7 +58,7 @@ public class DatasetAccessService extends AccessService<DatasetOutput<AbstractVa
     @Autowired
     private IDataRepositoryFactory dataFactory;
 
-    public DatasetAccessService(DatasetRepository<Data< ? >> repository) {
+    public DatasetAccessService(DatasetRepository<Data<AbstractValue<?>>> repository) {
         super(repository);
     }
 

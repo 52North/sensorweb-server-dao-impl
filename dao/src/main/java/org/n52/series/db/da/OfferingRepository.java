@@ -53,7 +53,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_OFFERINGS;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_OFFERINGS).toString();
     }
 
     @Override

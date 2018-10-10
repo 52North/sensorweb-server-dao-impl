@@ -54,7 +54,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_PHENOMENA;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PHENOMENA).toString();
     }
 
     @Override

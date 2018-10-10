@@ -54,7 +54,7 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
 
     @Override
     protected String createHref(String hrefBase) {
-        return hrefBase + "/" + UrlSettings.COLLECTION_CATEGORIES;
+        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_CATEGORIES).toString();
     }
 
     @Override
