@@ -69,7 +69,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     private EntityCounter counter;
 
     @Autowired
-    private DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> ioFactoryCreator;
+    private DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
     @Override
     protected ServiceOutput prepareEmptyParameterOutput() {
@@ -102,31 +102,30 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         try {
             Long rawId = parseId(id);
             ServiceDao dao = createDao(session);
-            return isConfiguredServiceInstance(rawId)
-                    || dao.hasInstance(rawId, parameters);
+            return isConfiguredServiceInstance(rawId) || dao.hasInstance(rawId, parameters);
         } finally {
             returnSession(session);
         }
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return serviceEntity != null
-                && serviceEntity.getId()
-                                .equals(id);
+        return serviceEntity != null && serviceEntity.getId().equals(id);
     }
 
     @Override
     public Collection<SearchResult> searchFor(IoParameters parameters) {
         /*
-         * final ServiceSearchResult result = new ServiceSearchResult(serviceInfo.getServiceId(),
+         * final ServiceSearchResult result = new
+         * ServiceSearchResult(serviceInfo.getServiceId(),
          * serviceInfo.getServiceDescription()); String queryString =
          * DbQuery.createFrom(parameters).getSearchTerm(); return
          * serviceInfo.getServiceDescription().contains(queryString) ?
          * Collections.<SearchResult>singletonList(result)ServiceRepository :
-         * Collections.<SearchResult>emptyList(); Session session = getSession(); try { ServiceDao serviceDao
-         * = createDao(session); DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
-         * serviceDao.find(query); return convertToSearchResults(found, query); } finally {
-         * returnSession(session); }
+         * Collections.<SearchResult>emptyList(); Session session =
+         * getSession(); try { ServiceDao serviceDao = createDao(session);
+         * DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
+         * serviceDao.find(query); return convertToSearchResults(found, query);
+         * } finally { returnSession(session); }
          */
         // TODO implement search
         throw new UnsupportedOperationException("not supported");
@@ -134,17 +133,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return serviceEntity != null
-                ? Collections.singletonList(serviceEntity)
+        return serviceEntity != null ? Collections.singletonList(serviceEntity)
                 : createDao(session).getAllInstances(parameters);
     }
 
     @Override
     protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
             throws DataAccessException {
-        ServiceEntity result = !isConfiguredServiceInstance(id)
-                ? dao.getInstance(id, query)
-                : serviceEntity;
+        ServiceEntity result = !isConfiguredServiceInstance(id) ? dao.getInstance(id, query) : serviceEntity;
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }
@@ -168,19 +164,15 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         if (parameters.shallBehaveBackwardsCompatible()) {
             result.setValue(ServiceOutput.VERSION, "1.0.0", parameters, result::setVersion);
             result.setValue(ServiceOutput.QUANTITIES, quantities, parameters, result::setQuantities);
-            result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-                            supportsFirstLatest,
-                            parameters,
-                            result::setSupportsFirstLatest);
+            result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest, parameters,
+                    result::setSupportsFirstLatest);
         } else {
             Map<String, Object> features = new HashMap<>();
             features.put(ServiceOutput.QUANTITIES, quantities);
             features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
             features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
-            String version = (entity.getVersion() != null)
-                    ? entity.getVersion()
-                    : "2.0";
+            String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
 
             String hrefBase = createHref(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
@@ -191,16 +183,15 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private String getServiceType(ServiceEntity entity) {
-        return entity.getType() != null
-                ? entity.getType()
-                : SERVICE_TYPE;
+        return entity.getType() != null ? entity.getType() : SERVICE_TYPE;
     }
 
     private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoHandlerFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> factory = ioFactoryCreator.create(valueType);
+                IoHandlerFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> factory =
+                        ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
@@ -214,8 +205,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             IoParameters parameters = query.getParameters();
             ParameterCount quantities = new ServiceOutput.ParameterCount();
             DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
-                                                        .removeAllOf("offset")
-                                                        .removeAllOf("limit"));
+                    .removeAllOf("offset").removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
             quantities.setProceduresSize(counter.countProcedures(serviceQuery));
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
