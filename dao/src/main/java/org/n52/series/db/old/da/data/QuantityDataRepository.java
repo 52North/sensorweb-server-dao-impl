@@ -83,7 +83,7 @@ public class QuantityDataRepository extends
                                                        final DbQuery query,
                                                        final Session session) {
         final Data<QuantityValue> result = assembleData(dataset, query, session);
-        final DatasetMetadata<Data<QuantityValue>> metadata = result.getMetadata();
+        final DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
         final QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
         final QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);

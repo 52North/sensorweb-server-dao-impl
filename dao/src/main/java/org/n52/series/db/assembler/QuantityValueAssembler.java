@@ -89,7 +89,7 @@ public class QuantityValueAssembler extends
     @Override
     protected Data<QuantityValue> assembleExpandedDataValues(QuantityDatasetEntity dataset, DbQuery query) {
         Data<QuantityValue> result = assembleDataValues(dataset, query);
-        DatasetMetadata<Data<QuantityValue>> metadata = result.getMetadata();
+        DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
         QuantityDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
         QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
