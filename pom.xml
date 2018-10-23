@@ -45,7 +45,7 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <arctic-sea.version>3.1.0</arctic-sea.version>
+        <arctic-sea.version>5.1.0-SNAPSHOT</arctic-sea.version>
         <aspectj.version>1.8.9</aspectj.version>
         <geolatte.version>1.3.0</geolatte.version>
         <geotools.version>19.0</geotools.version>
@@ -115,6 +115,16 @@
                 <groupId>org.n52.series-api</groupId>
                 <artifactId>spi</artifactId>
                 <version>${series-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.n52.arctic-sea</groupId>
+                        <artifactId>svalbard</artifactId>
+                    </exclusion>
+                     <exclusion>
+                        <groupId>org.n52.arctic-sea</groupId>
+                        <artifactId>svalbard-odata</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.n52.series-api</groupId>
@@ -156,6 +166,22 @@
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>shetland</artifactId>
+                <version>${arctic-sea.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>svalbard</artifactId>
+                <version>${arctic-sea.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xmlbeans</groupId>
+                        <artifactId>xmlbeans</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+             <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>svalbard-odata</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
             <dependency>
