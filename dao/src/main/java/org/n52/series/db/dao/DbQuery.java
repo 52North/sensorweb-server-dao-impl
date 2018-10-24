@@ -46,6 +46,11 @@ import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
@@ -61,11 +66,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class DbQuery {
 
@@ -159,7 +159,7 @@ public class DbQuery {
             GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
             Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
             Polygon geometry = JTS.toGeometry(envelope, geomFactory);
-            geometry.setSRID(crsUtils.getSrsIdFromEPSG(databaseSridCode));
+            geometry.setSRID(CRSUtils.getSrsIdFromEPSG(databaseSridCode));
             return geometry;
         }
         return null;
@@ -422,7 +422,7 @@ public class DbQuery {
         if (bbox != null) {
             Geometry envelope = getSpatialFilter();
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.intersects(geometryMember, envelope);
+            return SpatialRestrictions.intersects(geometryMember, JTSGeometryConverter.convert(envelope));
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

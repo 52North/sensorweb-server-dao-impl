@@ -301,7 +301,6 @@ public abstract class FESCriterionGenerator {
      * @return the criterion
      */
     protected Criterion createSpatialFilterCriterion(SpatialFilter filter) {
-        // TODO remove this once Hibernate supports LocationTech JTS
         Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
 
         return createSpatialFilterCriterion(filter.getOperator(), filter.getValueReference(), geom);

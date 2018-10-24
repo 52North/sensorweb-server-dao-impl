@@ -66,7 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public abstract class SessionAwareRepository {
 
@@ -123,8 +123,8 @@ public abstract class SessionAwareRepository {
     // XXX a bit misplaced here
     protected String getPlatformId(DatasetEntity dataset) {
         ProcedureEntity procedure = dataset.getProcedure();
-        boolean mobile = procedure.isMobile();
-        boolean insitu = procedure.isInsitu();
+        boolean mobile = dataset.isMobile();
+        boolean insitu = dataset.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);
         DescribableEntity entity = type.isStationary()
                 ? dataset.getFeature()
