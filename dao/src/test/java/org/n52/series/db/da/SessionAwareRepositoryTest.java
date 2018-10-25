@@ -65,8 +65,6 @@ public class SessionAwareRepositoryTest {
 
     private String getPlatformId(Long id, boolean mobile, boolean insitu) {
         ProcedureEntity procedure = new ProcedureEntity();
-        procedure.setMobile(mobile);
-        procedure.setInsitu(insitu);
         procedure.setId(id);
 
         FeatureEntity feature = new FeatureEntity();
@@ -75,6 +73,8 @@ public class SessionAwareRepositoryTest {
         DatasetEntity dataset = new QuantityDatasetEntity();
         dataset.setProcedure(procedure);
         dataset.setFeature(feature);
+        dataset.setMobile(mobile);
+        dataset.setInsitu(insitu);
 
         SessionAwareRepository repo = new SessionAwareRepository() {};
         return repo.getPlatformId(dataset);
