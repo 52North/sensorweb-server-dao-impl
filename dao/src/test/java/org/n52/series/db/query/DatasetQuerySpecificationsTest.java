@@ -144,7 +144,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
         final DatasetEntity d2 = quantityDataset("ph1", "of1", "pr2", "format1", "fe1", "fe_format");
         final ProcedureEntity p2 = d2.getProcedure();
-        p2.setMobile(true);
+        d2.setMobile(true);
 
         // assert test requirement
         assertThat(d1.getProcedure()).as("Datasets share the same procedure").isNotSameAs(d2.getProcedure());
@@ -169,7 +169,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         });
 
         Assertions.assertAll("Default query does match 'remote' datasets ", () -> {
-            p2.setInsitu(false);
+            d2.setInsitu(false);
             final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_REMOTE);
             final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
@@ -177,8 +177,8 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         });
 
         Assertions.assertAll("Default query does match 'mobile/remote' datasets ", () -> {
-            p2.setInsitu(false);
-            p2.setMobile(true);
+            d2.setInsitu(false);
+            d2.setMobile(true);
             final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE);
             final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);

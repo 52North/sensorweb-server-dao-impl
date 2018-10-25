@@ -105,8 +105,8 @@ public abstract class SessionAwareAssembler implements InitializingBean {
     // XXX a bit misplaced here
     protected static String getPlatformId(DatasetEntity dataset) {
         ProcedureEntity procedure = dataset.getProcedure();
-        boolean mobile = procedure.isMobile();
-        boolean insitu = procedure.isInsitu();
+        boolean mobile = dataset.isMobile();
+        boolean insitu = dataset.isInsitu();
         PlatformType type = PlatformType.toInstance(mobile, insitu);
         DescribableEntity entity = type.isStationary()
             ? dataset.getFeature()
