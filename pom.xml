@@ -678,8 +678,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <configuration>
-                        <rules>re
+                        <rules>
                             <requireNoRepositories>
+                            <allowSnapshotRepositories>true</allowSnapshotRepositories>
                                 <allowedRepositories>
                                     <id>geotools</id>
                                     <id>n52-releases</id>
