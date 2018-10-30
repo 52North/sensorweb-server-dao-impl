@@ -75,6 +75,8 @@ public class SessionAwareRepositoryTest {
         dataset.setInsitu(insitu);
         dataset.setProcedure(procedure);
         dataset.setFeature(feature);
+        dataset.setMobile(mobile);
+        dataset.setInsitu(insitu);
 
         SessionAwareRepository repo = new SessionAwareRepository() {};
         return repo.getPlatformId(dataset);

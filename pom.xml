@@ -596,6 +596,7 @@
                     <configuration>
                         <rules>
                             <requireNoRepositories>
+                            <allowSnapshotRepositories>true</allowSnapshotRepositories>
                                 <allowedRepositories>
                                     <id>geotools</id>
                                     <id>n52-releases</id>
