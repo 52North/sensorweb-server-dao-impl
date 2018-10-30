@@ -40,6 +40,8 @@ import org.n52.io.DatasetFactoryException;
 import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
+import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
@@ -52,7 +54,6 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
-import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -83,7 +84,10 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_SERVICES).toString();
+        StringBuilder builder = hrefBase != null
+                ? new StringBuilder(hrefBase)
+                : new StringBuilder(".");
+        return builder.toString();
     }
 
     @Override
@@ -110,7 +114,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return serviceEntity != null
+        return (serviceEntity != null)
                 && serviceEntity.getId()
                                 .equals(id);
     }
@@ -185,7 +189,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             String hrefBase = createHref(query.getHrefBase());
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         }
         return result;
     }
@@ -214,7 +218,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         try {
             IoParameters parameters = query.getParameters();
             ParameterCount quantities = new ServiceOutput.ParameterCount();
-            DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
+            DbQuery serviceQuery = getDbQuery(parameters.extendWith(Parameters.SERVICES, service.getId())
                                                         .removeAllOf("offset")
                                                         .removeAllOf("limit"));
             quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
