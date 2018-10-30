@@ -8,7 +8,7 @@
     </parent>
     <artifactId>dao</artifactId>
     <packaging>jar</packaging>
-    <name>Series REST API - DAO module</name>
+    <name>Series REST API DAO - DAO</name>
     <description>REST SPI Implementation for SOS Series Database.</description>
     <url>http://52north.org/communities/sensorweb/</url>
 
