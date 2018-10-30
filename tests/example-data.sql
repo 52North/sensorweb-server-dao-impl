@@ -100,17 +100,17 @@ COPY offering (offering_id, identifier, fk_identifier_codespace_id, name, fk_nam
 
 
 
-COPY procedure (procedure_id, fk_format_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, is_deleted, description_file, is_reference, fk_type_of_procedure_id, is_aggregation, is_mobile, is_insitu) FROM stdin;
-1	3	http://www.52north.org/test/procedure/1	\N	con terra	\N	\N	0	\N	0	\N	0	0	1
-2	3	http://www.52north.org/test/procedure/2	\N	ESRI	\N	\N	0	\N	0	\N	0	0	1
-3	3	http://www.52north.org/test/procedure/3	\N	Kisters	\N	\N	0	\N	0	\N	0	0	1
-4	3	http://www.52north.org/test/procedure/4	\N	IfGI	\N	\N	0	\N	0	\N	0	0	1
-5	3	http://www.52north.org/test/procedure/5	\N	TU-Dresden	\N	\N	1	\N	0	\N	0	0	1
-6	3	http://www.52north.org/test/procedure/6	\N	Hochschule Bochum	\N	\N	0	\N	0	\N	0	0	1
-7	3	http://www.52north.org/test/procedure/7	\N	ITC	\N	\N	0	\N	0	\N	0	0	1
-8	3	http://www.52north.org/test/procedure/8	\N	DLZ-IT	\N	\N	0	\N	0	\N	0	1	1
-9	3	http://www.52north.org/test/procedure/developer	\N	http://www.52north.org/test/procedure/developer	\N	\N	0	\N	0	\N	0	0	1
-10	3	http://www.52north.org/test/procedure/reference	\N	http://www.52north.org/test/procedure/reference	\N	\N	0	\N	1	\N	0	1	1
+COPY procedure (procedure_id, fk_format_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, is_deleted, description_file, is_reference, fk_type_of_procedure_id, is_aggregation) FROM stdin;
+1	3	http://www.52north.org/test/procedure/1	\N	con terra	\N	\N	0	\N	0	\N	0
+2	3	http://www.52north.org/test/procedure/2	\N	ESRI	\N	\N	0	\N	0	\N	0
+3	3	http://www.52north.org/test/procedure/3	\N	Kisters	\N	\N	0	\N	0	\N	0
+4	3	http://www.52north.org/test/procedure/4	\N	IfGI	\N	\N	0	\N	0	\N	0
+5	3	http://www.52north.org/test/procedure/5	\N	TU-Dresden	\N	\N	1	\N	0	\N	0
+6	3	http://www.52north.org/test/procedure/6	\N	Hochschule Bochum	\N	\N	0	\N	0	\N	0
+7	3	http://www.52north.org/test/procedure/7	\N	ITC	\N	\N	0	\N	0	\N	0
+8	3	http://www.52north.org/test/procedure/8	\N	DLZ-IT	\N	\N	0	\N	0	\N	0
+9	3	http://www.52north.org/test/procedure/developer	\N	http://www.52north.org/test/procedure/developer	\N	\N	0	\N	0	\N	0
+10	3	http://www.52north.org/test/procedure/reference	\N	http://www.52north.org/test/procedure/reference	\N	\N	0	\N	1	\N	0
 \.
 
 
@@ -126,20 +126,20 @@ COPY unit (unit_id, symbol, name, link) FROM stdin;
 
 
 
-COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_procedure_id, fk_format_id, fk_offering_id, is_deleted, is_published, is_hidden, first_time, last_time, fk_unit_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, value_type, decimals) FROM stdin;
-1	2	1	1	1	4	1	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	1	\N	\N	\N	\N	\N	quantity-profile	3
-2	3	2	2	2	5	2	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	count	\N
-3	4	3	3	3	6	3	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	boolean	\N
-4	5	4	4	4	7	4	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	category	\N
-5	6	5	5	5	8	5	1	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	text	\N
-6	7	6	6	6	4	6	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	3	\N	\N	\N	\N	\N	quantity	3
-7	8	7	7	7	4	7	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	4	\N	\N	\N	\N	\N	quantity	3
-8	9	8	8	8	4	8	0	1	0	2012-11-19 13:00:00	2012-11-19 13:49:59	5	\N	\N	\N	\N	\N	quantity	3
-9	10	9	9	9	8	9	0	1	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N
-10	11	9	9	9	8	9	0	0	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N
-11	12	9	9	9	8	9	0	1	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N
-12	13	9	9	9	8	9	0	1	0	2012-12-31 23:00:00	2012-12-31 23:00:00	\N	\N	\N	\N	\N	\N	text	\N
-13	9	8	8	10	4	8	0	1	0	2012-11-19 13:00:00	2012-11-19 13:49:59	5	\N	\N	\N	\N	\N	quantity	3
+COPY dataset (dataset_id, fk_feature_id, fk_category_id, fk_phenomenon_id, fk_procedure_id, fk_format_id, fk_offering_id, is_deleted, is_published, is_hidden, first_time, last_time, fk_unit_id, identifier, fk_identifier_codespace_id, name, fk_name_codespace_id, description, value_type, decimals, is_mobile, is_insitu) FROM stdin;
+1	2	1	1	1	4	1	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	1	\N	\N	\N	\N	\N	quantity-profile	3   0   1
+2	3	2	2	2	5	2	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	count	\N  0   1
+3	4	3	3	3	6	3	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	boolean	\N  0   1
+4	5	4	4	4	7	4	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	category	\N  0   1
+5	6	5	5	5	8	5	1	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	\N	\N	\N	\N	\N	\N	text	\N  0   1
+6	7	6	6	6	4	6	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	3	\N	\N	\N	\N	\N	quantity	3   0   1
+7	8	7	7	7	4	7	0	1	0	2012-11-19 13:00:00	2012-11-19 13:09:00	4	\N	\N	\N	\N	\N	quantity	3   0   1
+8	9	8	8	8	4	8	0	1	0	2012-11-19 13:00:00	2012-11-19 13:49:59	5	\N	\N	\N	\N	\N	quantity	3   1   1
+9	10	9	9	9	8	9	0	1	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N  0   1
+10	11	9	9	9	8	9	0	0	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N  0   1
+11	12	9	9	9	8	9	0	1	0	2008-10-29 00:00:00	2008-10-29 00:00:00	\N	\N	\N	\N	\N	\N	text	\N  0   1
+12	13	9	9	9	8	9	0	1	0	2012-12-31 23:00:00	2012-12-31 23:00:00	\N	\N	\N	\N	\N	\N	text	\N  0   1
+13	9	8	8	10	4	8	0	1	0	2012-11-19 13:00:00	2012-11-19 13:49:59	5	\N	\N	\N	\N	\N	quantity	3   1   1
 \.
 
 
