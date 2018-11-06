@@ -37,7 +37,6 @@ import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
 
@@ -49,11 +48,6 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new FeatureSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_OFFERINGS).toString();
     }
 
     @Override

@@ -40,7 +40,6 @@ import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
@@ -52,11 +51,6 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new FeatureSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_FEATURES).toString();
     }
 
     @Override

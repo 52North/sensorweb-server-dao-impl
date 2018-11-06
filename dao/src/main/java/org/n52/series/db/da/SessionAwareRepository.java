@@ -304,8 +304,8 @@ public abstract class SessionAwareRepository {
         }
     }
 
-    protected String createHref(String hrefBase, String collection) {
-        return new StringBuilder(hrefBase).append("/").append(collection).toString();
+    private String createHref(String hrefBase, String collection) {
+        return hrefBase == null ? null : new StringBuilder(hrefBase).append(collection).toString();
     }
 
 }

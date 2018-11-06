@@ -38,7 +38,6 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
 
@@ -50,11 +49,6 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new CategorySearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_CATEGORIES).toString();
     }
 
     @Override

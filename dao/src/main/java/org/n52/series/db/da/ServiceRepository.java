@@ -52,7 +52,6 @@ import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.db.dao.ServiceDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
-import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.InternalServerException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
@@ -79,11 +78,6 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new ServiceSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_SERVICES).toString();
     }
 
     @Override
@@ -182,7 +176,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
                     ? entity.getVersion()
                     : "2.0";
 
-            String hrefBase = createHref(query.getHrefBase());
+            String hrefBase = query.getHrefBase();
             result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
             result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
             result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);

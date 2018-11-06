@@ -58,7 +58,6 @@ import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,11 +96,6 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new PlatformSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PLATFORMS).toString();
     }
 
     @Override
