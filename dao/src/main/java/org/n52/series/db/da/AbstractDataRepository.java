@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -50,8 +51,6 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.locationtech.jts.geom.Geometry;
 
 public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              E extends DataEntity< ? >,

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -59,6 +60,7 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
+import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.web.ctrl.UrlSettings;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
@@ -66,7 +68,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.locationtech.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 public abstract class SessionAwareRepository {
 
@@ -115,9 +118,16 @@ public abstract class SessionAwareRepository {
             return null;
         } else {
             String srid = query.getDatabaseSridCode();
-            geometryEntity.setGeometryFactory(getCrsUtils().createGeometryFactory(srid));
-            return geometryEntity.getGeometry();
+            geometryEntity.setGeometryFactory(createGeometryFactory(srid));
+            return JTSGeometryConverter.convert(geometryEntity.getGeometry());
         }
+    }
+
+    private GeometryFactory createGeometryFactory(String srsId) {
+        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+        return srsId == null
+            ? new GeometryFactory(pm)
+            : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
     // XXX a bit misplaced here
@@ -299,7 +309,7 @@ public abstract class SessionAwareRepository {
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if (serviceEntity == null && entity == null) {
+        if ((serviceEntity == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }

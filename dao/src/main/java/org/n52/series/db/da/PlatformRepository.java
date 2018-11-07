@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
@@ -54,6 +55,7 @@ import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
+import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.PlatformSearchResult;
@@ -63,8 +65,6 @@ import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.locationtech.jts.geom.Geometry;
 
 /**
  * TODO: JavaDoc
@@ -204,7 +204,9 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             DataRepository dataRepository = factory.create(lastDataset.getValueType());
             GeometryEntity lastKnownGeometry = dataRepository.getLastKnownGeometry(lastDataset, session, query);
 
-            return isValidGeometry(lastKnownGeometry) ? lastKnownGeometry.getGeometry() : null;
+            return isValidGeometry(lastKnownGeometry)
+                    ? JTSGeometryConverter.convert(lastKnownGeometry.getGeometry())
+                    : null;
         } catch (DatasetFactoryException e) {
             LOGGER.error("Couldn't create data repository to determing last value of dataset '{}'",
                     lastDataset.getId());
