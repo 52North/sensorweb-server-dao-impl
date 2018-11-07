@@ -474,15 +474,11 @@
 
         <pluginManagement>
             <plugins>
-         <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
                     <configuration>
-                        <excludeFilterFile>etc/findbugs-exclude.xml</excludeFilterFile>
-                        <!--<includeFilterFile>etc/findbugs-include.xml</includeFilterFile>-->
-                        <!--<visitors></visitors>-->
-                        <!--<omitVisitors></omitVisitors>-->
-                        <!--<maxRank></maxRank>-->
+                        <excludeFilterFile>etc/spotbugs-exclude.xml</excludeFilterFile>
                         <failOnError>true</failOnError>
                     </configuration>
                 </plugin>
