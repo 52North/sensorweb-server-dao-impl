@@ -33,6 +33,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.AbstractDao;
@@ -49,14 +50,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class EntityCounter {
 
-    @Autowired
-    private HibernateSessionStore sessionStore;
+    private final HibernateSessionStore sessionStore;
+
+    private final DataRepositoryTypeFactory dataRepositoryFactory;
+
+    private final DbQueryFactory dbQueryFactory;
 
     @Autowired
-    private DbQueryFactory dbQueryFactory;
-
-    @Autowired
-    private IDataRepositoryFactory dataRepositoryFactory;
+    public EntityCounter(HibernateSessionStore sesionStore, DataRepositoryTypeFactory dataRepositoryFactory, DbQueryFactory dbQueryFactory) {
+        this.sessionStore = sesionStore;
+        this.dataRepositoryFactory = dataRepositoryFactory;
+        this.dbQueryFactory = dbQueryFactory;
+    }
 
     public Integer countFeatures(DbQuery query) throws DataAccessException {
         Session session = sessionStore.getSession();

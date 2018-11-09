@@ -41,11 +41,11 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class BooleanDataRepository
-        extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue> {
+        extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
 
     @Override
-    public Class<BooleanDatasetEntity> getDatasetEntityType() {
-        return BooleanDatasetEntity.class;
+    protected BooleanValue createEmptyValue() {
+        return new BooleanValue();
     }
 
     @Override
@@ -56,19 +56,14 @@ public class BooleanDataRepository
         List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (BooleanDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
     @Override
-    protected BooleanValue createEmptyValue() {
-        return new BooleanValue();
-    }
-
-    @Override
-    public BooleanValue createSeriesValueFor(BooleanDataEntity observation,
+    public BooleanValue assembleDataValue(BooleanDataEntity observation,
                                              BooleanDatasetEntity series,
                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);

@@ -34,6 +34,7 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
@@ -41,17 +42,13 @@ import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.beans.TextProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class TextProfileDataRepository extends ProfileDataRepository<String, TextProfileDatasetEntity> {
+@DataRepositoryComponent(value = "text-profile", datasetEntityType = TextProfileDatasetEntity.class)
+public class TextProfileDataRepository extends ProfileDataRepository<TextProfileDatasetEntity, String, String> {
 
     private final TextDataRepository textRepository;
 
     public TextProfileDataRepository() {
         this.textRepository = new TextDataRepository();
-    }
-
-    @Override
-    public Class<TextProfileDatasetEntity> getDatasetEntityType() {
-        return TextProfileDatasetEntity.class;
     }
 
     @Override

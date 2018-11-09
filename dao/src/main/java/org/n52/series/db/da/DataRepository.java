@@ -26,38 +26,131 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public interface DataRepository<E extends DatasetEntity, V extends AbstractValue< ? >> {
+public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> {
 
-    Data< ? extends AbstractValue< ? >> getData(String id, DbQuery dbQuery) throws DataAccessException;
+    /**
+     * Assembles observation values as {@link Data} output.
+     *
+     * @param id
+     *        the dataset id
+     * @param query
+     *        the query
+     * @return the assembled data
+     */
+    Data<V> getData(String id, DbQuery query);
 
-    V getFirstValue(E entity, Session session, DbQuery query);
-
-    V getLastValue(E entity, Session session, DbQuery query);
-
-    GeometryEntity getLastKnownGeometry(DatasetEntity lastDataset, Session session, DbQuery query);
-
-    void setSessionStore(HibernateSessionStore sessionStore);
-
-    List<ReferenceValueOutput<V>> createReferenceValueOutputs(E datasetEntity, DbQuery query);
-
-    default void setServiceEntity(ServiceEntity serviceEntity) {
-        // void
+    /**
+     * Assembles a list of reference values.
+     *
+     * @param datasetEntity
+     *        the dataset
+     * @param query
+     *        the query
+     * @return a list of reference values
+     */
+    default List<ReferenceValueOutput<V>> getReferenceValues(S datasetEntity, DbQuery query) {
+        return Collections.emptyList();
     }
 
-    Class<E> getDatasetEntityType();
+    /**
+     * Assembles an output for a data entity containing all metadata (geometry, parameters, valid time, etc.)
+     * for a given query.
+     *
+     * @param dataEntity
+     *        the single data entity to assemble
+     * @param datasetEntity
+     *        the dataset the data entity belongs to
+     * @param query
+     *        the query
+     * @return the assembled output
+     */
+    V assembleDataValueWithMetadata(E dataEntity, S datasetEntity, DbQuery query);
+
+    /**
+     * Assembles an output for a data entity for a given query.
+     *
+     * @param dataEntity
+     *        the single data entity to assemble
+     * @param datasetEntity
+     *        the dataset the data entity belongs to
+     * @param query
+     *        the query
+     * @return the assembled output
+     */
+    V assembleDataValue(E dataEntity, S datasetEntity, DbQuery query);
+
+    // /**
+    // * Assembles plain output containing date/time and the as-is value for a given query.
+    // *
+    // * @param value
+    // * the value
+    // * @param data
+    // * the data entity
+    // * @param query
+    // * the query
+    // * @return the assembled output
+    // */
+    // V assembleDataValue(T value, E data, DbQuery query);
+
+    /**
+     * @param entity
+     *        the dataset entity
+     * @param session
+     *        the sesssion
+     * @param query
+     *        the query
+     * @return the first value for the given dataset
+     */
+    V getFirstValue(S entity, Session session, DbQuery query);
+
+    /**
+     * @param entity
+     *        the dataset entity
+     * @param session
+     *        the session
+     * @param query
+     *        the query
+     * @return the last value for the given dataset
+     */
+    V getLastValue(S entity, Session session, DbQuery query);
+
+    GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query);
+
+    /**
+     * Finds the closest value before a given timespan.
+     *
+     * @param dataset
+     *        the dataset
+     * @param query
+     *        the query containing the timespan
+     * @return the closest value before a given timespan
+     */
+    E getClosestValueBeforeStart(S dataset, DbQuery query);
+
+    /**
+     * Finds the closest value after a given timespan.
+     *
+     * @param dataset
+     *        the dataset
+     * @param query
+     *        the query containing the timespan
+     * @return the closest value after a given timespan
+     */
+    E getClosestValueAfterEnd(S dataset, DbQuery query);
+
 }

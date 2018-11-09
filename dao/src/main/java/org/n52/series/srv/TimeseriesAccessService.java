@@ -26,9 +26,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.srv;
 
-import org.n52.io.DatasetFactoryException;
+import java.math.BigDecimal;
+
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
@@ -36,20 +38,22 @@ import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.da.DataRepository;
-import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Deprecated
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
-        implements DataService<Data<QuantityValue>> {
+        implements
+        DataService<Data<QuantityValue>> {
 
     @Autowired
-    private IDataRepositoryFactory factory;
+    private DataRepositoryTypeFactory factory;
 
     public TimeseriesAccessService(TimeseriesRepository repository) {
         super(repository);
@@ -73,24 +77,11 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        DataRepository< ? , ? > dataRepository = createRepository();
-        return (Data<QuantityValue>) dataRepository.getData(timeseriesId, dbQuery);
+        return createRepository().getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository< ? , ? > createRepository() throws DataAccessException {
-        try {
-            return factory.create(QuantityValue.TYPE);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    public IDataRepositoryFactory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(IDataRepositoryFactory factory) {
-        this.factory = factory;
+    private DataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
+        return factory.create(QuantityValue.TYPE, QuantityDatasetEntity.class);
     }
 
 }

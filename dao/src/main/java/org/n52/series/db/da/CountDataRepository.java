@@ -26,41 +26,27 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.CountDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
+
+@DataRepositoryComponent(value = "count", datasetEntityType = CountDatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue> {
-
-    @Override
-    public Class<CountDatasetEntity> getDatasetEntityType() {
-        return CountDatasetEntity.class;
-    }
-
-    @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CountDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
-            }
-        }
-        return result;
-    }
+        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue, Integer> {
 
     @Override
     protected CountValue createEmptyValue() {
@@ -68,7 +54,20 @@ public class CountDataRepository
     }
 
     @Override
-    public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session) {
+        Data<CountValue> result = new Data<>();
+        DataDao<CountDataEntity> dao = createDataDao(session);
+        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (CountDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public CountValue assembleDataValue(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
@@ -79,8 +78,15 @@ public class CountDataRepository
                 ? observation.getValue()
                 : null;
 
-        CountValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
+        IoParameters parameters = query.getParameters();
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        CountValue value = parameters.isShowTimeIntervals()
+                ? new CountValue(start, end, observationValue)
+                : new CountValue(end, observationValue);
+
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

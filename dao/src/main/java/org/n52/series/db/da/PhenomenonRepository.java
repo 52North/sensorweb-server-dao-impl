@@ -26,9 +26,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.PhenomenonEntity;
@@ -38,7 +40,6 @@ import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
 
@@ -50,11 +51,6 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new CategorySearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PHENOMENA).toString();
     }
 
     @Override
@@ -73,7 +69,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(PhenomenonOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

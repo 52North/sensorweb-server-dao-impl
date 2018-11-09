@@ -26,13 +26,16 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.OutputWithParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -40,11 +43,9 @@ import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
-    @Override
     protected FeatureOutput prepareEmptyParameterOutput() {
         return new FeatureOutput();
     }
@@ -52,11 +53,6 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new FeatureSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_FEATURES).toString();
     }
 
     @Override
@@ -76,8 +72,8 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(OutputWithParameters.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
 

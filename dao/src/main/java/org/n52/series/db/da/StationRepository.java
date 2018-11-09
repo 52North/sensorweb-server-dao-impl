@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
@@ -49,13 +51,9 @@ import org.n52.series.spi.search.StationSearchResult;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 
-import org.locationtech.jts.geom.Geometry;
-
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
- * @deprecated since 2.0.0.
  */
-@Deprecated
 public class StationRepository extends SessionAwareRepository
         implements OutputAssembler<StationOutput>, SearchableRepository {
 
@@ -91,9 +89,9 @@ public class StationRepository extends SessionAwareRepository
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String id = Long.toString(searchResult.getId());
+            String pkid = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
-            results.add(new StationSearchResult(id, label));
+            results.add(new StationSearchResult(pkid, label));
         }
         return results;
     }
@@ -182,10 +180,11 @@ public class StationRepository extends SessionAwareRepository
 
         Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
         DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
+        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
         result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+
         return result;
     }
 
@@ -195,14 +194,14 @@ public class StationRepository extends SessionAwareRepository
 
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
-        Geometry geometry = createPoint(entity, query);
+        Geometry geometry = getGeometry(entity, query);
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
         return result;
     }
 
-    private Geometry createPoint(FeatureEntity featureEntity, DbQuery query) {
+    private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
         return featureEntity.isSetGeometry()
                 ? getGeometry(featureEntity.getGeometryEntity(), query)
                 : null;

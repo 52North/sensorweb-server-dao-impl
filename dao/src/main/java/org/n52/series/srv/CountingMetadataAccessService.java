@@ -39,11 +39,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class CountingMetadataAccessService implements CountingMetadataService {
 
-    @Autowired
-    private EntityCounter counter;
+    private final EntityCounter counter;
+
+    private final DbQueryFactory dbQueryFactory;
 
     @Autowired
-    private DbQueryFactory dbQueryFactory;
+    public CountingMetadataAccessService(EntityCounter counter, DbQueryFactory dbQueryFactory) {
+        this.counter = counter;
+        this.dbQueryFactory = dbQueryFactory;
+    }
 
     @Override
     public int getServiceCount(IoParameters parameters) {

@@ -15,16 +15,24 @@
         <property name="noDataValues" value="-9999.0,99999,NO_DATA" />
     </bean>
 
+    <bean id="ioFactory" class="org.n52.io.handler.DefaultIoFactory" />
     <bean id="dbQueryFactory" class="org.n52.series.db.dao.DefaultDbQueryFactory">
         <property name="databaseSrid" value="${database.srid}" />
     </bean>
 
+    <bean id="dataRepositoryFactory" class="org.n52.series.db.AnnotationBasedDataRepositoryFactory" />
+    <bean class="org.n52.series.db.da.QuantityDataRepository" />
+    <bean class="org.n52.series.db.da.TextDataRepository" />
+    <bean class="org.n52.series.db.da.CountDataRepository" />
+    <bean class="org.n52.series.db.da.BooleanDataRepository" />
+    <bean class="org.n52.series.db.da.CategoryDataRepository" />
+    <bean class="org.n52.series.db.da.QuantityProfileDataRepository" />
+    <bean class="org.n52.series.db.da.CategoryProfileDataRepository" />
+    <bean class="org.n52.series.db.da.TextProfileDataRepository" />
+
     <bean id="entityCounter" class="org.n52.series.db.da.EntityCounter" />
     <bean id="metadataService" class="org.n52.series.srv.CountingMetadataAccessService" />
     <bean id="searchService" class="org.n52.series.srv.Search" />
-
-    <bean id="dataRepositoryFactory" class="org.n52.series.db.da.DefaultDataRepositoryFactory" />
-    <bean id="ioFactory" class="org.n52.io.handler.DefaultIoFactory" />
 
     <import resource="spi-impl-dao_beans.xml"/>
     <import resource="spi-impl-dao_tasks.xml" />

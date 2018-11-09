@@ -26,9 +26,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.OfferingEntity;
@@ -37,7 +39,6 @@ import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
 
@@ -49,11 +50,6 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new FeatureSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_OFFERINGS).toString();
     }
 
     @Override
@@ -72,7 +68,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query)
                 : getCondensedService(getServiceEntity(entity), query);
-        result.setValue(OfferingOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 }

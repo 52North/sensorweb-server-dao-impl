@@ -76,6 +76,28 @@ public final class JTSGeometryConverter {
         return LT2VS_CONVERTER.convert(geometry);
     }
 
+    /**
+     * Convert from old-style VividSolutions Envelope to new-style LocationTech Envelope.
+     *
+     * @param envelope the envelope
+     *
+     * @return the converted envelope
+     */
+    public static org.locationtech.jts.geom.Envelope convert(com.vividsolutions.jts.geom.Envelope envelope) {
+        return VS2LT_CONVERTER.convert(envelope);
+    }
+
+    /**
+     * Convert from new-style LocationTech Envelope to old-style VividSolutions Envelope.
+     *
+     * @param envelope the envelope
+     *
+     * @return the converted envelope
+     */
+    public static com.vividsolutions.jts.geom.Envelope convert(org.locationtech.jts.geom.Envelope envelope) {
+        return LT2VS_CONVERTER.convert(envelope);
+    }
+
     private static final class LT2VS {
 
         /**
@@ -124,6 +146,26 @@ public final class JTSGeometryConverter {
         }
 
         /**
+         * Convert the supplied {@code Envelope}.
+         *
+         * @param envelope the envelope
+         *
+         * @return the converted envelope
+         */
+        com.vividsolutions.jts.geom.Envelope  convert(org.locationtech.jts.geom.Envelope envelope) {
+            if (envelope == null) {
+                return null;
+            }
+
+            double minX = envelope.getMinX();
+            double minY = envelope.getMinY();
+            double maxX = envelope.getMaxX();
+            double maxY = envelope.getMaxY();
+            return new com.vividsolutions.jts.geom.Envelope(minX, minY, maxX, maxY);
+        }
+
+
+        /**
          * Convert the supplied {@code GeometryFactory}.
          *
          * @param factory the factory
@@ -169,7 +211,7 @@ public final class JTSGeometryConverter {
          */
         private com.vividsolutions.jts.geom.Coordinate convertCoordinate(
                 org.locationtech.jts.geom.Coordinate coordinate) {
-            return new com.vividsolutions.jts.geom.Coordinate(coordinate.x, coordinate.y, coordinate.z);
+            return new com.vividsolutions.jts.geom.Coordinate(coordinate.x, coordinate.y, coordinate.getZ());
         }
 
         /**
@@ -206,6 +248,7 @@ public final class JTSGeometryConverter {
     }
 
     private static final class VS2LT {
+
         /**
          * Convert the supplied {@code Geometry}.
          *
@@ -249,6 +292,25 @@ public final class JTSGeometryConverter {
                     throw new IllegalArgumentException("Unsupported ol geometry: " + geometry);
             }
 
+        }
+
+        /**
+         * Convert the supplied {@code Envelope}.
+         *
+         * @param envelope the envelope
+         *
+         * @return the converted envelope
+         */
+        org.locationtech.jts.geom.Envelope convert(com.vividsolutions.jts.geom.Envelope envelope) {
+            if (envelope == null) {
+                return null;
+            }
+
+            double minX = envelope.getMinX();
+            double minY = envelope.getMinY();
+            double maxX = envelope.getMaxX();
+            double maxY = envelope.getMaxY();
+            return new org.locationtech.jts.geom.Envelope(minX, minY, maxX, maxY);
         }
 
         /**

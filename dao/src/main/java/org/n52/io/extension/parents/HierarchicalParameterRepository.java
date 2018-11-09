@@ -72,7 +72,7 @@ class HierarchicalParameterRepository extends SessionAwareRepository {
 
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
             DatasetDao<DatasetEntity> dao = new DatasetDao<>(session);
-            for (DatasetOutput dataset : platform.getDatasets()) {
+            for (DatasetOutput<?> dataset : platform.getDatasets()) {
                 String datasetId = ValueType.extractId(dataset.getId());
                 DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
                 addProcedureParents(instance, dbQuery, extras);

@@ -26,27 +26,32 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.RecordDataEntity;
 import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
+@DataRepositoryComponent(value = "record", datasetEntityType = RecordDatasetEntity.class)
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue> {
+        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue, Map<String, Object>> {
 
     @Override
-    public Class<RecordDatasetEntity> getDatasetEntityType() {
-        return RecordDatasetEntity.class;
+    protected RecordValue createEmptyValue() {
+        return new RecordValue();
     }
 
     @Override
@@ -58,19 +63,14 @@ public class RecordDataRepository
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?
             if (observation != null) {
-                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
     @Override
-    protected RecordValue createEmptyValue() {
-        return new RecordValue();
-    }
-
-    @Override
-    public RecordValue createSeriesValueFor(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public RecordValue assembleDataValue(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
@@ -81,8 +81,14 @@ public class RecordDataRepository
                 ? observation.getValue()
                 : null;
 
-        RecordValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        RecordValue value = parameters.isShowTimeIntervals()
+                ? new RecordValue(start, end, observationValue)
+                : new RecordValue(end, observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

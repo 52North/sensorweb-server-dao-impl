@@ -26,9 +26,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
@@ -38,7 +40,6 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
 
@@ -50,11 +51,6 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new CategorySearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_CATEGORIES).toString();
     }
 
     @Override
@@ -73,7 +69,7 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

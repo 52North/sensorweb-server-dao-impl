@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -42,7 +44,6 @@ import org.n52.series.db.dao.ProcedureDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.ctrl.UrlSettings;
 
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
 
@@ -54,11 +55,6 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
         return new FeatureSearchResult(id, label, baseUrl);
-    }
-
-    @Override
-    protected String createHref(String hrefBase) {
-        return new StringBuilder(hrefBase).append("/").append(UrlSettings.COLLECTION_PROCEDURES).toString();
     }
 
     @Override
@@ -77,7 +73,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(ProcedureOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         result.setParents(createCondensed(entity.getParents(), query, session));
         result.setChildren(createCondensed(entity.getChildren(), query, session));
         return result;

@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.dao;
 
 import java.util.List;
@@ -52,11 +53,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
-    public static final String FEATURE_PATH_ALIAS = "dsFeature";
-
-    public static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
+
+    private static final String FEATURE_PATH_ALIAS = "dsFeature";
+
+    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private final Class<T> entityType;
 
@@ -113,17 +114,19 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, DatasetEntity.PROPERTY_ID);
-        return criteria.add(Restrictions.eq(path, feature.getId()))
+        String idColumn = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, DescribableEntity.PROPERTY_ID);
+        return criteria.add(Restrictions.eq(idColumn, feature.getId()))
                        .list();
     }
 
@@ -144,7 +147,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    public Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+        // declare explicit alias here
         return getDefaultCriteria(alias, true, query, clazz);
     }
 
@@ -155,10 +159,12 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS);
         if (ignoreReferenceSeries) {
-            procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
+            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
+
+        query.addOdataFilterForDataset(criteria);
 
         return criteria;
     }

@@ -41,17 +41,12 @@ import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class CategoryProfileDataRepository extends ProfileDataRepository<String, CategoryProfileDatasetEntity> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<CategoryProfileDatasetEntity, String, String> {
 
     private final CategoryDataRepository categoryRepository;
 
     public CategoryProfileDataRepository() {
         this.categoryRepository = new CategoryDataRepository();
-    }
-
-    @Override
-    public Class<CategoryProfileDatasetEntity> getDatasetEntityType() {
-        return CategoryProfileDatasetEntity.class;
     }
 
     @Override

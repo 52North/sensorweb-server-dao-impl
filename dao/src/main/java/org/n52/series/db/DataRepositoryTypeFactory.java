@@ -26,19 +26,28 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+
+package org.n52.series.db;
 
 import java.util.Set;
 
-import org.n52.io.DatasetFactoryException;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.da.DataRepository;
 
-public interface IDataRepositoryFactory {
+public interface DataRepositoryTypeFactory {
 
     boolean isKnown(String valueType);
 
     Set<String> getKnownTypes();
 
-    DataRepository create(String valueType) throws DatasetFactoryException;
+    <S extends DatasetEntity,
+     E extends DataEntity<T>,
+     V extends AbstractValue< ? >,
+     T> DataRepository<S, E, V, T> create(String valueType, Class<S> entityType);
+
+    Class< ? extends DatasetEntity> getDatasetEntityType(String valueType);
 
     boolean hasCacheEntry(String valueType);
 

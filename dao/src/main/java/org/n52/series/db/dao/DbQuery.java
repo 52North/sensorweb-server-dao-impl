@@ -34,23 +34,21 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Date;
 import java.util.Set;
 
-import org.geotools.geometry.jts.JTS;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.spatial.criterion.SpatialFilter;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
@@ -62,14 +60,16 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class DbQuery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
+
+    private static final String PROPERTY_ID = "id";
 
     private static final String PROPERTY_LOCALE = "locale";
 
@@ -150,17 +150,19 @@ public class DbQuery {
                          .toInterval();
     }
 
-    public Geometry getSpatialFilter() {
+    public Envelope getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
-            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-            Point ll = spatialFilter.getLowerLeft();
-            Point ur = spatialFilter.getUpperRight();
-            GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
-            Envelope envelope = new Envelope(ll.getCoordinate(), ur.getCoordinate());
-            Polygon geometry = JTS.toGeometry(envelope, geomFactory);
-            geometry.setSRID(CRSUtils.getSrsIdFromEPSG(databaseSridCode));
-            return geometry;
+            try {
+                CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+                Point ll = (Point) crsUtils.transformInnerToOuter(spatialFilter.getLowerLeft(), databaseSridCode);
+                Point ur = (Point) crsUtils.transformInnerToOuter(spatialFilter.getUpperRight(), databaseSridCode);
+                return new Envelope(ll.getCoordinate(), ur.getCoordinate());
+            } catch (FactoryException e) {
+                LOGGER.error("Could not create transformation facilities.", e);
+            } catch (TransformException e) {
+                LOGGER.error("Could not perform transformation.", e);
+            }
         }
         return null;
     }
@@ -197,9 +199,7 @@ public class DbQuery {
     }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
-        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode()))
-                        .list()
-                        .isEmpty();
+        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
     }
 
     public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
@@ -293,36 +293,40 @@ public class DbQuery {
         }
 
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        QueryUtils.setFilterProjectionOn(datasetName, filter);
-
         if (hasValues(platforms)) {
             features.addAll(getStationaryIds(platforms));
             procedures.addAll(getMobileIds(platforms));
         }
 
-        addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
-        addFilterRestriction(datasets, filter);
+        addFilterRestriction(series, filter);
 
-        criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, filter));
+        addFilterRestriction(datasets.stream().map(ValueType::extractId).collect(toSet()),
+                             filter);
+
+        // TODO refactory/simplify projection
+        String projectionProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
+        filter.setProjection(Property.forName(projectionProperty));
+
+        String filterProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
+        criteria.add(Subqueries.propertyIn(filterProperty, filter));
         return criteria;
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String property,
-                                                              DetachedCriteria filter) {
+                                                              String entity,
+                                                              DetachedCriteria filter,
+                                                              String prefix) {
         if (hasValues(values)) {
-            String itemAlias = property + "_filter";
-            String parentAlias = property + "_parent";
-            String parentId = QueryUtils.createAssociation(parentAlias, DescribableEntity.PROPERTY_ID);
-            filter.createCriteria(property, itemAlias)
+            filter.createCriteria(entity, prefix + "e")
                   // join the parents to enable filtering via parent ids
-                  .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, itemAlias),
-                                       Restrictions.in(parentId, QueryUtils.parseToIds(values))));
+                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                                       Restrictions.in(prefix + "p.id", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -339,7 +343,7 @@ public class DbQuery {
             } else {
                 // return subquery for further chaining
                 return filter.createCriteria(entity)
-                             .add(restriction);
+                        .add(restriction);
             }
         }
         return filter;
@@ -357,16 +361,13 @@ public class DbQuery {
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
-        return filterValues.stream()
-                           .map(filter -> Restrictions.ilike(column, filter))
-                           .collect(Restrictions::disjunction,
-                                    Disjunction::add,
-                                    (a, b) -> b.conditions()
-                                               .forEach(a::add));
+        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
+                .collect(Restrictions::disjunction, Disjunction::add,
+                         (a, b) -> b.conditions().forEach(a::add));
     }
 
     private Criterion createIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, DescribableEntity.PROPERTY_ID);
+        String column = QueryUtils.createAssociation(alias, PROPERTY_ID);
         return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
     }
 
@@ -383,46 +384,38 @@ public class DbQuery {
 
     private Set<String> getMobileIds(Set<String> platforms) {
         return platforms.stream()
-                        .filter(PlatformType::isMobileId)
-                        .map(PlatformType::extractId)
-                        .collect(toSet());
+                .filter(PlatformType::isMobileId)
+                .map(PlatformType::extractId)
+                .collect(toSet());
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            criteria.add(parameters.getResultTimes()
-                                   .stream()
-                                   .map(Instant::parse)
-                                   .map(Instant::toDate)
-                                   .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
-                                   .collect(Restrictions::disjunction,
-                                            Disjunction::add,
-                                            (a, b) -> b.conditions()
-                                                       .forEach(a::add)));
+            criteria.add(parameters.getResultTimes().stream()
+                    .map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add,
+                             (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
 
     public Criteria addSpatialFilter(Criteria criteria) {
-        Criterion filter = createSpatialFilter();
-        return filter != null
-                ? criteria.add(filter)
-                : criteria;
+        SpatialFilter filter = createSpatialFilter();
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
-        Criterion filter = createSpatialFilter();
-        return filter != null
-                ? criteria.add(filter)
-                : criteria;
+        SpatialFilter filter = createSpatialFilter();
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
-    private Criterion createSpatialFilter() {
-        BoundingBox bbox = parameters.getSpatialFilter();
-        if (bbox != null) {
-            Geometry envelope = getSpatialFilter();
+    public SpatialFilter createSpatialFilter() {
+        Envelope envelope = getSpatialFilter();
+        if (envelope != null) {
+            int databaseSrid = CRSUtils.getSrsIdFrom(databaseSridCode);
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.intersects(geometryMember, JTSGeometryConverter.convert(envelope));
+            return SpatialRestrictions.filter(geometryMember, JTSGeometryConverter.convert(envelope), databaseSrid);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,
@@ -447,4 +440,5 @@ public class DbQuery {
     public DbQuery withoutFieldsFilter() {
         return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
+
 }

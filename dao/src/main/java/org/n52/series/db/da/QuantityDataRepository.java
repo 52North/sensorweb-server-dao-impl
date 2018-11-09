@@ -32,17 +32,20 @@ package org.n52.series.db.da;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
@@ -50,17 +53,18 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
+@DataRepositoryComponent(value = "quantity", datasetEntityType = QuantityDatasetEntity.class)
 public class QuantityDataRepository extends
-        AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
+        AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> {
 
     @Override
-    public Class<QuantityDatasetEntity> getDatasetEntityType() {
-        return QuantityDatasetEntity.class;
+    protected QuantityValue createEmptyValue() {
+        return new QuantityValue();
     }
 
     @Override
-    public List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
-                                                                                 DbQuery query) {
+    public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(QuantityDatasetEntity datasetEntity,
+                                                                        DbQuery query) {
         List<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
@@ -70,48 +74,28 @@ public class QuantityDataRepository extends
             refenceValueOutput.setReferenceValueId(createReferenceDatasetId(query, referenceSeriesEntity));
 
             QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
-            refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
+            refenceValueOutput.setLastValue(assembleDataValue(lastValue, referenceSeriesEntity, query));
             outputs.add(refenceValueOutput);
         }
         return outputs;
     }
 
     @Override
-    protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                                  DbQuery dbQuery,
-                                                                  Session session)
+    protected Data<QuantityValue> assembleExpandedData(QuantityDatasetEntity dataset,
+                                                       DbQuery query,
+                                                       Session session)
             throws DataAccessException {
-        Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
-        List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            DatasetMetadata<QuantityValue> metadata = new DatasetMetadata<>();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result = assembleData(timeseries, dbQuery, metadata, session);
-        }
-        return result;
-    }
+        Data<QuantityValue> result = assembleData(dataset, query, session);
+        DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
-    @Override
-    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
-        Data<QuantityValue> result = new Data<>();
-        return assembleData(result, seriesEntity, query, session);
-    }
+        QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
+        QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
+        metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
+        metadata.setValueAfterTimespan(createValue(nextValue, dataset, query));
 
-    private Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query,
-            DatasetMetadata<QuantityValue> metadata, Session session) throws DataAccessException {
-        Data<QuantityValue> result = new Data<>(metadata);
-        return assembleData(result, seriesEntity, query, session);
-    }
-
-    private Data<QuantityValue> assembleData(Data<QuantityValue> result, QuantityDatasetEntity seriesEntity,
-            DbQuery query, Session session) throws DataAccessException {
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (QuantityDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(createSeriesValueFor(observation, seriesEntity, query));
-            }
+        List<QuantityDatasetEntity> referenceValues = dataset.getReferenceValues();
+        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
         }
         return result;
     }
@@ -122,12 +106,10 @@ public class QuantityDataRepository extends
             throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished() && referenceSeriesEntity instanceof QuantityDatasetEntity) {
+            if (referenceSeriesEntity.isPublished()) {
                 Data<QuantityValue> referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity,
-                                                                         query,
-                                                                         session);
+                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
@@ -169,30 +151,41 @@ public class QuantityDataRepository extends
         return result;
     }
 
+    @Override
+    protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session) {
+        Data<QuantityValue> result = new Data<>();
+        DataDao<QuantityDataEntity> dao = createDataDao(session);
+        List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        for (QuantityDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+            }
+        }
+        return result;
+    }
+
     private QuantityValue[] expandToInterval(BigDecimal value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
-        QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan()
-                                               .getStart()
-                                               .toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan()
-                                             .getEnd()
-                                             .toDate());
+        Date startDate = query.getTimespan().getStart().toDate();
+        referenceStart.setSamplingTimeStart(startDate);
+        referenceStart.setSamplingTimeEnd(startDate);
         referenceStart.setValue(value);
+
+        Date endDate = query.getTimespan().getEnd().toDate();
+        QuantityDataEntity referenceEnd = new QuantityDataEntity();
+        referenceEnd.setSamplingTimeStart(endDate);
+        referenceEnd.setSamplingTimeEnd(endDate);
         referenceEnd.setValue(value);
+
         return new QuantityValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
+                                    assembleDataValue(referenceStart, series, query),
+                                    assembleDataValue(referenceEnd, series, query),
         };
+
     }
 
     @Override
-    protected QuantityValue createEmptyValue() {
-        return new QuantityValue();
-    }
-
-    @Override
-    public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
+    public QuantityValue assembleDataValue(QuantityDataEntity observation,
                                               QuantityDatasetEntity dataset,
                                               DbQuery query) {
         QuantityValue value = createValue(observation, dataset, query);
@@ -201,26 +194,29 @@ public class QuantityDataRepository extends
 
     private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity dataset, DbQuery query) {
         ServiceEntity service = getServiceEntity(dataset);
-        BigDecimal observationValue = !service.isNoDataValue(observation)
-                ? format(observation, dataset)
-                : null;
-        return createValue(observationValue, observation, query);
+        return !service.isNoDataValue(observation)
+            ? createValue(format(observation, dataset), observation, query)
+            : null;
     }
 
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
-        QuantityValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
-        return value;
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        IoParameters parameters = query.getParameters();
+        return parameters.isShowTimeIntervals()
+            ? new QuantityValue(start, end, observationValue)
+            : new QuantityValue(end, observationValue);
     }
 
     private BigDecimal format(QuantityDataEntity observation, QuantityDatasetEntity series) {
         if (observation.getValue() == null) {
             return observation.getValue();
         }
-        Integer scale = series.getNumberOfDecimals();
-        return scale != null && scale.intValue() >= 0
-                ? observation.getValue().setScale(scale, RoundingMode.HALF_UP)
-                : observation.getValue();
+        int scale = series.getNumberOfDecimals();
+        return observation.getValue()
+                          .setScale(scale, RoundingMode.HALF_UP);
     }
 
 }

@@ -26,6 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
@@ -47,26 +48,27 @@ import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
-        extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<T>> {
+public abstract class ProfileDataRepository<P extends ProfileDatasetEntity, V, T>
+        extends
+        AbstractDataRepository<P, ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
 
     private static final String PARAMETER_NAME = "name";
     private static final String PARAMETER_VALUE = "value";
     private static final String PARAMETER_UNIT = "unit";
 
     @Override
-    protected ProfileValue<T> createEmptyValue() {
+    protected ProfileValue<V> createEmptyValue() {
         return new ProfileValue<>();
     }
 
     @Override
-    public ProfileValue<T> getFirstValue(P dataset, Session session, DbQuery query) {
+    public ProfileValue<V> getFirstValue(P dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getFirstValue(dataset, session, query);
     }
 
     @Override
-    public ProfileValue<T> getLastValue(P dataset, Session session, DbQuery query) {
+    public ProfileValue<V> getLastValue(P dataset, Session session, DbQuery query) {
         query.setComplexParent(true);
         return super.getLastValue(dataset, session, query);
     }
@@ -80,18 +82,24 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     }
 
     @Override
-    protected Data<ProfileValue<T>> assembleData(P datasetEntity, DbQuery query, Session session)
+    protected Data<ProfileValue<V>> assembleData(P datasetEntity, DbQuery query, Session session)
             throws DataAccessException {
         query.setComplexParent(true);
-        Data<ProfileValue<T>> result = new Data<>();
+        Data<ProfileValue<V>> result = new Data<>();
         DataDao<ProfileDataEntity> dao = createDataDao(session);
         List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
         for (ProfileDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(createSeriesValueFor(observation, datasetEntity, query));
+                result.addNewValue(assembleDataValue(observation, datasetEntity, query));
             }
         }
         return result;
+    }
+
+    @Override
+    public ProfileValue<V> assembleDataValue(ProfileDataEntity observation, P dataset, DbQuery query) {
+        ProfileValue<V> profile = createValue(observation, dataset, query);
+        return addMetadatasIfNeeded(observation, profile, dataset, query);
     }
 
     protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
@@ -101,28 +109,20 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
         ProfileValue<T> profile = parameters.isShowTimeIntervals()
-                ? new ProfileValue<>(start, end, null)
-                : new ProfileValue<>(end, null);
+            ? new ProfileValue<>(start, end, null)
+            : new ProfileValue<>(end, null);
         return profile;
     }
 
-    @Override
-    protected ProfileValue<T> createSeriesValueFor(ProfileDataEntity observation,
-                                                   P dataset,
-                                                   DbQuery query) {
-        ProfileValue<T> profile = createValue(observation, dataset, query);
-        return addMetadatasIfNeeded(observation, profile, dataset, query);
-    }
-
-    protected abstract ProfileValue<T> createValue(ProfileDataEntity observation,
+    protected abstract ProfileValue<V> createValue(ProfileDataEntity observation,
                                                    ProfileDatasetEntity dataset,
                                                    DbQuery query);
 
-    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
+    protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity,
                                                                             ProfileValue<T> profile,
                                                                             ProfileDataEntity observation,
                                                                             DbQuery query) {
-        ProfileDataItem<T> dataItem = new ProfileDataItem<>();
+        ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
 
         IoParameters parameters = query.getParameters();
@@ -181,15 +181,11 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
     private String getVerticalUnit(Set<Map<String, Object>> parameters, ProfileDatasetEntity dataset) {
         String unit = null;
         for (Map<String, Object> parameter : parameters) {
-            if (unit == null
-                    && parameter.containsKey(PARAMETER_NAME)
-                    &&
-                    (parameter.get(PARAMETER_NAME)
-                              .equals(dataset.getVerticalParameterName())
-                            || parameter.get(PARAMETER_NAME)
-                                        .equals(dataset.getVerticalFromParameterName())
-                            || parameter.get(PARAMETER_NAME)
-                                        .equals(dataset.getVerticalToParameterName()))) {
+            Object verticalName = parameter.get(PARAMETER_NAME);
+            if (unit == null && parameter.containsKey(PARAMETER_NAME) &&
+                    (verticalName.equals(dataset.getVerticalParameterName())
+                            || verticalName.equals(dataset.getVerticalFromParameterName())
+                            || verticalName.equals(dataset.getVerticalToParameterName()))) {
                 unit = (String) parameter.get(PARAMETER_UNIT);
             }
         }
