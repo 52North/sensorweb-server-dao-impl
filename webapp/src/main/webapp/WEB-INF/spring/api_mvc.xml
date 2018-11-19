@@ -51,6 +51,7 @@
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="categoryParameterService" />
+                <constructor-arg index="1" ref="${request.interval.restriction}" />
             </bean>
         </constructor-arg>
     </bean>
@@ -90,10 +91,21 @@
         </property>
     </bean>
 
+    <bean class="org.n52.web.ctrl.IndividualObservationsController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+    </bean>
+    <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+    </bean>
+    <bean class="org.n52.web.ctrl.TrajectoriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+    </bean>
+
+    <!--
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
     </bean>
-
+    -->
     <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="metadataExtensions">
