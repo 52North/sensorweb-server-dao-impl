@@ -42,12 +42,10 @@ public interface DataRepositoryTypeFactory {
 
     Set<String> getKnownTypes();
 
-    <S extends DatasetEntity,
-     E extends DataEntity<T>,
-     V extends AbstractValue< ? >,
-     T> DataRepository<S, E, V, T> create(String valueType, Class<S> entityType);
+    <S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue<?>, T> DataRepository<S, E, V, T> create(
+            String valueType, Class<S> entityType);
 
-    Class< ? extends DatasetEntity> getDatasetEntityType(String valueType);
+    Class<? extends DatasetEntity> getDatasetEntityType(String valueType);
 
     boolean hasCacheEntry(String valueType);
 

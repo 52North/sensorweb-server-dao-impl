@@ -40,7 +40,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.n52.io.geojson.GeoJSONFeature;
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.GeometryOutput;
@@ -153,23 +152,25 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
     private List<GeometryOutput> getAllInstances(DbQuery query, Session session, boolean expanded)
             throws DataAccessException {
         List<GeometryOutput> geometries = new ArrayList<>();
-        final FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallIncludeInsituPlatformTypes()) {
-            if (filterResolver.shallIncludePlatformGeometriesSite()) {
-                geometries.addAll(getAllSites(query, session, expanded));
-            }
-            if (filterResolver.shallIncludePlatformGeometriesTrack()) {
-                geometries.addAll(getAllTracks(query, session, expanded));
-            }
-        }
-        if (filterResolver.shallIncludeRemotePlatformTypes()) {
-            if (filterResolver.shallIncludeObservedGeometriesStatic()) {
-                geometries.addAll(getAllObservedGeometriesStatic(query, session, expanded));
-            }
-            if (filterResolver.shallIncludeObservedGeometriesDynamic()) {
-                geometries.addAll(getAllObservedGeometriesDynamic(query, session, expanded));
-            }
-        }
+        // final FilterResolver filterResolver = query.getFilterResolver();
+        // if (filterResolver.shallIncludeInsituDatasets()) {
+        // if (filterResolver.shallIncludePlatformGeometriesSite()) {
+        // geometries.addAll(getAllSites(query, session, expanded));
+        // }
+        // if (filterResolver.shallIncludePlatformGeometriesTrack()) {
+        // geometries.addAll(getAllTracks(query, session, expanded));
+        // }
+        // }
+        // if (filterResolver.shallIncludeRemoteDatasets()) {
+        // if (filterResolver.shallIncludeObservedGeometriesStatic()) {
+        // geometries.addAll(getAllObservedGeometriesStatic(query, session,
+        // expanded));
+        // }
+        // if (filterResolver.shallIncludeObservedGeometriesDynamic()) {
+        // geometries.addAll(getAllObservedGeometriesDynamic(query, session,
+        // expanded));
+        // }
+        // }
         return geometries;
     }
 
@@ -198,8 +199,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         List<GeometryOutput> geometryInfoList = new ArrayList<>();
         FeatureDao dao = createFeatureDao(session);
         DbQuery siteQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                             "stationary"));
+                                                                .replaceWith(Parameters.FILTER_MOBILE,
+                                                                             "false"));
         for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
             GeometryOutput geometryInfo = createSite(featureEntity, parameters, expanded);
             if (geometryInfo != null) {
@@ -222,8 +223,8 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         List<GeometryOutput> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery trackQuery = dbQueryFactory.createFrom(parameters.getParameters()
-                                                                 .replaceWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                              "mobile"));
+                                                                 .replaceWith(Parameters.FILTER_MOBILE,
+                                                                              "true"));
         for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
             geometryInfoList.add(createTrack(featureEntity, parameters, expanded, session));
         }
@@ -334,8 +335,6 @@ public class GeometriesRepository extends SessionAwareRepository implements Outp
         DbQuery platformQuery = dbQueryFactory.createFrom(parameters.getParameters()
                                                                     .extendWith(Parameters.FEATURES,
                                                                                 String.valueOf(entity.getId()))
-                                                                    .extendWith(Parameters.FILTER_PLATFORM_TYPES,
-                                                                                "all")
                                                                     .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);

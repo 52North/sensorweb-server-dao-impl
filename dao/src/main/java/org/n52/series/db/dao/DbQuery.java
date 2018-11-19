@@ -29,8 +29,6 @@
 
 package org.n52.series.db.dao;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.Date;
 import java.util.Set;
 
@@ -55,8 +53,6 @@ import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -192,11 +188,11 @@ public class DbQuery {
                           .isEmpty();
     }
 
-    public String getHandleAsValueTypeFallback() {
-        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
-                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
-                : ValueType.DEFAULT_VALUE_TYPE;
-    }
+//    public String getHandleAsValueTypeFallback() {
+//        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
+//                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+//                : ValueType.DEFAULT_VALUE_TYPE;
+//    }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
         return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
@@ -293,10 +289,10 @@ public class DbQuery {
         }
 
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        if (hasValues(platforms)) {
-            features.addAll(getStationaryIds(platforms));
-            procedures.addAll(getMobileIds(platforms));
-        }
+//        if (hasValues(platforms)) {
+//            features.addAll(getStationaryIds(platforms));
+//            procedures.addAll(getMobileIds(platforms));
+//        }
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
@@ -305,8 +301,7 @@ public class DbQuery {
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(series, filter);
 
-        addFilterRestriction(datasets.stream().map(ValueType::extractId).collect(toSet()),
-                             filter);
+        addFilterRestriction(datasets, filter);
 
         // TODO refactory/simplify projection
         String projectionProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
@@ -375,19 +370,19 @@ public class DbQuery {
         return values != null && !values.isEmpty();
     }
 
-    private Set<String> getStationaryIds(Set<String> platforms) {
-        return platforms.stream()
-                        .filter(PlatformType::isStationaryId)
-                        .map(PlatformType::extractId)
-                        .collect(toSet());
-    }
-
-    private Set<String> getMobileIds(Set<String> platforms) {
-        return platforms.stream()
-                .filter(PlatformType::isMobileId)
-                .map(PlatformType::extractId)
-                .collect(toSet());
-    }
+//    private Set<String> getStationaryIds(Set<String> platforms) {
+//        return platforms.stream()
+//                        .filter(PlatformType::isStationaryId)
+//                        .map(PlatformType::extractId)
+//                        .collect(toSet());
+//    }
+//
+//    private Set<String> getMobileIds(Set<String> platforms) {
+//        return platforms.stream()
+//                .filter(PlatformType::isMobileId)
+//                .map(PlatformType::extractId)
+//                .collect(toSet());
+//    }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
@@ -415,7 +410,7 @@ public class DbQuery {
         if (envelope != null) {
             int databaseSrid = CRSUtils.getSrsIdFrom(databaseSridCode);
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-            return SpatialRestrictions.filter(geometryMember, JTSGeometryConverter.convert(envelope), databaseSrid);
+            return SpatialRestrictions.filter(geometryMember, envelope, databaseSrid);
 
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,

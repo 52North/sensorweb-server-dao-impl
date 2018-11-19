@@ -33,9 +33,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.transform.DistinctResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
@@ -54,32 +52,36 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileFilter(true))
-                                            .setResultTransformer(DistinctResultTransformer.INSTANCE);
-        DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE, createMobileFilter(false))
-                                                .setResultTransformer(DistinctResultTransformer.INSTANCE);
+        // DetachedCriteria mobile =
+        // QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE,
+        // createMobileFilter(true))
+        // .setResultTransformer(DistinctResultTransformer.INSTANCE);
+        // DetachedCriteria stationary =
+        // QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
+        // createMobileFilter(false))
+        // .setResultTransformer(DistinctResultTransformer.INSTANCE);
 
         DatasetDao<DatasetEntity> datasetDao = new DatasetDao<>(session);
-        return (int) Long.sum(count(stationary, datasetDao, query),
-                              count(mobile, datasetDao, query));
+        return count(datasetDao, query).intValue();
     }
 
-    private Long count(DetachedCriteria subquery, AbstractDao< ? > dao, DbQuery query) {
+    private Long count(AbstractDao<?> dao, DbQuery query) {
         Criteria criteria = dao.getDefaultCriteria(query);
-        Criteria elements = criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, subquery));
-        return (Long) elements.setProjection(Projections.rowCount())
-                              .uniqueResult();
+        // Criteria elements =
+        // criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, subquery));
+        return (Long) criteria.setProjection(Projections.rowCount()).uniqueResult();
     }
 
-    private DetachedCriteria createMobileFilter(boolean mobile) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.add(Restrictions.eq(DatasetEntity.PROPERTY_MOBILE, mobile));
-        return criteria;
-    }
+    // private DetachedCriteria createMobileFilter(boolean mobile) {
+    // DetachedCriteria criteria =
+    // DetachedCriteria.forClass(DatasetEntity.class);
+    // criteria.add(Restrictions.eq(DatasetEntity.PROPERTY_MOBILE, mobile));
+    // return criteria;
+    // }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_PROCEDURE;
+        return DatasetEntity.PROPERTY_PLATFORM;
     }
 
     @Override
@@ -95,11 +97,12 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     @Override
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
         /*
-         * Filters for the last known location (max result time) of a mobile platform
+         * Filters for the last known location (max result time) of a mobile
+         * platform
          *
-         * Here we do have to consider mobile variants only (mobile=true has been set beforehand) as
-         * repository decides already which DAO is used to query stationary (--> FeatureDao) and mobile
-         * platforms
+         * Here we do have to consider mobile variants only (mobile=true has
+         * been set beforehand) as repository decides already which DAO is used
+         * to query stationary (--> FeatureDao) and mobile platforms
          */
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.isSetMobileFilter()) {
@@ -112,20 +115,16 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
             DetachedCriteria maxResultTimeByDatasetId = DetachedCriteria.forClass(DataEntity.class, rtAlias);
             maxResultTimeByDatasetId.setProjection(Projections.projectionList()
-                                                              // .add(Projections.groupProperty(rtColumn))
-                                                              .add(Projections.groupProperty(rtDatasetId))
-                                                              .add(Projections.max(rtResultTime)));
+                    // .add(Projections.groupProperty(rtColumn))
+                    .add(Projections.groupProperty(rtDatasetId)).add(Projections.max(rtResultTime)));
 
-            String[] matchProperties = new String[] {
-                                                     IdEntity.PROPERTY_ID,
-                                                     // DataEntity.PROPERTY_SERIES_PKID,
-                                                     DataEntity.PROPERTY_RESULT_TIME
-            };
+            String[] matchProperties = new String[] { IdEntity.PROPERTY_ID,
+                    // DataEntity.PROPERTY_SERIES_PKID,
+                    DataEntity.PROPERTY_RESULT_TIME };
             DetachedCriteria observationCriteria = query.addSpatialFilter(DetachedCriteria.forClass(DataEntity.class))
-                                                        .add(Subqueries.propertiesIn(matchProperties,
-                                                                                     maxResultTimeByDatasetId))
-                                                        .createCriteria(DataEntity.PROPERTY_DATASET)
-                                                        .setProjection(Projections.property(DataEntity.PROPERTY_ID));
+                    .add(Subqueries.propertiesIn(matchProperties, maxResultTimeByDatasetId))
+                    .createCriteria(DataEntity.PROPERTY_DATASET)
+                    .setProjection(Projections.property(DataEntity.PROPERTY_ID));
 
             criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, observationCriteria));
         }

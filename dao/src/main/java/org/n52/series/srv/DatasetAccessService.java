@@ -31,12 +31,10 @@ package org.n52.series.srv;
 
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.beans.DatasetEntity;
@@ -85,14 +83,14 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
     private Data<V> getDataFor(String datasetId, IoParameters parameters)
             throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
-        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
-            LOGGER.debug("unknown type: " + valueType);
-            return new Data<>();
-        }
-        Class<? extends DatasetEntity> entityType = dataFactory.getDatasetEntityType(valueType);
-        DataRepository<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create(valueType, entityType);
+//        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+//        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+//        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+//            LOGGER.debug("unknown type: " + valueType);
+//            return new Data<>();
+//        }
+        Class<? extends DatasetEntity> entityType = DatasetEntity.class;
+        DataRepository<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create("", entityType);
         return assembler.getData(datasetId, dbQuery);
     }
 

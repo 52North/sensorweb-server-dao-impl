@@ -30,8 +30,6 @@ package org.n52.series.db.da;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.HibernateSessionStore;
@@ -57,7 +55,8 @@ public class EntityCounter {
     private final DbQueryFactory dbQueryFactory;
 
     @Autowired
-    public EntityCounter(HibernateSessionStore sesionStore, DataRepositoryTypeFactory dataRepositoryFactory, DbQueryFactory dbQueryFactory) {
+    public EntityCounter(HibernateSessionStore sesionStore, DataRepositoryTypeFactory dataRepositoryFactory,
+            DbQueryFactory dbQueryFactory) {
         this.sessionStore = sesionStore;
         this.dataRepositoryFactory = dataRepositoryFactory;
         this.dbQueryFactory = dbQueryFactory;
@@ -161,8 +160,9 @@ public class EntityCounter {
 
     private DbQuery createBackwardsCompatibleQuery() {
         IoParameters parameters = IoParameters.createDefaults();
-        parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES, "stationary", "insitu")
-                               .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
+        // parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES,
+        // "stationary", "insitu")
+        //     .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
         return dbQueryFactory.createFrom(parameters);
     }
 

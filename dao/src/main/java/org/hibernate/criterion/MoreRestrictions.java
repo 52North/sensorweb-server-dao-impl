@@ -297,11 +297,9 @@ public final class MoreRestrictions {
      *        the finishing function to a create a single criterion from an criterion array
      * @return the collector
      */
-    private static Collector<Criterion, ? , Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
-        return collectingAndThen(collectingAndThen(toSet(),
-                                                   (Set<Criterion> s) -> s.stream()
-                                                                          .toArray(Criterion[]::new)),
-                                 finisher);
+    private static Collector<Criterion, ?, Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
+        return collectingAndThen(collectingAndThen(toSet(), (Set<Criterion> s) -> s.stream().toArray(Criterion[]::new)),
+                finisher);
     }
 
 }

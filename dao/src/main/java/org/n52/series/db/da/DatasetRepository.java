@@ -42,8 +42,11 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.IndividualObservationOutput;
+import org.n52.io.response.dataset.ProfileOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
-import org.n52.io.response.dataset.ValueType;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
+import org.n52.io.response.dataset.TrajectoryOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
@@ -56,8 +59,6 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.web.exception.BadQueryParameterException;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -65,11 +66,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  * @param <V>
- *        the datasets type this repository is responsible for.
+ *            the datasets type this repository is responsible for.
  */
-public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwareRepository
-        implements
-        OutputAssembler<DatasetOutput<V>> {
+public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareRepository
+        implements OutputAssembler<DatasetOutput<V>> {
 
     @Autowired
     private DataRepositoryTypeFactory dataRepositoryFactory;
@@ -81,19 +81,18 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
     public boolean exists(String id, DbQuery query) {
         Session session = getSession();
         try {
-            String dbId = ValueType.extractId(id);
-            String handleAsFallback = query.getHandleAsValueTypeFallback();
-            String valueType = ValueType.extractType(id, handleAsFallback);
-            if (!dataRepositoryFactory.isKnown(valueType)) {
-                return false;
-            }
-            DatasetDao< ? extends DatasetEntity> dao = getDatasetDao(valueType, session);
-            Class< ? extends DatasetEntity> datasetEntityType = dataRepositoryFactory.getDatasetEntityType(valueType);
+            // String handleAsFallback = query.getHandleAsValueTypeFallback();
+            // String valueType = ValueType.extractType(id, handleAsFallback);
+            //
+            // if (!dataRepositoryFactory.isKnown(valueType)) {
+            // return false;
+            // }
+            Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
+            DatasetDao<? extends DatasetEntity> dao = getDatasetDao(datasetEntityType, session);
 
             IoParameters parameters = query.getParameters();
-            return parameters.isMatchDomainIds()
-                ? dao.hasInstance(dbId, query, datasetEntityType)
-                : dao.hasInstance(parseId(dbId), query, datasetEntityType);
+            return parameters.isMatchDomainIds() ? dao.hasInstance(id, query, datasetEntityType)
+                    : dao.hasInstance(parseId(id), query, datasetEntityType);
         } finally {
             returnSession(session);
         }
@@ -114,8 +113,9 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
         List<DatasetOutput<V>> results = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters().isMatchDomainIds()) {
-            String valueType = query.getHandleAsValueTypeFallback();
-            addCondensedResults(getDatasetDao(valueType, session), query, results, session);
+            // String valueType = query.getHandleAsValueTypeFallback();
+            Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
+            addCondensedResults(getDatasetDao(datasetEntityType, session), query, results, session);
             return results;
         }
 
@@ -129,40 +129,42 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
         return results;
     }
 
-    private void addCondensedResults(DatasetDao< ? extends DatasetEntity> dao,
-                                     DbQuery query,
-                                     List<DatasetOutput<V>> results,
-                                     Session session) {
+    private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
+            List<DatasetOutput<V>> results, Session session) {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getValueType())) {
+            if (dataRepositoryFactory.isKnown(series.getValueType().name())) {
                 results.add(createCondensed(series, query, session));
             }
         }
     }
 
-    private DatasetDao< ? extends DatasetEntity> getDatasetDao(Class< ? extends DatasetEntity> clazz, Session session) {
+    private DatasetDao<? extends DatasetEntity> getDatasetDao(Class<? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
     }
 
-    private DatasetDao< ? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
-        if (! ("all".equalsIgnoreCase(valueType) || dataRepositoryFactory.isKnown(valueType))) {
-            throw new BadQueryParameterException("invalid type: " + valueType);
-        }
-        return createDataAccessRepository(valueType, session);
+    private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
+        // if (! ("all".equalsIgnoreCase(valueType) ||
+        // dataRepositoryFactory.isKnown(valueType))) {
+        // throw new BadQueryParameterException("invalid type: " + valueType);
+        // }
+        return createDataAccessRepository(DatasetEntity.class, session);
     }
 
-    private DatasetDao< ? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
+    private DatasetDao<? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
             throws DataAccessException {
-        String handleAsFallback = query.getHandleAsValueTypeFallback();
-        final String valueType = ValueType.extractType(datasetId, handleAsFallback);
-        if (!dataRepositoryFactory.isKnown(valueType)) {
-            throw new ResourceNotFoundException("unknown type: " + valueType);
-        }
-        return createDataAccessRepository(valueType, session);
+        // String handleAsFallback = query.getHandleAsValueTypeFallback();
+        // final String valueType = ValueType.extractType(datasetId,
+        // handleAsFallback);
+        Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
+        // if (!dataRepositoryFactory.isKnown(datasetEntityType)) {
+        // throw new ResourceNotFoundException("unknown type: " + valueType);
+        // }
+        return createDataAccessRepository(datasetEntityType, session);
     }
 
-    private DatasetDao< ? extends DatasetEntity> createDataAccessRepository(String valueType, Session session) {
-        return getDatasetDao(dataRepositoryFactory.getDatasetEntityType(valueType), session);
+    private DatasetDao<? extends DatasetEntity> createDataAccessRepository(
+            Class<? extends DatasetEntity> datasetEntityType, Session session) {
+        return getDatasetDao(datasetEntityType, session);
     }
 
     @Override
@@ -179,10 +181,9 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
     public List<DatasetOutput<V>> getAllExpanded(DbQuery query, Session session) {
         List<DatasetOutput<V>> results = new ArrayList<>();
         FilterResolver filterResolver = query.getFilterResolver();
-        if (query.getParameters()
-                 .isMatchDomainIds()) {
-            String valueType = query.getHandleAsValueTypeFallback();
-            addExpandedResults(getDatasetDao(valueType, session), query, results, session);
+        if (query.getParameters().isMatchDomainIds()) {
+            // String valueType = query.getHandleAsValueTypeFallback();
+            addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
             return results;
         }
 
@@ -196,12 +197,10 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
         return results;
     }
 
-    private void addExpandedResults(DatasetDao< ? extends DatasetEntity> dao,
-                                    DbQuery query,
-                                    List<DatasetOutput<V>> results,
-                                    Session session) {
+    private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
+            List<DatasetOutput<V>> results, Session session) {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getValueType())) {
+            if (dataRepositoryFactory.isKnown(series.getValueType().name())) {
                 results.add(createExpanded(series, query, session));
             }
         }
@@ -224,10 +223,8 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
     }
 
     DatasetEntity getInstanceEntity(String id, DbQuery query, Session session) {
-        String rawId = ValueType.extractId(id);
-        DatasetDao< ? extends DatasetEntity> dao = getSeriesDao(id, query, session);
-        DatasetEntity instance = dao.getInstance(Long.parseLong(rawId), query);
-        instance.setPlatform(platformRepository.getPlatformEntity(instance, query, session));
+        DatasetDao<? extends DatasetEntity> dao = getDatasetDao(DatasetEntity.class, session);
+        DatasetEntity instance = dao.getInstance(Long.parseLong(id), query);
         return instance;
     }
 
@@ -235,22 +232,21 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
     public Collection<SearchResult> searchFor(IoParameters paramters) {
         Session session = getSession();
         try {
-            DatasetDao< ? extends DatasetEntity> dao = getDatasetDao(DatasetEntity.class, session);
+            DatasetDao<? extends DatasetEntity> dao = getDatasetDao(DatasetEntity.class, session);
             DbQuery query = getDbQuery(paramters);
-            List< ? extends DatasetEntity> found = dao.find(query);
+            List<? extends DatasetEntity> found = dao.find(query);
             return convertToSearchResults(found, query);
         } finally {
             returnSession(session);
         }
     }
 
-    public List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
+    public List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
-        String hrefBase = HrefHelper.constructHref(query.getHrefBase(), DatasetOutput.COLLECTION_PATH);
+        String hrefBase = query.getHrefBase();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String id = searchResult.getId()
-                                    .toString();
+            String id = searchResult.getId().toString();
             String label = searchResult.getLabelFrom(locale);
             results.add(new DatasetSearchResult(id, label, hrefBase));
         }
@@ -260,23 +256,46 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
     protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
 
-        String valueType = dataset.getValueType();
-        DatasetOutput<V> result = DatasetOutput.create(valueType, parameters);
+        DatasetOutput<V> result = DatasetOutput.create(parameters);
 
         Long id = dataset.getId();
         String hrefBase = query.getHrefBase();
         String domainId = dataset.getIdentifier();
         String uom = dataset.getUnitI18nName(query.getLocale());
         String label = createDatasetLabel(dataset, query.getLocale());
-        String platformtype = getCondensedPlatform(dataset, query.withoutFieldsFilter(), session).getPlatformType();
 
         result.setId(id.toString());
         result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-        result.setValue(DatasetOutput.PLATFORM_TYPE, platformtype, parameters, result::setPlatformType);
+        result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().getOutputString(), parameters,
+                result::setDatasetType);
+        result.setValue(DatasetOutput.AGGREGATION, dataset.getAggregationType().name(), parameters,
+                result::setAggrgation);
+        result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
+        result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
+        result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
+        result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
         return result;
+    }
+
+    private String createHref(String hrefBase, DatasetEntity dataset) {
+        return HrefHelper.constructHref(hrefBase, getCollectionName(dataset)) + "/" + dataset.getId();
+    }
+
+    private String getCollectionName(DatasetEntity dataset) {
+        switch (dataset.getDatasetType()) {
+        case individual_observation:
+            return IndividualObservationOutput.COLLECTION_PATH;
+        case trajectory:
+            return TrajectoryOutput.COLLECTION_PATH;
+        case profile:
+            return ProfileOutput.COLLECTION_PATH;
+        case timeseries:
+            return TimeseriesMetadataOutput.COLLECTION_PATH;
+        default:
+            return DatasetOutput.COLLECTION_PATH;
+        }
     }
 
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
@@ -289,17 +308,16 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
             dataset.setService(getServiceEntity());
         }
 
-        DataRepository<DatasetEntity, ? , V, ? > dataRepository = getDataRepositoryFactory(dataset);
+        DataRepository<DatasetEntity, ?, V, ?> dataRepository = getDataRepositoryFactory(dataset);
         V firstValue = dataRepository.getFirstValue(dataset, session, query);
-        V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt())
-            ? firstValue
-            : dataRepository.getLastValue(dataset, session, query);
+        V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
+                : dataRepository.getLastValue(dataset, session, query);
 
         List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query);
         lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
-            // first == last to have a valid interval
-            ? firstValue
-            : lastValue;
+                // first == last to have a valid interval
+                ? firstValue
+                : lastValue;
 
         result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
         result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
@@ -309,22 +327,21 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
         return result;
     }
 
-    private DataRepository<DatasetEntity, ? , V, ? > getDataRepositoryFactory(DatasetEntity dataset) {
-        return dataRepositoryFactory.create(dataset.getValueType(), DatasetEntity.class);
+    private DataRepository<DatasetEntity, ?, V, ?> getDataRepositoryFactory(DatasetEntity dataset) {
+        return dataRepositoryFactory.create(dataset.getValueType().name(), DatasetEntity.class);
     }
 
-    private boolean isCongruentValues(AbstractValue< ? > firstValue, AbstractValue< ? > lastValue) {
+    private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
         return firstValue.getTimestamp().equals(lastValue.getTimestamp());
     }
 
     private boolean isReferenceSeries(DatasetEntity series) {
-        return series.getProcedure()
-                     .isReference();
+        return series.getProcedure().isReference();
     }
 
     private PlatformOutput getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session) {
         // platform has to be handled dynamically (see #309)
-        return platformRepository.createCondensedPlatform(dataset, query, session);
+        return platformRepository.createCondensedPlatform(dataset.getPlatform(), query, session);
     }
 
     private String createDatasetLabel(DatasetEntity dataset, String locale) {
@@ -339,14 +356,8 @@ public class DatasetRepository<V extends AbstractValue< ? >> extends SessionAwar
         String stationLabel = feature.getLabelFrom(locale);
 
         StringBuilder sb = new StringBuilder();
-        return sb.append(phenomenonLabel)
-                 .append(" ")
-                 .append(procedureLabel)
-                 .append(", ")
-                 .append(stationLabel)
-                 .append(", ")
-                 .append(offeringLabel)
-                 .toString();
+        return sb.append(phenomenonLabel).append(" ").append(procedureLabel).append(", ").append(stationLabel)
+                .append(", ").append(offeringLabel).toString();
     }
 
     public DataRepositoryTypeFactory getDataRepositoryTypeFactory() {

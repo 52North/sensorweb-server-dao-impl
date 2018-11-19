@@ -40,7 +40,6 @@ import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
@@ -48,7 +47,6 @@ import org.n52.series.db.beans.parameter.Parameter;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.JTSGeometryConverter;
 
 public abstract class AbstractDataRepository<S extends DatasetEntity,
                                              E extends DataEntity<T>,
@@ -62,14 +60,12 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            String id = ValueType.extractId(datasetId);
             DatasetDao<S> seriesDao = getSeriesDao(session);
             IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
-            S series = seriesDao.getInstance(id,
-                                             getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                  .removeAllOf(Parameters.NEAR)
-                                                                  .removeAllOf(Parameters.ODATA_FILTER)));
+            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                                                      .removeAllOf(Parameters.NEAR)
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
@@ -113,8 +109,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     @Override
     public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
-//        DataDao<E> dao = createDataDao(session);
-//        return dao.getValueGeometryViaTimeend(entity, query);
+        // DataDao<E> dao = createDataDao(session);
+        // return dao.getValueGeometryViaTimeend(entity, query);
         org.n52.series.db.beans.data.Data<?> lastObservation = entity.getLastObservation();
         return lastObservation != null
                 ? lastObservation.getGeometryEntity()
