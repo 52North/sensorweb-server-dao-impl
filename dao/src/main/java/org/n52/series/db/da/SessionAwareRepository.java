@@ -35,6 +35,8 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -42,7 +44,7 @@ import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.PlatformType;
+import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -52,25 +54,21 @@ import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
-import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 public abstract class SessionAwareRepository {
 
@@ -120,7 +118,7 @@ public abstract class SessionAwareRepository {
         } else {
             String srid = query.getDatabaseSridCode();
             geometryEntity.setGeometryFactory(createGeometryFactory(srid));
-            return JTSGeometryConverter.convert(geometryEntity.getGeometry());
+            return geometryEntity.getGeometry();
         }
     }
 
@@ -131,17 +129,17 @@ public abstract class SessionAwareRepository {
             : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
-    // XXX a bit misplaced here
-    protected String getPlatformId(DatasetEntity dataset) {
-        ProcedureEntity procedure = dataset.getProcedure();
-        boolean mobile = dataset.isMobile();
-        boolean insitu = dataset.isInsitu();
-        PlatformType type = PlatformType.toInstance(mobile, insitu);
-        DescribableEntity entity = type.isStationary()
-                ? dataset.getFeature()
-                : procedure;
-        return type.createId(entity.getId());
-    }
+//    // XXX a bit misplaced here
+//    protected String getPlatformId(DatasetEntity dataset) {
+//        ProcedureEntity procedure = dataset.getProcedure();
+//        boolean mobile = dataset.isMobile();
+//        boolean insitu = dataset.isInsitu();
+//        PlatformType type = PlatformType.toInstance(mobile, insitu);
+//        DescribableEntity entity = type.isStationary()
+//                ? dataset.getFeature()
+//                : procedure;
+//        return type.createId(entity.getId());
+//    }
 
     protected Long parseId(String id) throws BadRequestException {
         try {
@@ -269,6 +267,10 @@ public abstract class SessionAwareRepository {
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(), entity, parameters);
+    }
+
+    protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
+        return createCondensed(new PlatformOutput(), entity, parameters);
     }
 
     protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {

@@ -53,6 +53,7 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
@@ -81,7 +82,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO JavaDoc
@@ -301,7 +301,7 @@ public abstract class FESCriterionGenerator {
      * @return the criterion
      */
     protected Criterion createSpatialFilterCriterion(SpatialFilter filter) {
-        Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
+        Geometry geom = filter.getGeometry().toGeometry();
 
         return createSpatialFilterCriterion(filter.getOperator(), filter.getValueReference(), geom);
     }

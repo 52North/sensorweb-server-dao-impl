@@ -173,7 +173,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
         if (dataEntity.isSetGeometryEntity()) {
             GeometryEntity geometry = dataEntity.getGeometryEntity();
-            value.setGeometry(JTSGeometryConverter.convert(geometry.getGeometry()));
+            value.setGeometry(geometry.getGeometry());
         }
     }
 

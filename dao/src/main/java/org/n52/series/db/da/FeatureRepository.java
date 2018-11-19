@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OutputWithParameters;
@@ -66,6 +67,14 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     }
 
     @Override
+    protected FeatureOutput createCondensed(FeatureEntity entity, DbQuery query, Session session) {
+        FeatureOutput result = super.createCondensed(entity, query, session);
+        result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
+                result::setGeometry);
+        return result;
+    }
+
+    @Override
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
         FeatureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
@@ -74,7 +83,14 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
         Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         result.setValue(OutputWithParameters.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+
         return result;
+    }
+
+    private Geometry createGeometry(FeatureEntity featureEntity, DbQuery query) {
+        return featureEntity.isSetGeometry()
+                ? getGeometry(featureEntity.getGeometryEntity(), query)
+                : null;
     }
 
 }
