@@ -14,7 +14,6 @@
 
     <modules>
         <module>dao</module>
-        <module>sos-integration</module>
         <module>mappings</module>
         <module>webapp</module>
     </modules>
@@ -70,11 +69,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>dao</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sos-integration</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
