@@ -89,8 +89,10 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
 //            LOGGER.debug("unknown type: " + valueType);
 //            return new Data<>();
 //        }
+        DatasetOutput<V> dataset = getParameter(datasetId, parameters);
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
-        DataRepository<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create("", entityType);
+        DataRepository<? extends DatasetEntity, ?, V, ?> assembler =
+                dataFactory.create(dataset.getObservationType(), dataset.getValueType(), entityType);
         return assembler.getData(datasetId, dbQuery);
     }
 

@@ -39,8 +39,8 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.dao.DbQuery;
@@ -80,8 +80,8 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
         return createRepository().getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
-        return factory.create(QuantityValue.TYPE, QuantityDatasetEntity.class);
+    private DataRepository<DatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
+        return factory.create("", QuantityValue.TYPE, DatasetEntity.class);
     }
 
 }
