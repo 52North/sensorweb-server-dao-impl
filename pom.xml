@@ -33,8 +33,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/52North/dao-series-api.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/52North/dao-series-api.git</developerConnection>
+        <connection>scm:git:https://github.com/52North/dao-series-api.git</connection>
+        <developerConnection>scm:git:https://git@github.com/52North/dao-series-api.git</developerConnection>
         <url>https://github.com/52North/dao-series-api</url>
         <tag>HEAD</tag>
     </scm>
