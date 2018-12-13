@@ -48,6 +48,7 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.beans.AbstractFeatureEntity;
@@ -59,13 +60,14 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
 import org.n52.web.exception.BadRequestException;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +120,11 @@ public abstract class SessionAwareRepository {
         } else {
             String srid = query.getDatabaseSridCode();
             geometryEntity.setGeometryFactory(createGeometryFactory(srid));
-            return geometryEntity.getGeometry();
+            try {
+                return getCrsUtils().transformOuterToInner(geometryEntity.getGeometry(), srid);
+            } catch (FactoryException | TransformException e) {
+                throw new DataAccessException("Error while creating geometry!", e);
+            }
         }
     }
 
@@ -128,18 +134,6 @@ public abstract class SessionAwareRepository {
             ? new GeometryFactory(pm)
             : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
-
-//    // XXX a bit misplaced here
-//    protected String getPlatformId(DatasetEntity dataset) {
-//        ProcedureEntity procedure = dataset.getProcedure();
-//        boolean mobile = dataset.isMobile();
-//        boolean insitu = dataset.isInsitu();
-//        PlatformType type = PlatformType.toInstance(mobile, insitu);
-//        DescribableEntity entity = type.isStationary()
-//                ? dataset.getFeature()
-//                : procedure;
-//        return type.createId(entity.getId());
-//    }
 
     protected Long parseId(String id) throws BadRequestException {
         try {
@@ -162,11 +156,11 @@ public abstract class SessionAwareRepository {
         }
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(List<QuantityDatasetEntity> series,
+    protected Map<String, DatasetParameters> createTimeseriesList(List<DatasetEntity> series,
                                                                   DbQuery parameters)
             throws DataAccessException {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
-        for (QuantityDatasetEntity timeseries : series) {
+        for (DatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
                            .isReference()) {
                 String timeseriesId = Long.toString(timeseries.getId());
@@ -176,7 +170,7 @@ public abstract class SessionAwareRepository {
         return timeseriesOutputs;
     }
 
-    protected DatasetParameters createTimeseriesOutput(QuantityDatasetEntity dataset, DbQuery parameters)
+    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
             throws DataAccessException {
         DatasetParameters metadata = new DatasetParameters();
         ServiceEntity service = getServiceEntity(dataset);
@@ -184,7 +178,6 @@ public abstract class SessionAwareRepository {
         metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
         metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
         metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedFeature(dataset.getFeature(), parameters));
         metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
         return metadata;
     }
@@ -197,9 +190,8 @@ public abstract class SessionAwareRepository {
         metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), query));
         metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), query));
         metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
-        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), query));
         metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
-        // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
+        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
         return metadata;
     }
 
@@ -249,9 +241,11 @@ public abstract class SessionAwareRepository {
                                                             DbQuery query) {
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
+        String domainId = entity.getIdentifier();
         String hrefBase = query.getHrefBase();
 
         result.setId(id);
+        result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
         result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
         result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
         return result;
