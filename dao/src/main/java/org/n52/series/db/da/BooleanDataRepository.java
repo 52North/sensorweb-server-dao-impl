@@ -35,13 +35,13 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.BooleanDataEntity;
-import org.n52.series.db.beans.BooleanDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public class BooleanDataRepository
-        extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
+        extends AbstractDataRepository<DatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
 
     @Override
     protected BooleanValue createEmptyValue() {
@@ -49,7 +49,7 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<BooleanValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<BooleanValue> result = new Data<>();
         DataDao<BooleanDataEntity> dao = createDataDao(session);
@@ -64,7 +64,7 @@ public class BooleanDataRepository
 
     @Override
     public BooleanValue assembleDataValue(BooleanDataEntity observation,
-                                             BooleanDatasetEntity series,
+                                            DatasetEntity series,
                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         Boolean observationValue = !service.isNoDataValue(observation)

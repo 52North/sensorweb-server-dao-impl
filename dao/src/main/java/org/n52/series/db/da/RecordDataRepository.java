@@ -39,15 +39,15 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryComponent;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
-import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-@DataRepositoryComponent(value = "record", datasetEntityType = RecordDatasetEntity.class)
+@DataRepositoryComponent(value = "record", datasetEntityType = DatasetEntity.class)
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue, Map<String, Object>> {
+        extends AbstractDataRepository<DatasetEntity, RecordDataEntity, RecordValue, Map<String, Object>> {
 
     @Override
     protected RecordValue createEmptyValue() {
@@ -55,7 +55,7 @@ public class RecordDataRepository
     }
 
     @Override
-    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session)
+    protected Data<RecordValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
@@ -70,7 +70,7 @@ public class RecordDataRepository
     }
 
     @Override
-    public RecordValue assembleDataValue(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public RecordValue assembleDataValue(RecordDataEntity observation, DatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

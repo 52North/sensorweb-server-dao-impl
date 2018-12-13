@@ -49,14 +49,14 @@ import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-@DataRepositoryComponent(value = "quantity", datasetEntityType = QuantityDatasetEntity.class)
+@DataRepositoryComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityDataRepository
-        extends AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> {
+        extends AbstractDataRepository<DatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> {
 
     @Override
     protected QuantityValue createEmptyValue() {

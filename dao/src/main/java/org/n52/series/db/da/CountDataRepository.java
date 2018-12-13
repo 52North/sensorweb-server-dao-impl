@@ -38,15 +38,15 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CountDataEntity;
-import org.n52.series.db.beans.CountDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 
-@DataRepositoryComponent(value = "count", datasetEntityType = CountDatasetEntity.class)
+@DataRepositoryComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue, Integer> {
+        extends AbstractDataRepository<DatasetEntity, CountDataEntity, CountValue, Integer> {
 
     @Override
     protected CountValue createEmptyValue() {
@@ -54,7 +54,7 @@ public class CountDataRepository
     }
 
     @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CountValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<CountValue> result = new Data<>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
@@ -67,7 +67,7 @@ public class CountDataRepository
     }
 
     @Override
-    public CountValue assembleDataValue(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    public CountValue assembleDataValue(CountDataEntity observation, DatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

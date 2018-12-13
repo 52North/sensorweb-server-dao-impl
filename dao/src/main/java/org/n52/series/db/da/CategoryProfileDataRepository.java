@@ -35,13 +35,12 @@ import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.beans.CategoryDataEntity;
-import org.n52.series.db.beans.CategoryProfileDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public class CategoryProfileDataRepository extends ProfileDataRepository<CategoryProfileDatasetEntity, String, String> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<DatasetEntity, String, String> {
 
     private final CategoryDataRepository categoryRepository;
 
@@ -51,7 +50,7 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<Categor
 
     @Override
     protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               ProfileDatasetEntity dataset,
+                                               DatasetEntity dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();

@@ -38,14 +38,14 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CategoryDataEntity;
-import org.n52.series.db.beans.CategoryDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-@DataRepositoryComponent(value = "category", datasetEntityType = CategoryDatasetEntity.class)
+@DataRepositoryComponent(value = "category", datasetEntityType = DatasetEntity.class)
 public class CategoryDataRepository
-        extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue, String> {
+        extends AbstractDataRepository<DatasetEntity, CategoryDataEntity, CategoryValue, String> {
 
     @Override
     protected CategoryValue createEmptyValue() {
@@ -53,7 +53,7 @@ public class CategoryDataRepository
     }
 
     @Override
-    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CategoryValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
         List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
@@ -67,7 +67,7 @@ public class CategoryDataRepository
 
     @Override
     public CategoryValue assembleDataValue(CategoryDataEntity observation,
-                                              CategoryDatasetEntity series,
+            DatasetEntity series,
                                               DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
@@ -79,7 +79,7 @@ public class CategoryDataRepository
     }
 
     private CategoryValue createValue(CategoryDataEntity observation,
-                                      CategoryDatasetEntity series,
+            DatasetEntity series,
                                       DbQuery query,
                                       String observationValue) {
         ServiceEntity service = getServiceEntity(series);

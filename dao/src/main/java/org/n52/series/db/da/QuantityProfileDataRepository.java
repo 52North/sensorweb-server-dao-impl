@@ -38,15 +38,14 @@ import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-@DataRepositoryComponent(value = "quantity-profile", datasetEntityType = QuantityProfileDatasetEntity.class)
+@DataRepositoryComponent(value = "quantity-profile", datasetEntityType = DatasetEntity.class)
 public class QuantityProfileDataRepository extends
-        ProfileDataRepository<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
+        ProfileDataRepository<DatasetEntity, BigDecimal, BigDecimal> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -56,7 +55,7 @@ public class QuantityProfileDataRepository extends
 
     @Override
     protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                                   ProfileDatasetEntity datasetEntity,
+                                                   DatasetEntity datasetEntity,
                                                    DbQuery query) {
         ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();

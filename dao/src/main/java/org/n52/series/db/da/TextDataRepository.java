@@ -39,12 +39,12 @@ import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-@DataRepositoryComponent(value = "text", datasetEntityType = TextDatasetEntity.class)
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue, String> {
+@DataRepositoryComponent(value = "text", datasetEntityType = DatasetEntity.class)
+public class TextDataRepository extends AbstractDataRepository<DatasetEntity, TextDataEntity, TextValue, String> {
 
     @Override
     protected TextValue createEmptyValue() {
@@ -52,7 +52,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session)  {
+    protected Data<TextValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)  {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
         List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
@@ -65,7 +65,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    public TextValue assembleDataValue(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
+    public TextValue assembleDataValue(TextDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
@@ -76,7 +76,7 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     private TextValue createValue(TextDataEntity observation,
-                                  TextDatasetEntity series,
+                                  DatasetEntity series,
                                   DbQuery query,
                                   String observationValue) {
         ServiceEntity service = getServiceEntity(series);
