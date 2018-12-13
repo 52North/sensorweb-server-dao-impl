@@ -154,15 +154,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         }
     }
 
-    @Override
-    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
-        PlatformOutput output = super.createCondensed(entity, query, session);
-        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
-        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
-        // re-set ID after platformtype has been determined
-        output.setId(Long.toString(entity.getId()));
-        return output;
-    }
+//    @Override
+//    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+//        PlatformOutput output = super.createCondensed(entity, query, session);
+//        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
+//        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
+//        // re-set ID after platformtype has been determined
+//        output.setId(Long.toString(entity.getId()));
+//        return output;
+//    }
 
     @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
@@ -226,7 +226,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     private boolean isValidGeometry(GeometryEntity geometry) {
-        return geometry != null && geometry.isSetGeometry();
+        return (geometry != null) && geometry.isSetGeometry();
     }
 
     /**
@@ -245,7 +245,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         Geometry filter = query.getSpatialFilter();
         if (filter != null) {
             Geometry envelope = filter.getEnvelope();
-            return envelope == null || geometry != null && envelope.contains(geometry);
+            return (envelope == null) || (geometry != null && envelope.contains(geometry));
         }
         return true;
     }
@@ -257,7 +257,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         if (feature == null) {
             throwNewResourceNotFoundException("Station", id);
         }
-        return PlatformType.isInsitu(id) ? convertInsitu(feature, query) : convertRemote(feature, query);
+        return convertToPlatform(feature, query);
     }
 
     private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) throws DataAccessException {
@@ -299,14 +299,14 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
-        return convertAllInsitu(featureDao.getAllInstances(query), query);
+        return convertAll(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session)
             throws DataAccessException {
         FeatureDao featureDao = createFeatureDao(session);
         DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
-        return convertAllRemote(featureDao.getAllInstances(query), query);
+        return convertAll(featureDao.getAllInstances(query), query);
     }
 
     private List<PlatformEntity> getAllMobile(DbQuery query, Session session) throws DataAccessException {
@@ -335,24 +335,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return getDbQuery(parameters.getParameters().replaceWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
     }
 
-    private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream().map(x -> convertInsitu(x, query)).collect(toList());
-    }
-
-    private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream().map(x -> convertRemote(x, query)).collect(toList());
-    }
-
-    private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {
-        PlatformEntity platform = convertToPlatform(entity, query);
-        platform.setInsitu(true);
-        return platform;
-    }
-
-    private PlatformEntity convertRemote(FeatureEntity entity, DbQuery query) {
-        PlatformEntity platform = convertToPlatform(entity, query);
-        platform.setInsitu(false);
-        return platform;
+    private List<PlatformEntity> convertAll(List<FeatureEntity> entities, DbQuery query) {
+        return entities.stream().map(it -> convertToPlatform(it, query)).collect(toList());
     }
 
     private PlatformEntity convertToPlatform(FeatureEntity entity, DbQuery query) {

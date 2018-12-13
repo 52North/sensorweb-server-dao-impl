@@ -37,6 +37,7 @@ import org.geolatte.geom.GeometryType;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Projections;
@@ -161,7 +162,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                 ? alias
                 : getDefaultAlias();
         Criteria criteria = session.createCriteria(clazz, nonNullAlias);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         addDatasetFilters(query, criteria);
         addPlatformTypeFilter(getDatasetProperty(), criteria, query);
         addValueTypeFilter(getDatasetProperty(), criteria, query);
@@ -211,7 +212,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                if (parameter == null || parameter.isEmpty()) {
+                if ((parameter == null) || parameter.isEmpty()) {
                     // join starts from dataset table
                     criteria.add(Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, valueTypes));
                 } else {
@@ -229,17 +230,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         IoParameters parameters = query.getParameters();
         FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllPlatformTypes()) {
-            if (parameter == null || parameter.isEmpty()) {
+            if ((parameter == null) || parameter.isEmpty()) {
                 // join starts from dataset table
-                criteria.add(createPlatformTypeRestriction(DatasetDao.PROCEDURE_PATH_ALIAS, filterResolver));
-            } else if (parameter.endsWith(DatasetEntity.PROPERTY_PROCEDURE)) {
-                // restrict directly on procedure table
                 criteria.add(createPlatformTypeRestriction(filterResolver));
             } else {
                 // join procedure table via dataset table
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, DatasetDao.PROCEDURE_PATH_ALIAS)
-                 .add(createPlatformTypeRestriction(filterResolver));
+                c.add(createPlatformTypeRestriction(filterResolver));
 
                 QueryUtils.setFilterProjectionOn(parameter, c);
                 criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));

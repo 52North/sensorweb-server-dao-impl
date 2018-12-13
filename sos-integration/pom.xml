@@ -12,10 +12,6 @@
     <description>Integration Module for SOS Series Databases.</description>
     <url>http://52north.org/communities/sensorweb/</url>
 
-    <properties>
-        <version.sos>5.0.2-SNAPSHOT</version.sos>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -36,30 +32,6 @@
             <version>1</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.n52.sensorweb.sos</groupId>
-            <artifactId>hibernate-session-factory</artifactId>
-            <version>${version.sos}</version>
-            <exclusions>
-                <exclusion>
-                    <!-- need a newer version -->
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-spatial</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.n52.sensorweb.sos</groupId>
-                    <artifactId>api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.n52.arctic-sea</groupId>
-                    <artifactId>janmayen</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.n52.arctic-sea</groupId>
-                    <artifactId>faroe-utils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-spatial</artifactId>

@@ -138,7 +138,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         IoParameters parameters = query.getParameters();
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
-        if (parameters.isShowTimeIntervals() && timestart != null) {
+        if (parameters.isShowTimeIntervals() && (timestart != null)) {
             emptyValue.setTimestart(timestart.getTime());
         }
         emptyValue.setTimestamp(timeend.getTime());

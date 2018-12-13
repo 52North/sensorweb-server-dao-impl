@@ -34,13 +34,13 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.hibernate.transform.DistinctResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,14 +53,14 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
-        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileSubquery(true));
-        DetachedCriteria stationary = QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE,
-                                                              createMobileSubquery(false));
+        DetachedCriteria mobile = QueryUtils.projectionOn(DatasetEntity.PROPERTY_PROCEDURE, createMobileFilter(true))
+                .setResultTransformer(DistinctResultTransformer.INSTANCE);
+        DetachedCriteria stationary =
+                QueryUtils.projectionOn(DatasetEntity.PROPERTY_FEATURE, createMobileFilter(false))
+                        .setResultTransformer(DistinctResultTransformer.INSTANCE);
 
-        FeatureDao featureDao = new FeatureDao(session);
-        ProcedureDao procedureDao = new ProcedureDao(session);
-        return (int) Long.sum(count(stationary, featureDao, query),
-                              count(mobile, procedureDao, query));
+        DatasetDao<DatasetEntity> datasetDao = new DatasetDao<>(session);
+        return (int) Long.sum(count(stationary, datasetDao, query), count(mobile, datasetDao, query));
     }
 
     private Long count(DetachedCriteria subquery, AbstractDao< ? > dao, DbQuery query) {
@@ -70,10 +70,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
                               .uniqueResult();
     }
 
-    private DetachedCriteria createMobileSubquery(boolean mobile) {
+    private DetachedCriteria createMobileFilter(boolean mobile) {
         DetachedCriteria criteria = DetachedCriteria.forClass(DatasetEntity.class);
-        criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE)
-                .add(Restrictions.eq(ProcedureEntity.PROPERTY_MOBILE, mobile));
+        criteria.add(Restrictions.eq(PlatformEntity.PROPERTY_MOBILE, mobile));
         return criteria;
     }
 
@@ -95,9 +94,9 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     @Override
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
         /*
-         * We do have to consider only mobile variants here (which filter has been set beforehand) as
-         * repository decides already which DAO is used to query stationary (--> FeatureDao) and mobile
-         * platforms
+         * Filters for the last known location (max result time) of a mobile platform
+         *
+         * Here we do have to consider mobile variants only (mobile=true has been set beforehand) as
          */
         FilterResolver filterResolver = query.getFilterResolver();
         if (filterResolver.isSetMobileFilter()) {

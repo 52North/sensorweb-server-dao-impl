@@ -16,7 +16,7 @@
         API Web layer. Custom implementation has to be defined by bean descriptions using the ref-ids associated below. -->
 
     <bean class="org.n52.web.ctrl.ResourcesController">
-        <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
+        <property name="metadataService" ref="metadataService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.SearchController">
@@ -32,6 +32,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="offeringParameterService" />
@@ -40,6 +41,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="serviceParameterService" />
@@ -48,6 +50,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="categoryParameterService" />
@@ -56,6 +59,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="featureParameterService" />
@@ -64,6 +68,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="procedureParameterService" />
@@ -72,6 +77,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService">
             <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
                 <constructor-arg index="0" ref="phenomenonParameterService" />
@@ -80,6 +86,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="platformParameterService" />
         <property name="metadataExtensions">
             <list merge="true">
@@ -91,10 +98,12 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
+      <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="metadataExtensions">
             <list merge="true">
@@ -119,6 +128,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.DataController">
+        <constructor-arg type="org.n52.io.handler.DefaultIoFactory" ref="ioFactory" />
         <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="preRenderingTask" ref="preRenderingJob" />
@@ -133,10 +143,12 @@
     <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
     <bean class="org.n52.web.ctrl.StationsParameterController">
+        <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="stationParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.TimeseriesMetadataController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
         <property name="metadataExtensions">
             <list merge="true">
