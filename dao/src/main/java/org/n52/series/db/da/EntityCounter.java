@@ -40,10 +40,12 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.FeatureDao;
+import org.n52.series.db.dao.MeasuringProgramDao;
 import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
+import org.n52.series.db.dao.SamplingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class EntityCounter {
@@ -129,6 +131,24 @@ public class EntityCounter {
                                 dbQueryFactory.createFrom(parameters));
             }
             return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
+    }
+
+    public int countSamplings(DbQuery query) throws DataAccessException {
+        Session session = sessionStore.getSession();
+        try {
+            return getCount(new SamplingDao(session), query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
+    }
+
+    public int countMeasuringPrograms(DbQuery query) throws DataAccessException {
+        Session session = sessionStore.getSession();
+        try {
+            return getCount(new MeasuringProgramDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }
