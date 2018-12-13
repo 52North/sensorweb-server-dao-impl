@@ -20,6 +20,8 @@
     <bean name="offeringRepository" class="org.n52.series.db.da.OfferingRepository" />
     <bean name="platformRepository" class="org.n52.series.db.da.PlatformRepository" />
     <bean name="datasetRepository" class="org.n52.series.db.da.DatasetRepository" />
+    <bean name="samplingRepository" class="org.n52.series.db.da.SamplingRepository" />
+    <bean name="measuringProgramRepository" class="org.n52.series.db.da.MeasuringProgramRepository" />
     <!-- <bean name="geometriesRepository" class="org.n52.series.db.da.GeometriesRepository" /> -->
 
     <bean id="serviceParameterService" class="org.n52.series.srv.AccessService">
@@ -72,6 +74,13 @@
         </constructor-arg>
     </bean>
 
+    <bean id="samplingsParameterService" class="org.n52.series.srv.AccessService">
+        <constructor-arg index="0" ref="samplingRepository" />
+    </bean>
+
+    <bean id="measuringProgramsParameterService" class="org.n52.series.srv.AccessService">
+        <constructor-arg index="0" ref="measuringProgramRepository" />
+    </bean>
 
     <!-- ########################################################## -->
     <!-- ################# LEGACY BEAN INJECTIONS ################# -->

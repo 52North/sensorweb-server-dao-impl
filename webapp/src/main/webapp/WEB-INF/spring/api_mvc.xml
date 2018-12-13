@@ -137,6 +137,14 @@
         <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
     </bean>
 
+    <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingsParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.MeasuringProgramsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramsParameterService" />
+    </bean>
+
     <!-- ################################################################ -->
     <!-- ################# LEGACY CONTROLLER INJECTIONS ################# -->
     <!-- ################################################################ -->
