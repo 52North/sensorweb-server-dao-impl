@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 
 @Ignore
 public class SessionAwareRepositoryTest {
@@ -71,7 +70,7 @@ public class SessionAwareRepositoryTest {
         FeatureEntity feature = new FeatureEntity();
         feature.setId(id);
 
-        DatasetEntity dataset = new QuantityDatasetEntity();
+        DatasetEntity dataset = new DatasetEntity();
         dataset.setMobile(mobile);
         dataset.setInsitu(insitu);
         dataset.setProcedure(procedure);
