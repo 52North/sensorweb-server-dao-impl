@@ -29,9 +29,12 @@
 
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -224,6 +227,22 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         } finally {
             returnSession(session);
         }
+    }
+
+    protected E unproxy(DataEntity<?> dataEntity) {
+        return (E) Hibernate.unproxy(dataEntity);
+    }
+
+
+    protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
+       return format(value, dataset.getNumberOfDecimals());
+    }
+
+    protected BigDecimal format(BigDecimal value, int scale) {
+        if (value == null) {
+            return value;
+        }
+        return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
 }
