@@ -38,15 +38,15 @@ import org.n52.series.db.da.DataRepository;
 
 public interface DataRepositoryTypeFactory {
 
-    boolean isKnown(String valueType);
+    boolean isKnown(String observationType, String valueType);
 
     Set<String> getKnownTypes();
 
     <S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue<?>, T> DataRepository<S, E, V, T> create(
-            String valueType, Class<S> entityType);
+            String observationType, String valueType, Class<S> entityType);
 
-    Class<? extends DatasetEntity> getDatasetEntityType(String valueType);
+    Class<? extends DatasetEntity> getDatasetEntityType(String observationType, String valueType);
 
-    boolean hasCacheEntry(String valueType);
+    boolean hasCacheEntry(String observationType, String valueType);
 
 }

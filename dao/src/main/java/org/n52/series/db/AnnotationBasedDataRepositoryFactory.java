@@ -29,7 +29,6 @@
 
 package org.n52.series.db;
 
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationBasedDataRepositoryFactory.class);
 
-    private final Map<String, ? super DataRepository< ?, ?, ?, ? >> cache;
+    private final Map<String, ? super DataRepository<?, ?, ?, ?>> cache;
 
     private final ApplicationContext appContext;
 
@@ -63,45 +62,42 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     }
 
     private Stream<DataRepository<? extends DatasetEntity,
-                                  ? extends DataEntity<?>,
-                                  ? extends AbstractValue<?>,
-                                  ?>> getAllDataAssemblers() {
+                                    ? extends DataEntity<?>,
+                                    ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(DataRepositoryComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
         LOGGER.debug("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
-                     dataAssembleTypes.stream()
-                                      .map(it -> it.getClass().getSimpleName())
-                                      .collect(Collectors.joining(", ")));
-        return dataAssembleTypes.stream()
-                                .filter(DataRepository.class::isInstance)
-                                .map(DataRepository.class::cast);
+                dataAssembleTypes.stream().map(it -> it.getClass().getSimpleName()).collect(Collectors.joining(", ")));
+        return dataAssembleTypes.stream().filter(DataRepository.class::isInstance).map(DataRepository.class::cast);
     }
 
     @Override
-    public boolean isKnown(String valueType) {
-        return hasCacheEntry(valueType) || getAllDataAssemblers().map(this::getDataType)
-                                                                 .filter(it -> it.equals(valueType))
-                                                                 .findFirst()
-                                                                 .isPresent();
+    public boolean isKnown(String observationType, String valueType) {
+        return hasCacheEntry(observationType, valueType) || getAllDataAssemblers().map(this::getDataType)
+                .filter(it -> it.equals(getType(observationType, valueType))).findFirst().isPresent();
+    }
+
+    private String getType(String observationType, String valueType) {
+        return (observationType != null && !observationType.isEmpty() && !observationType.equals("discrete"))
+                ? valueType + "-" + observationType
+                : valueType;
     }
 
     private Optional<DataRepository<? extends DatasetEntity,
                                     ? extends DataEntity<?>,
-                                    ? extends AbstractValue<?>,
-                                    ?>> findDataAssembler(String type) {
-        return getAllDataAssemblers().filter(it -> getDataType(it).equals(type)).findFirst();
+                                    ? extends AbstractValue<?>, ?>> findDataAssembler(
+            String observationType, String valueType) {
+        return getAllDataAssemblers().filter(it -> getDataType(it).equals(getType(observationType, valueType)))
+                .findFirst();
     }
 
     @Override
     public Set<String> getKnownTypes() {
-        return getAllDataAssemblers().map(this::getDataType)
-                                     .collect(Collectors.toSet());
+        return getAllDataAssemblers().map(this::getDataType).collect(Collectors.toSet());
     }
 
-    private String getDataType(DataRepository<? extends DatasetEntity,
-                                              ? extends DataEntity<?>,
-                                              ? extends AbstractValue<?>,
-                                              ?> assembler) {
+    private String getDataType(
+            DataRepository<? extends DatasetEntity, ? extends DataEntity<?>, ? extends AbstractValue<?>, ?> assembler) {
         return assembler.getClass().getAnnotation(DataRepositoryComponent.class).value();
     }
 
@@ -109,34 +105,35 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @SuppressWarnings("unchecked")
     public <S extends DatasetEntity,
             E extends DataEntity<T>,
-            V extends AbstractValue< ? >,
-            T> DataRepository<S, E, V, T> create(String type, Class<S> entityType) {
-        return (DataRepository<S, E, V, T>) addToCache(type, findDataAssembler(type).orElseThrow(throwException(type)));
+            V extends AbstractValue<?>, T>
+            DataRepository<S, E, V, T> create(
+            String observationType, String valueType, Class<S> entityType) {
+        return (DataRepository<S, E, V, T>) addToCache(observationType, valueType,
+                findDataAssembler(observationType, valueType).orElseThrow(throwException(observationType, valueType)));
     }
 
     private <A extends DataRepository<? extends DatasetEntity,
-                                      ? extends DataEntity<?>,
-                                      ? extends AbstractValue<?>,
-                                      ?>> A addToCache(String valueType, A assembler) {
-        cache.put(valueType, assembler);
+                                        ? extends DataEntity<?>,
+                                        ? extends AbstractValue<?>, ?>> A addToCache(
+            String observationType, String valueType, A assembler) {
+        cache.put(getType(observationType, valueType), assembler);
         return assembler;
     }
 
-    private Supplier< ? extends DataAccessException> throwException(String type) {
-        return () -> new DataAccessException("Unknown type: " + type);
+    private Supplier<? extends DataAccessException> throwException(String observationType, String valueType) {
+        return () -> new DataAccessException("Unknown type: " + getType(observationType, valueType));
     }
 
     @Override
-    public Class< ? extends DatasetEntity> getDatasetEntityType(String valueType) {
-        return findDataAssembler(valueType).map(Object::getClass)
-                                           .map(it -> it.getAnnotation(DataRepositoryComponent.class))
-                                           .map(DataRepositoryComponent::datasetEntityType)
-                                           .get();
+    public Class<? extends DatasetEntity> getDatasetEntityType(String observationType, String valueType) {
+        return findDataAssembler(observationType, valueType).map(Object::getClass)
+                .map(it -> it.getAnnotation(DataRepositoryComponent.class))
+                .map(DataRepositoryComponent::datasetEntityType).get();
     }
 
     @Override
-    public boolean hasCacheEntry(String valueType) {
-        return cache.containsKey(valueType);
+    public boolean hasCacheEntry(String observationType, String valueType) {
+        return cache.containsKey(getType(observationType, valueType));
     }
 
 }
