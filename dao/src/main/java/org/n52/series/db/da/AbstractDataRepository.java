@@ -43,7 +43,7 @@ import org.n52.io.response.dataset.Data;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.parameter.Parameter;
+import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -91,19 +91,15 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimestart(entity, query);
-        return valueEntity != null
-            ? assembleDataValue(valueEntity, entity, query)
-            : null;
+        return entity.getFirstObservation() != null
+                ? assembleDataValue(unproxy(entity.getFirstObservation()), entity, query)
+                : null;
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
-        DataDao<E> dao = createDataDao(session);
-        E valueEntity = dao.getDataValueViaTimeend(entity, query);
-        return valueEntity != null
-            ? assembleDataValue(valueEntity, entity, query)
+        return entity.getLastObservation() != null
+            ? assembleDataValue(unproxy(entity.getLastObservation()), entity, query)
             : null;
     }
 
@@ -111,7 +107,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
         // DataDao<E> dao = createDataDao(session);
         // return dao.getValueGeometryViaTimeend(entity, query);
-        org.n52.series.db.beans.data.Data<?> lastObservation = entity.getLastObservation();
+        DataEntity<?> lastObservation = entity.getLastObservation();
         return lastObservation != null
                 ? lastObservation.getGeometryEntity()
                 : null;
@@ -196,7 +192,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
     protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
         if (observation.hasParameters()) {
-            for (Parameter< ? > parameter : observation.getParameters()) {
+            for (ParameterEntity< ? > parameter : observation.getParameters()) {
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
         }
