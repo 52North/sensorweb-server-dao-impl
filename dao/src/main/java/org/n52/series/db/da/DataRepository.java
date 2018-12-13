@@ -61,9 +61,10 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      *        the dataset
      * @param query
      *        the query
+     * @param session hibernate session
      * @return a list of reference values
      */
-    default List<ReferenceValueOutput<V>> getReferenceValues(S datasetEntity, DbQuery query) {
+    default List<ReferenceValueOutput<V>> getReferenceValues(S datasetEntity, DbQuery query, Session session) {
         return Collections.emptyList();
     }
 
