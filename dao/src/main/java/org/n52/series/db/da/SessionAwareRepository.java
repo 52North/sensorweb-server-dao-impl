@@ -266,7 +266,16 @@ public abstract class SessionAwareRepository {
     }
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return createCondensed(new FeatureOutput(), entity, parameters);
+        FeatureOutput result = createCondensed(new FeatureOutput(), entity, parameters);
+        result.setValue(StationOutput.GEOMETRY, createGeometry(entity, parameters), parameters.getParameters(),
+                result::setGeometry);
+        return result;
+    }
+
+    private Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
+        return featureEntity.isSetGeometry()
+                ? getGeometry(featureEntity.getGeometryEntity(), query)
+                : null;
     }
 
     protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {

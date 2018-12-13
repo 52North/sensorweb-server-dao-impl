@@ -29,14 +29,9 @@
 
 package org.n52.series.db.da;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.hibernate.Session;
-import org.locationtech.jts.geom.Geometry;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.OutputWithParameters;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -68,10 +63,7 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
 
     @Override
     protected FeatureOutput createCondensed(FeatureEntity entity, DbQuery query, Session session) {
-        FeatureOutput result = super.createCondensed(entity, query, session);
-        result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
-                result::setGeometry);
-        return result;
+        return getCondensedFeature(entity, query);
     }
 
     @Override
@@ -80,17 +72,8 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(OutputWithParameters.PARAMETERS, parameters, query.getParameters(), result::setParameters);
-
         return result;
-    }
-
-    private Geometry createGeometry(FeatureEntity featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
     }
 
 }
