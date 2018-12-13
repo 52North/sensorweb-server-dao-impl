@@ -32,11 +32,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="offeringParameterService" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="offeringParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
@@ -48,36 +44,19 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="categoryParameterService" />
-                <constructor-arg index="1" ref="${request.interval.restriction}" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="categoryParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="featureParameterService" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="featureParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="procedureParameterService" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="procedureParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="phenomenonParameterService" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="phenomenonParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
@@ -90,17 +69,17 @@
             </list>
         </property>
     </bean>
-
+<!--
     <bean class="org.n52.web.ctrl.IndividualObservationsController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
     </bean>
     <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
     </bean>
     <bean class="org.n52.web.ctrl.TrajectoriesController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="trajectoryService" />
     </bean>
-
+ -->
     <!--
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
