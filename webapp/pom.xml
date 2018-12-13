@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.n52.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0-alpha.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>webapp</artifactId>
