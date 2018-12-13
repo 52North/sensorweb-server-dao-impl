@@ -56,7 +56,7 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.dataset.AggregationType;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nEntity;
@@ -207,15 +207,15 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected Criteria addDatasetTypesFilter(String parameter, Criteria criteria, DbQuery query) {
         IoParameters parameters = query.getParameters();
         Set<String> datasetTypes = parameters.getDatasetTypes();
-        Set<String> aggregations = parameters.getAggregations();
+        Set<String> observationsTypes = parameters.getObservationTypes();
         Set<String> valueTypes = parameters.getValueTypes();
-        if (!datasetTypes.isEmpty() || !aggregations.isEmpty() || !valueTypes.isEmpty()) {
+        if (!datasetTypes.isEmpty() || !observationsTypes.isEmpty() || !valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
                 Criterion containsDatasetType = Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE,
                         DatasetType.convert(datasetTypes));
-                Criterion containsAggrgation = Restrictions.in(DatasetEntity.PROPERTY_AGGREGATION_TYPE,
-                        AggregationType.convert(aggregations));
+                Criterion containsAggrgation = Restrictions.in(DatasetEntity.PROPERTY_OBSERVATION_TYPE,
+                        ObservationType.convert(observationsTypes));
                 Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE,
                         ValueType.convert(valueTypes));
                 if (parameter == null || parameter.isEmpty()) {
@@ -223,7 +223,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     if (!datasetTypes.isEmpty()) {
                         criteria.add(containsDatasetType);
                     }
-                    if (!aggregations.isEmpty()) {
+                    if (!observationsTypes.isEmpty()) {
                         criteria.add(containsAggrgation);
                     }
                     if (!valueTypes.isEmpty()) {
@@ -235,7 +235,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     if (!datasetTypes.isEmpty()) {
                         c.add(containsDatasetType);
                     }
-                    if (!aggregations.isEmpty()) {
+                    if (!observationsTypes.isEmpty()) {
                         c.add(containsAggrgation);
                     }
                     if (!valueTypes.isEmpty()) {
