@@ -52,13 +52,13 @@
 
         <geotools.version>20.0</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
-        <hibernate.version>5.4.0.CR1</hibernate.version>
+        <hibernate.version>5.4.0.CR2</hibernate.version>
         <hibernate-spatial.version>5.2.12-52N.1</hibernate-spatial.version>
-        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
 
-        <series-api.version>2.0.0-SNAPSHOT</series-api.version>
+        <series-api.version>2.0.1-SNAPSHOT</series-api.version>
         <series-hibernate.version>1-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>5.1.0-SNAPSHOT</arctic-sea.version>
+        <arctic-sea.version>5.1.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -153,7 +153,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>23.4-jre</version>
+                <version>27.0-jre</version>
             </dependency>
 
             <dependency>
