@@ -42,7 +42,7 @@ import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
@@ -178,9 +178,9 @@ public class StationRepository extends SessionAwareRepository
             throws DataAccessException {
         StationOutput result = createCondensed(feature, query);
 
-        Class<QuantityDatasetEntity> clazz = QuantityDatasetEntity.class;
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        Class<DatasetEntity> clazz = DatasetEntity.class;
+        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
         result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
