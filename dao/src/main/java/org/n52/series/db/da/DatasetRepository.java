@@ -31,14 +31,16 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.n52.io.HrefHelper;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
-import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -59,6 +61,7 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.n52.shetland.util.DateTimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -73,9 +76,6 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     @Autowired
     private DataRepositoryTypeFactory dataRepositoryFactory;
-
-    @Autowired
-    private PlatformRepository platformRepository;
 
     @Override
     public boolean exists(String id, DbQuery query) {
@@ -132,7 +132,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getValueType().name())) {
+            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
                 results.add(createCondensed(series, query, session));
             }
         }
@@ -200,7 +200,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getValueType().name())) {
+            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
                 results.add(createExpanded(series, query, session));
             }
         }
@@ -268,15 +268,38 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
         result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().getOutputString(), parameters,
+        result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().name(), parameters,
                 result::setDatasetType);
-        result.setValue(DatasetOutput.AGGREGATION, dataset.getAggregationType().name(), parameters,
-                result::setAggrgation);
+        result.setValue(DatasetOutput.OBSERVATION_TYPE, dataset.getObservationType().name(), parameters,
+                result::setObservationType);
         result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
         result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
         result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
         result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
+        // TODO: discuss how the origin timezone should be provided. String from
+        // DB?
+        result.setValue(DatasetOutput.ORIGIN_TIMEZONE, dataset.getOriginTimezone(), parameters,
+                result::setOriginTimezone);
+
+        result.setValue(DatasetOutput.SMAPLING_TIME_START,
+                formateDateTime(dataset.getFirstValueAt(), dataset.getOriginTimezone()), parameters,
+                result::setSamplingTimeStart);
+        result.setValue(DatasetOutput.SMAPLING_TIME_END,
+                formateDateTime(dataset.getLastValueAt(), dataset.getOriginTimezone()), parameters,
+                result::setSamplingTimeEnd);
+        result.setValue(DatasetOutput.FEATURE,
+                getCondensedFeature(dataset.getFeature(), query), parameters,
+                result::setFeature);
+
         return result;
+    }
+
+    private String formateDateTime(Date date, String originTimezone) {
+        DateTimeZone zone =
+                (originTimezone != null && !originTimezone.isEmpty())
+                        ? DateTimeZone.forID(originTimezone.trim())
+                        : DateTimeZone.UTC;
+        return DateTimeHelper.formatDateTime2IsoString(new DateTime(date).withZone(zone));
     }
 
     private String createHref(String hrefBase, DatasetEntity dataset) {
@@ -285,7 +308,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     private String getCollectionName(DatasetEntity dataset) {
         switch (dataset.getDatasetType()) {
-        case individual_observation:
+        case individualObservation:
             return IndividualObservationOutput.COLLECTION_PATH;
         case trajectory:
             return TrajectoryOutput.COLLECTION_PATH;
@@ -303,7 +326,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         DatasetOutput<V> result = createCondensed(dataset, query, session);
 
         DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
-        datasetParams.setPlatform(getCondensedPlatform(dataset, query, session));
+        datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
         if (dataset.getService() == null) {
             dataset.setService(getServiceEntity());
         }
@@ -313,7 +336,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
                 : dataRepository.getLastValue(dataset, session, query);
 
-        List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query);
+        List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query, session);
         lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
                 // first == last to have a valid interval
                 ? firstValue
@@ -328,7 +351,8 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     }
 
     private DataRepository<DatasetEntity, ?, V, ?> getDataRepositoryFactory(DatasetEntity dataset) {
-        return dataRepositoryFactory.create(dataset.getValueType().name(), DatasetEntity.class);
+        return dataRepositoryFactory.create(dataset.getObservationType().name(), dataset.getValueType().name(),
+                DatasetEntity.class);
     }
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
@@ -337,11 +361,6 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     private boolean isReferenceSeries(DatasetEntity series) {
         return series.getProcedure().isReference();
-    }
-
-    private PlatformOutput getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session) {
-        // platform has to be handled dynamically (see #309)
-        return platformRepository.createCondensedPlatform(dataset.getPlatform(), query, session);
     }
 
     private String createDatasetLabel(DatasetEntity dataset, String locale) {
