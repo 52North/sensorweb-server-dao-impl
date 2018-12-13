@@ -133,6 +133,28 @@ public class CountingMetadataAccessService implements CountingMetadataService {
     }
 
     @Override
+    public int getSamplingCounter(IoParameters parameters) {
+        try {
+            DbQuery query = dbQueryFactory.createFrom(parameters);
+            return counter.countSamplings(query);
+        } catch (DataAccessException e) {
+            throwCouldNotCountEntityException("samplings", e);
+            return -1;
+        }
+    }
+
+    @Override
+    public int getMeasuringProgramCounter(IoParameters parameters) {
+        try {
+            DbQuery query = dbQueryFactory.createFrom(parameters);
+            return counter.countMeasuringPrograms(query);
+        } catch (DataAccessException e) {
+            throwCouldNotCountEntityException("measruing programs", e);
+            return -1;
+        }
+    }
+
+    @Override
     @Deprecated
     public int getStationCount() {
         try {
