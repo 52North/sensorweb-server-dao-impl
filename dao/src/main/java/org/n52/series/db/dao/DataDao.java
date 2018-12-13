@@ -175,10 +175,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         query.addResultTimeFilter(criteria);
         query.addOdataFilterForData(criteria);
 
-        criteria = query.isComplexParent()
-                ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
-                : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
+//        criteria = query.isComplexParent()
+//                ? criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT))
+//                : criteria.add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT));
 
+        criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT));
         return criteria;
     }
 

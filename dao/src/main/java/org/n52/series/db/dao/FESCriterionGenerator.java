@@ -1192,11 +1192,11 @@ public abstract class FESCriterionGenerator {
 
         // we are only returning top-level observations
         DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
-                .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
+                .add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT))
                 .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
                 .add(subqueries.stream()
                         // restrict the subqueries to observations that are children
-                        .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.FALSE)))
+                        .map(q -> q.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT)))
                         // just get the PKID
                         .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_ID)))
                         // create a property IN expression for each query
@@ -1206,7 +1206,7 @@ public abstract class FESCriterionGenerator {
 
         // restrict subqueries to observations that are not children
         Stream<DetachedCriteria> topLevelPrimitives = subqueries.stream()
-                .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE)));
+                .map(q -> q.add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT)));
 
         return Stream.concat(Stream.of(profile), topLevelPrimitives);
     }
