@@ -120,9 +120,12 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public List<T> getAllInstancesFor(DatasetEntity dataset, DbQuery query) throws DataAccessException {
         final Long id = dataset.getId();
         LOGGER.debug("get all instances for series '{}': {}", id, query);
-
-        // TODO do we really want to allow mapping from observatin to dataset? PERFORMANCE LEAK
-        final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_DATASET, id);
+        // TODO check the clear() which is currently required as the first and
+        // last observation occur as HibernateProxy in the result!
+        session.clear();
+        // TODO do we really want to allow mapping from observatin to dataset?
+        // PERFORMANCE LEAK
+        final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset);
         Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
         query.addTimespanTo(criteria);
         return criteria.list();
