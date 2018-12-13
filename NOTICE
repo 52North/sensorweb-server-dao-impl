@@ -40,6 +40,7 @@ This project includes:
   Batik XML utility library under The Apache Software License, Version 2.0
   Byte Buddy (without dependencies) under The Apache Software License, Version 2.0
   c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
+  Checker Qual under The MIT License
   ClassMate under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
   Cross-Origin Resource Sharing (CORS) Filter under The Apache Software License, Version 2.0
@@ -51,6 +52,8 @@ This project includes:
   fastinfoset under Apache License, Version 2.0
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   geolatte-geom under LGPL 3.0
+  Guava InternalFutureFailureAccess and InternalFutures under The Apache Software License, Version 2.0
+  Guava ListenableFuture only under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
   Hibernate Commons Annotations under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-c3p0 under GNU Library General Public License v2.1 or later
