@@ -63,7 +63,7 @@ public class QuantityProfileDataRepository extends
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
-            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+            if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
             } else {
                 dataItems.add(assembleDataItem(quantityEntity,
