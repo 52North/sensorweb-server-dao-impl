@@ -15,7 +15,7 @@
             <property column="lat" name="lat" type="big_decimal" />
             <property column="lon" name="lon" type="big_decimal" />
              -->
-      <property column="geom" name="geometry" type="org.hibernate.spatial.GeometryType"/>
+      <property column="geom" name="geometry" type="jts_geometry"/>
     </component>
 
     <set name="children" table="featurerelation" inverse="false" fetch="select">
