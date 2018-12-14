@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
+import org.geolatte.geom.GeometryType;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
@@ -50,8 +51,9 @@ import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
-import org.hibernate.spatial.GeometryType;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
@@ -62,9 +64,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.I18nEntity;
 import org.n52.series.db.beans.PlatformEntity;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
@@ -293,8 +292,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return criteria;
     }
 
-    private GeometryType.Type getGeometryType(String geometryType) {
-        return Arrays.stream(GeometryType.Type.values())
+    private GeometryType getGeometryType(String geometryType) {
+        return Arrays.stream(GeometryType.values())
                 .filter(type -> type.name().equalsIgnoreCase(geometryType))
                 .findAny().orElse(null);
     }
