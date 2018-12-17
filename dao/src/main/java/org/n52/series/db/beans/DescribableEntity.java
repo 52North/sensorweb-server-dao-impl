@@ -43,7 +43,13 @@ public class DescribableEntity {
 
     public static final String PROPERTY_DOMAIN_ID = "domainId";
 
+    /**
+     * @deprecated use {@link #PROPERTY_SERVICE}
+     */
+    @Deprecated
     public static final String PROPERTY_SERVICE_ID = "serviceid";
+
+    public static final String PROPERTY_SERVICE = "service";
 
     /**
      * A serial primary key.
