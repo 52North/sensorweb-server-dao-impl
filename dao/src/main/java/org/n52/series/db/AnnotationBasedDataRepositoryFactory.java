@@ -79,9 +79,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @Override
     public boolean isKnown(String valueType) {
         return hasCacheEntry(valueType) || getAllDataAssemblers().map(this::getDataType)
-                                                                 .filter(valueType::equals)
-                                                                 .findFirst()
-                                                                 .isPresent();
+               .filter(valueType::equals).findFirst().isPresent();
     }
 
     private Optional<DataRepository<? extends DatasetEntity,
@@ -127,9 +125,9 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @Override
     public Class< ? extends DatasetEntity> getDatasetEntityType(String valueType) {
         return findDataAssembler(valueType).map(Object::getClass)
-                                           .map(this::getAnnotation)
-                                           .map(DataRepositoryComponent::datasetEntityType)
-                                           .get();
+                .map(c -> c.getAnnotation(DataRepositoryComponent.class))
+                .map(DataRepositoryComponent::datasetEntityType)
+                .get();
     }
 
     @Override
