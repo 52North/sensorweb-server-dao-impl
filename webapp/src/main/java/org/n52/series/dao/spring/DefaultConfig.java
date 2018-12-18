@@ -36,7 +36,7 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EnableWebMvc
 @Configuration
-public class DefaultConfig extends WebMvcConfigurerAdapter {
+public class DefaultConfig implements WebMvcConfigurer {
 
     @Autowired(required = false)
     private ObjectMapper objectMapper;
@@ -53,7 +53,7 @@ public class DefaultConfig extends WebMvcConfigurerAdapter {
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
                   .mediaType("json", MediaType.APPLICATION_JSON)
-                  .useJaf(true);
+                  .useRegisteredExtensionsOnly(false);
     }
 
     @Override
