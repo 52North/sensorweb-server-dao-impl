@@ -149,7 +149,7 @@ public class QuantityDataRepository extends
 
     @Override
     protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<QuantityValue> result = new Data<>();
+        Data<QuantityValue> result = new Data<>(new DatasetMetadata<>());
         DataDao<QuantityDataEntity> dao = createDataDao(session);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (QuantityDataEntity observation : observations) {
