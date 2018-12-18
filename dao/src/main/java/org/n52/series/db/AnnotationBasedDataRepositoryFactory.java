@@ -30,23 +30,26 @@
 package org.n52.series.db;
 
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.DataRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeFactory {
 
@@ -61,6 +64,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.cache = new HashMap<>();
     }
 
+    @SuppressWarnings("unchecked")
     private Stream<DataRepository<? extends DatasetEntity,
                                   ? extends DataEntity<?>,
                                   ? extends AbstractValue<?>,
@@ -68,18 +72,14 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(DataRepositoryComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
         LOGGER.debug("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
-                     dataAssembleTypes.stream()
-                                      .map(it -> it.getClass().getSimpleName())
-                                      .collect(Collectors.joining(", ")));
-        return dataAssembleTypes.stream()
-                                .filter(DataRepository.class::isInstance)
-                                .map(DataRepository.class::cast);
+                     dataAssembleTypes.stream().map(Object::getClass).map(Class::getSimpleName).collect(joining(", ")));
+        return dataAssembleTypes.stream().filter(DataRepository.class::isInstance).map(DataRepository.class::cast);
     }
 
     @Override
     public boolean isKnown(String valueType) {
         return hasCacheEntry(valueType) || getAllDataAssemblers().map(this::getDataType)
-                                                                 .filter(it -> it.equals(valueType))
+                                                                 .filter(valueType::equals)
                                                                  .findFirst()
                                                                  .isPresent();
     }
@@ -93,8 +93,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
 
     @Override
     public Set<String> getKnownTypes() {
-        return getAllDataAssemblers().map(this::getDataType)
-                                     .collect(Collectors.toSet());
+        return getAllDataAssemblers().map(this::getDataType).collect(toSet());
     }
 
     private String getDataType(DataRepository<? extends DatasetEntity,
@@ -128,7 +127,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @Override
     public Class< ? extends DatasetEntity> getDatasetEntityType(String valueType) {
         return findDataAssembler(valueType).map(Object::getClass)
-                                           .map(it -> it.getAnnotation(DataRepositoryComponent.class))
+                                           .map(this::getAnnotation)
                                            .map(DataRepositoryComponent::datasetEntityType)
                                            .get();
     }
