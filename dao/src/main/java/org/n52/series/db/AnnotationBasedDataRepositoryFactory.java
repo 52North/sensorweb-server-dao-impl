@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.da.DataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +79,10 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     }
 
     private String getType(String observationType, String valueType) {
-        return (observationType != null && !observationType.isEmpty() && !observationType.equals("discrete"))
-                ? valueType + "-" + observationType
-                : valueType;
+        return (observationType != null && !observationType.isEmpty()
+                && !observationType.equalsIgnoreCase(ObservationType.simple.name()))
+                        ? valueType + "-" + observationType
+                        : valueType;
     }
 
     private Optional<DataRepository<? extends DatasetEntity,
