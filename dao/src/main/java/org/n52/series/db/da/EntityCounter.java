@@ -164,11 +164,40 @@ public class EntityCounter {
         }
     }
 
+
+    @Deprecated
     public Integer countTimeseries() throws DataAccessException {
         Session session = sessionStore.getSession();
         try {
             DbQuery query = createBackwardsCompatibleQuery();
             return countDatasets(query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
+    }
+
+    public Integer countTimeseries(DbQuery query) throws DataAccessException {
+        return countDataset(query, "timeseries");
+    }
+
+    public Integer countIndividualObservations(DbQuery query) throws DataAccessException {
+        return countDataset(query, "individualObservation");
+    }
+
+    public Integer countTrajectories(DbQuery query) throws DataAccessException {
+        return countDataset(query, "trajectory");
+    }
+
+    public Integer countProfiles(DbQuery query) throws DataAccessException {
+        return countDataset(query, "profile");
+    }
+
+    private Integer countDataset(DbQuery query, String datasetType) throws DataAccessException {
+        Session session = sessionStore.getSession();
+        try {
+            IoParameters parameters = query.getParameters();
+            parameters = parameters.extendWith("datasetTypes", datasetType);
+            return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
         } finally {
             sessionStore.returnSession(session);
         }
