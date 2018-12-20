@@ -38,7 +38,6 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.n52.io.HrefHelper;
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
@@ -111,7 +110,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     @Override
     public List<DatasetOutput<V>> getAllCondensed(DbQuery query, Session session) {
         List<DatasetOutput<V>> results = new ArrayList<>();
-        FilterResolver filterResolver = query.getFilterResolver();
+//        FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters().isMatchDomainIds()) {
             // String valueType = query.getHandleAsValueTypeFallback();
             Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
@@ -119,13 +118,13 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
             return results;
         }
 
-        if (filterResolver.shallIncludeAllDatasetTypes()) {
+//        if (filterResolver.shallIncludeAllDatasetTypes()) {
             addCondensedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
-        } else {
-            for (String valueType : query.getValueTypes()) {
-                addCondensedResults(getDatasetDao(valueType, session), query, results, session);
-            }
-        }
+//        } else {
+//            for (String valueType : query.getValueTypes()) {
+//                addCondensedResults(getDatasetDao(valueType, session), query, results, session);
+//            }
+//        }
         return results;
     }
 
@@ -142,13 +141,13 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         return new DatasetDao<>(session, clazz);
     }
 
-    private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
-        // if (! ("all".equalsIgnoreCase(valueType) ||
-        // dataRepositoryFactory.isKnown(valueType))) {
-        // throw new BadQueryParameterException("invalid type: " + valueType);
-        // }
-        return createDataAccessRepository(DatasetEntity.class, session);
-    }
+//    private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
+//        // if (! ("all".equalsIgnoreCase(valueType) ||
+//        // dataRepositoryFactory.isKnown(valueType))) {
+//        // throw new BadQueryParameterException("invalid type: " + valueType);
+//        // }
+//        return createDataAccessRepository(DatasetEntity.class, session);
+//    }
 
     private DatasetDao<? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
             throws DataAccessException {
@@ -180,20 +179,20 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     @Override
     public List<DatasetOutput<V>> getAllExpanded(DbQuery query, Session session) {
         List<DatasetOutput<V>> results = new ArrayList<>();
-        FilterResolver filterResolver = query.getFilterResolver();
+//        FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters().isMatchDomainIds()) {
             // String valueType = query.getHandleAsValueTypeFallback();
             addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
             return results;
         }
 
-        if (filterResolver.shallIncludeAllDatasetTypes()) {
+//        if (filterResolver.shallIncludeAllDatasetTypes()) {
             addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
-        } else {
-            for (String valueType : query.getValueTypes()) {
-                addExpandedResults(getDatasetDao(valueType, session), query, results, session);
-            }
-        }
+//        } else {
+//            for (String valueType : query.getValueTypes()) {
+//                addExpandedResults(getDatasetDao(valueType, session), query, results, session);
+//            }
+//        }
         return results;
     }
 
