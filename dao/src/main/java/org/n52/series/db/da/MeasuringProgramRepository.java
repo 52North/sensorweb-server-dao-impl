@@ -93,7 +93,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
     }
 
     private Long getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram) {
-        if (measuringProgram.issetMeasuringTimeEnd()) {
+        if (measuringProgram.isSetMeasuringTimeEnd()) {
             return measuringProgram.getMeasuringTimeEnd().getTime();
         }
         return null;
