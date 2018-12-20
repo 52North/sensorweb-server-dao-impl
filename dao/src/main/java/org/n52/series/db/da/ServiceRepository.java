@@ -44,6 +44,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.ServiceOutput.DatasetCount;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -217,12 +218,28 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             // quantities.setStationsSize(counter.countStations());
             // } else {
             quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-            quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
+            quantities.setDatasets(createDatasetCount(counter, serviceQuery));
+
+            // TODO
+//            quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
+//            quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
+
+
             // }
             return quantities;
         } catch (DataAccessException e) {
             throw new InternalServerException("Could not count parameter entities.", e);
         }
+    }
+
+    private DatasetCount createDatasetCount(EntityCounter counter, DbQuery query) {
+        DatasetCount datasetCount = new DatasetCount();
+        datasetCount.setTotalAmount(counter.countDatasets(query));
+        datasetCount.setAmountTimeseries(counter.countTimeseries(query));
+        datasetCount.setAmountIndividualObservations(counter.countIndividualObservations(query));
+        datasetCount.setAmountProfiles(counter.countProfiles(query));
+        datasetCount.setAmountTrajectories(counter.countTrajectories(query));
+        return datasetCount;
     }
 
 }
