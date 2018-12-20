@@ -36,12 +36,17 @@
     <bean id="individualObservationService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
-    <bean id="profileService" class="org.n52.series.srv.DatasetAccessService">
-        <constructor-arg index="0" ref="datasetRepository" />
-    </bean>
     <bean id="trajectoryService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
+    <bean id="timeseriesService" class="org.n52.series.srv.DatasetAccessService">
+        <constructor-arg index="0" ref="datasetRepository" />
+    </bean>
+    <!--
+     <bean id="profileService" class="org.n52.series.srv.DatasetAccessService">
+        <constructor-arg index="0" ref="datasetRepository" />
+    </bean>
+     -->
     <!--
     <bean id="geometriesService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="geometriesRepository" />
@@ -74,18 +79,18 @@
         </constructor-arg>
     </bean>
 
-    <bean id="samplingsParameterService" class="org.n52.series.srv.AccessService">
+    <bean id="samplingParameterService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="samplingRepository" />
     </bean>
 
-    <bean id="measuringProgramsParameterService" class="org.n52.series.srv.AccessService">
+    <bean id="measuringProgramParameterService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="measuringProgramRepository" />
     </bean>
 
     <!-- ########################################################## -->
     <!-- ################# LEGACY BEAN INJECTIONS ################# -->
     <!-- ########################################################## -->
-
+    <!--
     <bean id="stationRepository" class="org.n52.series.db.da.StationRepository" />
 
     <bean id="timeseriesRepository" class="org.n52.series.db.da.TimeseriesRepository">
@@ -101,4 +106,5 @@
     <bean id="timeseriesService" class="org.n52.series.srv.TimeseriesAccessService">
         <constructor-arg index="0" ref="timeseriesRepository" />
     </bean>
+     -->
 </beans>

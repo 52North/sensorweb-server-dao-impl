@@ -36,11 +36,7 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="serviceParameterService" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="serviceParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
@@ -69,15 +65,21 @@
             </list>
         </property>
     </bean>
-<!--
+
     <bean class="org.n52.web.ctrl.IndividualObservationsController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+        <constructor-arg  type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
     </bean>
-    <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
-    </bean>
+
     <bean class="org.n52.web.ctrl.TrajectoriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="trajectoryService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TimeseriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+    </bean>
+<!--
+    <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
     </bean>
  -->
     <!--
@@ -117,11 +119,11 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingsParameterService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.MeasuringProgramsParameterController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramsParameterService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramParameterService" />
     </bean>
 
     <!-- ################################################################ -->
@@ -131,6 +133,7 @@
     <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
     <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
+    <!--
     <bean class="org.n52.web.ctrl.StationsParameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="stationParameterService" />
     </bean>
@@ -141,9 +144,6 @@
             <list merge="true">
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
                 <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-                <!-- Using DatabaseMetadataExtension requires some preparation work. -->
-                <!-- Have a look at the README.md at TBD -->
-                <!--<bean class="org.n52.io.extension.DatabaseMetadataExtension" /> -->
             </list>
         </property>
     </bean>
@@ -152,11 +152,9 @@
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
         <constructor-arg type="org.n52.series.spi.srv.DataService" ref="timeseriesService" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
-        <!-- reference task here so that controller is able to serve prerendered charts -->
         <property name="preRenderingTask" ref="preRenderingJob" />
-        <!-- Prerendering is being controlled by a JobScheduler -->
         <property name="handlingPreRenderingTask" value="false" />
     </bean>
-
+   -->
 
 </beans>
