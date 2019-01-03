@@ -61,6 +61,8 @@ import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 

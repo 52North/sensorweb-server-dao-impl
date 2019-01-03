@@ -29,16 +29,17 @@
 package org.n52.series.db.da;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.hibernate.Session;
-
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -49,6 +50,7 @@ import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
@@ -66,7 +68,7 @@ public class QuantityDataRepository
     public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(DatasetEntity datasetEntity, DbQuery query,
             Session session) {
         List<DatasetEntity> referenceValues =
-                datasetEntity.getReferenceValues().stream().filter(rv -> rv != null).collect(Collectors.toList());
+                datasetEntity.getReferenceValues().stream().filter(rv -> rv != null).collect(toList());
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (DatasetEntity referenceDatasetEntity : referenceValues) {
             if (referenceDatasetEntity != null && referenceDatasetEntity.getValueType().equals(ValueType.quantity)) {

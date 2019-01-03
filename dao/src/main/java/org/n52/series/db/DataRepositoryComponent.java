@@ -35,6 +35,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.n52.series.db.beans.DatasetEntity;
 import org.springframework.stereotype.Component;
 
 @Component

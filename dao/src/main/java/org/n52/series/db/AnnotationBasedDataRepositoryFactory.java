@@ -49,10 +49,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import org.n52.io.response.dataset.AbstractValue;
-import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.da.DataRepository;
 
 public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeFactory {
 
@@ -75,7 +71,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(DataRepositoryComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
         LOGGER.debug("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
-                dataAssembleTypes.stream().map(it -> it.getClass().getSimpleName()).collect(Collectors.joining(", ")));
+                dataAssembleTypes.stream().map(it -> it.getClass().getSimpleName()).collect(joining(", ")));
         return dataAssembleTypes.stream().filter(DataRepository.class::isInstance).map(DataRepository.class::cast);
     }
 
@@ -102,7 +98,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
 
     @Override
     public Set<String> getKnownTypes() {
-        return getAllDataAssemblers().map(this::getDataType).collect(Collectors.toSet());
+        return getAllDataAssemblers().map(this::getDataType).collect(toSet());
     }
 
     private String getDataType(
