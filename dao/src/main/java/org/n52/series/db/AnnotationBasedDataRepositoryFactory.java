@@ -28,13 +28,15 @@
  */
 package org.n52.series.db;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.n52.io.response.dataset.AbstractValue;
@@ -46,6 +48,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.da.DataRepository;
 
 public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeFactory {
 
@@ -61,6 +68,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.appContext = appContext;
     }
 
+    @SuppressWarnings("unchecked")
     private Stream<DataRepository<? extends DatasetEntity,
                                     ? extends DataEntity<?>,
                                     ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {

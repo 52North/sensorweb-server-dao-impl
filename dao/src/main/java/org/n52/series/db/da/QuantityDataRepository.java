@@ -28,17 +28,17 @@
  */
 package org.n52.series.db.da;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -49,7 +49,6 @@ import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
@@ -89,8 +88,13 @@ public class QuantityDataRepository
         Data<QuantityValue> result = assembleData(dataset, query, session);
         DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
+        if (metadata == null) {
+            result.setMetadata(metadata = new DatasetMetadata<>());
+        }
+
         QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
         QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
+
         metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
         metadata.setValueAfterTimespan(createValue(nextValue, dataset, query));
 
@@ -123,9 +127,7 @@ public class QuantityDataRepository
         DatasetOutput<?> dataset = DatasetOutput.create(query.getParameters());
         Long id = referenceDatasetEntity.getId();
         dataset.setId(id.toString());
-
-        String referenceDatasetId = dataset.getId();
-        return referenceDatasetId.toString();
+        return dataset.getId();
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
@@ -151,14 +153,12 @@ public class QuantityDataRepository
 
     @Override
     protected Data<QuantityValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<QuantityValue> result = new Data<>();
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (QuantityDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
-            }
-        }
+        Data<QuantityValue> result = new Data<>(new DatasetMetadata<>());
+        createDataDao(session)
+                .getAllInstancesFor(seriesEntity, query).stream()
+                .filter(Objects::nonNull)
+                .map(observation -> assembleDataValue(observation, seriesEntity, query))
+                .forEachOrdered(result::addNewValue);
         return result;
     }
 
@@ -177,7 +177,6 @@ public class QuantityDataRepository
 
         return new QuantityValue[] { assembleDataValue(referenceStart, series, query),
                 assembleDataValue(referenceEnd, series, query), };
-
     }
 
     @Override
