@@ -294,8 +294,12 @@ public class DbQuery {
 //        }
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        // FIXME check for simple or full db models
+//        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+//        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+//        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(series, filter);
