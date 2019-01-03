@@ -53,8 +53,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
     @SuppressWarnings("unchecked")
     public List<MeasuringProgramEntity> find(DbQuery query) {
         LOGGER.debug("find instance: {}", query);
-//        Criteria criteria = getDefaultCriteria(query);
-        Criteria criteria = session.createCriteria(getEntityClass());
+        Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
         return criteria.list();
@@ -64,10 +63,18 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
     @SuppressWarnings("unchecked")
     public List<MeasuringProgramEntity> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-//        Criteria criteria = getDefaultCriteria(query);
-        Criteria criteria = session.createCriteria(getEntityClass());
+        Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         return criteria.list();
+    }
+
+    @Override
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+//        String nonNullAlias = alias != null ? alias : getDefaultAlias();
+//        Criteria criteria = session.createCriteria(clazz, nonNullAlias);
+        Criteria criteria = session.createCriteria(clazz);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return criteria;
     }
 
     @Override

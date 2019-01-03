@@ -220,10 +220,8 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             quantities.setDatasets(createDatasetCount(counter, serviceQuery));
 
             // TODO
-//            quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
-//            quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
-
-
+            quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
+            quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
             // }
             return quantities;
         } catch (DataAccessException e) {

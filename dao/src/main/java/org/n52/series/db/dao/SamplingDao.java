@@ -52,8 +52,7 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
     @SuppressWarnings("unchecked")
     public List<SamplingEntity> find(DbQuery query) {
         LOGGER.debug("find instance: {}", query);
-//        Criteria criteria = getDefaultCriteria(query);
-        Criteria criteria = session.createCriteria(getEntityClass());
+        Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
         return criteria.list();
@@ -63,8 +62,7 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
     @SuppressWarnings("unchecked")
     public List<SamplingEntity> getAllInstances(DbQuery query) throws DataAccessException {
         LOGGER.debug("get all instances: {}", query);
-//        Criteria criteria = getDefaultCriteria(query);
-        Criteria criteria = session.createCriteria(getEntityClass());
+        Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         return criteria.list();
     }
@@ -74,6 +72,15 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = session.createCriteria(clazz);
         return getInstance(key, query, clazz, criteria);
+    }
+
+    @Override
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+//      String nonNullAlias = alias != null ? alias : getDefaultAlias();
+//      Criteria criteria = session.createCriteria(clazz, nonNullAlias);
+        Criteria criteria = session.createCriteria(clazz);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return criteria;
     }
 
     protected Class<I18nSamplingEntity> getI18NEntityClass() {
