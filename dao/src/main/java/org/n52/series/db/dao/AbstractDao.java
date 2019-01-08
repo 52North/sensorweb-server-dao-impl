@@ -202,8 +202,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      * @return the detached criteria for chaining
      */
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
-//        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
-        return query.addSpatialFilter(criteria);
+        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
+//        return query.addSpatialFilter(criteria);
     }
 
     protected Criteria addDatasetTypesFilter(String parameter, Criteria criteria, DbQuery query) {
