@@ -405,7 +405,7 @@ public class DbQuery {
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
         SpatialFilter filter = createSpatialFilter();
-        return filter != null ? criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE).add(filter) : criteria;
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
     public SpatialFilter createSpatialFilter() {
