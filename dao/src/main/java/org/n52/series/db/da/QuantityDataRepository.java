@@ -159,7 +159,7 @@ public class QuantityDataRepository
 
     @Override
     protected Data<QuantityValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<QuantityValue> result = new Data<>(new DatasetMetadata<>());
+        Data<QuantityValue> result = new Data<>();
         createDataDao(session)
                 .getAllInstancesFor(seriesEntity, query).stream()
                 .filter(Objects::nonNull)
