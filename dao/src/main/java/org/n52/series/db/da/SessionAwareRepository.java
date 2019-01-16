@@ -82,7 +82,7 @@ public abstract class SessionAwareRepository {
     @Autowired
     protected DbQueryFactory dbQueryFactory;
 
-    private final CRSUtils crsUtils = CRSUtils.createEpsgStrictAxisOrder();
+    private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
 
     @Autowired
     private HibernateSessionStore sessionStore;
