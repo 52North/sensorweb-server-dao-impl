@@ -151,15 +151,18 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     }
 
     protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
-        addResultTime(observation, value);
+        // TODO how to handle NULL values, e.g. for detection limit
+        if (value != null) {
+            addResultTime(observation, value);
 
-        if (query.isExpanded()) {
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-            addGeometry(observation, value, query);
-        } else {
-            if (dataset.isMobile()) {
+            if (query.isExpanded()) {
+                addValidTime(observation, value);
+                addParameters(observation, value, query);
                 addGeometry(observation, value, query);
+            } else {
+                if (dataset.isMobile()) {
+                    addGeometry(observation, value, query);
+                }
             }
         }
         return value;
