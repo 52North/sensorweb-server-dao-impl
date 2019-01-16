@@ -91,9 +91,8 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
         DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS, result.getId())
                 .removeAllOf(Parameters.FILTER_FIELDS));
-        DbQuery datasetQuery = getDbQuery(
-                platformQuery.getParameters().removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR)
-                        .removeAllOf(Parameters.ODATA_FILTER).removeAllOf(Parameters.FILTER_FIELDS));
+        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters().removeAllOf(Parameters.ODATA_FILTER)
+                .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<DatasetOutput<AbstractValue<?>>> datasets = datasetRepository.getAllCondensed(datasetQuery);
         // Set<Map<String, Object>> parameters =
