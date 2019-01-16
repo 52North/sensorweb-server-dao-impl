@@ -115,13 +115,13 @@ public class QuantityDataRepository
             DbQuery query, Session session) throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (DatasetEntity referenceDatasetEntity : referenceValues) {
-            if (referenceDatasetEntity.isPublished()
+            if (referenceDatasetEntity != null && referenceDatasetEntity.isPublished()
                     && referenceDatasetEntity.getValueType().equals(ValueType.quantity)) {
                 Data<QuantityValue> referenceSeriesData =
-                        assembleData((DatasetEntity) referenceDatasetEntity, query, session);
+                        assembleData(referenceDatasetEntity, query, session);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData =
-                            expandReferenceDataIfNecessary((DatasetEntity) referenceDatasetEntity, query, session);
+                            expandReferenceDataIfNecessary(referenceDatasetEntity, query, session);
                 }
                 referenceSeries.put(createReferenceDatasetId(query, referenceDatasetEntity), referenceSeriesData);
             }
