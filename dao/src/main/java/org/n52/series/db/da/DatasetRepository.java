@@ -49,6 +49,7 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.TrajectoryOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -383,6 +384,16 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     public void setDataRepositoryTypeFactory(DataRepositoryTypeFactory dataRepositoryTypeFactory) {
         this.dataRepositoryFactory = dataRepositoryTypeFactory;
+    }
+
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(IoParameters parameters) {
+        Session session = getSession();
+        try {
+            return getDatasetDao(DatasetEntity.class, session).getDatasetTypesMetadata(parameters.getDatasets(),
+                    getDbQuery(parameters));
+        } finally {
+            returnSession(session);
+        }
     }
 
 }

@@ -28,19 +28,27 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
+import org.hibernate.transform.ResultTransformer;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -59,6 +67,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private final Class<T> entityType;
+
+    private final DatasetTypesMetadataTransformer transformer = new DatasetTypesMetadataTransformer();
 
     @SuppressWarnings("unchecked")
     public DatasetDao(Session session) {
@@ -176,6 +186,53 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                                                      FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));
         return criteria;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(Collection<String> datasets, DbQuery query) {
+        Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+        if (query.isMatchDomainIds()) {
+            criteria.add(Restrictions.in(DescribableEntity.PROPERTY_DOMAIN_ID, datasets));
+        } else {
+            criteria.add(Restrictions.in(DescribableEntity.PROPERTY_ID,
+                    datasets.stream().map(d -> Long.parseLong(d)).collect(Collectors.toSet())));
+        }
+        criteria.setProjection(Projections.projectionList()
+                .add(Projections.groupProperty(DatasetEntity.PROPERTY_ID))
+                .add(Projections.property(DatasetEntity.PROPERTY_DATASET_TYPE))
+                .add(Projections.property(DatasetEntity.PROPERTY_OBSERVATION_TYPE))
+                .add(Projections.property(DatasetEntity.PROPERTY_VALUE_TYPE)));
+        criteria.setResultTransformer(transformer);
+        return criteria.list();
+    }
+
+    /**
+     * Offering time extrema {@link ResultTransformer}
+     *
+     * @author <a href="mailto:c.hollmann@52north.org">Carsten Hollmann</a>
+     * @since 4.4.0
+     *
+     */
+    private class DatasetTypesMetadataTransformer implements ResultTransformer {
+        private static final long serialVersionUID = -373512929481519459L;
+
+        @Override
+        public DatasetTypesMetadata transformTuple(Object[] tuple, String[] aliases) {
+            DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
+            if (tuple != null) {
+                datasetTypesMetadata.setId(tuple[0].toString());
+                datasetTypesMetadata.setDatasetType(DatasetType.valueOf(tuple[1].toString()));
+                datasetTypesMetadata.setObservationType(ObservationType.valueOf(tuple[2].toString()));
+                datasetTypesMetadata.setValueType(ValueType.valueOf(tuple[3].toString()));
+            }
+            return datasetTypesMetadata;
+        }
+
+        @Override
+        @SuppressWarnings({ "rawtypes"})
+        public List transformList(List collection) {
+            return collection;
+        }
     }
 
 }

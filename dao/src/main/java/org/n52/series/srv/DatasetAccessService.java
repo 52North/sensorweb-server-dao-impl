@@ -28,6 +28,8 @@
  */
 package org.n52.series.srv;
 
+import java.util.List;
+
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -36,6 +38,7 @@ import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
@@ -67,10 +70,11 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
     public DataCollection<Data<V>> getData(IoParameters parameters) {
         try {
             TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
-            for (String seriesId : parameters.getDatasets()) {
-                Data<V> data = getDataFor(seriesId, parameters);
+            List<DatasetTypesMetadata> datasetTypesMetadata = getRepository().getDatasetTypesMetadata(parameters);
+            for (DatasetTypesMetadata metadata : datasetTypesMetadata) {
+                Data<V> data = getDataFor(metadata, parameters);
                 if (data != null) {
-                    dataCollection.addNewSeries(seriesId, data);
+                    dataCollection.addNewSeries(metadata.getId(), data);
                 }
             }
             return dataCollection;
@@ -79,7 +83,7 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
         }
     }
 
-    private Data<V> getDataFor(String datasetId, IoParameters parameters)
+    private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters)
             throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
 //        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
@@ -88,11 +92,15 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
 //            LOGGER.debug("unknown type: " + valueType);
 //            return new Data<>();
 //        }
-        DatasetOutput<V> dataset = getParameter(datasetId, parameters);
+
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
         DataRepository<? extends DatasetEntity, ?, V, ?> assembler =
-                dataFactory.create(dataset.getObservationType(), dataset.getValueType(), entityType);
-        return assembler.getData(datasetId, dbQuery);
+                dataFactory.create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);
+        return assembler.getData(metadata.getId(), dbQuery);
+    }
+
+    private DatasetRepository<V> getRepository() {
+        return (DatasetRepository<V>) repository;
     }
 
 }
