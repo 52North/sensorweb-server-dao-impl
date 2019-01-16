@@ -223,7 +223,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
         Criteria criteria = getDefaultCriteria(query);
-        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset.getId()));
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
 
         IoParameters parameters = query.getParameters();
         if (parameters.isAllResultTimes()) {
@@ -240,7 +240,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
             DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
-            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset.getId()))
+            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset))
                               .setProjection(Projections.projectionList()
                                                         .add(Projections.groupProperty(rtColumn))
                                                         .add(Projections.groupProperty(rtDatasetId))
