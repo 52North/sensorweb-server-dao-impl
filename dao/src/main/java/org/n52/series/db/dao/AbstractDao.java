@@ -57,8 +57,8 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
@@ -214,33 +214,36 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         if (!datasetTypes.isEmpty() || !observationsTypes.isEmpty() || !valueTypes.isEmpty()) {
             FilterResolver filterResolver = parameters.getFilterResolver();
             if (parameters.shallBehaveBackwardsCompatible() || !filterResolver.shallIncludeAllDatasetTypes()) {
-                Criterion containsDatasetType = Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE,
-                        DatasetType.convert(datasetTypes));
-                Criterion containsAggrgation = Restrictions.in(DatasetEntity.PROPERTY_OBSERVATION_TYPE,
-                        ObservationType.convert(observationsTypes));
-                Criterion containsValueType = Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE,
-                        ValueType.convert(valueTypes));
+                Criterion containsDatasetType = !datasetTypes.isEmpty()
+                        ? Restrictions.in(DatasetEntity.PROPERTY_DATASET_TYPE, DatasetType.convert(datasetTypes))
+                        : null;
+                Criterion containsObservationType =
+                        !observationsTypes.isEmpty() ? Restrictions.in(DatasetEntity.PROPERTY_OBSERVATION_TYPE,
+                                ObservationType.convert(observationsTypes)) : null;
+                Criterion containsValueType = !valueTypes.isEmpty()
+                        ? Restrictions.in(DatasetEntity.PROPERTY_VALUE_TYPE, ValueType.convert(valueTypes))
+                        : null;
                 if (parameter == null || parameter.isEmpty()) {
                     // series table itself
-                    if (!datasetTypes.isEmpty()) {
+                    if (containsDatasetType != null) {
                         criteria.add(containsDatasetType);
                     }
-                    if (!observationsTypes.isEmpty()) {
-                        criteria.add(containsAggrgation);
+                    if (containsObservationType != null) {
+                        criteria.add(containsObservationType);
                     }
-                    if (!valueTypes.isEmpty()) {
+                    if (containsValueType != null) {
                         criteria.add(containsValueType);
                     }
                 } else {
                     ProjectionList onPkids = matchPropertyPkids(DatasetEntity.ENTITY_ALIAS, parameter);
                     DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class, DatasetEntity.ENTITY_ALIAS);
-                    if (!datasetTypes.isEmpty()) {
+                    if (containsDatasetType != null) {
                         c.add(containsDatasetType);
                     }
-                    if (!observationsTypes.isEmpty()) {
-                        c.add(containsAggrgation);
+                    if (containsObservationType != null) {
+                        c.add(containsObservationType);
                     }
-                    if (!valueTypes.isEmpty()) {
+                    if (containsValueType != null) {
                         c.add(containsValueType);
                     }
                     c.setProjection(onPkids);
