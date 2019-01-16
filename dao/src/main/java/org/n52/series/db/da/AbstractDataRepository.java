@@ -35,9 +35,9 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
@@ -95,14 +95,14 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     @Override
     public V getFirstValue(S entity, Session session, DbQuery query) {
         return entity.getFirstObservation() != null
-                ? assembleDataValue(unproxy(entity.getFirstObservation()), entity, query)
+                ? assembleDataValue(unproxy(entity.getFirstObservation(), session), entity, query)
                 : null;
     }
 
     @Override
     public V getLastValue(S entity, Session session, DbQuery query) {
         return entity.getLastObservation() != null
-            ? assembleDataValue(unproxy(entity.getLastObservation()), entity, query)
+            ? assembleDataValue(unproxy(entity.getLastObservation(), session), entity, query)
             : null;
     }
 
@@ -232,7 +232,11 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    protected E unproxy(DataEntity<?> dataEntity) {
+    protected E unproxy(DataEntity<?> dataEntity, Session session) {
+        if (dataEntity instanceof HibernateProxy
+                && ((HibernateProxy) dataEntity).getHibernateLazyInitializer().getSession() == null) {
+            return unproxy(session.load(DataEntity.class, dataEntity.getId()), session);
+        }
         return (E) Hibernate.unproxy(dataEntity);
     }
 

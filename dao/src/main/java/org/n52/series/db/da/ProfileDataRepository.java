@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
@@ -59,7 +60,11 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
 
 
     @Override
-    protected ProfileDataEntity unproxy(DataEntity<?> dataEntity) {
+    protected ProfileDataEntity unproxy(DataEntity<?> dataEntity, Session session) {
+        if (dataEntity instanceof HibernateProxy
+                && ((HibernateProxy) dataEntity).getHibernateLazyInitializer().getSession() == null) {
+            return unproxy(session.load(dataEntity.getClass(), dataEntity.getId()), session);
+        }
         return (ProfileDataEntity) Hibernate.unproxy(dataEntity);
     }
 
