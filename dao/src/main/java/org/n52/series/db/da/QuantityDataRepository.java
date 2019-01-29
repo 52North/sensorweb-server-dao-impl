@@ -160,10 +160,12 @@ public class QuantityDataRepository
     @Override
     protected Data<QuantityValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
         Data<QuantityValue> result = new Data<>();
+        // TODO: How to handle observations with detection limit? Currentl, null is returned a filtered
         createDataDao(session)
                 .getAllInstancesFor(seriesEntity, query).stream()
                 .filter(Objects::nonNull)
                 .map(observation -> assembleDataValue(observation, seriesEntity, query))
+                .filter(Objects::nonNull)
                 .forEachOrdered(result::addNewValue);
         return result;
     }
