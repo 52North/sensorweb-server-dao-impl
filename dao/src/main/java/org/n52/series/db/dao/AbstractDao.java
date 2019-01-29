@@ -38,10 +38,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -258,13 +258,25 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         IoParameters parameters = query.getParameters();
         FilterResolver filterResolver = parameters.getFilterResolver();
         if (!filterResolver.shallIncludeAllDatasets()) {
+            SimpleExpression mobileExpression = createMobileExpression(filterResolver);
+            SimpleExpression insituExpression = createInsituExpression(filterResolver);
             if (parameter == null) {
                 // apply filter directly on table table
-                criteria.add(createMobileExpression(filterResolver)).add(createInsituExpression(filterResolver));
+                if (mobileExpression != null) {
+                    criteria.add(mobileExpression);
+                }
+                if (insituExpression != null) {
+                    criteria.add(insituExpression);
+                }
             } else {
                 // apply filter on dataset table
                 DetachedCriteria c = DetachedCriteria.forClass(DatasetEntity.class);
-                c.add(createMobileExpression(filterResolver)).add(createInsituExpression(filterResolver));
+                if (mobileExpression != null) {
+                    c.add(mobileExpression);
+                }
+                if (insituExpression != null) {
+                    c.add(insituExpression);
+                }
 
                 QueryUtils.setFilterProjectionOn(parameter, c);
                 criteria.add(Subqueries.propertyIn(DescribableEntity.PROPERTY_ID, c));
@@ -273,18 +285,20 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return criteria;
     }
 
-    private LogicalExpression createMobileExpression(FilterResolver filterResolver) {
-        boolean includeStationary = filterResolver.shallIncludeStationaryDatasets();
-        boolean includeMobile = filterResolver.shallIncludeMobileDatasets();
-        return Restrictions.or(Restrictions.eq(DatasetEntity.PROPERTY_MOBILE, !includeStationary),
-                Restrictions.eq(DatasetEntity.PROPERTY_MOBILE, includeMobile));
+    private SimpleExpression createMobileExpression(FilterResolver filterResolver) {
+        if (filterResolver.hasMobileFilter()) {
+            boolean mobile = filterResolver.isMobileFilter();
+            return Restrictions.eq(DatasetEntity.PROPERTY_MOBILE, mobile);
+        }
+        return null;
     }
 
-    private LogicalExpression createInsituExpression(FilterResolver filterResolver) {
-        boolean includeInsitu = filterResolver.shallIncludeInsituDatasets();
-        boolean includeRemote = filterResolver.shallIncludeRemoteDatasets();
-        return Restrictions.or(Restrictions.eq(DatasetEntity.PROPERTY_INSITU, includeInsitu),
-                Restrictions.eq(DatasetEntity.PROPERTY_INSITU, !includeRemote));
+    private SimpleExpression createInsituExpression(FilterResolver filterResolver) {
+        if (filterResolver.hasInsituFilter()) {
+            boolean insitu = filterResolver.isInsituFilter();
+            return Restrictions.eq(DatasetEntity.PROPERTY_INSITU, insitu);
+        }
+        return null;
     }
 
     private ProjectionList matchPropertyPkids(String alias, String property) {
