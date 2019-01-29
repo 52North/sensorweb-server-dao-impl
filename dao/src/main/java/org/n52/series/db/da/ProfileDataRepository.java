@@ -111,15 +111,13 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         ProfileValue<T> profile = parameters.isShowTimeIntervals()
             ? new ProfileValue<>(start, end, null)
             : new ProfileValue<>(end, null);
-        if (observation.hasVerticalMetadata()) {
-            profile.setVerticalExtent(createVerticalExtent(observation));
-        }
+        profile.setVerticalExtent(createVerticalExtent(observation));
         return profile;
     }
 
     private VerticalExtentOutput createVerticalExtent(ProfileDataEntity observation) {
         VerticalExtentOutput verticalExtent = new VerticalExtentOutput();
-        verticalExtent.setUom(observation.getVerticalUnit().getSymbol());
+        verticalExtent.setUom(observation.hasVerticalUnit() ? observation.getVerticalUnit().getSymbol() : null);
         verticalExtent.setOrientation(observation.getOrientation());
         verticalExtent.setFrom(new VerticalExtentValueOutput(observation.getVerticalFromName(),
                 format(observation.getVerticalFrom(), observation.getDataset())));
