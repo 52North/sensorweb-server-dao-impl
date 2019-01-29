@@ -87,7 +87,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
                 parameters, result::setMeasuringProgramTimeEnd);
         result.setValue(MeasuringProgramOutput.PRODUCER,
                 getCondensedProducer(measuringProgram.getProducer(), parameters), parameters, result::setProducer);
-        result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram), parameters,
+        result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram, query), parameters,
                 result::setObservedArea);
         return result;
     }
@@ -159,16 +159,17 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
         return null;
     }
 
-    private Geometry getObservedArea(MeasuringProgramEntity measuringProgram) {
+    private Geometry getObservedArea(MeasuringProgramEntity measuringProgram, DbQuery query) {
         Geometry observedArea = null;
         if (measuringProgram.hasDatasets()) {
             for (DatasetEntity dataset : measuringProgram.getDatasets()) {
-                if (dataset.getFeature() != null && dataset.getFeature().isSetGeometry()) {
+                if (dataset.isSetFeature() && dataset.getFeature().isSetGeometry()) {
+                    Geometry featureGeometry = createGeometry(dataset.getFeature(), query);
                     if (observedArea == null) {
-                        observedArea = dataset.getFeature().getGeometry();
+                        observedArea = featureGeometry;
                     } else {
                         observedArea.getEnvelopeInternal()
-                                .expandToInclude(dataset.getFeature().getGeometry().getEnvelopeInternal());
+                                .expandToInclude(featureGeometry.getEnvelopeInternal());
                     }
                 }
             }

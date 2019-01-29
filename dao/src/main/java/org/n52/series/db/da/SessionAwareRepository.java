@@ -265,7 +265,7 @@ public abstract class SessionAwareRepository {
         return result;
     }
 
-    private Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
+    protected Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
         return featureEntity.isSetGeometry()
                 ? getGeometry(featureEntity.getGeometryEntity(), query)
                 : null;
