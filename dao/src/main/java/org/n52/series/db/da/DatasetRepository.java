@@ -277,7 +277,8 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
         // TODO: discuss how the origin timezone should be provided. String from
         // DB?
-        result.setValue(DatasetOutput.ORIGIN_TIMEZONE, dataset.getOriginTimezone(), parameters,
+        result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
+                dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,
                 result::setOriginTimezone);
 
         result.setValue(DatasetOutput.SMAPLING_TIME_START,
