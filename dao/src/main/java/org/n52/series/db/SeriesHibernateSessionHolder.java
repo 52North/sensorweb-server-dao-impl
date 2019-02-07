@@ -28,6 +28,8 @@
  */
 package org.n52.series.db;
 
+import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -45,7 +47,13 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
 
     @Override
     public Session getSession() {
-        return seriesSessionFactory.openSession();
+         Session session = seriesSessionFactory.openSession();
+         if (session != null && session.isOpen()) {
+             session.setHibernateFlushMode(FlushMode.COMMIT);
+             session.setCacheMode(CacheMode.IGNORE);
+             session.clear();
+         }
+         return session;
     }
 
     @Override
