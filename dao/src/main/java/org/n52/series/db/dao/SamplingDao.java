@@ -28,12 +28,14 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nSamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
@@ -51,6 +53,9 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
     @Override
     @SuppressWarnings("unchecked")
     public List<SamplingEntity> find(DbQuery query) {
+        if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
+            return Collections.emptyList();
+        }
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -61,6 +66,9 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
     @Override
     @SuppressWarnings("unchecked")
     public List<SamplingEntity> getAllInstances(DbQuery query) throws DataAccessException {
+        if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
+            return Collections.emptyList();
+        }
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -69,6 +77,9 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     protected SamplingEntity getInstance(String key, DbQuery query, Class<SamplingEntity> clazz) {
+        if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
+            return null;
+        }
         LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = session.createCriteria(clazz);
         return getInstance(key, query, clazz, criteria);

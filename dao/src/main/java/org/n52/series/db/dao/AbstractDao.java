@@ -127,6 +127,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     @Override
     public Integer getCount(DbQuery query) throws DataAccessException {
+        if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
+            return 0;
+        }
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
         Object result = criteria.uniqueResult();
         if (result == null) {
