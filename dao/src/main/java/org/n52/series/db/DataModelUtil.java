@@ -28,8 +28,10 @@
  */
 package org.n52.series.db;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.EntityType;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -41,30 +43,17 @@ import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
-        SessionFactoryImplementor factory = getSessionFactory(session);
-        return hasProperty(property, factory.getClassMetadata(clazz));
+        return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
     }
 
-    public static boolean isPropertyNameSupported(String property, Criteria criteria) {
-        SessionFactoryImplementor factory = extractSessionFactory(criteria);
-        CriteriaImpl criteriaImpl = getCriteriaImpl(criteria);
-        if (criteriaImpl == null) {
-            return false;
-        }
-        String entityOrClassName = criteriaImpl.getEntityOrClassName();
-        ClassMetadata classMetadata = factory.getClassMetadata(entityOrClassName);
-        return classMetadata != null && hasProperty(property, classMetadata);
-    }
-
-    private static boolean hasProperty(String property, ClassMetadata metadata) {
-        List<String> properties = Arrays.asList(metadata.getPropertyNames());
-        return properties.contains(property);
+    private static boolean hasProperty(String property, EntityType<?> entityType) {
+        return entityType.getAttributes().stream().map(a -> a.getName()).collect(Collectors.toSet())
+                .contains(property);
     }
 
     public static boolean isNamedQuerySupported(String namedQuery, Session session) {
@@ -100,15 +89,27 @@ public final class DataModelUtil {
         return walker.getSQLString();
     }
 
-    public static boolean isEntitySupported(Class< ? > clazz, Criteria criteria) {
-        SessionFactoryImplementor factory = extractSessionFactory(criteria);
+    public static boolean isEntitySupported(Class< ? > clazz, Session session) {
+        return session != null ? isEntitySupported(clazz, session.getEntityManagerFactory()) : false;
+    }
 
-        if (factory != null) {
-            return factory.getAllClassMetadata()
-                          .keySet()
-                          .contains(clazz.getName());
+    public static boolean isEntitySupported(Class< ? > clazz, Criteria criteria) {
+        return criteria != null ? isEntitySupported(clazz, extractSessionFactory(criteria)) : false;
+    }
+
+    private static boolean isEntitySupported(Class<?> clazz, EntityManagerFactory factory) {
+        if (factory != null && clazz != null) {
+            return factory.getMetamodel().getEntities().stream().filter(e -> e.getJavaType().equals(clazz)).findFirst()
+                    .isPresent();
         }
         return false;
+    }
+
+    public static EntityManagerFactory extractEntityManagerFactory(Criteria criteria) {
+        SharedSessionContractImplementor session = getSessionImplementor(criteria);
+        return session != null
+                ? session.getFactory().getCurrentSession().getEntityManagerFactory()
+                : null;
     }
 
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
