@@ -302,6 +302,7 @@ public class DbQuery {
         addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
         addFilterRestriction(series, filter);
 
         addFilterRestriction(datasets, filter);
