@@ -440,4 +440,8 @@ public class DbQuery {
         return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
 
+    public boolean expandWithNextValuesBeyondInterval() {
+        return parameters.isExpandWithNextValuesBeyondInterval();
+    }
+
 }

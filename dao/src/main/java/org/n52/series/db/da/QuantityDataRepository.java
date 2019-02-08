@@ -98,15 +98,16 @@ public class QuantityDataRepository
         if ((referenceValues != null) && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
         }
+        if (query.expandWithNextValuesBeyondInterval()) {
+            QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
+            QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
 
-        QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
-        QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
-
-        if (previousValue != null) {
-            metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
-        }
-        if (nextValue != null) {
-            metadata.setValueAfterTimespan(createValue(nextValue, dataset, query));
+            if (previousValue != null) {
+                metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
+            }
+            if (nextValue != null) {
+                metadata.setValueAfterTimespan(createValue(nextValue, dataset, query));
+            }
         }
         return result;
     }
