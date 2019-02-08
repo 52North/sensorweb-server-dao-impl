@@ -12,7 +12,7 @@
        "phenomena": 1440,
        "procedures": 1440,
        "services": 1440,
-       "timeseries": 2,
+       "datasets": 2,
        "data": 0
     }
 }
