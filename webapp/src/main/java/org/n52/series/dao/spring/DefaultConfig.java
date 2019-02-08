@@ -64,6 +64,7 @@ public class DefaultConfig implements WebMvcConfigurer {
     private View createJsonView() {
         MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         jsonView.setExtractValueFromSingleKeyModel(true);
+        jsonView.setDisableCaching(false);
         jsonView.setObjectMapper(getObjectMapper());
         return jsonView;
     }
