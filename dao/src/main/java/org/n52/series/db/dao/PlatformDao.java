@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,56 +28,39 @@
  */
 package org.n52.series.db.dao;
 
-import static org.hibernate.criterion.Restrictions.eq;
-
-import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.I18nPlatformEntity;
+import org.hibernate.criterion.Projections;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.n52.series.db.beans.i18n.I18nPlatformEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlatformDao extends AbstractDao<PlatformEntity> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformDao.class);
-
-    private static final String SERIES_PROPERTY = "platform";
+public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity> {
 
     public PlatformDao(Session session) {
         super(session);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PlatformEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = translate(I18nPlatformEntity.class, getDefaultCriteria(), query);
-        criteria.add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
+    private Long count(AbstractDao<?> dao, DbQuery query) {
+        Criteria criteria = dao.getDefaultCriteria(query);
+        return (Long) criteria.setProjection(Projections.rowCount()).uniqueResult();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<PlatformEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = translate(I18nPlatformEntity.class, getDefaultCriteria(SERIES_PROPERTY), query);
-        return (List<PlatformEntity>) query.addFilters(criteria, getSeriesProperty()).list();
+    protected String getDatasetProperty() {
+        return DatasetEntity.PROPERTY_PLATFORM;
     }
-
-    @Override
-    protected String getSeriesProperty() {
-        return SERIES_PROPERTY;
-    }
-
 
     @Override
     protected Class<PlatformEntity> getEntityClass() {
         return PlatformEntity.class;
+    }
+
+    @Override
+    protected Class<I18nPlatformEntity> getI18NEntityClass() {
+        return I18nPlatformEntity.class;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,23 +28,25 @@
  */
 package org.n52.series.srv;
 
-import org.n52.io.DatasetFactoryException;
+import java.util.List;
+
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
-import org.n52.io.request.RequestParameterSet;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
-import org.n52.io.series.TvpDataCollection;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.DatasetTypesMetadata;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
-import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
-import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -52,50 +54,53 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class DatasetAccessService extends AccessService<DatasetOutput> implements DataService<Data<?>> {
+public class DatasetAccessService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
+        implements DataService<Data<V>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
     @Autowired
-    private IDataRepositoryFactory dataFactory;
+    private DataRepositoryTypeFactory dataFactory;
 
-    public DatasetAccessService(DatasetRepository<Data<?>> repository) {
+    public DatasetAccessService(DatasetRepository<V> repository) {
         super(repository);
     }
 
     @Override
-    public DataCollection<Data<?>> getData(RequestParameterSet parameters) {
+    public DataCollection<Data<V>> getData(IoParameters parameters) {
         try {
-            TvpDataCollection<Data<?>> dataCollection = new TvpDataCollection<>();
-            for (String seriesId : parameters.getDatasets()) {
-                Data<?> data = getDataFor(seriesId, parameters);
+            TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
+            List<DatasetTypesMetadata> datasetTypesMetadata = getRepository().getDatasetTypesMetadata(parameters);
+            for (DatasetTypesMetadata metadata : datasetTypesMetadata) {
+                Data<V> data = getDataFor(metadata, parameters);
                 if (data != null) {
-                    dataCollection.addNewSeries(seriesId, data);
+                    dataCollection.addNewSeries(metadata.getId(), data);
                 }
             }
             return dataCollection;
-        }
-        catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             throw new InternalServerException("Could not get series data from database.", e);
         }
     }
 
-    private Data<?> getDataFor(String seriesId, RequestParameterSet parameters)
+    private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters)
             throws DataAccessException {
-        DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_DATASET_TYPE);
-        String datasetType = DatasetType.extractType(seriesId, handleAsDatasetFallback);
-        DataRepository dataRepository = createRepository(datasetType);
-        return dataRepository.getData(seriesId, dbQuery);
+        DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
+//        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
+//        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
+//        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
+//            LOGGER.debug("unknown type: " + valueType);
+//            return new Data<>();
+//        }
+
+        Class<? extends DatasetEntity> entityType = DatasetEntity.class;
+        DataRepository<? extends DatasetEntity, ?, V, ?> assembler =
+                dataFactory.create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);
+        return assembler.getData(metadata.getId(), dbQuery);
     }
 
-    private DataRepository createRepository(String datasetType) throws DataAccessException {
-        if ( !("all".equalsIgnoreCase(datasetType) || dataFactory.isKnown(datasetType))) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
-        }
-        try {
-            return dataFactory.create(datasetType);
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+    private DatasetRepository<V> getRepository() {
+        return (DatasetRepository<V>) repository;
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 
@@ -53,8 +52,6 @@ public interface OutputAssembler<T> {
     T getInstance(String id, DbQuery parameters, Session session) throws DataAccessException;
 
     Collection<SearchResult> searchFor(IoParameters parameters);
-
-    List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query);
 
     boolean exists(String id, DbQuery query) throws DataAccessException;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,11 +48,6 @@ public class HierarchicalParameterExtension extends MetadataExtension<PlatformOu
     @Override
     public Map<String, Object> getExtras(PlatformOutput output, IoParameters parameters) {
         return wrapSingleIntoMap(service.getExtras(output.getId(), parameters));
-    }
-
-    @Override
-    public void addExtraMetadataFieldNames(PlatformOutput output) {
-        output.addExtra(EXTENSION_NAME);
     }
 
     public HierarchicalParameterService getService() {

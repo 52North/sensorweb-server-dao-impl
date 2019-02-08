@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:ctx="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <mvc:annotation-driven />
+    <ctx:annotation-config />
+
+    <!-- This bean description file injects the SPI implementation into the Web binding layer. Any change will corrupt the
+        API Web layer. Custom implementation has to be defined by bean descriptions using the ref-ids associated below. -->
+
+    <bean class="org.n52.web.ctrl.ResourcesController">
+        <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.SearchController">
+        <constructor-arg type="org.n52.series.spi.search.SearchService" ref="searchService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
+        <property name="metadataExtensions">
+            <list>
+                <bean class="org.n52.io.response.extension.LicenseExtension" />
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="offeringParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="serviceParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="categoryParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="featureParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="procedureParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="phenomenonParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="platformParameterService" />
+        <property name="metadataExtensions">
+            <list merge="true">
+                <bean class="org.n52.io.extension.parents.HierarchicalParameterExtension">
+                    <property name="service" ref="hierarchicalParameterService" />
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.n52.web.ctrl.IndividualObservationsController" parent="parameterController">
+        <constructor-arg  type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TrajectoriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="trajectoryService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TimeseriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+    </bean>
+<!--
+    <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
+    </bean>
+ -->
+    <!--
+    <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
+    </bean>
+    -->
+    <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="metadataExtensions">
+            <list merge="true">
+
+                <!--
+                    refactor out rendering_hints && status_intervals and autowire them
+                    in TimeseriesMetadataController to set them in case of
+                    rendering_hints=true or status_intervals=true
+                <bean class="org.n52.io.extension.RenderingHintsExtension" />
+                <bean class="org.n52.io.extension.StatusIntervalsExtension" />
+                 -->
+                <ref bean="renderingHintsExtension" />
+                <ref bean="statusIntervalsExtension" />
+                <bean class="org.n52.io.extension.resulttime.ResultTimeExtension">
+                    <property name="service" ref="resultTimeService" />
+                </bean>
+                <!-- Using DatabaseMetadataExtension requires some preparation work. -->
+                <!-- Have a look at the README.md at TBD -->
+                <!--<bean class="org.n52.io.extension.metadata.DatabaseMetadataExtension" /> -->
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.n52.web.ctrl.DataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.MeasuringProgramsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramParameterService" />
+    </bean>
+
+    <!-- ################################################################ -->
+    <!-- ################# LEGACY CONTROLLER INJECTIONS ################# -->
+    <!-- ################################################################ -->
+
+    <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
+    <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
+
+    <!--
+    <bean class="org.n52.web.ctrl.StationsParameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="stationParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TimeseriesMetadataController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+        <property name="metadataExtensions">
+            <list merge="true">
+                <bean class="org.n52.io.extension.RenderingHintsExtension" />
+                <bean class="org.n52.io.extension.StatusIntervalsExtension" />
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TimeseriesDataController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="timeseriesService" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="handlingPreRenderingTask" value="false" />
+    </bean>
+   -->
+
+</beans>

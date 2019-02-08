@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
  */
 package org.n52.series.db;
 
-public class DataAccessException extends Exception {
+public class DataAccessException extends RuntimeException {
 
     private static final long serialVersionUID = 4112723724626544387L;
 

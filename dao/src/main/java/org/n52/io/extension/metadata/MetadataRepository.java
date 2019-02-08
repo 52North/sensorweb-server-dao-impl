@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,19 +57,19 @@ class MetadataRepository extends SessionAwareRepository {
             DatabaseMetadataDao dao = new DatabaseMetadataDao(session);
             final Set<String> fields = parameters.getFields();
             return fields == null
-                    ? convertToOutputs(dao.getAllFor(parseId(output.getId())))
-                    : convertToOutputs(dao.getSelected(parseId(output.getId()), fields));
+                ? convertToOutputs(dao.getAllFor(parseId(output.getId())))
+                : convertToOutputs(dao.getSelected(parseId(output.getId()), fields));
         } finally {
             returnSession(session);
         }
     }
 
-    private Map<String, Object> convertToOutputs(List<MetadataEntity<?>> allInstances) {
+    private Map<String, Object> convertToOutputs(List<MetadataEntity< ? >> allInstances) {
         if (allInstances == null) {
             return Collections.emptyMap();
         }
         Map<String, Object> outputs = new HashMap<>();
-        for (MetadataEntity<?> entity : allInstances) {
+        for (MetadataEntity< ? > entity : allInstances) {
             outputs.put(entity.getName(), entity.toOutput());
         }
         return outputs;

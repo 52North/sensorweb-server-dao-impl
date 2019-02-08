@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,56 +28,115 @@
  */
 package org.n52.series.db;
 
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.EntityType;
+
 import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.NamedQueryDefinition;
+import org.hibernate.engine.spi.NamedSQLQueryDefinition;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.loader.criteria.CriteriaJoinWalker;
 import org.hibernate.loader.criteria.CriteriaQueryTranslator;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 
 public final class DataModelUtil {
 
+    public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
+        return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
+    }
+
+    private static boolean hasProperty(String property, EntityType<?> entityType) {
+        return entityType.getAttributes().stream().map(a -> a.getName()).collect(Collectors.toSet())
+                .contains(property);
+    }
+
+    public static boolean isNamedQuerySupported(String namedQuery, Session session) {
+        SessionFactoryImplementor factory = getSessionFactory(session);
+        NamedQueryDefinition namedQueryDef = factory.getNamedQuery(namedQuery);
+        NamedSQLQueryDefinition namedSQLQueryDef =
+                factory.getNamedSQLQuery(namedQuery);
+        return namedQueryDef != null || namedSQLQueryDef != null;
+    }
+
+    private static SessionFactoryImplementor getSessionFactory(Session session) {
+        return ((SessionImpl) session).getSessionFactory();
+    }
+
     public static String getSqlString(Criteria criteria) {
         CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;
-        SessionImplementor session = criteriaImpl.getSession();
+        SharedSessionContractImplementor session = criteriaImpl.getSession();
         SessionFactoryImplementor factory = extractSessionFactory(criteria);
-        CriteriaQueryTranslator translator
-                = new CriteriaQueryTranslator(factory, criteriaImpl, criteriaImpl.getEntityOrClassName(),
-                        CriteriaQueryTranslator.ROOT_SQL_ALIAS);
-        String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory,
+                                                                         criteriaImpl,
+                                                                         criteriaImpl.getEntityOrClassName(),
+                                                                         CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+        String[] implementors = factory.getMetamodel().getImplementors(criteriaImpl.getEntityOrClassName());
 
-        CriteriaJoinWalker walker
-                = new CriteriaJoinWalker((OuterJoinLoadable) factory.getEntityPersister(implementors[0]), translator,
-                        factory, criteriaImpl, criteriaImpl.getEntityOrClassName(), session.getLoadQueryInfluencers());
+        OuterJoinLoadable joinLoader = (OuterJoinLoadable) factory.getMetamodel().entityPersister(implementors[0]);
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(joinLoader,
+                                                           translator,
+                                                           factory,
+                                                           criteriaImpl,
+                                                           criteriaImpl.getEntityOrClassName(),
+                                                           session.getLoadQueryInfluencers());
 
         return walker.getSQLString();
     }
 
-    public static boolean isEntitySupported(Class< ?> clazz, Criteria criteria) {
-        SessionFactoryImplementor factory = extractSessionFactory(criteria);
+    public static boolean isEntitySupported(Class< ? > clazz, Session session) {
+        return session != null ? isEntitySupported(clazz, session.getEntityManagerFactory()) : false;
+    }
 
-        if (factory != null) {
-            return factory.getAllClassMetadata().keySet().contains(clazz.getName());
+    public static boolean isEntitySupported(Class< ? > clazz, Criteria criteria) {
+        return criteria != null ? isEntitySupported(clazz, extractSessionFactory(criteria)) : false;
+    }
+
+    private static boolean isEntitySupported(Class<?> clazz, EntityManagerFactory factory) {
+        if (factory != null && clazz != null) {
+            return factory.getMetamodel().getEntities().stream().filter(e -> e.getJavaType().equals(clazz)).findFirst()
+                    .isPresent();
         }
         return false;
     }
 
+    public static EntityManagerFactory extractEntityManagerFactory(Criteria criteria) {
+        SharedSessionContractImplementor session = getSessionImplementor(criteria);
+        return session != null
+                ? session.getFactory().getCurrentSession().getEntityManagerFactory()
+                : null;
+    }
+
     public static SessionFactoryImplementor extractSessionFactory(Criteria criteria) {
-        SessionImplementor session = getSessionImplementor(criteria);
+        SharedSessionContractImplementor session = getSessionImplementor(criteria);
         return session != null
                 ? session.getFactory()
                 : null;
     }
 
-    private static SessionImplementor getSessionImplementor(Criteria criteria) {
-        SessionImplementor session = null;
+    private static SharedSessionContractImplementor getSessionImplementor(Criteria criteria) {
+        SharedSessionContractImplementor session = null;
         if (criteria instanceof CriteriaImpl) {
-            session = ((CriteriaImpl) criteria).getSession(); // ugly!
+            session = ((CriteriaImpl) criteria).getSession();
         } else if (criteria instanceof CriteriaImpl.Subcriteria) {
             CriteriaImpl temp = (CriteriaImpl) ((CriteriaImpl.Subcriteria) criteria).getParent();
             session = temp.getSession();
         }
         return session;
+    }
+
+    private static CriteriaImpl getCriteriaImpl(Criteria criteria) {
+        if (criteria instanceof CriteriaImpl.Subcriteria) {
+            return (CriteriaImpl) ((CriteriaImpl.Subcriteria) criteria).getParent();
+        }
+        if (criteria instanceof CriteriaImpl) {
+            return (CriteriaImpl) criteria;
+        }
+        return null;
     }
 }

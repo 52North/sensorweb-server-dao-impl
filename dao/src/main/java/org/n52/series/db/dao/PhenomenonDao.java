@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,48 +28,32 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.I18nPhenomenonEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PhenomenonDao extends AbstractDao<PhenomenonEntity> {
-
-    private static final String SERIES_PROPERTY = "phenomenon";
+public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenonEntity> {
 
     public PhenomenonDao(Session session) {
         super(session);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<PhenomenonEntity> find(DbQuery query) {
-        Criteria criteria = translate(I18nPhenomenonEntity.class, getDefaultCriteria(), query)
-                .add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<PhenomenonEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = translate(I18nPhenomenonEntity.class, getDefaultCriteria(), query);
-        return (List<PhenomenonEntity>) query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    protected String getSeriesProperty() {
-        return SERIES_PROPERTY;
+    protected String getDatasetProperty() {
+        return DatasetEntity.PROPERTY_PHENOMENON;
     }
 
     @Override
     protected Class<PhenomenonEntity> getEntityClass() {
         return PhenomenonEntity.class;
+    }
+
+    @Override
+    protected Class<I18nPhenomenonEntity> getI18NEntityClass() {
+        return I18nPhenomenonEntity.class;
     }
 
 }

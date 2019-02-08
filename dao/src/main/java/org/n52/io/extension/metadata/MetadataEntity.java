@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,11 +28,16 @@
  */
 package org.n52.io.extension.metadata;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public abstract class MetadataEntity<T> {
 
-    private Long pkid;
+    static final String PROPERTY_NAME = "name";
+
+    static final String PROPERTY_SERIES_ID = "seriesId";
+
+    private Long id;
 
     private Long seriesId;
 
@@ -44,12 +49,12 @@ public abstract class MetadataEntity<T> {
 
     private Date lastUpdate;
 
-    public Long getPkid() {
-        return pkid;
+    public Long getId() {
+        return id;
     }
 
-    public void setPkid(Long pkid) {
-        this.pkid = pkid;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getSeriesId() {
@@ -85,17 +90,21 @@ public abstract class MetadataEntity<T> {
     }
 
     public Date getLastUpdate() {
-        return lastUpdate;
+        return lastUpdate != null
+            ? new Timestamp(lastUpdate.getTime())
+            : null;
     }
 
     public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+        this.lastUpdate = lastUpdate != null
+            ? new Timestamp(lastUpdate.getTime())
+            : null;
     }
 
     public DatabaseMetadataOutput<T> toOutput() {
-        return DatabaseMetadataOutput.<T>create()
-                .withValue(value)
-                .lastUpdatedAt(lastUpdate);
+        return DatabaseMetadataOutput.<T> create()
+                                     .setValue(value)
+                                     .setLastUpdatedAt(lastUpdate);
     }
 
 }

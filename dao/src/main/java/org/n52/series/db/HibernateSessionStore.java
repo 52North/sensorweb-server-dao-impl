@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,10 +32,10 @@ import org.hibernate.Session;
 
 public interface HibernateSessionStore {
 
-    public Session getSession();
+    Session getSession();
 
-    public void returnSession(Session session);
+    void returnSession(Session session);
 
-    public void shutdown();
+    void shutdown();
 
 }

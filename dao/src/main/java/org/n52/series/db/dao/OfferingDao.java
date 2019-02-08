@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,48 +28,45 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.I18nOfferingEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OfferingDao extends AbstractDao<OfferingEntity> {
-
-    private static final String SERIES_PROPERTY = "offering";
+public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity> {
 
     public OfferingDao(Session session) {
         super(session);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<OfferingEntity> find(DbQuery query) {
-        Criteria criteria = translate(I18nOfferingEntity.class, getDefaultCriteria(), query)
-                .add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<OfferingEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = translate(I18nOfferingEntity.class, getDefaultCriteria(), query);
-        return (List<OfferingEntity>) query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    protected String getSeriesProperty() {
-        return SERIES_PROPERTY;
+    protected String getDatasetProperty() {
+        return DatasetEntity.PROPERTY_OFFERING;
     }
 
     @Override
     protected Class<OfferingEntity> getEntityClass() {
         return OfferingEntity.class;
     }
+
+    @Override
+    protected Class<I18nOfferingEntity> getI18NEntityClass() {
+        return I18nOfferingEntity.class;
+    }
+
+//    public Collection<OfferingEntity> get() throws DataAccessException {
+//        return getAllInstances(new DbQuery(IoParameters.createDefaults()));
+//    }
+//
+//    public Collection<OfferingEntity> get(Collection<String> identifiers) throws DataAccessException {
+//        Map<String, String> map = new HashMap<>();
+//        if (identifiers != null && !identifiers.isEmpty()) {
+//            map.put(IoParameters.OFFERINGS, identifiers.stream().collect(Collectors.joining(",")));
+//        }
+//        map.put(IoParameters.MATCH_DOMAIN_IDS, Boolean.toString(true));
+//        return getAllInstances(new DbQuery(IoParameters.createFromSingleValueMap(map)));
+//    }
 
 }

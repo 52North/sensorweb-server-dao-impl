@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,127 +28,65 @@
  */
 package org.n52.series.db.da;
 
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.response.dataset.count.CountData;
-import org.n52.io.response.dataset.count.CountDatasetMetadata;
+import org.n52.io.request.IoParameters;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CountDataEntity;
-import org.n52.series.db.beans.CountDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class CountDataRepository extends AbstractDataRepository<CountData, CountDatasetEntity, CountDataEntity, CountValue> {
+
+@DataRepositoryComponent(value = "count", datasetEntityType = DatasetEntity.class)
+public class CountDataRepository
+        extends AbstractDataRepository<DatasetEntity, CountDataEntity, CountValue, Integer> {
 
     @Override
-    public Class<CountDatasetEntity> getEntityType() {
-        return CountDatasetEntity.class;
-    }
-
-    @Override
-    protected CountData assembleDataWithReferenceValues(CountDatasetEntity timeseries,
-                                                            DbQuery dbQuery,
-                                                            Session session) throws DataAccessException {
-        CountData result = assembleData(timeseries, dbQuery, session);
-        Set<CountDatasetEntity> referenceValues = timeseries.getReferenceValues();
-        if (referenceValues != null && !referenceValues.isEmpty()) {
-            CountDatasetMetadata metadata = new CountDatasetMetadata();
-            metadata.setReferenceValues(assembleReferenceSeries(referenceValues, dbQuery, session));
-            result.setMetadata(metadata);
-        }
-        return result;
-    }
-
-    private Map<String, CountData> assembleReferenceSeries(Set<CountDatasetEntity> referenceValues,
-                                                                 DbQuery query,
-                                                                 Session session) throws DataAccessException {
-        Map<String, CountData> referenceSeries = new HashMap<>();
-        for (CountDatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
-                CountData referenceSeriesData = assembleData(referenceSeriesEntity, query, session);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
-                }
-                referenceSeries.put(referenceSeriesEntity.getPkid().toString(), referenceSeriesData);
-            }
-        }
-        return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(CountData referenceSeriesData) {
-        return referenceSeriesData.getValues().size() <= 1;
-    }
-
-    private CountData expandReferenceDataIfNecessary(CountDatasetEntity seriesEntity, DbQuery query, Session session) throws DataAccessException {
-        CountData result = new CountData();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            CountValue lastValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            CountDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), seriesEntity, query));
-        }
-        return result;
+    protected CountValue createEmptyValue() {
+        return new CountValue();
     }
 
     @Override
-    protected CountData assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session) throws DataAccessException {
-        CountData result = new CountData();
+    protected Data<CountValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
+        Data<CountValue> result = new Data<>();
         DataDao<CountDataEntity> dao = createDataDao(session);
         List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (CountDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
             }
         }
         return result;
     }
 
-    private CountValue[] expandToInterval(Integer value, CountDatasetEntity series, DbQuery query) {
-        CountDataEntity referenceStart = new CountDataEntity();
-        CountDataEntity referenceEnd = new CountDataEntity();
-        referenceStart.setTimestamp(query.getTimespan().getStart().toDate());
-        referenceEnd.setTimestamp(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new CountValue[]{createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query)};
-
-    }
-
     @Override
-    public CountValue createSeriesValueFor(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    public CountValue assembleDataValue(CountDataEntity observation, DatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;
         }
 
-        long timestart = observation.getTimestart().getTime();
-        long timeend = observation.getTimeend().getTime();
-        Integer observationValue = !series.getService().isNoDataValue(observation)
+        ServiceEntity service = getServiceEntity(series);
+        Integer observationValue = !service.isNoDataValue(observation)
                 ? observation.getValue()
                 : null;
-        CountValue value = query.getParameters().isShowTimeIntervals()
-                ? new CountValue(timestart, timeend, observationValue)
-                : new CountValue(timeend, observationValue);
 
-        if (query.isExpanded()) {
-            addGeometry(observation, value);
-            addValidTime(observation, value);
-            addParameters(observation, value);
-        } else if (series.getPlatform().isMobile()) {
-            addGeometry(observation, value);
-        }
-        return value;
+        IoParameters parameters = query.getParameters();
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        long end = timeend.getTime();
+        long start = timestart.getTime();
+        CountValue value = parameters.isShowTimeIntervals()
+                ? new CountValue(start, end, observationValue)
+                : new CountValue(end, observationValue);
+
+        return addMetadatasIfNeeded(observation, value, series, query);
     }
 
 }

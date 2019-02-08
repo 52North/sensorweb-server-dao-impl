@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,38 +33,38 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput> extends SessionAwareRepository implements OutputAssembler<O> {
+public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput>
+        extends ParameterRepository<E, O>
+        implements OutputAssembler<O> {
 
-    protected List<O> createExpanded(Collection<E> entities, DbQuery parameters) throws DataAccessException {
+    @Override
+    protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session)
+            throws DataAccessException {
         Set<O> results = new HashSet<>();
         if (entities != null) {
             for (E entity : entities) {
-                O result = createExpanded(entity, parameters);
+                O result = createExpanded(entity, query, session);
                 results.add(result);
             }
         }
         return new ArrayList<>(results);
     }
 
-    protected abstract O createExpanded(E procedureEntity, DbQuery parameters) throws DataAccessException;
-
-    protected List<O> createCondensed(Collection<E> entities, DbQuery parameters) {
-        Set<O> results = new HashSet<>();
-        if (entities != null) {
-            for (E entity : entities) {
-                O result = createCondensed(entity, parameters);
-                results.add(result);
-            }
-        }
-        return new ArrayList<>(results);
+    @Override
+    protected List<O> createCondensed(Collection<E> entities, DbQuery query, Session session) {
+        return entities == null
+                ? new ArrayList<>()
+                : entities.stream()
+                          .map(entity -> createCondensed(entity, query, session))
+                          .collect(Collectors.toList());
     }
-
-    protected abstract O createCondensed(E entity, DbQuery parameters);
 
 }

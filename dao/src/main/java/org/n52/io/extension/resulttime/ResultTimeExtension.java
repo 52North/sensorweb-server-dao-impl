@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ package org.n52.io.extension.resulttime;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ResultTimeExtension.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeExtension.class);
 
     private static final String CONFIG_FILE = "/config-extension-resultTime.json";
 
@@ -62,7 +63,7 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
             ObjectMapper om = new ObjectMapper();
             return Arrays.asList(om.readValue(taskConfig, String[].class));
         } catch (IOException e) {
-            LOGGER.error("Could not load {}. Using empty config.", CONFIG_FILE, e);
+            LOGGER.info("Could not load '{}'. Using empty config.", CONFIG_FILE);
             return Collections.emptyList();
         }
     }
@@ -73,11 +74,12 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
     }
 
     @Override
-    public void addExtraMetadataFieldNames(DatasetOutput output) {
-        final ParameterOutput service = output.getSeriesParameters().getService();
-        if (isAvailableFor(service.getId())) {
-            output.addExtra(EXTENSION_NAME);
-        }
+    public Collection<String> getExtraMetadataFieldNames(DatasetOutput output) {
+        final ParameterOutput serviceOutput = output.getDatasetParameters(true)
+                                                    .getService();
+        return isAvailableFor(serviceOutput.getId())
+                ? Collections.singleton(EXTENSION_NAME)
+                : Collections.emptySet();
     }
 
     private boolean isAvailableFor(String serviceId) {

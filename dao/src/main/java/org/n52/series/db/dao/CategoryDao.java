@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,54 +28,33 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CategoryEntity;
-import org.n52.series.db.beans.I18nCategoryEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.n52.series.db.beans.i18n.I18nCategoryEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class CategoryDao extends AbstractDao<CategoryEntity> {
+public class CategoryDao extends ParameterDao<CategoryEntity, I18nCategoryEntity> {
 
     private static final String SERIES_PROPERTY = "category";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryDao.class);
 
     public CategoryDao(Session session) {
         super(session);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<CategoryEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = translate(I18nCategoryEntity.class, getDefaultCriteria(), query)
-                .add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<CategoryEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = translate(I18nCategoryEntity.class, getDefaultCriteria(), query);
-        return query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    protected String getSeriesProperty() {
+    protected String getDatasetProperty() {
         return SERIES_PROPERTY;
     }
 
     @Override
     protected Class<CategoryEntity> getEntityClass() {
         return CategoryEntity.class;
+    }
+
+    @Override
+    protected Class<I18nCategoryEntity> getI18NEntityClass() {
+        return I18nCategoryEntity.class;
     }
 
 }

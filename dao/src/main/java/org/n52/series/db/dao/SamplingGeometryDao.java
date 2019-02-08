@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,18 +29,22 @@
 package org.n52.series.db.dao;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.SamplingGeometryEntity;
 
 public class SamplingGeometryDao {
 
-    private static final String COLUMN_SERIES_PKID = "seriesPkid";
-
     private static final String COLUMN_TIMESTAMP = "timestamp";
+
+    private static final String PROPERTY_DATASET = "dataset";
 
     private final Session session;
 
@@ -48,14 +52,31 @@ public class SamplingGeometryDao {
         this.session = session;
     }
 
-    @SuppressWarnings("unchecked") // Hibernate
-    public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery parameters) {
+    @SuppressWarnings("unchecked")
+    public List<GeometryEntity> getGeometriesOrderedByTimestamp(DbQuery query) {
         Criteria criteria = session.createCriteria(SamplingGeometryEntity.class);
-        parameters.addDetachedFilters(COLUMN_SERIES_PKID, criteria);
+        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, FeatureEntity.PROPERTY_ID);
+        criteria.createCriteria(PROPERTY_DATASET)
+                .add(Restrictions.in(path, getFeatureIds(query)));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         criteria.addOrder(Order.asc(COLUMN_TIMESTAMP));
-        parameters.addSpatialFilterTo(criteria, parameters);
-        return (List<GeometryEntity>) criteria.list();
+
+        query.addSpatialFilter(criteria);
+        return toGeometryEntities(criteria.list());
+    }
+
+    protected List<Long> getFeatureIds(DbQuery query) {
+        return query.getParameters()
+                    .getFeatures()
+                    .stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+    }
+
+    private List<GeometryEntity> toGeometryEntities(List<SamplingGeometryEntity> entities) {
+        return entities.stream()
+                       .map(e -> e.getGeometryEntity())
+                       .collect(Collectors.toList());
     }
 
 }

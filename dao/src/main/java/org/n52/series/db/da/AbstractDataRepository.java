@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,105 +28,228 @@
  */
 package org.n52.series.db.da;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.DatasetType;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.parameter.Parameter;
+import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractDataRepository<D extends Data<?>, DSE extends DatasetEntity<?>, DE extends DataEntity<?>, V extends AbstractValue<?>>
-        extends SessionAwareRepository implements DataRepository<DSE, V> {
+public abstract class AbstractDataRepository<S extends DatasetEntity,
+                                             E extends DataEntity<T>,
+                                             V extends AbstractValue< ? >,
+                                             T>
+        extends
+        SessionAwareRepository implements
+        DataRepository<S, E, V, T> {
 
     @Override
-    public Data<?> getData(String seriesId, DbQuery dbQuery) throws DataAccessException {
+    public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            DatasetDao<DSE> seriesDao = getSeriesDao(session);
-            String id = DatasetType.extractId(seriesId);
-            DSE series = seriesDao.getInstance(id, dbQuery);
+            DatasetDao<S> seriesDao = getSeriesDao(session);
+            IoParameters parameters = dbQuery.getParameters();
+            // remove spatial filter on metadata
+            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+                                                                      .removeAllOf(Parameters.NEAR)
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
             if (series.getService() == null) {
-                series.setService(getStaticServiceEntity());
+                series.setService(getServiceEntity());
             }
             return dbQuery.isExpanded()
-                ? assembleDataWithReferenceValues(series, dbQuery, session)
+                ? assembleExpandedData(series, dbQuery, session)
                 : assembleData(series, dbQuery, session);
+        } finally {
+            returnSession(session);
         }
-        finally {
+    }
+
+    protected Data<V> assembleExpandedData(S dataset, DbQuery dbQuery, Session session)  {
+        return assembleData(dataset, dbQuery, session);
+    }
+
+    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
+
+    @Override
+    public V assembleDataValueWithMetadata(E data, S dataset, DbQuery query) {
+        V value = assembleDataValue(data, dataset, query);
+        return addMetadatasIfNeeded(data, value, dataset, query);
+    }
+
+    @Override
+    public V getFirstValue(S entity, Session session, DbQuery query) {
+        return entity.getFirstObservation() != null
+                ? assembleDataValue(unproxy(entity.getFirstObservation(), session), entity, query)
+                : null;
+    }
+
+    @Override
+    public V getLastValue(S entity, Session session, DbQuery query) {
+        return entity.getLastObservation() != null
+            ? assembleDataValue(unproxy(entity.getLastObservation(), session), entity, query)
+            : null;
+    }
+
+    @Override
+    public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
+        // DataDao<E> dao = createDataDao(session);
+        // return dao.getValueGeometryViaTimeend(entity, query);
+        DataEntity<?> lastObservation = entity.getLastObservation();
+        return lastObservation != null
+                ? lastObservation.getGeometryEntity()
+                : null;
+    }
+
+    protected DatasetDao<S> getSeriesDao(Session session) {
+        return new DatasetDao<>(session);
+    }
+
+    protected DataDao<E> createDataDao(Session session) {
+        return new DataDao<>(session);
+    }
+
+    protected abstract V createEmptyValue();
+
+    protected V prepareValue(E observation, DbQuery query) {
+        V emptyValue = createEmptyValue();
+        if (observation == null) {
+            return emptyValue;
+        }
+
+        IoParameters parameters = query.getParameters();
+        Date timeend = observation.getSamplingTimeEnd();
+        Date timestart = observation.getSamplingTimeStart();
+        if (parameters.isShowTimeIntervals() && (timestart != null)) {
+            emptyValue.setTimestart(timestart.getTime());
+        }
+        emptyValue.setTimestamp(timeend.getTime());
+        return emptyValue;
+    }
+
+    protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
+        return observations.size() > 0;
+    }
+
+    protected boolean hasSingleValidReferenceValue(List< ? > observations) {
+        return observations.size() == 1;
+    }
+
+    protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
+        // TODO how to handle NULL values, e.g. for detection limit
+        if (value != null) {
+            addResultTime(observation, value);
+
+            if (query.isExpanded()) {
+                addValidTime(observation, value);
+                addParameters(observation, value, query);
+                addGeometry(observation, value, query);
+            } else {
+                if (dataset.isMobile()) {
+                    addGeometry(observation, value, query);
+                }
+            }
+        }
+        return value;
+    }
+
+    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
+        if (dataEntity.isSetGeometryEntity()) {
+            GeometryEntity geometry = dataEntity.getGeometryEntity();
+            value.setGeometry(geometry.getGeometry());
+        }
+    }
+
+    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+        if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
+            Long validFrom = observation.isSetValidStartTime()
+                ? observation.getValidTimeStart()
+                             .getTime()
+                : null;
+            Long validUntil = observation.isSetValidEndTime()
+                ? observation.getValidTimeEnd()
+                             .getTime()
+                : null;
+            value.setValidTime(new ValidTime(validFrom, validUntil));
+        }
+    }
+
+    protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+        if (observation.getResultTime() != null) {
+            value.setResultTime(observation.getResultTime()
+                                           .getTime());
+        }
+    }
+
+    protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
+        if (observation.hasParameters()) {
+            for (ParameterEntity< ? > parameter : observation.getParameters()) {
+                value.addParameter(parameter.toValueMap(query.getLocale()));
+            }
+        }
+    }
+
+    @Override
+    public E getClosestValueBeforeStart(S dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
+
+            final DateTime lowerBound = timespan.getStart();
+            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+        } finally {
             returnSession(session);
         }
     }
 
     @Override
-    public V getFirstValue(DSE entity, Session session, DbQuery query) {
-        DataDao<DE> dao = createDataDao(session);
-        DE valueEntity = dao.getDataValueViaTimestart(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
-    }
+    public E getClosestValueAfterEnd(S dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            final DataDao<E> dao = createDataDao(session);
+            final Interval timespan = query.getTimespan();
 
-    @Override
-    public V getLastValue(DSE entity, Session session, DbQuery query) {
-        DataDao<DE> dao = createDataDao(session);
-        DE valueEntity = dao.getDataValueViaTimeend(entity, query);
-        return createSeriesValueFor(valueEntity, entity, query);
-    }
-
-    protected DatasetDao<DSE> getSeriesDao(Session session) {
-        return new DatasetDao<>(session);
-    }
-
-    protected DataDao<DE> createDataDao(Session session) {
-        return new DataDao<>(session);
-    }
-
-    protected abstract V createSeriesValueFor(DE valueEntity, DSE datasetEntity, DbQuery query);
-
-    protected abstract D assembleData(DSE datasetEntity, DbQuery query, Session session) throws DataAccessException;
-
-    protected abstract D assembleDataWithReferenceValues(DSE datasetEntity, DbQuery dbQuery, Session session) throws DataAccessException;
-
-    protected boolean hasValidEntriesWithinRequestedTimespan(List<?> observations) {
-        return observations.size() > 0;
-    }
-
-    protected boolean hasSingleValidReferenceValue(List<?> observations) {
-        return observations.size() == 1;
-    }
-
-    protected void addGeometry(DataEntity<?> dataEntity, AbstractValue<?> value) {
-        if (dataEntity.isSetGeometry()) {
-            GeometryEntity geometry = dataEntity.getGeometry();
-            value.setGeometry(geometry.getGeometry(getDatabaseSrid()));
+            final DateTime upperBound = timespan.getEnd();
+            return dao.getClosestOuterNextValue(dataset, upperBound, query);
+        } finally {
+            returnSession(session);
         }
     }
 
-    protected void addValidTime(DataEntity<?> observation, AbstractValue<?> value) {
-        if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
-            Long validFrom = observation.isSetValidStartTime()
-                    ? observation.getValidTimeStart().getTime()
-                    : null;
-            Long validUntil = observation.isSetValidEndTime()
-                    ? observation.getValidTimeEnd().getTime()
-                    : null;
-            value.setValidTime(new ValidTime(validFrom, validUntil));
+    protected E unproxy(DataEntity<?> dataEntity, Session session) {
+        if (dataEntity instanceof HibernateProxy
+                && ((HibernateProxy) dataEntity).getHibernateLazyInitializer().getSession() == null) {
+            return unproxy(session.load(DataEntity.class, dataEntity.getId()), session);
         }
+        return (E) Hibernate.unproxy(dataEntity);
     }
 
-    protected void addParameters(DataEntity<?> observation, AbstractValue<?> value) {
-        if (observation.hasParameters()) {
-            for (Parameter<?> parameter : observation.getParameters()) {
-                value.addParameter(parameter.toValueMap());
-            }
+
+    protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
+       return format(value, dataset.getNumberOfDecimals());
+    }
+
+    protected BigDecimal format(BigDecimal value, int scale) {
+        if (value == null) {
+            return value;
         }
+        return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
 }

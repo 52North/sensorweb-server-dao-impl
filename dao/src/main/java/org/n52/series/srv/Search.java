@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,25 +28,25 @@
  */
 package org.n52.series.srv;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
-import org.n52.io.response.StationOutput;
-import org.n52.io.response.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.StationOutput;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.series.db.da.OutputAssembler;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("deprecation")
 public class Search implements SearchService {
 
     @Autowired
@@ -65,7 +65,7 @@ public class Search implements SearchService {
     private OutputAssembler<PlatformOutput> platformRepository;
 
     @Autowired
-    private OutputAssembler<DatasetOutput<?,?>> datasetRepository;
+    private OutputAssembler<DatasetOutput< ? >> datasetRepository;
 
     @Autowired
     @Deprecated
@@ -77,18 +77,18 @@ public class Search implements SearchService {
 
     @Override
     public Collection<SearchResult> searchResources(IoParameters parameters) {
-        List<SearchResult> results = new ArrayList<>();
+        Set<SearchResult> results = new HashSet<>();
         results.addAll(phenomenonRepository.searchFor(parameters));
         results.addAll(procedureRepository.searchFor(parameters));
         results.addAll(featureRepository.searchFor(parameters));
         results.addAll(categoryRepository.searchFor(parameters));
-        results.addAll(platformRepository.searchFor(parameters));
-        results.addAll(datasetRepository.searchFor(parameters));
 
-        FilterResolver filterResolver = new FilterResolver(parameters);
-        if (filterResolver.shallBehaveBackwardsCompatible()) {
+        if (parameters.shallBehaveBackwardsCompatible()) {
             results.addAll(timeseriesRepository.searchFor(parameters));
             results.addAll(stationRepository.searchFor(parameters));
+        } else {
+            results.addAll(platformRepository.searchFor(parameters));
+            results.addAll(datasetRepository.searchFor(parameters));
         }
         return results;
     }

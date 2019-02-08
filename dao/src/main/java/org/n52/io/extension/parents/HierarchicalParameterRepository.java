@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,12 +41,10 @@ import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.da.PlatformRepository;
-import org.n52.series.db.da.ProcedureRepository;
 import org.n52.series.db.da.SessionAwareRepository;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -56,56 +54,58 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class HierarchicalParameterRepository extends SessionAwareRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HierarchicalParameterRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            HierarchicalParameterRepository.class);
 
-    @Autowired
-    private ProcedureRepository procedureRepository;
+    private static final String KEY_PROCEDURES = "procedures";
 
     @Autowired
     private PlatformRepository platformRepository;
 
-    Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId, IoParameters parameters) {
+    Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId,
+            IoParameters parameters) {
         Session session = getSession();
         try {
             DbQuery dbQuery = getDbQuery(parameters);
             Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
 
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
-            DatasetDao<DatasetEntity<?>> dao = new DatasetDao<>(session);
-            for (DatasetOutput dataset : platform.getDatasets()) {
-                String datasetId = DatasetType.extractId(dataset.getId());
-                DatasetEntity<?> instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
-
-//                // ugly hack to ensure parents get initialized
-//                String procedureId = Long.toString(instance.getProcedure().getPkid());
-//                DbQuery query = getDbQuery(dbQuery.getParameters()
-//                        .extendWith(Parameters.PROCEDURES, procedureId));
-//                ProcedureOutput output = procedureRepository.getAllExpanded(query)
-//                        .stream()
-//                        .filter(e -> e.getId().equals(procedureId))
-//                        .limit(1)
-//                        .collect(Collectors.toList())
-//                        .get(0);
-
-                ProcedureEntity entity = instance.getProcedure();
-                Set<? extends HierarchicalParameterOutput> parents = entity.hasParents()
-                        ? new HashSet<>(entity.getParents().stream().map(e -> createCondensed(new ProcedureOutput(), e, dbQuery)).collect(Collectors.toSet()))
-                        : Collections.singleton(createCondensed(new ProcedureOutput(), entity, dbQuery));
-                if ( !extras.containsKey("procedures")) {
-                    extras.put("procedures", new HashSet<>());
-                }
-                extras.get("procedures").addAll(parents);
+            DatasetDao<DatasetEntity> dao = new DatasetDao<>(session);
+            for (DatasetOutput<?> dataset : platform.getDatasets()) {
+                String datasetId = dataset.getId();
+                DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
+                addProcedureParents(instance, dbQuery, extras);
+                // TODO add further parents
             }
 
             return extras;
         } catch (NumberFormatException e) {
             LOGGER.debug("Could not convert id '{}' to long.", platformId, e);
         } catch (DataAccessException e) {
-            LOGGER.error("Could not query hierarchical parameters for dataset with id '{}'", platformId, e);
+            LOGGER.error("Could not query hierarchical parameters for dataset with id '{}'",
+                    platformId, e);
         } finally {
             returnSession(session);
         }
         return Collections.emptyMap();
+    }
+
+    private void addProcedureParents(DatasetEntity instance, DbQuery dbQuery,
+            Map<String, Set<HierarchicalParameterOutput>> extras) {
+        if (!extras.containsKey(KEY_PROCEDURES)) {
+            extras.put(KEY_PROCEDURES, new HashSet<>());
+        }
+        ProcedureEntity entity = instance.getProcedure();
+        extras.get(KEY_PROCEDURES).addAll(getProcedureParents(entity, dbQuery));
+    }
+
+    private Set<? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity,
+            DbQuery dbQuery) {
+        return !entity.hasParents()
+                ? Collections.singleton(createCondensed(new ProcedureOutput(), entity, dbQuery))
+                : new HashSet<>(entity.getParents().stream()
+                        .map(e -> createCondensed(new ProcedureOutput(), e, dbQuery))
+                        .collect(Collectors.toSet()));
     }
 
 }

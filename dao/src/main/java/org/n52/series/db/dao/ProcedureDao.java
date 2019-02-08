@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,22 +28,22 @@
  */
 package org.n52.series.db.dao;
 
-import static org.hibernate.criterion.Restrictions.eq;
-
-import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.I18nProcedureEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.i18n.I18nProcedureEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ProcedureDao extends AbstractDao<ProcedureEntity> {
+public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
 
-    private static final String SERIES_PROPERTY = "procedure";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
 
     private static final String COLUMN_REFERENCE = "reference";
 
@@ -52,34 +52,37 @@ public class ProcedureDao extends AbstractDao<ProcedureEntity> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<ProcedureEntity> find(DbQuery query) {
-        Criteria criteria = translate(I18nProcedureEntity.class, getDefaultCriteria(), query)
-                .add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
+    public ProcedureEntity getInstance(Long key, DbQuery query) {
+        LOGGER.debug("get instance '{}': {}", key, query);
+        Criteria criteria = getDefaultCriteria(query);
+        return getEntityClass().cast(criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
+                                             .uniqueResult());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<ProcedureEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        Criteria criteria = translate(I18nProcedureEntity.class, getDefaultCriteria(), query);
-        return (List<ProcedureEntity>) query.addFilters(criteria, getSeriesProperty()).list();
+    public Criteria getDefaultCriteria(DbQuery query) {
+        return getDefaultCriteria(query, true);
+    }
+
+    private Criteria getDefaultCriteria(DbQuery query, boolean ignoreReferenceProcedures) {
+        return ignoreReferenceProcedures
+                ? super.getDefaultCriteria(query).add(Restrictions.eq(COLUMN_REFERENCE, Boolean.FALSE))
+                : super.getDefaultCriteria(query);
     }
 
     @Override
-    protected Criteria getDefaultCriteria() {
-        return super.getDefaultCriteria()
-                .add(eq(COLUMN_REFERENCE, Boolean.FALSE));
-    }
-
-    @Override
-    protected String getSeriesProperty() {
-        return SERIES_PROPERTY;
+    protected String getDatasetProperty() {
+        return DatasetEntity.PROPERTY_PROCEDURE;
     }
 
     @Override
     protected Class<ProcedureEntity> getEntityClass() {
         return ProcedureEntity.class;
+    }
+
+    @Override
+    protected Class<I18nProcedureEntity> getI18NEntityClass() {
+        return I18nProcedureEntity.class;
     }
 
 }

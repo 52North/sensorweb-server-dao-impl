@@ -1,6 +1,6 @@
 {
     "generalConfig": {
-        "outputPath": "generated/prerendered/v1",
+        "outputPath": "/tmp/generated/prerendered",
         "width": "800",
         "height": "500",
         "language": "de",
@@ -9,9 +9,9 @@
     },
     "phenomenonStyles": [
         {
-            "id": "3",
-            "title": "Title of a Timeseries (without legend)",
-            "chartQualifier": "without_legend",
+            "id": "7",
+            "title": "Dataset quantity_7 from phenomenonStyles config (without legend)",
+            "chartQualifier": "phenomenonStyles_without_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"
@@ -26,9 +26,9 @@
             }
         },
         {
-            "id": "3",
-            "title": "Title of a Timeseries (with legend)",
-            "chartQualifier": "with_legend",
+            "id": "7",
+            "title": "Dataset quantity_7 from phenomenonStyles config (with legend)",
+            "chartQualifier": "phenomenonStyles_with_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"
@@ -44,24 +44,13 @@
                     "width": 2
                 }
             }
-        },
+        }
+    ],
+    "timeseriesStyles": [
         {
-            "id": "9",
-            "interval": [
-                "lastWeek",
-                "lastMonth"
-            ],
-            "style": {
-                "chartType": "line",
-                "properties": {
-                    "color": "#0000ff",
-                    "lineType": "solid",
-                    "width": 2
-                }
-            }
-        },
-        {
-            "id": "4",
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "timeseriesStyles_without_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"
@@ -70,15 +59,36 @@
                 "chartType": "bar",
                 "properties": {
                     "interval": "byDay",
-                    "color": "#ff0000",
-                    "width": 0.8
+                    "width": 0.8,
+                    "color": "#0000ff"
                 }
             }
         }
     ],
-    "timeseriesStyles": [
+    "seriesStyles": [
         {
-            "id": "16",
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "seriesStyles_without_legend",
+            "interval": [
+                "lastWeek",
+                "lastMonth"
+            ],
+            "style": {
+                "chartType": "bar",
+                "properties": {
+                    "interval": "byDay",
+                    "width": 0.8,
+                    "color": "#0000ff"
+                }
+            }
+        }
+    ],
+    "datasetStyles": [
+        {
+            "id": "quantity_6",
+            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "chartQualifier": "datasetStyles_with_legend",
             "interval": [
                 "lastWeek",
                 "lastMonth"

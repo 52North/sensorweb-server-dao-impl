@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ public class MetadataJsonEntitiyTest {
     @Test
     public void givenMetadataJsonEntity_whenSerialize_ValueAsJsonNode() throws JsonProcessingException, IOException {
         MetadataJsonEntity entity = new MetadataJsonEntity();
-        entity.setPkid(1L);
+        entity.setId(1L);
         entity.setName("some_metadata");
         entity.setSeriesId(1L);
         entity.setType("json");
@@ -52,7 +52,8 @@ public class MetadataJsonEntitiyTest {
         ObjectMapper om = new ObjectMapper();
         String jsonString = om.writeValueAsString(entity);
         JsonNode jsonNode = om.readTree(jsonString);
-        JsonNode at = jsonNode.path("value").path("object");
+        JsonNode at = jsonNode.path("value")
+                              .path("object");
         Assert.assertTrue(at.isObject());
     }
 

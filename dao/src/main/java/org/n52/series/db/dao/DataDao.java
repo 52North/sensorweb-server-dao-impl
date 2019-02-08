@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,74 +28,53 @@
  */
 package org.n52.series.db.dao;
 
-import static org.hibernate.criterion.DetachedCriteria.forClass;
-import static org.hibernate.criterion.Projections.projectionList;
-import static org.hibernate.criterion.Projections.property;
-import static org.hibernate.criterion.Restrictions.eq;
-
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.criterion.Subqueries;
-import org.joda.time.Instant;
+import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.GeometryEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * TODO: JavaDoc
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
- * @param <T> the data entity type
+ * @param <T>
+ *        the data entity type
  */
 @Transactional
-@SuppressWarnings("rawtypes") // infer entitType runtime
+@SuppressWarnings("rawtypes")
 public class DataDao<T extends DataEntity> extends AbstractDao<T> {
-
-    @Autowired
-    private DbQueryFactory dbQueryFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataDao.class);
 
-    private static final String COLUMN_SERIES_PKID = "seriesPkid";
-
-    private static final String COLUMN_DELETED = "deleted";
-
-    private static final String COLUMN_RESULTTIME = "resultTime";
-
-    private static final String COLUMN_TIMESTART = "timestart";
-
-    private static final String COLUMN_TIMEEND = "timeend";
+    private static final Order DEFAULT_ORDER = Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END);
 
     private final Class<T> entityType;
+
+    @SuppressWarnings("unchecked")
+    public DataDao(Session session) {
+        this(session, (Class<T>) DataEntity.class);
+    }
 
     public DataDao(Session session, Class<T> clazz) {
         super(session);
         this.entityType = clazz;
-    }
-
-    @SuppressWarnings("unchecked")
-    public DataDao(Session session) {
-        super(session);
-        this.entityType = (Class<T>) DataEntity.class;
-    }
-
-    @Override
-    public List<T> find(DbQuery query) {
-        LOGGER.debug("find instances: {}", query);
-        return Collections.emptyList();
     }
 
     @Override
@@ -105,72 +84,70 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     /**
-     * <p>
-     * Retrieves all available observation instances.</p>
+     * Retrieves all available observation instances.
      *
      * @param parameters query parameters.
+     *
      * @return all instances matching the given query parameters.
+     *
      * @throws DataAccessException if accessing database fails.
      */
     @Override
-    @SuppressWarnings("unchecked") // cast from hibernate
+    @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery parameters) throws DataAccessException {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
-        return (List<T>) criteria.list();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     /**
-     * Retrieves all available observations belonging to a particular series.
+     * Retrieves all available observation instances belonging to a particular series.
      *
-     * @param series the entity to get all observations for.
-     * @return all observation entities belonging to the series.
-     * @throws org.n52.series.db.DataAccessException if accessing database
-     * fails.
+     * @param dataset
+     *        the dataset the observations belongs to.
+     * @param query
+     *        some query parameters to restrict result.
+     * @return all observation entities belonging to the given series which match the given query.
+     * @throws DataAccessException
+     *         if accessing database fails.
      */
-    public List<T> getAllInstancesFor(DatasetEntity series) throws DataAccessException {
-        LOGGER.debug("get all instances for series '{}'", series.getPkid());
-        return getAllInstancesFor(series, dbQueryFactory.createFrom(IoParameters.createDefaults()));
+    @SuppressWarnings("unchecked")
+    public List<T> getAllInstancesFor(DatasetEntity dataset, DbQuery query) throws DataAccessException {
+        final Long id = dataset.getId();
+        LOGGER.debug("get all instances for series '{}': {}", id, query);
+        // TODO check the clear() which is currently required as the first and
+        // last observation occur as HibernateProxy in the result!
+        session.clear();
+        // TODO do we really want to allow mapping from observatin to dataset?
+        // PERFORMANCE LEAK
+        final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset);
+        Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
+        query.addTimespanTo(criteria);
+        return criteria.list();
     }
 
-    /**
-     * Retrieves all available observation instances belonging to a particular
-     * series.
-     *
-     * @param series the series the observations belongs to.
-     * @param parameters some query parameters to restrict result.
-     * @return all observation entities belonging to the given series which
-     * match the given query.
-     * @throws DataAccessException if accessing database fails.
-     */
-    @SuppressWarnings("unchecked") // cast from hibernate
-    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get all instances for series '{}': {}", series.getPkid(), parameters);
-        Criteria criteria = getDefaultCriteria(parameters)
-                .add(eq(COLUMN_SERIES_PKID, series.getPkid()));
-        parameters.addTimespanTo(criteria);
-        return (List<T>) criteria.list();
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
+        final Order order = Order.desc(column);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
     }
 
-    @Override
-    protected String getSeriesProperty() {
-        return ""; // there's no series property for observation
-    }
-
-    private Criteria getDefaultCriteria(DbQuery parameters) {
-        Criteria criteria = getDefaultCriteria();
-        return parameters.getResultTime() != null
-            ? criteria.add(Restrictions.eq("resultTime", parameters.getResultTime()))
-            : criteria;
-    }
-
-    @Override
-    protected Criteria getDefaultCriteria() {
-        return session.createCriteria(entityType)
-                // TODO check odering when `showtimeintervals=true`
-                .addOrder(Order.asc(COLUMN_TIMEEND))
-                .add(eq(COLUMN_DELETED, Boolean.FALSE));
+    @SuppressWarnings("unchecked")
+    public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
+        final Order order = Order.asc(column);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
+                           .setMaxResults(1)
+                           .uniqueResult();
     }
 
     @Override
@@ -178,51 +155,104 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return entityType;
     }
 
+    @Override
+    protected String getDatasetProperty() {
+        // there's no series property for observation
+        return "";
+    }
+
+    @Override
+    public Criteria getDefaultCriteria(final DbQuery query) {
+        return getDefaultCriteria(query, DEFAULT_ORDER);
+    }
+
+    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
+        Criteria criteria = session.createCriteria(entityType)
+                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
+                                   // TODO check ordering when `showtimeintervals=true`
+                                   .addOrder(order);
+        criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+        query.addSpatialFilter(criteria);
+        query.addResultTimeFilter(criteria);
+        query.addOdataFilterForData(criteria);
+
+//        criteria = query.isComplexParent()
+//                ? criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT))
+//                : criteria.add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT));
+
+        criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT));
+        return criteria;
+    }
+
+    @Deprecated
+    @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
-        return getDataValueAt(timeend, COLUMN_TIMEEND, series, query);
+        Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
+        return (T) criteria.uniqueResult();
     }
 
+    @Deprecated
+    @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();
-        return getDataValueAt(timestart, COLUMN_TIMESTART, series, query);
+        Criteria criteria = createDataAtCriteria(timestart, DataEntity.PROPERTY_SAMPLING_TIME_START, series, query);
+        return (T) criteria.uniqueResult();
     }
 
-    @SuppressWarnings("unchecked")
-    private T getDataValueAt(Date timestamp, String column, DatasetEntity series, DbQuery query) {
-        LOGGER.debug("get instances @{} for '{}'", timestamp, series.getPkid());
-        Criteria criteria = getDefaultCriteria()
-                .add(Restrictions.eq(COLUMN_SERIES_PKID, series.getPkid()))
-                .add(Restrictions.eq(column, timestamp));
+    @Deprecated
+    public GeometryEntity getValueGeometryViaTimeend(DatasetEntity series, DbQuery query) {
+        Date lastValueAt = series.getLastValueAt();
+        Criteria criteria = createDataAtCriteria(lastValueAt, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
+        criteria.setProjection(Projections.property(DataEntity.PROPERTY_GEOMETRY_ENTITY));
+        return (GeometryEntity) criteria.uniqueResult();
+    }
 
-        DetachedCriteria filter = forClass(DatasetEntity.class)
-                .setProjection(projectionList().add(property("pkid")));
-        criteria.add(Subqueries.propertyIn(COLUMN_SERIES_PKID, filter));
+    private Criteria createDataAtCriteria(final Date timestamp,
+                                          final String column,
+                                          final DatasetEntity dataset,
+                                          final DbQuery query) {
+        LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getId());
+        return createDataCriteria(column, dataset, query).add(Restrictions.eq(column, timestamp));
+    }
+
+    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query) {
+        return createDataCriteria(column, dataset, query, DEFAULT_ORDER);
+    }
+
+    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+        Criteria criteria = getDefaultCriteria(query);
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
 
         IoParameters parameters = query.getParameters();
-        if ( !parameters.containsParameter(Parameters.RESULTTIME)) {
-            List<T> list = criteria.list();
-            return getLastResultTimeValue(list);
+        if (parameters.isAllResultTimes()) {
+            // no filter needed
+            return criteria;
+        } else if (!parameters.getResultTimes()
+                              .isEmpty()) {
+            // filter based on given result times
+            return query.addResultTimeFilter(criteria);
         } else {
-            Instant resultTime = parameters.getResultTime();
-            criteria.add(Restrictions.eq(COLUMN_RESULTTIME, resultTime.toDate()));
-            return (T) criteria.uniqueResult();
-        }
-    }
+            // values for oldest result time
+            String rtAlias = "rtAlias";
+            String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
+            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
+            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
+            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset))
+                              .setProjection(Projections.projectionList()
+                                                        .add(Projections.groupProperty(rtColumn))
+                                                        .add(Projections.groupProperty(rtDatasetId))
+                                                        .add(Projections.max(rtResultTime)));
+            criteria.add(Subqueries.propertiesIn(new String[] {
+                column,
+                DataEntity.PROPERTY_DATASET,
+                DataEntity.PROPERTY_RESULT_TIME
+            }, maxResultTimeQuery));
 
-    private T getLastResultTimeValue(List<T> values) {
-        T lastValue = null;
-        for (T value : values) {
-            lastValue = lastValue != null
-                    ? lastValue
-                    : value;
-            Date lastResultTime = lastValue.getResultTime();
-            Date resultTime = value.getResultTime();
-            if (new Instant(resultTime).isAfter(new Instant(lastResultTime))) {
-                lastValue = value;
-            }
         }
-        return lastValue;
+        return criteria;
     }
 
 }

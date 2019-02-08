@@ -1,0 +1,5214 @@
+{
+	"info": {
+		"_postman_id": "48ade1aa-c2cd-4827-be87-1b295211a4cd",
+		"name": "sos-example-data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "initialize",
+			"item": [
+				{
+					"name": "init-test-helperes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f96f8b30-7da7-4894-a6eb-879df7efa99b",
+								"type": "text/javascript",
+								"exec": [
+									"// https://github.com/postmanlabs/postman-app-support/issues/882#issuecomment-278759032",
+									"postman.setGlobalVariable(\"loadHelpers\", function loadHelpers() {",
+									"    let helpers = {};",
+									"",
+									"    var navigateTo = function(path, json) {",
+									"        path = path || [];",
+									"        return path.reduce((o, n) => (o && o[n]) ? o[n] : undefined, json);",
+									"    };",
+									"",
+									"    var logFailWarning = function logFailWarning(name, expected, actual) {",
+									"        console.warn(\"Expected \" + name + \": \" + expected + \". But was: \" + actual);",
+									"    };",
+									"    ",
+									"    helpers.test200 = function test200(contentType) {",
+									"        tests[\"Response returned 200\"] = responseCode.code === 200;",
+									"        if (contentType) {",
+									"            helpers.testContentTypeStartsWith(contentType);",
+									"        }",
+									"    };",
+									"    ",
+									"    helpers.test400 = function test400() {",
+									"        tests[\"Response returned 400\"] = responseCode.code === 400;",
+									"        helpers.testContentTypeStartsWith(\"application/json\");",
+									"        var jsonData = JSON.parse(responseBody);",
+									"        tests[\"statusCode is 400\"] = jsonData.statusCode = 400;",
+									"        tests[\"reason is 'Not Found'\"] = jsonData.reason === \"Bad Request\";",
+									"        tests[\"user message available\"] = jsonData.userMessage !== undefined;",
+									"        tests[\"hints available\"] = jsonData.hints !== undefined && jsonData.hints.length > 0;",
+									"    };",
+									"    ",
+									"    helpers.test404 = function test404() {",
+									"        tests[\"Response returned 404\"] = responseCode.code === 404;",
+									"        helpers.testContentTypeStartsWith(\"application/json\");",
+									"        var jsonData = JSON.parse(responseBody);",
+									"        tests[\"statusCode is 404\"] = jsonData.statusCode = 404;",
+									"        tests[\"reason is 'Not Found'\"] = jsonData.reason === \"Not Found\";",
+									"        tests[\"user message available\"] = jsonData.userMessage !== undefined;",
+									"    };",
+									"    ",
+									"    helpers.test406 = function test406() {",
+									"        tests[\"Response returned 406\"] = responseCode.code === 406;",
+									"    };",
+									"    ",
+									"    helpers.testContentTypeStartsWith = function testContentTypeStartsWith(contentType) {",
+									"        var actualContentType = postman.getResponseHeader(\"Content-Type\");",
+									"        tests[\"Content-Type is \" + contentType] = actualContentType.startsWith(contentType)",
+									"                                                    || logFailWarning(\"Content-Type\", contentType, actualContentType);",
+									"    };",
+									"",
+									"    helpers.containsId = function(data, id, idName=\"id\") {",
+									"        for (var i = 0; i < data.length ; i++) {",
+									"            if (data[i] && data[i][idName] === id) {",
+									"                return true;",
+									"            }",
+									"        }",
+									"        return false;",
+									"    };",
+									"    ",
+									"    var assertNonEmpty = function(collection=[],failOnEmpty=true) {",
+									"        if (collection.length === 0 && failOnEmpty) {",
+									"            tests[\"Couldn't perform members check on empty collection!\"] = false;",
+									"        }",
+									"    };",
+									"    ",
+									"    helpers.testAllMembersPresent = function(collection=[], members=[], failOnEmpty=true) {",
+									"        collection = Array.isArray(collection) ? collection : [collection];",
+									"        assertNonEmpty(collection, failOnEmpty);",
+									"        for (let i = 0; i < collection.length; i++) {",
+									"            const currentItem = collection[i];",
+									"            for (var j = 0; j < members.length ; j++) {",
+									"                const currentMember = members[j];",
+									"                const id = currentItem.id || \"Unresolvable ID!\";",
+									"                tests[\"Member '\" + currentMember + \"' is present at item: \" + id] = currentItem[currentMember] !== undefined;",
+									"            }",
+									"        }",
+									"    };",
+									"    ",
+									"    var checkAllValuesPresent = function(path, values) {",
+									"        for (var i = 0; i < jsonData.length; i++) {",
+									"            var elementValue = navigateTo(path, jsonData[i]);",
+									"            if (!values.includes(elementValue)) {",
+									"                return false;",
+									"            }",
+									"        }",
+									"        return true;",
+									"    };",
+									"    ",
+									"    helpers.checkFilteredDatasetParameters = function(parameter, ids) {",
+									"        return checkAllValuesPresent([\"parameters\", parameter, \"id\"], ids);",
+									"    };",
+									"    ",
+									"    helpers.checkFilteredValueTypes = function(valueTypes) {",
+									"        return checkAllValuesPresent([\"valueType\"], valueTypes);",
+									"    };",
+									"    ",
+									"    helpers.testOneOf = function(allowedValues=[], path=[], json=[]) {",
+									"        for (let i = 0 ; i < json.length ; i++) {",
+									"            tests[\"Value \" + path + \" is one of '\" + allowedValues + \"'\"] = allowedValues.includes(navigateTo(path, json[i]));",
+									"        }",
+									"    };",
+									"    ",
+									"    helpers.intersectsBBox = function(features=[], bbox=[], failOnEmpty=true) {",
+									"        features = Array.isArray(features) ? features : [features];",
+									"        console.log(features);",
+									"        assertNonEmpty(features, failOnEmpty);",
+									"        if (bbox.length !== 4) {",
+									"            console.warn(\"Expected [lon,lat,lon,lat] bbox: \" + bbox);",
+									"            return false;",
+									"        }",
+									"        var ll_lon = bbox[0];",
+									"        var ll_lat = bbox[1];",
+									"        var ur_lon = bbox[2];",
+									"        var ur_lat = bbox[3];",
+									"        for (var i = 0; i < features.length; i++) {",
+									"            var path = [\"geometry\", \"coordinates\"];",
+									"            var coords = navigateTo(path, features[i]);",
+									"            if (coords === undefined) {",
+									"                console.warn(\"Excepted an array of GeoJSON Features!\");",
+									"                return false;",
+									"            }",
+									"            for (var i = 0; i < coords.length; i++) {",
+									"                if (coords[i][0] > ll_lon && ur_lon > coords[i][0]",
+									"                    || coords[i][1] > ll_lat && ur_lat > coords[i][1]) {",
+									"                    return true;",
+									"                }",
+									"            }",
+									"        }",
+									"        return false;",
+									"    }",
+									"    ",
+									"    helpers.allWithinBBox = function(features=[], bbox=[], failOnEmpty=true) {",
+									"        features = Array.isArray(features) ? features : [features];",
+									"        console.log(features);",
+									"        assertNonEmpty(features, failOnEmpty);",
+									"        if (bbox.length !== 4) {",
+									"            console.warn(\"Expected [lon,lat,lon,lat] bbox: \" + bbox);",
+									"            return false;",
+									"        }",
+									"        var ll_lon = bbox[0];",
+									"        var ll_lat = bbox[1];",
+									"        var ur_lon = bbox[2];",
+									"        var ur_lat = bbox[3];",
+									"        for (var i = 0; i < features.length; i++) {",
+									"            var path = [\"geometry\", \"coordinates\"];",
+									"            var coords = navigateTo(path, features[i]);",
+									"            if (coords === undefined) {",
+									"                console.warn(\"Excepted an array of GeoJSON Features!\");",
+									"                return false;",
+									"            }",
+									"            if (coords[0] < ll_lon || coords[0] > ur_lon",
+									"                || coords[1] < ll_lat || coords[1] > ur_lat) {",
+									"                return false;",
+									"            }",
+									"        }",
+									"        return true;",
+									"    };",
+									"    ",
+									"    // ...additional helpers",
+									"",
+									"    return helpers;",
+									"} + '; loadHelpers();'); // when eval'd out of globals, execute it",
+									"tests[\"helpers initialized\"] = true;",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/services",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"services"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TODO",
+			"item": [
+				{
+					"name": "Dataset via DomainId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/data?datasets=http://to.be/done/8&matchDomainIds=true&timespan=PT36H/2012-11-20T16:00:00Z&handleAs=meansurement",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"data"
+							],
+							"query": [
+								{
+									"key": "datasets",
+									"value": "http://to.be/done/8"
+								},
+								{
+									"key": "matchDomainIds",
+									"value": "true"
+								},
+								{
+									"key": "timespan",
+									"value": "PT36H/2012-11-20T16:00:00Z"
+								},
+								{
+									"key": "handleAs",
+									"value": "meansurement"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET datasets quantity_7 prer. img",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET datasets via domainId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets?datasets=http://to.be/done/8&matchDomainIds=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets"
+							],
+							"query": [
+								{
+									"key": "datasets",
+									"value": "http://to.be/done/8"
+								},
+								{
+									"key": "matchDomainIds",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (phenomenon filter), csv",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv"
+							},
+							{
+								"key": "Accept",
+								"value": "application/zip",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/data.zip?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"data.zip"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "parameters",
+			"item": [
+				{
+					"name": "expanded",
+					"item": [
+						{
+							"name": "GET services expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"var features = jsonData[0].features || {};",
+											"var quantities = features.quantities || {};",
+											"tests[\"Counts are available\"] = features.quantities !== undefined;",
+											"",
+											"tests[\"datasets count does not include unpublished/deleted items\"] = quantities.datasets === 10;",
+											"tests[\"procedures count does not include deleted items\"] = quantities.procedures === 8;",
+											"",
+											"// save counts for later assertion",
+											"postman.setEnvironmentVariable(\"services.quantities.datasets\", quantities.datasets);",
+											"postman.setEnvironmentVariable(\"services.quantities.features\", quantities.features);",
+											"postman.setEnvironmentVariable(\"services.quantities.phenomena\", quantities.phenomena);",
+											"postman.setEnvironmentVariable(\"services.quantities.offerings\", quantities.offerings);",
+											"postman.setEnvironmentVariable(\"services.quantities.procedures\", quantities.procedures);",
+											"postman.setEnvironmentVariable(\"services.quantities.categories\", quantities.categories);",
+											"postman.setEnvironmentVariable(\"services.quantities.platforms\", quantities.platforms);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/services?platformtypes=all&expanded=true&datasets=foo",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"services"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										},
+										{
+											"key": "datasets",
+											"value": "foo"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET phenomena expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.phenomena\");",
+											"tests[\"Phenomeon 5 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"5\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/phenomena?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"phenomena"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET offerings expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.offerings\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/offerings?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"offerings"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET categories expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.categories\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/categories?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"categories"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET procedures expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.procedures\");",
+											"tests[\"Deleted Procedure 5 is not listed\"] = !helpers.containsId(jsonData, \"5\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/procedures?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"procedures"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET platforms expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+											"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+											"",
+											"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"platforms"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET features expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.features\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/features?platformtypes=all&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"features"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "filtered",
+					"item": [
+						{
+							"name": "GET phenomena (mobile)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"tests[\"correct count of filtered phenomena\"] = jsonData.length === 1;"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/phenomena?platformtypes=mobile",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"phenomena"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "mobile"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET platforms with feature filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"One filter result: platform 8\"] = helpers.containsId(jsonData, \"mobile_insitu_8\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true&features=9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"platforms"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										},
+										{
+											"key": "features",
+											"value": "9"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET platforms via bbox expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "564ca8c0-6cee-4dad-8ea0-0a20c3eaaa53",
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+											"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+											"",
+											"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");",
+											"",
+											"tests[\"Platforms within bbox\"] = helpers.allWithinBBox(jsonData, [7.0,50.5,7.9,52]);",
+											"tests[\"Contains stationary_insitu_2 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_2\")",
+											"tests[\"Contains stationary_insitu_5 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_5\")",
+											"tests[\"Contains stationary_insitu_7 platform having geometries within bbox \"] = helpers.containsId(jsonData, \"stationary_insitu_7\")",
+											"tests[\"Contains mobile_insitu_8 platform having last known position within bbox \"] = helpers.containsId(jsonData, \"mobile_insitu_8\")",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/platforms/?platformtypes=all&expanded=true&bbox=7.0,50.5,7.9,52",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"platforms",
+										""
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										},
+										{
+											"key": "bbox",
+											"value": "7.0,50.5,7.9,52"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "HTTP errors",
+					"item": [
+						{
+							"name": "GET platform, HTTP 404 (unknown platform type)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test404();",
+											"",
+											"",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "de",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/platforms/unknown_7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"platforms",
+										"unknown_7"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET phenomena expanded, HTTP400 (bad request)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test400();",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/phenomena/?expanded=invalid",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"phenomena",
+										""
+									],
+									"query": [
+										{
+											"key": "expanded",
+											"value": "invalid"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "GET search",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4c9f6d05-ad0d-47c7-90d2-0509739ab953",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/search?q=dlz&platformtypes=all",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "dlz"
+								},
+								{
+									"key": "platformtypes",
+									"value": "all"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "datasets",
+			"item": [
+				{
+					"name": "HTTP errors",
+					"item": [
+						{
+							"name": "GET dataset, HTTP 406 (wrong accept header)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test406();",
+											"",
+											"",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "de",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET dataset, HTTP 404 (unknown value type)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test404();"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "de",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/unknown_7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"unknown_7"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET dataset, HTTP 404 (not available)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test404();"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "de",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_999",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_999"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "filtered",
+					"item": [
+						{
+							"name": "GET datasets (mobile)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"tests[\"No datasets from stationary_insitu platforms\"] = !responseBody.has(\"stationary_insitu\");",
+											"tests[\"No datasets from stationary_remote platforms\"] = !responseBody.has(\"stationary_remote\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets?platformtypes=mobile",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "mobile"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET datasets via phenomena filter (5,6,9)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"// phenomenon 5 is linked with unpublished dataset",
+											"tests[\"Contains filtered phenomena only\"] = helpers.checkFilteredDatasetParameters(\"phenomenon\", [\"9\",\"6\"])"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets?phenomena=9,5,6&expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets"
+									],
+									"query": [
+										{
+											"key": "phenomena",
+											"value": "9,5,6"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET datasets (stationary && insitu)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"tests[\"No datasets from mobile_insitu platforms\"] = !responseBody.has(\"mobile_insitu\");",
+											"tests[\"No datasets from mobile_remote platforms\"] = !responseBody.has(\"mobile_remote\");",
+											"tests[\"No datasets from stationary_remote platforms\"] = !responseBody.has(\"stationary_remote\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets?platformtypes=stationary,insitu",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "stationary,insitu"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET datasets with valuetype (text) filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"Correct count of datasets with valuetype 'text'\"] = jsonData.length === 3;",
+											"tests[\"Contains filtered valueTypes only\"] = helpers.checkFilteredValueTypes([\"text\"])",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets?valueTypes=text",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets"
+									],
+									"query": [
+										{
+											"key": "valueTypes",
+											"value": "text"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET datasets  (quantity || text)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"Has correct count\"] = jsonData.length === 6;",
+											"tests[\"Contains filtered valueTypes only\"] = helpers.checkFilteredValueTypes([\"text\", \"quantity\"]);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets?valueTypes=text,quantity",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets"
+									],
+									"query": [
+										{
+											"key": "valueTypes",
+											"value": "text,quantity"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "GET datasets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "632cf2e1-c8ec-4e1c-b471-b5bfcd2a8da7",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.datasets\");",
+									"helpers.testAllMembersPresent(jsonData, [\"id\", \"href\", \"uom\", \"label\", \"platformType\"]);",
+									"",
+									"tests[\"Deleted Dataset text_5 is not listed\"] = !helpers.containsId(jsonData, \"text_5\");",
+									"tests[\"Reference Dataset quantity_13 is not listed\"] = !helpers.containsId(jsonData, \"quantity_13\");",
+									"tests[\"Unpublished Dataset quantity_10 is not listed\"] = !helpers.containsId(jsonData, \"quantity_10\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET datasets quantity_8",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "851890ef-fff3-45a4-a820-4579e5af73b9",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"helpers.testAllMembersPresent([jsonData], [\"id\", \"label\", \"href\", \"uom\", \"platformType\", \"valueType\", \"parameters\", \"firstValue\", \"lastValue\"]);",
+									"",
+									"tests[\"item has correct id\"] = jsonData.id === \"quantity_8\";",
+									"tests[\"item has correct valueType\"] = jsonData.valueType === \"quantity\";",
+									"",
+									"var refValues = jsonData.referenceValues;",
+									"tests[\"item has reference values listed\"] = refValues !== undefined;",
+									"tests[\"item lists reference value quantity_13\"] = refValues !== undefined && helpers.containsId(refValues, \"quantity_13\", \"referenceValueId\");",
+									"",
+									"tests[\"first value has geometry\"] = jsonData.firstValue && jsonData.firstValue.geometry !== undefined;",
+									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue",
+									"                                   && jsonData.firstValue.geometry",
+									"                                   && jsonData.firstValue.geometry.coordinates[0] == 7 ",
+									"                                   && jsonData.firstValue.geometry.coordinates[1] == 50;",
+									"                                   ",
+									"tests[\"last value has geometry\"] = jsonData.lastValue && jsonData.lastValue.geometry !== undefined;",
+									"tests[\"last value is POINT(7.8 51)\"] = jsonData.lastValue",
+									"                                    && jsonData.lastValue.geometry",
+									"                                    && jsonData.lastValue.geometry.coordinates[0] == 7.8 ",
+									"                                    && jsonData.lastValue.geometry.coordinates[1] == 51;",
+									"tests[\"platformType matches type of platform\"] = jsonData.parameters && jsonData.platformType === jsonData.parameters.platform.platformType;",
+									"tests[\"platformType is mobile\"] = jsonData.platformType && jsonData.platformType.startsWith('mobile');",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_8?expanded=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_8"
+							],
+							"query": [
+								{
+									"key": "expanded",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET datasets quantity_8 extras",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "578997da-a473-4784-9a60-9adfc0270429",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"result times has 2012-11-18T14:00:00.000+01:00\"] = jsonData.resultTimes && jsonData.resultTimes.includes(\"2012-11-18T14:00:00.000+01:00\");",
+									"tests[\"result times has 2012-11-19T14:00:00.000+01:00\"] = jsonData.resultTimes && jsonData.resultTimes.includes(\"2012-11-19T14:00:00.000+01:00\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_8/extras",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_8",
+								"extras"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET dataset (show interval)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "39c705d2-53a7-4a1e-8685-29639440c988",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"tests[\"first value contains timestart\"] = jsonData.firstValue && jsonData.firstValue.timestart !== undefined;",
+									"tests[\"first value contains timeend\"] = jsonData.firstValue && jsonData.firstValue.timeend !== undefined;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_8?expanded=true&platformtypes=all&showTimeIntervals=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_8"
+							],
+							"query": [
+								{
+									"key": "expanded",
+									"value": "true"
+								},
+								{
+									"key": "platformtypes",
+									"value": "all"
+								},
+								{
+									"key": "showTimeIntervals",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET dataset quantity-profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c0affef2-8082-48ed-9f3c-5b161ddad5f3",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"platformType is stationary_insitu\"] = jsonData.platformType === 'stationary_insitu';",
+									"tests[\"valueType is quantity-profile\"] = jsonData.valueType === 'quantity-profile';",
+									"",
+									"var isProfileValue = function(data) {",
+									"    if (data === undefined || data.value === undefined) {",
+									"        return false;",
+									"    }",
+									"    ",
+									"    for (var i = 0; i < data.value.length ; i++) {",
+									"        if (data.value[i]",
+									"            && (data.value[i].vertical !== undefined",
+									"                || data.value[i].value !== undefined)) {",
+									"            return true;",
+									"        }",
+									"    }",
+									"    return false;",
+									"};",
+									"tests[\"firstValue is profile value\"] = isProfileValue(jsonData.firstValue);",
+									"tests[\"lastValue is profile value\"] = isProfileValue(jsonData.lastValue);",
+									"",
+									"tests[\"firstValue has 2 child values\"] = jsonData.firstValue && jsonData.firstValue.value.length === 2;",
+									"tests[\"lastValue has 2 child values\"] = jsonData.firstValue && jsonData.lastValue.value.length === 2;",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity-profile_1/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity-profile_1",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET reference dataset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c7c561a5-0e42-4248-9577-4dbeac274328",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"helpers.testAllMembersPresent(jsonData, [\"id\", \"href\", \"uom\", \"label\", \"platformType\"]);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_13",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_13"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "data",
+			"item": [
+				{
+					"name": "filtered",
+					"item": [
+						{
+							"name": "GET mobile data via bbox filter (quantity_8)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "2a04a483-0c6d-4c02-adac-1eae33c1b70e",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"var navigateTo = function(path, json) {",
+											"    path = path || [];",
+											"    return path.reduce((o, n) => o[n], json);",
+											"};",
+											"",
+											"var coordinatesWithinBBox = function(values, bbox) {",
+											"    if (values === undefined) {",
+											"        return false;",
+											"    }",
+											"    for (var i = 0; i < values.length; i++) {",
+											"        var path = [\"geometry\", \"coordinates\"];",
+											"        var ll_lon = bbox[0];",
+											"        var ll_lat = bbox[1];",
+											"        var ur_lon = bbox[2];",
+											"        var ur_lat = bbox[3];",
+											"        var coords = navigateTo(path, values[i]);",
+											"        if (coords[0] < ll_lon || coords[0] > ur_lon",
+											"            || coords[1] < ll_lat || coords[1] > ur_lat) {",
+											"            console.log(coords);",
+											"            return false;",
+											"        }",
+											"    }",
+											"    return true;",
+											"};",
+											"",
+											"tests[\"Data within bbox\"] = coordinatesWithinBBox(jsonData.values, [7.0,50.5,7.9,52]);",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&bbox=7.0,50.5,7.9,52",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P200D/2012-11-20TZ"
+										},
+										{
+											"key": "bbox",
+											"value": "7.0,50.5,7.9,52"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "application/png",
+					"item": [
+						{
+							"name": "GET data (quantity_7) PNG via header",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"image/png\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7",
+										"data.png"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										},
+										{
+											"key": "locale",
+											"value": "de"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (quantity_7) PNG via extension",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"image/png\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png"
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7",
+										"data.png"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										},
+										{
+											"key": "locale",
+											"value": "de"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST data (quantity_6, quantity_7)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"image/png\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "image/png"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"styleOptions\": {\n        \"quantity_7\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#0000FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 1\n\t      }\n        },\n        \"quantity_6\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#FF00FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 2\n\t      }\n        }\n    }\n}"
+								},
+								"url": {
+									"raw": "{{url}}/datasets/data",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"data"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "application/json",
+					"item": [
+						{
+							"name": "POST data (quantity_6, quantity_7)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n\t    \"quantity_7\",\n\t    \"quantity_6\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{url}}/datasets/data",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"data"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "HTTP errors",
+					"item": [
+						{
+							"name": "GET data, HTTP 406",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test406();"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "de",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7/data.xls",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7",
+										"data.xls"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data via bbox, HTTP400 (bad request)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test400();",
+											"",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data.png?timespan=P200D/2012-11-20TZ&bbox=_7.0,50.5,7.9,52",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data.png"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P200D/2012-11-20TZ"
+										},
+										{
+											"key": "bbox",
+											"value": "_7.0,50.5,7.9,52"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST RequestSimpleParameterSet HTTP 400",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test400();"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "image/png"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n        \"quantity_7\",\n        \"quantity_6\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{url}}/datasets/data",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"data"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST data (text_9, quantity_7), HTTP 404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test404();",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n        \"quantity_7\",\n        \"text_5\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{url}}/datasets/data",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"data"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (text_5), HTTP 404",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test404();",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/text_5/data?timespan=P10M/2012-12-01&expanded=false",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"text_5",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										},
+										{
+											"key": "expanded",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "prerendered",
+					"item": [
+						{
+							"name": "GET prerendered images",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"postman.setEnvironmentVariable(\"data.prerendered.images\", jsonData);",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7/images?",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7",
+										"images"
+									],
+									"query": [
+										{
+											"key": "resultTime",
+											"value": "2012-11-19T13:00:00.000Z",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET prerendered images available",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"tests[\"Content-Type is present\"] = postman.getResponseHeader(\"Content-Type\").startsWith(\"application/json\");",
+											"",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"var images = postman.getEnvironmentVariable(\"data.prerendered.images\");",
+											"",
+											"",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_7/images?",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_7",
+										"images"
+									],
+									"query": [
+										{
+											"key": "resultTime",
+											"value": "2012-11-19T13:00:00.000Z",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "resultTimes/ensembles",
+					"item": [
+						{
+							"name": "GET dataset (quantity_8) extras",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"result times array is not empty\"] = jsonData.resultTimes !== undefined && jsonData.resultTimes.length > 0;",
+											"",
+											"postman.setEnvironmentVariable(\"datasets.quantity_8.extras.resulttimes\", JSON.stringify(jsonData.resultTimes));",
+											"",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/extras?",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"extras"
+									],
+									"query": [
+										{
+											"key": "resultTime",
+											"value": "2012-11-19T13:00:00.000Z",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (quantity_8) classified",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"var expectedTimestamp = new Date(\"2012-11-18T13:00:00.000Z\").getTime() + \"\";",
+											"tests[\"Data for result time is available\"] = jsonData[expectedTimestamp + \"\"] !== undefined ;"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=2012-11-18T14:00:00.000%2b01:00",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										},
+										{
+											"key": "locale",
+											"value": "de"
+										},
+										{
+											"key": "resultTimes",
+											"value": "2012-11-18T14:00:00.000%2b01:00"
+										},
+										{
+											"key": "resultTime",
+											"value": "2012-11-19T13:00:00.000Z",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET data (quantity_8) all classified",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "ccfbab73-31bc-44f6-80f7-e2054cbc6bf2",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"allClassifiersAvailable = function(classifiers) {",
+											"    var times = JSON.parse(classifiers);",
+											"    if (times === undefined) {",
+											"        return false;",
+											"    }",
+											"    for (var i = 0; i < times.length ; i++) {",
+											"        var timestamp = new Date(times[i]).getTime() + \"\";",
+											"        console.log(timestamp);",
+											"        if (jsonData[timestamp] === undefined) {",
+											"            return false;",
+											"        }",
+											"    }",
+											"    return true;",
+											"};",
+											"",
+											"var resultTimes = postman.getEnvironmentVariable(\"datasets.quantity_8.extras.resulttimes\");",
+											"tests[\"data is classified for all result times\"] = resultTimes && allClassifiersAvailable(resultTimes);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "accept",
+										"value": "image/png",
+										"disabled": true
+									},
+									{
+										"key": "Accept-Language",
+										"value": "en",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=all",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P10M/2012-12-01"
+										},
+										{
+											"key": "locale",
+											"value": "de"
+										},
+										{
+											"key": "resultTimes",
+											"value": "all"
+										},
+										{
+											"key": "resultTime",
+											"value": "2012-11-19T13:00:00.000Z",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "mobile",
+					"item": [
+						{
+							"name": "GET mobile data (quantity_8)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P200D/2012-11-20TZ"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET mobile observations (expanded && interval)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "9ec1c9c4-6205-4343-af86-d5e23fdc7592",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"tests[\"expanded=true lists values explicitly (TODO: add reference datasets later)\"] = jsonData.quantity_8 !== undefined;",
+											"",
+											"var checkAllContainsGeometry = function(values) {",
+											"    if (!values || values.length === 0) {",
+											"        return false;",
+											"    }",
+											"    for (var i = 0; i < values.length; i++) {",
+											"        var geometry = values[i].geometry;",
+											"        if (geometry === undefined) {",
+											"            return false;",
+											"        }",
+											"    }",
+											"    return true;",
+											"};",
+											"tests[\"show samplinggeometries along values\"] = jsonData.quantity_8 && checkAllContainsGeometry(jsonData.quantity_8.values);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true&showTimeIntervals=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"datasets",
+										"quantity_8",
+										"data"
+									],
+									"query": [
+										{
+											"key": "timespan",
+											"value": "P200D/2012-11-20TZ"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										},
+										{
+											"key": "showTimeIntervals",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "GET data (quantity_7)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a8a16db8-166f-4f34-a783-9589f3d7fabe",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Language",
+								"value": "en",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (quantity_7) extras",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6bb1e4c0-aca5-4231-ac63-93005e82277c",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Language",
+								"value": "en",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/extras",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"extras"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (quantity_7), csv via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f00d6646-4b89-41bc-ade5-d1c463b0db58",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"text/csv\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (quantity_7), zip via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6193384-fc1f-440f-b129-21c568e76e5a",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/zip\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/zip"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (timeseries  7), csv via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8baf1f3d-e7f4-4c98-807b-10e90908258b",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"text/csv\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"timeseries",
+								"7",
+								"getData"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (timeseries  7), zip via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "40fd0f4d-5306-44a2-93b5-153b7fd719b1",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/zip\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/zip"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"timeseries",
+								"7",
+								"getData"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data quantity-profile data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f8543449-3864-4e7b-9552-52cb77a45b0f",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"var isProfileValue = function(data) {",
+									"    if (data === undefined) {",
+									"        return false;",
+									"    }",
+									"    for (var i = 0; i < data.length ; i++) {",
+									"        var values = data[i].value;",
+									"        console.log(values);",
+									"        for (var j = 0; j < values.length; j++) {",
+									"            var value = values[j];",
+									"            console.log(\"value \" + j + \": \" + value);",
+									"            if (value",
+									"                && (value.vertical !== undefined",
+									"                    && value.value !== undefined)) {",
+									"                return true;",
+									"            }",
+									"        }",
+									"       ",
+									"    }",
+									"    return false;",
+									"};",
+									"",
+									"tests[\"firstValue is profile value\"] = isProfileValue(jsonData.values);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "de",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity-profile_1/data?timespan=P1D/2012-11-20TZ",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity-profile_1",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P1D/2012-11-20TZ"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET mobile data (quantity_8) w/ reference values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c67e4e31-d6f2-4d67-8312-423dc9424398",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('quantity_8 has reference to quantity_13', function() {",
+									"  pm.expect(quantity_8.extra.referenceValues.quantity_13).not.to.be(undefined)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_8",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P200D/2012-11-20TZ"
+								},
+								{
+									"key": "expanded",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "geometries",
+			"item": [
+				{
+					"name": "GET geometries (quantity_8)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7723bc1d-b661-4286-a2e6-cc6ece1307c3",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries?expanded=true&datasets=quantity_8",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries"
+							],
+							"query": [
+								{
+									"key": "expanded",
+									"value": "true"
+								},
+								{
+									"key": "datasets",
+									"value": "quantity_8"
+								}
+							]
+						},
+						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET geometries platform_track_9",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d3629a0c-8414-4bf3-9492-8efb5a9a1cdb",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('geometry type is LineString', function() {",
+									"  pm.expect(jsonData.geometry.type).to.be.eq(\"LineString\")",
+									"});",
+									"",
+									"pm.test('platform type is mobile', function() {",
+									"  pm.expect(jsonData.properties.platform.platformType).to.include(\"mobile\") ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries/platform_track_9",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries",
+								"platform_track_9"
+							]
+						},
+						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET geometries via phenomenon filter (5,9)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fafd11f9-c548-4390-aeec-3b1594dc2b19",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"has correct number of items\"] = jsonData.length === 3;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries?phenomena=9,5&expanded=true",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries"
+							],
+							"query": [
+								{
+									"key": "phenomena",
+									"value": "9,5"
+								},
+								{
+									"key": "expanded",
+									"value": "true"
+								}
+							]
+						},
+						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET geometries (quantity)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ae193245-92d4-4703-854a-2d0d1a4ab582",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"has correct number of items\"] = jsonData.length === 3;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries?valuetypes=quantity",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries"
+							],
+							"query": [
+								{
+									"key": "valuetypes",
+									"value": "quantity"
+								}
+							]
+						},
+						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET site instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ae8e15e9-1021-4d6b-a424-3e91166dbab7",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('has correct id', function() {",
+									"  pm.expect(jsonData.id).to.be.eql(\"platform_site_10\");",
+									"});",
+									"",
+									"pm.test('is geoJson feature', function() {",
+									"  pm.expect(jsonData.type).to.be.eql(\"Feature\");",
+									"});",
+									"",
+									"pm.test('is stationary platform', function() {",
+									"    pm.expect(jsonData.properties.platform.platformType).not.to.be.eql(undefined);",
+									"    pm.expect(jsonData.properties.platform.platformType).to.include(\"stationary\");",
+									"    pm.expect(jsonData.geometry.type).to.be.eql(\"Point\");",
+									"});",
+									"",
+									"pm.test(\"has reference to platform\", function() {",
+									"   pm.expect(jsonData.properties.platform).not.to.be.eql(undefined); ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries/platform_site_10",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries",
+								"platform_site_10"
+							]
+						},
+						"description": "filters on\n* FlowRate_Inlet"
+					},
+					"response": []
+				},
+				{
+					"name": "GET track intersects bbox expanded",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f909e8e5-7b05-455a-ad02-a527740210fd",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/json\");",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+									"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+									"",
+									"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");",
+									"",
+									"tests[\"Track intersects bbox\"] = helpers.intersectsBBox(jsonData, [7.0,50.5,7.9,52]);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/geometries/?platformtypes=mobile&expanded=true&bbox=7.0,50.5,7.9,52",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"geometries",
+								""
+							],
+							"query": [
+								{
+									"key": "platformtypes",
+									"value": "mobile"
+								},
+								{
+									"key": "expanded",
+									"value": "true"
+								},
+								{
+									"key": "bbox",
+									"value": "7.0,50.5,7.9,52"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "backwards compatible",
+			"item": [
+				{
+					"name": "parameters (backwards compatible)",
+					"item": [
+						{
+							"name": "expanded",
+							"item": [
+								{
+									"name": "GET services expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"tests[\"Counts are available\"] = jsonData[0].quantities !== undefined;",
+													"",
+													"tests[\"timeseries count is correct\"] = jsonData[0].quantities.timeseries === 2;",
+													"",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.timeseries\", jsonData[0].quantities.timeseries);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.features\", jsonData[0].quantities.features);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.phenomena\", jsonData[0].quantities.phenomena);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.offerings\", jsonData[0].quantities.offerings);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.procedures\", jsonData[0].quantities.procedures);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.categories\", jsonData[0].quantities.categories);",
+													"postman.setEnvironmentVariable(\"bw.services.quantities.stations\", jsonData[0].quantities.stations);",
+													"",
+													"tests[\"procedures count does not include deleted items\"] = jsonData[0].quantities.procedures === 2;"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/services?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"services"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET phenomena expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"console.log(postman.getEnvironmentVariable(\"bw.services.quantities.phenomena\"));",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.phenomena\");",
+													"tests[\"Phenomeon 5 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"5\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/phenomena?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"phenomena"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET offerings expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.offerings\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/offerings?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"offerings"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET categories expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.categories\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/categories?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"categories"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET procedures expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.procedures\");",
+													"tests[\"Deleted Procedure 5 is not listed\"] = !helpers.containsId(jsonData, \"5\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/procedures?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"procedures"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET stations expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.stations\");",
+													"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"6\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/stations?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stations"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET timeseries expanded",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"bw.services.quantities.timeseries\");",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries?expanded=true",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries"
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "filtered",
+							"item": [
+								{
+									"name": "GET phenomena (mobile)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"tests[\"correct count of filtered phenomena\"] = jsonData.length === 1;"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/phenomena?platformtypes=mobile",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"phenomena"
+											],
+											"query": [
+												{
+													"key": "platformtypes",
+													"value": "mobile"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "HTTP errors",
+							"item": [
+								{
+									"name": "GET platform, HTTP 404 (unknown platform type)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test404();",
+													"",
+													"",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "",
+												"disabled": true
+											},
+											{
+												"key": "Accept-Language",
+												"value": "de",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/platforms/unknown_7",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"platforms",
+												"unknown_7"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET phenomena expanded, HTTP400 (bad request)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test400();",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/phenomena/?expanded=invalid",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"phenomena",
+												""
+											],
+											"query": [
+												{
+													"key": "expanded",
+													"value": "invalid"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "GET platforms with feature filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true&features=9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"platforms"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										},
+										{
+											"key": "expanded",
+											"value": "true"
+										},
+										{
+											"key": "features",
+											"value": "9"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET features",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.features\");"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/features?platformtypes=all",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"features"
+									],
+									"query": [
+										{
+											"key": "platformtypes",
+											"value": "all"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET search",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/search?q=DLZ",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "DLZ"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "timeseries",
+					"item": [
+						{
+							"name": "filtered",
+							"item": [
+								{
+									"name": "GET timeseries via bbox",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+													"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+													"",
+													"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");",
+													"",
+													"let stations = jsonData.map(function(item) {",
+													"    return item.station;",
+													"});",
+													"tests[\"Timeseries within bbox\"] = helpers.allWithinBBox(stations,[7.0,50.5,7.9,52]);",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries?bbox=7.0,50.5,7.9,52",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries"
+											],
+											"query": [
+												{
+													"key": "bbox",
+													"value": "7.0,50.5,7.9,52"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET stations via bbox",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"// can't be determined as depending on mobile/insitu flags either procedures or features are used to construct platform entities from",
+													"// tests[\"element count match those counted at services\"] = jsonData.length == postman.getEnvironmentVariable(\"services.quantities.platforms\");",
+													"",
+													"tests[\"Platform stationary_insitu_6 is not listed as it is only referenced from deleted dataset\"] = !helpers.containsId(jsonData, \"stationary_insitu_6\");",
+													"",
+													"tests[\"Timeseries within bbox\"] = helpers.allWithinBBox(jsonData,[7.0,50.5,7.9,52]);",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/stations?bbox=7.0,50.5,7.9,52",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"stations"
+											],
+											"query": [
+												{
+													"key": "bbox",
+													"value": "7.0,50.5,7.9,52"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET datasets (feature filter)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"",
+													"helpers.testOneOf([\"7\"], [\"station\", \"id\"], jsonData);",
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries?features=7",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries"
+											],
+											"query": [
+												{
+													"key": "features",
+													"value": "7"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "GET timeseries",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200(\"application/json\");",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"helpers.testAllMembersPresent(jsonData, [\"id\", \"label\", \"uom\", \"station\"]);",
+											""
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/timeseries",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"timeseries"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET timeseries 7",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200(\"application/json\");",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"helpers.testAllMembersPresent([jsonData], [\"id\", \"label\", \"uom\", \"station\", \"parameters\", \"firstValue\", \"lastValue\"]);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/timeseries/7",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"timeseries",
+										"7"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET timeseries 7 hints && status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200(\"application/json\");",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"helpers.testAllMembersPresent([jsonData], [\"statusIntervals\", \"renderingHints\"]);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/timeseries/7?status_intervals=true&rendering_hints=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"timeseries",
+										"7"
+									],
+									"query": [
+										{
+											"key": "status_intervals",
+											"value": "true"
+										},
+										{
+											"key": "rendering_hints",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET datasets expanded",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"var helpers = eval(globals.loadHelpers);",
+											"",
+											"helpers.test200();",
+											"helpers.testContentTypeStartsWith(\"application/json\");",
+											"",
+											"var jsonData = JSON.parse(responseBody);",
+											"",
+											"helpers.testAllMembersPresent(jsonData, [\"id\", \"label\", \"uom\", \"station\", \"parameters\", \"firstValue\", \"lastValue\"]);"
+										]
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/timeseries?expanded=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"timeseries"
+									],
+									"query": [
+										{
+											"key": "expanded",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "getData",
+					"item": [
+						{
+							"name": "application/png",
+							"item": [
+								{
+									"name": "GET data (quantity_7) PNG via header",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"image/png\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "accept",
+												"value": "image/png"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "en",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries",
+												"7",
+												"getData"
+											],
+											"query": [
+												{
+													"key": "timespan",
+													"value": "P10M/2012-12-01"
+												},
+												{
+													"key": "locale",
+													"value": "de"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "GET data (quantity_7) PNG via extension",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"image/png\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept-Language",
+												"value": "en",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries/7/getData.png?timespan=P10M/2012-12-01&locale=de",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries",
+												"7",
+												"getData.png"
+											],
+											"query": [
+												{
+													"key": "timespan",
+													"value": "P10M/2012-12-01"
+												},
+												{
+													"key": "locale",
+													"value": "de"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "application/json",
+							"item": [
+								{
+									"name": "GET data (quantity_7)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"type": "text/javascript",
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200(\"application/json\");"
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "accept",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept-Language",
+												"value": "en",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries",
+												"7",
+												"getData"
+											],
+											"query": [
+												{
+													"key": "timespan",
+													"value": "P10M/2012-12-01"
+												},
+												{
+													"key": "locale",
+													"value": "de"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "POST data (quantity_6, quantity_7)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var helpers = eval(globals.loadHelpers);",
+													"",
+													"helpers.test200();",
+													"helpers.testContentTypeStartsWith(\"application/json\");",
+													"",
+													"var jsonData = JSON.parse(responseBody);",
+													"tests[\"data available for 6 \"] = jsonData[\"6\"] !== undefined;",
+													"tests[\"data available for 7 \"] = jsonData[\"7\"] !== undefined;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"timeseries\": [\n\t    \"7\",\n\t    \"6\"\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{url}}/timeseries/getData",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"timeseries",
+												"getData"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "GET resources",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

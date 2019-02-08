@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,54 +28,32 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.I18nFeatureEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class FeatureDao extends AbstractDao<FeatureEntity> {
-
-    private static final String SERIES_FILTER_PROPERTY = "feature";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureDao.class);
+public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
 
     public FeatureDao(Session session) {
         super(session);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<FeatureEntity> find(DbQuery query) {
-        LOGGER.debug("find instance: {}", query);
-        Criteria criteria = translate(I18nFeatureEntity.class, getDefaultCriteria(), query)
-                .add(Restrictions.ilike("name", "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<FeatureEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = translate(I18nFeatureEntity.class, getDefaultCriteria(), query);
-        return (List<FeatureEntity>) query.addFilters(criteria, getSeriesProperty()).list();
-    }
-
-    @Override
-    protected String getSeriesProperty() {
-        return SERIES_FILTER_PROPERTY;
+    protected String getDatasetProperty() {
+        return DatasetEntity.PROPERTY_FEATURE;
     }
 
     @Override
     protected Class<FeatureEntity> getEntityClass() {
         return FeatureEntity.class;
+    }
+
+    @Override
+    protected Class<I18nFeatureEntity> getI18NEntityClass() {
+        return I18nFeatureEntity.class;
     }
 
 }

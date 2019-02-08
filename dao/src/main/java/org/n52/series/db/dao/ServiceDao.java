@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,13 +28,11 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.i18n.I18nServiceEntity;
 
-public class ServiceDao extends AbstractDao<ServiceEntity>{
+public class ServiceDao extends ParameterDao<ServiceEntity, I18nServiceEntity> {
 
     private static final String SERIES_PROPERTY = "service";
 
@@ -43,24 +41,18 @@ public class ServiceDao extends AbstractDao<ServiceEntity>{
     }
 
     @Override
-    public List<ServiceEntity> find(DbQuery query) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     protected Class<ServiceEntity> getEntityClass() {
         return ServiceEntity.class;
     }
 
     @Override
-    protected String getSeriesProperty() {
+    protected String getDatasetProperty() {
         return SERIES_PROPERTY;
     }
 
     @Override
-    public List<ServiceEntity> getAllInstances(DbQuery parameters) throws DataAccessException {
-        Criteria criteria = getDefaultCriteria();
-        return criteria.list();
+    protected Class<I18nServiceEntity> getI18NEntityClass() {
+        return I18nServiceEntity.class;
     }
 
 }

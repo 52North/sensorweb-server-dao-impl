@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,15 +39,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class CountingMetadataAccessService implements CountingMetadataService {
 
-    @Autowired
-    private EntityCounter counter;
+    private final EntityCounter counter;
+
+    private final DbQueryFactory dbQueryFactory;
 
     @Autowired
-    private DbQueryFactory dbQueryFactory;
+    public CountingMetadataAccessService(EntityCounter counter, DbQueryFactory dbQueryFactory) {
+        this.counter = counter;
+        this.dbQueryFactory = dbQueryFactory;
+    }
 
     @Override
     public int getServiceCount(IoParameters parameters) {
-        return 1; // we only provide 1 service
+        // Spring configuration has only 1 service
+        return 1;
     }
 
     @Override
@@ -56,7 +61,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countOfferings(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Offerings entities.", e);
+            throwCouldNotCountEntityException("offering", e);
+            return -1;
         }
     }
 
@@ -66,7 +72,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countCategories(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Categories entities.", e);
+            throwCouldNotCountEntityException("category", e);
+            return -1;
         }
     }
 
@@ -76,7 +83,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countFeatures(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Feature entities.", e);
+            throwCouldNotCountEntityException("feature", e);
+            return -1;
         }
     }
 
@@ -86,7 +94,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countProcedures(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Procedure entities.", e);
+            throwCouldNotCountEntityException("procedure", e);
+            return -1;
         }
     }
 
@@ -96,7 +105,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countPhenomena(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Phenomenon entities.", e);
+            throwCouldNotCountEntityException("phenomena", e);
+            return -1;
         }
     }
 
@@ -106,7 +116,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countPlatforms(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Phenomenon entities.", e);
+            throwCouldNotCountEntityException("platform", e);
+            return -1;
         }
     }
 
@@ -116,7 +127,30 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countDatasets(query);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Phenomenon entities.", e);
+            throwCouldNotCountEntityException("dataset", e);
+            return -1;
+        }
+    }
+
+    @Override
+    public int getSamplingCounter(IoParameters parameters) {
+        try {
+            DbQuery query = dbQueryFactory.createFrom(parameters);
+            return counter.countSamplings(query);
+        } catch (DataAccessException e) {
+            throwCouldNotCountEntityException("samplings", e);
+            return -1;
+        }
+    }
+
+    @Override
+    public int getMeasuringProgramCounter(IoParameters parameters) {
+        try {
+            DbQuery query = dbQueryFactory.createFrom(parameters);
+            return counter.countMeasuringPrograms(query);
+        } catch (DataAccessException e) {
+            throwCouldNotCountEntityException("measruing programs", e);
+            return -1;
         }
     }
 
@@ -126,7 +160,8 @@ public class CountingMetadataAccessService implements CountingMetadataService {
         try {
             return counter.countStations();
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Station entities.", e);
+            throwCouldNotCountEntityException("station", e);
+            return -1;
         }
     }
 
@@ -136,8 +171,14 @@ public class CountingMetadataAccessService implements CountingMetadataService {
         try {
             return counter.countTimeseries();
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not count Timeseries entities.", e);
+            throwCouldNotCountEntityException("timeseries", e);
+            return -1;
         }
+    }
+
+    private void throwCouldNotCountEntityException(String entity, DataAccessException e)
+            throws InternalServerException {
+        throw new InternalServerException("Could not count " + entity + " entities.", e);
     }
 
 }

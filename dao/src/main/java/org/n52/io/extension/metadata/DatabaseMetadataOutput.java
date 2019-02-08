@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,25 +36,29 @@ public class DatabaseMetadataOutput<T> {
 
     private Date lastUpdate;
 
+    static <T> DatabaseMetadataOutput<T> create() {
+        return new DatabaseMetadataOutput<>();
+    }
+
     public T getValue() {
         return value;
     }
 
     public Date getLastUpdate() {
-        return lastUpdate;
+        return lastUpdate != null
+                ? new Date(lastUpdate.getTime())
+                : null;
     }
 
-    static <T> DatabaseMetadataOutput<T> create() {
-        return new DatabaseMetadataOutput<>();
-    }
-
-    DatabaseMetadataOutput<T> withValue(T value) {
+    DatabaseMetadataOutput<T> setValue(T value) {
         this.value = value;
         return this;
     }
 
-    DatabaseMetadataOutput<T> lastUpdatedAt(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    DatabaseMetadataOutput<T> setLastUpdatedAt(Date lastUpdateAt) {
+        this.lastUpdate = lastUpdateAt != null
+                ? new Date(lastUpdateAt.getTime())
+                : null;
         return this;
     }
 }

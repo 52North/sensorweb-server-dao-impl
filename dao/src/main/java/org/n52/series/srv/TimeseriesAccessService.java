@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,75 +28,59 @@
  */
 package org.n52.series.srv;
 
-import org.n52.io.DatasetFactoryException;
+import java.math.BigDecimal;
+
+import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.RequestParameterSet;
-import org.n52.io.response.TimeseriesMetadataOutput;
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
-import org.n52.io.response.dataset.measurement.MeasurementData;
-import org.n52.io.series.TvpDataCollection;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
+import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.da.DataRepository;
-import org.n52.series.db.da.IDataRepositoryFactory;
 import org.n52.series.db.da.TimeseriesRepository;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.srv.DataService;
 import org.n52.web.exception.InternalServerException;
-import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Deprecated
 public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOutput>
-        implements DataService<MeasurementData> {
+        implements
+        DataService<Data<QuantityValue>> {
 
     @Autowired
-    private IDataRepositoryFactory factory;
+    private DataRepositoryTypeFactory factory;
 
     public TimeseriesAccessService(TimeseriesRepository repository) {
         super(repository);
     }
 
     @Override
-    public DataCollection<MeasurementData> getData(RequestParameterSet parameters) {
+    public DataCollection<Data<QuantityValue>> getData(IoParameters parameters) {
         try {
-            TvpDataCollection<MeasurementData> dataCollection = new TvpDataCollection<>();
+            TvpDataCollection<Data<QuantityValue>> dataCollection = new TvpDataCollection<>();
             for (String timeseriesId : parameters.getDatasets()) {
-                MeasurementData data = getDataFor(timeseriesId, parameters);
+                Data<QuantityValue> data = getDataFor(timeseriesId, parameters);
                 if (data != null) {
                     dataCollection.addNewSeries(timeseriesId, data);
                 }
             }
             return dataCollection;
-        }
-        catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             throw new InternalServerException("Could not get series data from database.", e);
         }
     }
 
-    private MeasurementData getDataFor(String timeseriesId, RequestParameterSet parameters)
-            throws DataAccessException {
-        DbQuery dbQuery = dbQueryFactory.createFrom(IoParameters.createFromQuery(parameters));
-        DataRepository dataRepository = createRepository("measurement");
-        return (MeasurementData) dataRepository.getData(timeseriesId, dbQuery);
+    private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
+        DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
+        return createRepository().getData(timeseriesId, dbQuery);
     }
 
-    private DataRepository createRepository(String datasetType) throws DataAccessException {
-        if ( !"measurement".equalsIgnoreCase(datasetType)) {
-            throw new ResourceNotFoundException("unknown dataset type: " + datasetType);
-        }
-        try {
-            return factory.create("measurement");
-        } catch (DatasetFactoryException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    public IDataRepositoryFactory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(IDataRepositoryFactory factory) {
-        this.factory = factory;
+    private DataRepository<DatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
+        return factory.create("", QuantityValue.TYPE, DatasetEntity.class);
     }
 
 }

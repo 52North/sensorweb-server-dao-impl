@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
  */
 package org.n52.io.extension.metadata;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import org.n52.io.request.IoParameters;
@@ -54,11 +54,8 @@ public class DatabaseMetadataExtension extends MetadataExtension<ParameterOutput
     }
 
     @Override
-    public void addExtraMetadataFieldNames(ParameterOutput output) {
-        List<String> fieldNames = repository.getFieldNames(output.getId());
-        for (String fieldName : fieldNames) {
-            output.addExtra(fieldName);
-        }
+    public Collection<String> getExtraMetadataFieldNames(ParameterOutput output) {
+        return repository.getFieldNames(output.getId());
     }
 
 }

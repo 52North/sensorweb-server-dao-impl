@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,12 +34,14 @@ import java.util.TimeZone;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
 public class SeriesLocalSessionFactoryBean extends LocalSessionFactoryBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeriesLocalSessionFactoryBean.class);
+
+    private static final String DEFAULT_TIMEZONE = "UTC";
 
     private static final String JDBC_TIME_ZONE = "jdbc.time.zone";
 
@@ -56,14 +58,14 @@ public class SeriesLocalSessionFactoryBean extends LocalSessionFactoryBean {
 
     private TimeZone createTimeZone(Properties properties) {
         String zone = properties.containsKey(JDBC_TIME_ZONE)
-            ? properties.getProperty(JDBC_TIME_ZONE)
-            : "UTC";
+                ? properties.getProperty(JDBC_TIME_ZONE)
+                : DEFAULT_TIMEZONE;
         try {
             LOGGER.info("Configure timezone for JDBC layer: " + zone);
             return TimeZone.getTimeZone(zone);
         } catch (Throwable e) {
             LOGGER.warn("Could not configure timezone for JDBC layer: " + zone);
-            return TimeZone.getTimeZone("UTC");
+            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         }
     }
 }

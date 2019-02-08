@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,16 +35,16 @@ import org.n52.series.db.DataAccessException;
 
 /**
  * @param <T> entity type
- * @param <PK> primary key
+ * @param <K> primary key
  */
-public interface GenericDao<T, PK extends Serializable> {
+public interface GenericDao<T, K extends Serializable> {
 
-    T getInstance(PK key, DbQuery parameters) throws DataAccessException;
+    T getInstance(K key, DbQuery parameters) throws DataAccessException;
 
     List<T> getAllInstances(DbQuery parameters) throws DataAccessException;
 
     Integer getCount(DbQuery query) throws DataAccessException;
 
-    boolean hasInstance(Long id, DbQuery query, Class<? extends T> clazz) throws DataAccessException;
+    boolean hasInstance(K id, DbQuery query) throws DataAccessException;
 
 }

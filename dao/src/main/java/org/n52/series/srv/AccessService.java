@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
             List<T> results = repository.getAllExpanded(dbQuery);
             return createOutputCollection(results);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get data.", e);
+            throw new InternalServerException("Could not get expanded data.", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
             List<T> results = repository.getAllCondensed(dbQuery);
             return createOutputCollection(results);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get data.", e);
+            throw new InternalServerException("Could not get condensed data.", e);
         }
     }
 
@@ -85,7 +85,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
             }
             return createOutputCollection(results);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get data.", e);
+            throw new InternalServerException("Could not get multiple instance data.", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             return repository.getInstance(id, dbQuery);
         } catch (DataAccessException e) {
-            throw new InternalServerException("Could not get data.", e);
+            throw new InternalServerException("Could not get instance data.", e);
         }
     }
 
