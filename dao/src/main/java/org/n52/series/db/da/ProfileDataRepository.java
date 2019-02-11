@@ -119,6 +119,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         VerticalExtentOutput verticalExtent = new VerticalExtentOutput();
         verticalExtent.setUom(observation.hasVerticalUnit() ? observation.getVerticalUnit().getSymbol() : null);
         verticalExtent.setOrientation(observation.getOrientation());
+        verticalExtent.setVerticalOrigin(observation.getVerticalOriginName());
         verticalExtent.setFrom(new VerticalExtentValueOutput(observation.getVerticalFromName(),
                 format(observation.getVerticalFrom(), observation.getDataset())));
         verticalExtent.setTo(new VerticalExtentValueOutput(observation.getVerticalToName(),
