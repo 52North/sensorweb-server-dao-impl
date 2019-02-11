@@ -52,8 +52,8 @@
         <geolatte.version>1.4.0</geolatte.version>
         <hibernate.version>5.4.1.Final</hibernate.version>
         <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
-        <series-api.version>2.0.0-alpha.12</series-api.version>
-        <series-hibernate.version>1.0.0-alpha.2</series-hibernate.version>
+        <series-api.version>2.0.1-SNAPSHOT</series-api.version>
+        <series-hibernate.version>1.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>5.1.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
