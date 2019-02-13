@@ -53,7 +53,7 @@
         <hibernate-spatial.version>5.2.12-52N.1</hibernate-spatial.version>
         <postgis.version>2.2.0</postgis.version>
         <querydsl.version>4.1.4</querydsl.version>
-        <series-api.version>2.0.0-SNAPSHOT</series-api.version>
+        <series-api.version>2.0.1-SNAPSHOT</series-api.version>
         <series-hibernate.version>2-SNAPSHOT</series-hibernate.version>
         <spring-boot.version>2.0.2.RELEASE</spring-boot.version>
 
