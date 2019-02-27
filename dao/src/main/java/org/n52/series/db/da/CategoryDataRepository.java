@@ -28,11 +28,9 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataRepositoryComponent;
@@ -91,14 +89,9 @@ public class CategoryDataRepository
     CategoryValue createValue(String observationValue,
                               CategoryDataEntity observation,
                               DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-                ? new CategoryValue(start, end, observationValue)
-                : new CategoryValue(end, observationValue);
+        CategoryValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

@@ -29,7 +29,6 @@
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,6 @@ import java.util.Set;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -102,15 +100,8 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         return addMetadatasIfNeeded(observation, profile, dataset, query);
     }
 
-    protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        ProfileValue<T> profile = parameters.isShowTimeIntervals()
-            ? new ProfileValue<>(start, end, null)
-            : new ProfileValue<>(end, null);
+    protected ProfileValue<V> createProfileValue(ProfileDataEntity observation, DbQuery query) {
+        ProfileValue<V> profile = prepareValue(observation, query);
         profile.setVerticalExtent(createVerticalExtent(observation));
         return profile;
     }

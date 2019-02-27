@@ -36,8 +36,8 @@ import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.series.db.dao.DbQuery;
 

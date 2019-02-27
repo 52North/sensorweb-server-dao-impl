@@ -28,18 +28,15 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataRepositoryComponent;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -89,14 +86,9 @@ public class TextDataRepository extends AbstractDataRepository<DatasetEntity, Te
     TextValue createValue(String observationValue,
                           TextDataEntity observation,
                           DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-                ? new TextValue(start, end, observationValue)
-                : new TextValue(end, observationValue);
+        TextValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

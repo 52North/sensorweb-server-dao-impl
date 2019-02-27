@@ -201,17 +201,13 @@ public class QuantityDataRepository
     }
 
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals() ? new QuantityValue(start, end, observationValue)
-                : new QuantityValue(end, observationValue);
+        QuantityValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
-    private BigDecimal format(QuantityDataEntity observation, DatasetEntity series) {
-        return format(observation.getValue(), series.getNumberOfDecimals());
+    private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
+        return format(observation.getValue(), dataset.getNumberOfDecimals());
     }
 
 }
