@@ -28,7 +28,14 @@
  */
 package org.n52.series.db.da;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
+
+import java.time.ZoneOffset;
+import java.util.TimeZone;
+
 import org.hamcrest.Matchers;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,7 +43,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 
-@Ignore
+
 public class SessionAwareRepositoryTest {
 
 //    @Test
@@ -81,4 +88,18 @@ public class SessionAwareRepositoryTest {
         return Long.toString(id);
     }
 
+    @Test
+    public void getOriginTimeZone() {
+        SessionAwareRepository testRepo = new SessionAwareRepository() {
+        };
+        assertTrue(testRepo.getOriginTimeZone("CET").getOffset(DateTime.now().getMillis()) == getOffsetFor(1));
+        assertTrue(
+                testRepo.getOriginTimeZone("Europe/Berlin").getOffset(DateTime.now().getMillis()) == getOffsetFor(1));
+        assertTrue(testRepo.getOriginTimeZone("+05:00").getOffset(DateTime.now().getMillis()) == getOffsetFor(5));
+        assertTrue(testRepo.getOriginTimeZone("-05:00").getOffset(DateTime.now().getMillis()) == getOffsetFor(-5));
+    }
+
+    private int getOffsetFor(int hours) {
+        return 60*60*1000*hours;
+    }
 }
