@@ -30,12 +30,9 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.n52.io.HrefHelper;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
@@ -60,7 +57,6 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.shetland.util.DateTimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -282,24 +278,16 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
                 result::setOriginTimezone);
 
         result.setValue(DatasetOutput.SMAPLING_TIME_START,
-                formateDateTime(dataset.getFirstValueAt(), dataset.getOriginTimezone()), parameters,
+                createTimeOutput(dataset.getFirstValueAt(), dataset.getOriginTimezone(), parameters), parameters,
                 result::setSamplingTimeStart);
         result.setValue(DatasetOutput.SMAPLING_TIME_END,
-                formateDateTime(dataset.getLastValueAt(), dataset.getOriginTimezone()), parameters,
+                createTimeOutput(dataset.getLastValueAt(), dataset.getOriginTimezone(), parameters), parameters,
                 result::setSamplingTimeEnd);
         result.setValue(DatasetOutput.FEATURE,
                 getCondensedFeature(dataset.getFeature(), query), parameters,
                 result::setFeature);
 
         return result;
-    }
-
-    private String formateDateTime(Date date, String originTimezone) {
-        DateTimeZone zone =
-                (originTimezone != null && !originTimezone.isEmpty())
-                        ? DateTimeZone.forID(originTimezone.trim())
-                        : DateTimeZone.UTC;
-        return DateTimeHelper.formatDateTime2IsoString(new DateTime(date).withZone(zone));
     }
 
     private String createHref(String hrefBase, DatasetEntity dataset) {

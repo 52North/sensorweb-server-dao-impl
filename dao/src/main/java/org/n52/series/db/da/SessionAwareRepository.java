@@ -28,11 +28,16 @@
  */
 package org.n52.series.db.da;
 
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -46,6 +51,7 @@ import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
@@ -74,6 +80,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
+    private static final String OFFSET_REGEX = "([+-](?:2[0-3]|[01][0-9]):[0-5][0-9])";
 
     // via xml or db
     @Autowired(required = false)
@@ -291,6 +298,33 @@ public abstract class SessionAwareRepository {
         if ((serviceEntity == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
+    }
+
+    protected TimeOutput createTimeOutput(Date date, IoParameters parameters) {
+        if (date != null) {
+            return new TimeOutput(new DateTime(date), parameters.formatToUnixTime());
+        }
+        return null;
+    }
+
+
+    protected TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
+        if (date != null) {
+            DateTimeZone zone = getOriginTimeZone(originTimezone);
+            return new TimeOutput(new DateTime(date).withZone(zone), parameters.formatToUnixTime());
+        }
+        return null;
+    }
+
+    protected DateTimeZone getOriginTimeZone(String originTimezone) {
+        if (originTimezone != null && !originTimezone.isEmpty()) {
+            if (originTimezone.matches(OFFSET_REGEX)) {
+                return DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(originTimezone).normalized()));
+            } else {
+                return DateTimeZone.forID(originTimezone.trim());
+            }
+        }
+        return DateTimeZone.UTC;
     }
 
 }

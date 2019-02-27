@@ -40,8 +40,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -136,9 +136,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         Date timeend = observation.getSamplingTimeEnd();
         Date timestart = observation.getSamplingTimeStart();
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
-            emptyValue.setTimestart(timestart.getTime());
+            emptyValue.setTimestart(createTimeOutput(timestart, parameters));
         }
-        emptyValue.setTimestamp(timeend.getTime());
+        emptyValue.setTimestamp(createTimeOutput(timeend, parameters));
         return emptyValue;
     }
 
@@ -156,7 +156,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
             addResultTime(observation, value);
 
             if (query.isExpanded()) {
-                addValidTime(observation, value);
+                addValidTime(observation, value, query.getParameters());
                 addParameters(observation, value, query);
                 addGeometry(observation, value, query);
             } else {
@@ -175,24 +175,21 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value, IoParameters parameters) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
-            Long validFrom = observation.isSetValidStartTime()
-                ? observation.getValidTimeStart()
-                             .getTime()
+            TimeOutput validFrom = observation.isSetValidStartTime()
+                ? createTimeOutput(observation.getValidTimeStart(), parameters)
                 : null;
-            Long validUntil = observation.isSetValidEndTime()
-                ? observation.getValidTimeEnd()
-                             .getTime()
+                TimeOutput validUntil = observation.isSetValidEndTime()
+                ? createTimeOutput(observation.getValidTimeEnd(), parameters)
                 : null;
-            value.setValidTime(new ValidTime(validFrom, validUntil));
+            value.setValidTime(validFrom, validUntil);
         }
     }
 
     protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
-            value.setResultTime(observation.getResultTime()
-                                           .getTime());
+            value.setResultTime(new DateTime(observation.getResultTime()));
         }
     }
 

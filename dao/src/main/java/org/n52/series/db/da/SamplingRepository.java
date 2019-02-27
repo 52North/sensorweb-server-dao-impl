@@ -97,10 +97,11 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
                 sampling.isSetEnvironmentalConditions() ? sampling.getEnvironmentalConditions() : "", parameters,
                 result::setEnvironmentalConditions);
-        result.setValue(SamplingOutput.SAMPLING_TIME_START, sampling.getSamplingTimeStart().getTime(), parameters,
+        result.setValue(SamplingOutput.SAMPLING_TIME_START,
+                createTimeOutput(sampling.getSamplingTimeStart(), parameters), parameters,
                 result::setSamplingTimeStart);
-        result.setValue(SamplingOutput.SAMPLING_TIME_END, sampling.getSamplingTimeEnd().getTime(), parameters,
-                result::setSamplingTimeEnd);
+        result.setValue(SamplingOutput.SAMPLING_TIME_END, createTimeOutput(sampling.getSamplingTimeEnd(), parameters),
+                parameters, result::setSamplingTimeEnd);
 
         return result;
     }
