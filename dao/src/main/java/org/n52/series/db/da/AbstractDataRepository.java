@@ -141,12 +141,14 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
 
         IoParameters parameters = query.getParameters();
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
+        TimeOutput timeend = createTimeOutput(observation.getSamplingTimeEnd(),
+                observation.getDataset().getOriginTimezone(), parameters);
+        TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
+                observation.getDataset().getOriginTimezone(), parameters);
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
-            emptyValue.setTimestart(createTimeOutput(timestart, parameters));
+            emptyValue.setTimestart(timestart);
         }
-        emptyValue.setTimestamp(createTimeOutput(timeend, parameters));
+        emptyValue.setTimestamp(timeend);
         return emptyValue;
     }
 
