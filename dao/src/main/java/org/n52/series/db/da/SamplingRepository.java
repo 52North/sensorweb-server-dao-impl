@@ -34,6 +34,7 @@ import java.util.List;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.DetectionLimitOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
@@ -93,7 +94,7 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         result.setValue(SamplingOutput.SAMPLER, getCondensedSampler(sampling.getSampler(), parameters), parameters,
                 result::setSampler);
         result.setValue(SamplingOutput.SAMPLING_METHOD, sampling.getSamplingMethod(), parameters,
-                result::setSamplingMehtod);
+                result::setSamplingMethod);
         result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
                 sampling.isSetEnvironmentalConditions() ? sampling.getEnvironmentalConditions() : "", parameters,
                 result::setEnvironmentalConditions);
@@ -110,6 +111,8 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     protected SamplingOutput createExpanded(SamplingEntity sampling, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         SamplingOutput result = createCondensed(sampling, query, session);
+        result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query),
+                parameters, result::setFeature);
         result.setValue(SamplingOutput.LAST_SAMPLING_OBSERVATIONS, getLastSamplingObservations(sampling, query),
                 parameters, result::setLastSamplingObservations);
         return result;
@@ -124,6 +127,13 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
             SamplerOutput result = new SamplerOutput();
             result.setValue(SamplerOutput.LABEL, sampler, parameters, result::setLabel);
             return result;
+        }
+        return null;
+    }
+
+    private FeatureOutput getFeature(SamplingEntity sampling, DbQuery query) {
+        if (sampling.hasObservations()) {
+            return getCondensedFeature(sampling.getObservations().iterator().next().getDataset().getFeature(), query);
         }
         return null;
     }
