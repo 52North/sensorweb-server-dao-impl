@@ -95,11 +95,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     @Override
     public boolean hasInstance(Long id, DbQuery query) {
-        return session.get(getEntityClass(), id) != null;
+        return hasInstance(id, query, getEntityClass());
     }
 
     public boolean hasInstance(Long id, DbQuery query, Class<?> clazz) {
-        return session.get(clazz, id) != null;
+        return getInstance(id, query) != null;
     }
 
     public T getInstance(String key, DbQuery query) throws DataAccessException {
