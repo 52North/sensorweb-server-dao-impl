@@ -250,7 +250,9 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
-
+        if (dataset.getService() == null) {
+            dataset.setService(getServiceEntity());
+        }
         DatasetOutput<V> result = DatasetOutput.create(parameters);
 
         Long id = dataset.getId();
@@ -271,8 +273,6 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
         result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
         result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
-        // TODO: discuss how the origin timezone should be provided. String from
-        // DB?
         result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
                 dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,
                 result::setOriginTimezone);
