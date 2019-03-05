@@ -30,7 +30,6 @@ package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -39,7 +38,6 @@ import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
@@ -215,28 +213,34 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public E getClosestValueBeforeStart(S dataset, DbQuery query) {
         Session session = getSession();
         try {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
-
-            final DateTime lowerBound = timespan.getStart();
-            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+            return getClosestValueBeforeStart(dataset, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    protected E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime lowerBound = timespan.getStart();
+        return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
     }
 
     @Override
     public E getClosestValueAfterEnd(S dataset, DbQuery query) {
         Session session = getSession();
         try {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
-
-            final DateTime upperBound = timespan.getEnd();
-            return dao.getClosestOuterNextValue(dataset, upperBound, query);
+            return getClosestValueAfterEnd(dataset, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    protected E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime upperBound = timespan.getEnd();
+        return dao.getClosestOuterNextValue(dataset, upperBound, query);
     }
 
     protected E unproxy(DataEntity<?> dataEntity, Session session) {
