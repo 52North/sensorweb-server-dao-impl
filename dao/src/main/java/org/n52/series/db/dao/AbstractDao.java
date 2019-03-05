@@ -209,6 +209,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 //        return query.addSpatialFilter(criteria);
     }
 
+    protected Criteria addSpatialFilter(DbQuery query, Criteria criteria) {
+        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
+//        return query.addSpatialFilter(criteria);
+    }
+
     protected Criteria addDatasetTypesFilter(String parameter, Criteria criteria, DbQuery query) {
         IoParameters parameters = query.getParameters();
         Set<String> datasetTypes = parameters.getDatasetTypes();
