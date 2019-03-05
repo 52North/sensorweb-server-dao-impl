@@ -63,28 +63,36 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            DatasetDao<S> seriesDao = getSeriesDao(session);
-            IoParameters parameters = dbQuery.getParameters();
+//            DatasetDao<S> seriesDao = getSeriesDao(session);
+//            IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
-            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)
-                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
-            if (series.getService() == null) {
-                series.setService(getServiceEntity());
-            }
+//            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+//                                                                      .removeAllOf(Parameters.NEAR)
+//                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
+//            if (series.getService() == null) {
+//                series.setService(getServiceEntity());
+//            }
             return dbQuery.isExpanded()
-                ? assembleExpandedData(series, dbQuery, session)
-                : assembleData(series, dbQuery, session);
+                ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
+                : assembleData(Long.parseLong(datasetId), dbQuery, session);
         } finally {
             returnSession(session);
         }
     }
 
     protected Data<V> assembleExpandedData(S dataset, DbQuery dbQuery, Session session)  {
+        return assembleExpandedData(dataset.getId(), dbQuery, session);
+    }
+
+    protected Data<V> assembleExpandedData(Long dataset, DbQuery dbQuery, Session session)  {
         return assembleData(dataset, dbQuery, session);
     }
 
-    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
+    protected Data<V> assembleData(S dataset, DbQuery query, Session session) {
+        return assembleData(dataset.getId(), query, session);
+    }
+
+    protected abstract Data<V> assembleData(Long dataset, DbQuery query, Session session);
 
     @Override
     public V assembleDataValueWithMetadata(E data, S dataset, DbQuery query) {

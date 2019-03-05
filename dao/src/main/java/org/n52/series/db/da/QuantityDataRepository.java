@@ -84,21 +84,22 @@ public class QuantityDataRepository
     }
 
     @Override
-    protected Data<QuantityValue> assembleExpandedData(DatasetEntity dataset, DbQuery query, Session session)
+    protected Data<QuantityValue> assembleExpandedData(Long datasetId, DbQuery query, Session session)
             throws DataAccessException {
-        Data<QuantityValue> result = assembleData(dataset, query, session);
+        Data<QuantityValue> result = assembleData(datasetId, query, session);
         DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
         if (metadata == null) {
             result.setMetadata(metadata = new DatasetMetadata<>());
         }
+        DatasetEntity dataset = session.get(DatasetEntity.class, datasetId);
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
         if ((referenceValues != null) && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
         }
         if (query.expandWithNextValuesBeyondInterval()) {
-            QuantityDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
-            QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
+            QuantityDataEntity previousValue = unproxy(getClosestValueBeforeStart(dataset, query, session), session);
+            QuantityDataEntity nextValue =  unproxy(getClosestValueAfterEnd(dataset, query, session), session);
 
             if (previousValue != null) {
                 metadata.setValueBeforeTimespan(createValue(previousValue, dataset, query));
@@ -143,7 +144,7 @@ public class QuantityDataRepository
             Session session) throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(dataset, query);
+        List<QuantityDataEntity> observations = dao.getAllInstancesFor(dataset.getId(), query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             QuantityValue lastValue = getLastValue(dataset, session, query);
             result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
@@ -158,12 +159,17 @@ public class QuantityDataRepository
 
     @Override
     protected Data<QuantityValue> assembleData(DatasetEntity dataset, DbQuery query, Session session) {
+        return assembleData(dataset.getId(), query, session);
+    }
+
+    @Override
+    protected Data<QuantityValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<QuantityValue> result = new Data<>();
         // TODO: How to handle observations with detection limit? Currentl, null is returned a filtered
         createDataDao(session)
                 .getAllInstancesFor(dataset, query).stream()
                 .filter(Objects::nonNull)
-                .map(observation -> assembleDataValue(observation, dataset, query))
+                .map(observation -> assembleDataValue(observation, observation.getDataset(), query))
                 .filter(Objects::nonNull)
                 .forEachOrdered(result::addNewValue);
         return result;
@@ -171,6 +177,7 @@ public class QuantityDataRepository
 
     private QuantityValue[] expandToInterval(BigDecimal value, DatasetEntity dataset, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
+        referenceStart.setDataset(dataset);
         Date startDate = query.getTimespan().getStart().toDate();
         referenceStart.setSamplingTimeStart(startDate);
         referenceStart.setSamplingTimeEnd(startDate);
@@ -178,6 +185,7 @@ public class QuantityDataRepository
 
         Date endDate = query.getTimespan().getEnd().toDate();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
+        referenceEnd.setDataset(dataset);
         referenceEnd.setSamplingTimeStart(endDate);
         referenceEnd.setSamplingTimeEnd(endDate);
         referenceEnd.setValue(value);

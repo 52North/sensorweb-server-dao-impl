@@ -50,13 +50,13 @@ public class CategoryDataRepository
     }
 
     @Override
-    protected Data<CategoryValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CategoryValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
-        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<CategoryDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;

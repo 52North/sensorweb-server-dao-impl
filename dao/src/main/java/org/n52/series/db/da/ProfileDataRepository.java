@@ -80,19 +80,20 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
     }
 
     @Override
-    protected Data<ProfileValue<V>> assembleData(P datasetEntity, DbQuery query, Session session)
+    protected Data<ProfileValue<V>> assembleData(Long dataset, DbQuery query, Session session)
             throws DataAccessException {
         query.setComplexParent(true);
         Data<ProfileValue<V>> result = new Data<>();
         DataDao<ProfileDataEntity> dao = createDataDao(session);
-        List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
+        List<ProfileDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (ProfileDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, datasetEntity, query));
+                result.addNewValue(assembleDataValue(observation, (P) observation.getDataset(), query));
             }
         }
         return result;
     }
+
 
     @Override
     public ProfileValue<V> assembleDataValue(ProfileDataEntity observation, P dataset, DbQuery query) {

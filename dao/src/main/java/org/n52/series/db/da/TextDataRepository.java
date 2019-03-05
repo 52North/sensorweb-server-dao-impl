@@ -49,13 +49,13 @@ public class TextDataRepository extends AbstractDataRepository<DatasetEntity, Te
     }
 
     @Override
-    protected Data<TextValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)  {
+    protected Data<TextValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
-        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<TextDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;

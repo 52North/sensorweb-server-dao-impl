@@ -51,13 +51,13 @@ public class CountDataRepository
     }
 
     @Override
-    protected Data<CountValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CountValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        DataDao<CountDataEntity> dao = new DataDao<>(session);
+        List<CountDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (CountDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
