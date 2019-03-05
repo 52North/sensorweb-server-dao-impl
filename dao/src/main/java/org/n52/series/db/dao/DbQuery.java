@@ -55,6 +55,8 @@ import org.n52.io.request.Parameters;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
+import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
@@ -273,7 +275,14 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
-        Set<String> series = parameters.getSeries();
+//        Set<String> series = parameters.getSeries();
+
+        Set<String> samplings = parameters.getSamplings();
+        Set<String> measuringPrograms = parameters.getMeasuringPrograms();
+
+        boolean samplingSupported = DataModelUtil.isEntitySupported(SamplingEntity.class, criteria)
+                ? hasValues(samplings) || hasValues(measuringPrograms)
+                : false;
 
         if (!(hasValues(platforms)
                 || hasValues(phenomena)
@@ -282,7 +291,7 @@ public class DbQuery {
                 || hasValues(features)
                 || hasValues(categories)
                 || hasValues(datasets)
-                || hasValues(series))) {
+                || samplingSupported)) {
             // no subquery neccessary
             return criteria;
         }
@@ -303,7 +312,17 @@ public class DbQuery {
         addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
-        addFilterRestriction(series, filter);
+        if (samplingSupported) {
+            if (hasValues(samplings)) {
+                addFilterRestriction(samplings, DatasetEntity.PROPERTY_SAMPLING_PROFILE + "."
+                        + SamplingProfileDatasetEntity.PROPERTY_SAMPLINGS, filter);
+            }
+            if (hasValues(measuringPrograms)) {
+                addFilterRestriction(measuringPrograms, DatasetEntity.PROPERTY_SAMPLING_PROFILE + "."
+                        + SamplingProfileDatasetEntity.PROPERTY_MEASURING_PROGRAMS, filter);
+            }
+        }
+//        addFilterRestriction(series, filter);
 
         addFilterRestriction(datasets, filter);
 
@@ -365,7 +384,7 @@ public class DbQuery {
                          (a, b) -> b.conditions().forEach(a::add));
     }
 
-    private Criterion createIdFilter(Set<String> filterValues, String alias) {
+    public Criterion createIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, PROPERTY_ID);
         return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
     }
