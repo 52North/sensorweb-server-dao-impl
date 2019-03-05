@@ -29,11 +29,16 @@
 package org.n52.series.db.dao;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.Interval;
+import org.n52.io.IntervalWithTimeZone;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
@@ -62,7 +67,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return criteria.list();
+        return addFilters(criteria, query).list();
     }
 
     @Override
@@ -74,7 +79,32 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
-        return criteria.list();
+        return addFilters(criteria, query).list();
+    }
+
+    private Criteria addFilters(Criteria criteria, DbQuery query) {
+        addTimespanTo(criteria, query.getParameters());
+        Criteria datasetCriteria = criteria.createCriteria(MeasuringProgramEntity.PROPERTY_DATASETS);
+        if (query.getParameters().getSpatialFilter() != null) {
+            addSpatialFilter(query, datasetCriteria);
+        }
+        return query.addFilters(datasetCriteria, getDatasetProperty());
+    }
+
+    public Criteria addTimespanTo(Criteria criteria, IoParameters parameters) {
+        if (parameters.containsParameter(Parameters.TIMESPAN)) {
+            IntervalWithTimeZone timespan = parameters.getTimespan();
+            Interval interval = timespan.toInterval();
+            Date start = interval.getStart().toDate();
+            Date end = interval.getEnd().toDate();
+            criteria.add(Restrictions.or(
+                    Restrictions.between(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_START, start, end),
+                    Restrictions.between(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_END, start, end),
+                    Restrictions.and(Restrictions.le(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_START, start),
+                            Restrictions.or(Restrictions.ge(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_END, end),
+                                    Restrictions.isNull(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_END)))));
+        }
+        return criteria;
     }
 
     @Override
