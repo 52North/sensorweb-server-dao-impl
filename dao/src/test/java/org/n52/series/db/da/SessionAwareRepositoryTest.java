@@ -92,9 +92,12 @@ public class SessionAwareRepositoryTest {
     public void getOriginTimeZone() {
         SessionAwareRepository testRepo = new SessionAwareRepository() {
         };
-        assertTrue(testRepo.getOriginTimeZone("CET").getOffset(DateTime.now().getMillis()) == getOffsetFor(1));
-        assertTrue(
-                testRepo.getOriginTimeZone("Europe/Berlin").getOffset(DateTime.now().getMillis()) == getOffsetFor(1));
+        assertTrue(testRepo.getOriginTimeZone("CET")
+                .getOffset(DateTime.now().getMillis()) == (testRepo.getOriginTimeZone("CET").toTimeZone()
+                        .inDaylightTime(DateTime.now().toDate()) ? getOffsetFor(2) : getOffsetFor(1)));
+        assertTrue(testRepo.getOriginTimeZone("Europe/Berlin")
+                .getOffset(DateTime.now().getMillis()) == (testRepo.getOriginTimeZone("CET").toTimeZone()
+                        .inDaylightTime(DateTime.now().toDate()) ? getOffsetFor(2) : getOffsetFor(1)));
         assertTrue(testRepo.getOriginTimeZone("+05:00").getOffset(DateTime.now().getMillis()) == getOffsetFor(5));
         assertTrue(testRepo.getOriginTimeZone("-05:00").getOffset(DateTime.now().getMillis()) == getOffsetFor(-5));
     }
