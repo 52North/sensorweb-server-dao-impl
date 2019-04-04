@@ -117,11 +117,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         verticalExtent.setTo(new VerticalExtentValueOutput(observation.getVerticalToName(),
                 format(observation.getVerticalTo(), observation.getDataset())));
         for (DataEntity<?> value : observation.getValue()) {
-            if (value.hasVerticalFrom() && value.hasVerticalTo()) {
-                verticalExtent.setInterval(true);
-            } else {
-                verticalExtent.setInterval(false);
-            }
+            verticalExtent.setInterval(value.hasVerticalInterval());
             break;
         }
         return verticalExtent;
