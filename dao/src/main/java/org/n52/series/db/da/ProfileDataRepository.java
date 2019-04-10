@@ -140,7 +140,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
 
         dataItem.setVertical(verticalTo);
 //        if (parameters.isShowVerticalIntervals() && dataEntity.hasVerticalFrom()) {
-        if (dataEntity.hasVerticalFrom()) {
+        if (dataEntity.hasVerticalInterval()) {
             dataItem.setVerticalFrom(verticalFrom);
         }
         return dataItem;
