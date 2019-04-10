@@ -48,13 +48,13 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <geotools.version>20.0</geotools.version>
+        <geotools.version>20.1</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
-        <hibernate.version>5.4.1.Final</hibernate.version>
-        <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
-        <series-api.version>2.0.1-alpha.3</series-api.version>
-        <series-hibernate.version>1.0.0-alpha.3</series-hibernate.version>
-        <arctic-sea.version>5.3.0</arctic-sea.version>
+        <hibernate.version>5.4.2.Final</hibernate.version>
+        <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
+        <series-api.version>2.0.1-alpha.4</series-api.version>
+        <series-hibernate.version>1.0.0-alpha.4</series-hibernate.version>
+        <arctic-sea.version>6.0.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -166,7 +166,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.0-jre</version>
+                <version>27.1-jre</version>
             </dependency>
 
             <dependency>
@@ -312,7 +312,7 @@
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
-                <version>1.16.0</version>
+                <version>1.16.1</version>
             </dependency>
             <dependency>
                 <groupId>org.geolatte</groupId>
@@ -323,7 +323,7 @@
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
-                <version>3.0.2</version>
+                <version>3.1.0</version>
             </dependency>
 
         </dependencies>

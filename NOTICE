@@ -3,7 +3,7 @@ Copyright 2013 52°North Initiative for Geospatial Open Source Software GmbH
 Licensed under GNU General Public License, Version 2.0
 
 This project includes: 
-  52North Sensor Web Client PDF report structure under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+  52North REST-API PDF report structure under GNU General Public License, Version 2.0
   52°North Faroe Annotations under The Apache Software License, Version 2.0
   52°North Faroe Utilities under The Apache Software License, Version 2.0
   52°North Jan Mayen under The Apache Software License, Version 2.0
@@ -60,6 +60,7 @@ This project includes:
   Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-ehcache under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-spatial under GNU Library General Public License v2.1 or later
+  HikariCP under The Apache Software License, Version 2.0
   HyperSQL Database under HSQLDB License, a BSD open source license
   istack common utility code runtime under CDDL 1.1 or GPL2 w/ CPE
   J2ObjC Annotations under The Apache Software License, Version 2.0
