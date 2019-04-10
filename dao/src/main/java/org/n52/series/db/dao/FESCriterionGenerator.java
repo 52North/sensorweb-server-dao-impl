@@ -30,6 +30,7 @@ package org.n52.series.db.dao;
 
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1167,7 +1168,7 @@ public abstract class FESCriterionGenerator {
                 .map(lv -> DetachedCriteria.forClass(BooleanDataEntity.class)
                 .add(createComparison(filter, lv)));
         */
-        Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
+        Optional<DetachedCriteria> quantity = parseBigDecimal(filter.getValue())
                 // we can't apply PropertyIsLike to numeric values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
                 .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
@@ -1352,6 +1353,17 @@ public abstract class FESCriterionGenerator {
      */
     public static Optional<Double> parseDouble(String value) {
         return Optional.ofNullable(Doubles.tryParse(value));
+    }
+
+    /**
+     * Trys to parse {@code value} as a {@code BigDecimal}.
+     *
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
+     */
+    public static Optional<BigDecimal> parseBigDecimal(String value) {
+        return Optional.ofNullable(BigDecimal.valueOf(Doubles.tryParse(value)));
     }
 
     /**

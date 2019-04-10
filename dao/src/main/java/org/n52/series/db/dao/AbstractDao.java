@@ -95,11 +95,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     @Override
     public boolean hasInstance(Long id, DbQuery query) {
-        return session.get(getEntityClass(), id) != null;
+        return hasInstance(id, query, getEntityClass());
     }
 
     public boolean hasInstance(Long id, DbQuery query, Class<?> clazz) {
-        return session.get(clazz, id) != null;
+        return getInstance(id, query) != null;
     }
 
     public T getInstance(String key, DbQuery query) throws DataAccessException {
@@ -205,6 +205,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      * @return the detached criteria for chaining
      */
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
+        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
+//        return query.addSpatialFilter(criteria);
+    }
+
+    protected Criteria addSpatialFilter(DbQuery query, Criteria criteria) {
         return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
 //        return query.addSpatialFilter(criteria);
     }

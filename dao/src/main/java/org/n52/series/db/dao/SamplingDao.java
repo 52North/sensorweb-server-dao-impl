@@ -29,11 +29,16 @@
 package org.n52.series.db.dao;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.Interval;
+import org.n52.io.IntervalWithTimeZone;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
@@ -60,7 +65,7 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return criteria.list();
+        return addFilters(criteria, query).list();
     }
 
     @Override
@@ -72,7 +77,38 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
-        return criteria.list();
+        return addFilters(criteria, query).list();
+    }
+
+    private Criteria addFilters(Criteria criteria, DbQuery query) {
+        addMonitoringProgramFilter(query, criteria);
+        addTimespanTo(criteria, query.getParameters());
+        Criteria datasetCriteria = criteria.createCriteria(SamplingEntity.PROPERTY_DATASETS);
+        if (query.getParameters().getSpatialFilter() != null) {
+            addSpatialFilter(query, datasetCriteria);
+        }
+        return query.addFilters(datasetCriteria, getDatasetProperty());
+    }
+
+    private void addMonitoringProgramFilter(DbQuery query, Criteria criteria) {
+        if (query.getParameters().containsParameter(IoParameters.MEASURING_PROGRAMS)) {
+            criteria.createCriteria(SamplingEntity.PROPERTY_MEASURING_PROGRAM)
+                    .add(query.createIdFilter(query.getParameters().getMeasuringPrograms(), null));
+        }
+    }
+
+    public Criteria addTimespanTo(Criteria criteria, IoParameters parameters) {
+        if (parameters.containsParameter(Parameters.TIMESPAN)) {
+            IntervalWithTimeZone timespan = parameters.getTimespan();
+            Interval interval = timespan.toInterval();
+            Date start = interval.getStart().toDate();
+            Date end = interval.getEnd().toDate();
+            criteria.add(Restrictions.or(Restrictions.between(SamplingEntity.PROPERTY_SAMPLING_TIME_START, start, end),
+                    Restrictions.between(SamplingEntity.PROPERTY_SAMPLING_TIME_END, start, end),
+                    Restrictions.and(Restrictions.le(SamplingEntity.PROPERTY_SAMPLING_TIME_START, start),
+                            Restrictions.ge(SamplingEntity.PROPERTY_SAMPLING_TIME_END, end))));
+        }
+        return criteria;
     }
 
     @Override
@@ -105,7 +141,6 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     protected String getDatasetProperty() {
-        // TODO Auto-generated method stub
         return "";
     }
 

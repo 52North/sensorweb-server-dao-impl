@@ -33,7 +33,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.BooleanDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -49,14 +48,13 @@ public class BooleanDataRepository
     }
 
     @Override
-    protected Data<BooleanValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<BooleanValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<BooleanValue> result = new Data<>();
         DataDao<BooleanDataEntity> dao = createDataDao(session);
-        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<BooleanDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (BooleanDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;

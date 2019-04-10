@@ -38,7 +38,6 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.criterion.Subqueries;
 import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
@@ -116,16 +115,10 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(DatasetEntity dataset, DbQuery query) throws DataAccessException {
-        final Long id = dataset.getId();
-        LOGGER.debug("get all instances for series '{}': {}", id, query);
-        // TODO check the clear() which is currently required as the first and
-        // last observation occur as HibernateProxy in the result!
-        session.clear();
-        // TODO do we really want to allow mapping from observatin to dataset?
-        // PERFORMANCE LEAK
-        final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset);
-        Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
+    public List<T> getAllInstancesFor(Long dataset, DbQuery query) throws DataAccessException {
+        LOGGER.debug("get all instances for series '{}': {}", dataset, query);
+        Criteria criteria = getDefaultCriteria(query);
+        criteria.createCriteria(DataEntity.PROPERTY_DATASET).add(Restrictions.eq(DatasetEntity.PROPERTY_ID, dataset));
         query.addTimespanTo(criteria);
         return criteria.list();
     }

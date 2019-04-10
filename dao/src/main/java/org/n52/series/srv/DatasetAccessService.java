@@ -86,13 +86,6 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
     private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters)
             throws DataAccessException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-//        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
-//        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-//        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
-//            LOGGER.debug("unknown type: " + valueType);
-//            return new Data<>();
-//        }
-
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
         DataRepository<? extends DatasetEntity, ?, V, ?> assembler =
                 dataFactory.create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);

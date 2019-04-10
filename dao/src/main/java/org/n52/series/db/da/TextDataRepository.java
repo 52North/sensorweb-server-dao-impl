@@ -28,18 +28,15 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.DataRepositoryComponent;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
@@ -52,13 +49,13 @@ public class TextDataRepository extends AbstractDataRepository<DatasetEntity, Te
     }
 
     @Override
-    protected Data<TextValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)  {
+    protected Data<TextValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<TextValue> result = new Data<>();
         DataDao<TextDataEntity> dao = new DataDao<>(session);
-        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<TextDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (TextDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
@@ -89,14 +86,9 @@ public class TextDataRepository extends AbstractDataRepository<DatasetEntity, Te
     TextValue createValue(String observationValue,
                           TextDataEntity observation,
                           DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-                ? new TextValue(start, end, observationValue)
-                : new TextValue(end, observationValue);
+        TextValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

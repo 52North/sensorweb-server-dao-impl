@@ -28,11 +28,9 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.DataRepositoryComponent;
@@ -53,13 +51,13 @@ public class CountDataRepository
     }
 
     @Override
-    protected Data<CountValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CountValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        DataDao<CountDataEntity> dao = new DataDao<>(session);
+        List<CountDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (CountDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
@@ -77,15 +75,8 @@ public class CountDataRepository
                 ? observation.getValue()
                 : null;
 
-        IoParameters parameters = query.getParameters();
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        CountValue value = parameters.isShowTimeIntervals()
-                ? new CountValue(start, end, observationValue)
-                : new CountValue(end, observationValue);
-
+        CountValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 

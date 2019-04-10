@@ -30,7 +30,6 @@ package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -39,9 +38,8 @@ import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -63,28 +61,36 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            DatasetDao<S> seriesDao = getSeriesDao(session);
-            IoParameters parameters = dbQuery.getParameters();
+//            DatasetDao<S> seriesDao = getSeriesDao(session);
+//            IoParameters parameters = dbQuery.getParameters();
             // remove spatial filter on metadata
-            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                                      .removeAllOf(Parameters.NEAR)
-                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
-            if (series.getService() == null) {
-                series.setService(getServiceEntity());
-            }
+//            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
+//                                                                      .removeAllOf(Parameters.NEAR)
+//                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
+//            if (series.getService() == null) {
+//                series.setService(getServiceEntity());
+//            }
             return dbQuery.isExpanded()
-                ? assembleExpandedData(series, dbQuery, session)
-                : assembleData(series, dbQuery, session);
+                ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
+                : assembleData(Long.parseLong(datasetId), dbQuery, session);
         } finally {
             returnSession(session);
         }
     }
 
     protected Data<V> assembleExpandedData(S dataset, DbQuery dbQuery, Session session)  {
+        return assembleExpandedData(dataset.getId(), dbQuery, session);
+    }
+
+    protected Data<V> assembleExpandedData(Long dataset, DbQuery dbQuery, Session session)  {
         return assembleData(dataset, dbQuery, session);
     }
 
-    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
+    protected Data<V> assembleData(S dataset, DbQuery query, Session session) {
+        return assembleData(dataset.getId(), query, session);
+    }
+
+    protected abstract Data<V> assembleData(Long dataset, DbQuery query, Session session);
 
     @Override
     public V assembleDataValueWithMetadata(E data, S dataset, DbQuery query) {
@@ -133,12 +139,14 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
 
         IoParameters parameters = query.getParameters();
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
+        TimeOutput timeend = createTimeOutput(observation.getSamplingTimeEnd(),
+                observation.getDataset().getOriginTimezone(), parameters);
+        TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
+                observation.getDataset().getOriginTimezone(), parameters);
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
-            emptyValue.setTimestart(timestart.getTime());
+            emptyValue.setTimestart(timestart);
         }
-        emptyValue.setTimestamp(timeend.getTime());
+        emptyValue.setTimestamp(timeend);
         return emptyValue;
     }
 
@@ -156,7 +164,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
             addResultTime(observation, value);
 
             if (query.isExpanded()) {
-                addValidTime(observation, value);
+                addValidTime(observation, value, query.getParameters());
                 addParameters(observation, value, query);
                 addGeometry(observation, value, query);
             } else {
@@ -175,24 +183,21 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
     }
 
-    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value, IoParameters parameters) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
-            Long validFrom = observation.isSetValidStartTime()
-                ? observation.getValidTimeStart()
-                             .getTime()
+            TimeOutput validFrom = observation.isSetValidStartTime()
+                ? createTimeOutput(observation.getValidTimeStart(), parameters)
                 : null;
-            Long validUntil = observation.isSetValidEndTime()
-                ? observation.getValidTimeEnd()
-                             .getTime()
+                TimeOutput validUntil = observation.isSetValidEndTime()
+                ? createTimeOutput(observation.getValidTimeEnd(), parameters)
                 : null;
-            value.setValidTime(new ValidTime(validFrom, validUntil));
+            value.setValidTime(validFrom, validUntil);
         }
     }
 
     protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
-            value.setResultTime(observation.getResultTime()
-                                           .getTime());
+            value.setResultTime(new DateTime(observation.getResultTime()));
         }
     }
 
@@ -208,28 +213,34 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public E getClosestValueBeforeStart(S dataset, DbQuery query) {
         Session session = getSession();
         try {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
-
-            final DateTime lowerBound = timespan.getStart();
-            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+            return getClosestValueBeforeStart(dataset, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    protected E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime lowerBound = timespan.getStart();
+        return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
     }
 
     @Override
     public E getClosestValueAfterEnd(S dataset, DbQuery query) {
         Session session = getSession();
         try {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
-
-            final DateTime upperBound = timespan.getEnd();
-            return dao.getClosestOuterNextValue(dataset, upperBound, query);
+            return getClosestValueAfterEnd(dataset, query, session);
         } finally {
             returnSession(session);
         }
+    }
+
+    protected E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime upperBound = timespan.getEnd();
+        return dao.getClosestOuterNextValue(dataset, upperBound, query);
     }
 
     protected E unproxy(DataEntity<?> dataEntity, Session session) {

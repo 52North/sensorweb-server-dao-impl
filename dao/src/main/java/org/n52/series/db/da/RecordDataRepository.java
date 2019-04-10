@@ -28,15 +28,12 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
@@ -54,15 +51,14 @@ public class RecordDataRepository
     }
 
     @Override
-    protected Data<RecordValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session)
-            throws DataAccessException {
+    protected Data<RecordValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<RecordDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
@@ -80,15 +76,9 @@ public class RecordDataRepository
                 ? observation.getValue()
                 : null;
 
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        RecordValue value = parameters.isShowTimeIntervals()
-                ? new RecordValue(start, end, observationValue)
-                : new RecordValue(end, observationValue);
-        return addMetadatasIfNeeded(observation, value, series, query);
+        RecordValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

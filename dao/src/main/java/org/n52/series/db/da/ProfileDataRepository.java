@@ -29,7 +29,6 @@
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,6 @@ import java.util.Set;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -82,19 +80,20 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
     }
 
     @Override
-    protected Data<ProfileValue<V>> assembleData(P datasetEntity, DbQuery query, Session session)
+    protected Data<ProfileValue<V>> assembleData(Long dataset, DbQuery query, Session session)
             throws DataAccessException {
         query.setComplexParent(true);
         Data<ProfileValue<V>> result = new Data<>();
         DataDao<ProfileDataEntity> dao = createDataDao(session);
-        List<ProfileDataEntity> observations = dao.getAllInstancesFor(datasetEntity, query);
+        List<ProfileDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (ProfileDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, datasetEntity, query));
+                result.addNewValue(assembleDataValue(observation, (P) observation.getDataset(), query));
             }
         }
         return result;
     }
+
 
     @Override
     public ProfileValue<V> assembleDataValue(ProfileDataEntity observation, P dataset, DbQuery query) {
@@ -102,15 +101,8 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         return addMetadatasIfNeeded(observation, profile, dataset, query);
     }
 
-    protected ProfileValue<T> createProfileValue(ProfileDataEntity observation, DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        ProfileValue<T> profile = parameters.isShowTimeIntervals()
-            ? new ProfileValue<>(start, end, null)
-            : new ProfileValue<>(end, null);
+    protected ProfileValue<V> createProfileValue(ProfileDataEntity observation, DbQuery query) {
+        ProfileValue<V> profile = prepareValue(observation, query);
         profile.setVerticalExtent(createVerticalExtent(observation));
         return profile;
     }
@@ -119,16 +111,13 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         VerticalExtentOutput verticalExtent = new VerticalExtentOutput();
         verticalExtent.setUom(observation.hasVerticalUnit() ? observation.getVerticalUnit().getSymbol() : null);
         verticalExtent.setOrientation(observation.getOrientation());
+        verticalExtent.setVerticalOrigin(observation.getVerticalOriginName());
         verticalExtent.setFrom(new VerticalExtentValueOutput(observation.getVerticalFromName(),
                 format(observation.getVerticalFrom(), observation.getDataset())));
         verticalExtent.setTo(new VerticalExtentValueOutput(observation.getVerticalToName(),
                 format(observation.getVerticalTo(), observation.getDataset())));
         for (DataEntity<?> value : observation.getValue()) {
-            if (value.hasVerticalFrom() && value.hasVerticalTo()) {
-                verticalExtent.setInterval(true);
-            } else {
-                verticalExtent.setInterval(false);
-            }
+            verticalExtent.setInterval(value.hasVerticalInterval());
             break;
         }
         return verticalExtent;
@@ -151,7 +140,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
 
         dataItem.setVertical(verticalTo);
 //        if (parameters.isShowVerticalIntervals() && dataEntity.hasVerticalFrom()) {
-        if (dataEntity.hasVerticalFrom()) {
+        if (dataEntity.hasVerticalInterval()) {
             dataItem.setVerticalFrom(verticalFrom);
         }
         return dataItem;

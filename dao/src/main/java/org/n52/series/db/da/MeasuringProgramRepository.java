@@ -38,6 +38,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
@@ -82,9 +83,10 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
         result.setValue(MeasuringProgramOutput.ORDER_ID, measuringProgram.getIdentifier(), parameters,
                 result::setOrderId);
         result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_START,
-                measuringProgram.getMeasuringTimeStart().getTime(), parameters, result::setMeasuringProgramTimeStart);
-        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END, getMeasuringtimeEnd(measuringProgram),
-                parameters, result::setMeasuringProgramTimeEnd);
+                createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters), parameters,
+                result::setMeasuringProgramTimeStart);
+        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END,
+                getMeasuringtimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
         result.setValue(MeasuringProgramOutput.PRODUCER,
                 getCondensedProducer(measuringProgram.getProducer(), parameters), parameters, result::setProducer);
         result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram, query), parameters,
@@ -92,9 +94,9 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
         return result;
     }
 
-    private Long getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram) {
+    private TimeOutput getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram, IoParameters parameters) {
         if (measuringProgram.isSetMeasuringTimeEnd()) {
-            return measuringProgram.getMeasuringTimeEnd().getTime();
+            return createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters);
         }
         return null;
     }

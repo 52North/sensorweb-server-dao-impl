@@ -28,11 +28,9 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.DataRepositoryComponent;
@@ -52,13 +50,13 @@ public class CategoryDataRepository
     }
 
     @Override
-    protected Data<CategoryValue> assembleData(DatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<CategoryValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<CategoryValue> result = new Data<>();
         DataDao<CategoryDataEntity> dao = new DataDao<>(session);
-        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<CategoryDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (CategoryDataEntity observation : observations) {
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
@@ -91,14 +89,9 @@ public class CategoryDataRepository
     CategoryValue createValue(String observationValue,
                               CategoryDataEntity observation,
                               DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-                ? new CategoryValue(start, end, observationValue)
-                : new CategoryValue(end, observationValue);
+        CategoryValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }
