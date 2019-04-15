@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,10 +28,8 @@
  */
 package org.n52.series.db.old.da;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
@@ -42,7 +40,6 @@ import org.n52.series.db.old.dao.FeatureDao;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.springframework.stereotype.Component;
 
 //@Component
 public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEntity, FeatureOutput> {
@@ -72,14 +69,17 @@ public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEnti
     }
 
     @Override
+    protected FeatureOutput createCondensed(FeatureEntity entity, DbQuery query, Session session) {
+        return getCondensedFeature(entity, query);
+    }
+
+    @Override
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
         FeatureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-        result.setValue(FeatureOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(FeatureOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,44 +26,29 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.old.da;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.request.FilterResolver;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.OutputWithParameters;
 import org.n52.io.response.PlatformOutput;
-import org.n52.io.response.PlatformType;
+import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.PlatformEntity;
-import org.n52.series.db.beans.data.Data;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.old.dao.FeatureDao;
 import org.n52.series.db.old.dao.PlatformDao;
 import org.n52.series.db.old.dao.SearchableDao;
-import org.n52.series.spi.search.PlatformSearchResult;
+import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO: JavaDoc
@@ -72,13 +57,6 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Component
 public class PlatformAssembler extends ParameterAssembler<PlatformEntity, PlatformOutput> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformAssembler.class);
-
-    private static final String FILTER_STATIONARY = "stationary";
-    private static final String FILTER_MOBILE = "mobile";
-    private static final String FILTER_INSITU = "insitu";
-    private static final String FILTER_REMOTE = "remote";
 
     private final DatasetAssembler<AbstractValue<?>> datasetAssembler;
 
@@ -96,7 +74,7 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new PlatformSearchResult(id, label, baseUrl);
+        return new FeatureSearchResult(id, label, baseUrl);
     }
 
     @Override
@@ -108,285 +86,41 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
         return new PlatformDao(session);
     }
 
-    private FeatureDao createFeatureDao(Session session) {
-        return new FeatureDao(session);
-    }
-
     @Override
     protected SearchableDao<PlatformEntity> createSearchableDao(Session session) {
-        return createPlatformDao(session);
-    }
-
-    PlatformOutput createCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session) {
-        PlatformEntity entity = getEntity(getPlatformId(dataset), query, session);
-        return createCondensed(entity, query, session);
-    }
-
-    PlatformOutput createCondensedPlatform(String id, DbQuery query, Session session) {
-        PlatformEntity entity = getEntity(id, query, session);
-        return createCondensed(entity, query, session);
-    }
-
-    @Override
-    public boolean exists(String id, DbQuery query) {
-        Session session = getSession();
-        try {
-            Long parsedId = parseId(PlatformType.extractId(id));
-            AbstractDao< ? extends DescribableEntity> dao = PlatformType.isStationaryId(id)
-                ? createFeatureDao(session)
-                : createPlatformDao(session);
-            return dao.hasInstance(parsedId, query);
-        } finally {
-            returnSession(session);
-        }
-    }
-
-    public PlatformEntity getEntity(String id, DbQuery parameters, Session session) {
-        if (PlatformType.isStationaryId(id)) {
-            return getStation(id, parameters, session);
-        } else {
-            return getPlatform(id, parameters, session);
-        }
-    }
-
-    @Override
-    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
-        PlatformOutput output = super.createCondensed(entity, query, session);
-        PlatformType type = PlatformType.toInstance(entity.isMobile(), entity.isInsitu());
-        output.setValue(PlatformOutput.PLATFORMTYPE, type, query.getParameters(), output::setPlatformType);
-        // re-set ID after platformtype has been determined
-        output.setId(Long.toString(entity.getId()));
-        return output;
+        return new PlatformDao(session);
     }
 
     @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
         PlatformOutput result = createCondensed(entity, query, session);
-        DbQuery platformQuery = getDbQuery(query.getParameters()
-                                                .extendWith(Parameters.PLATFORMS, result.getId())
-                                                .removeAllOf(Parameters.FILTER_PLATFORM_TYPES)
-                                                .removeAllOf(Parameters.FILTER_FIELDS));
-        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters()
-                                                       .removeAllOf(Parameters.BBOX)
-                                                       .removeAllOf(Parameters.NEAR)
-                                                       .removeAllOf(Parameters.ODATA_FILTER)
-                                                       .removeAllOf(Parameters.FILTER_FIELDS));
+        ServiceOutput service = (query.getHrefBase() != null)
+                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        result.setValue(PlatformOutput.SERVICE, service, query.getParameters(), result::setService);
+
+        DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS, result.getId())
+                .removeAllOf(Parameters.FILTER_FIELDS));
+        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters().removeAllOf(Parameters.ODATA_FILTER)
+                .removeAllOf(Parameters.FILTER_FIELDS));
 
         List<DatasetOutput<AbstractValue<?>>> datasets = datasetAssembler.getAllCondensed(datasetQuery);
-        Geometry geometry = entity.getGeometry() == null
-            ? getLastSamplingGeometry(datasets, platformQuery, session)
-            : entity.getGeometry();
+        // Set<Map<String, Object>> parameters =
+        // entity.getMappedParameters(query.getLocale());
 
-        if (!matchesSpatialFilter(geometry, query)) {
-            return null;
-        }
-        Set<Map<String, Object>> parameters = entity.getMappedParameters(query.getLocale());
-
-        result.setValue(PlatformOutput.GEOMETRY, geometry, query.getParameters(), result::setGeometry);
         result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
-        result.setValue(OutputWithParameters.PARAMETERS, parameters, query.getParameters(), result::setParameters);
+
         return result;
     }
 
-    private Geometry getLastSamplingGeometry(List<DatasetOutput<AbstractValue<?>>> datasets, DbQuery query, Session session) {
-        // XXX fix generics and inheritance of Data, AbstractValue, etc.
-        // https://trello.com/c/dMVa0fg9/78-refactor-data-abstractvalue
-        DatasetEntity lastDataset = getDatasetOfLatestTrack(datasets, query, session);
-
-        GeometryEntity lastKnownGeometry = getLastKnownGeometry(lastDataset, query);
-        return isValidGeometry(lastKnownGeometry)
-            ? lastKnownGeometry.getGeometry()
-            : null;
+    protected List<PlatformOutput> createCondensedHierarchyMembers(Set<PlatformEntity> members, DbQuery parameters,
+            Session session) {
+        return members == null ? Collections.emptyList()
+                : members.stream().map(e -> createCondensed(e, parameters, session)).collect(Collectors.toList());
     }
 
-    /**
-     * @param dataset
-     *        the dataset
-     * @param query
-     *        the query
-     * @return the last known geometry for the given dataset
-     */
-    private GeometryEntity getLastKnownGeometry(DatasetEntity lastDataset, DbQuery query) {
-        Data< ? > lastObservation = lastDataset.getLastObservation();
-        return lastObservation != null
-            ? lastObservation.getGeometryEntity()
-            : null;
-    }
-
-    private DatasetEntity getDatasetOfLatestTrack(List<DatasetOutput<AbstractValue<?>>> datasets, DbQuery query, Session session) {
-        DatasetEntity currentLastDataset = null;
-        for (DatasetOutput<?> dataset : datasets) {
-            String id = dataset.getId();
-            DbQuery datasetQuery = getDbQuery(query.getParameters()
-                                                   .removeAllOf(Parameters.BBOX)
-                                                   .removeAllOf(Parameters.NEAR));
-            DatasetEntity entity = datasetAssembler.getInstanceEntity(id, datasetQuery, session);
-            if (currentLastDataset == null) {
-                currentLastDataset = entity;
-            } else {
-                if (currentLastDataset.getLastValueAt()
-                                      .after(entity.getLastValueAt())) {
-                    currentLastDataset = entity;
-                }
-            }
-        }
-        return currentLastDataset;
-    }
-
-    private boolean isValidGeometry(GeometryEntity geometry) {
-        return (geometry != null) && geometry.isSetGeometry();
-    }
-
-    /**
-     * Checks if the given <code>geometry</code> matches a spatial filter, optionally given by the passed
-     * <code>query</code>. If the filter is omitted, no filter is assumed at all and <code>true</code> is
-     * returned.
-     *
-     * @param geometry
-     *        the geometry to check
-     * @param query
-     *        the query, possibly containing a spatial filter
-     * @return <code>true</code> if spatial filter matches, <code>false</code> otherwise or when
-     *         <code>geometry</code> is <code>null</code>.
-     */
-    private boolean matchesSpatialFilter(Geometry geometry, DbQuery query) {
-        Geometry filter = query.getSpatialFilter();
-        if (filter != null) {
-            Geometry envelope = filter.getEnvelope();
-            return (envelope == null)
-                    || ( (geometry != null)
-                            && envelope.contains(geometry));
-        }
-        return true;
-    }
-
-    private PlatformEntity getStation(String id, DbQuery query, Session session) {
-        String featureId = PlatformType.extractId(id);
-        FeatureDao featureDao = createFeatureDao(session);
-        FeatureEntity feature = featureDao.getInstance(featureId, query);
-        if (feature == null) {
-            LOGGER.debug("Unknown station with id '{}'", id);
-            return null;
-        }
-        return PlatformType.isInsitu(id)
-            ? convertInsitu(feature, query)
-            : convertRemote(feature, query);
-    }
-
-    private PlatformEntity getPlatform(String id, DbQuery parameters, Session session) {
-        PlatformDao dao = createPlatformDao(session);
-        String platformId = PlatformType.extractId(id);
-        PlatformEntity result = dao.getInstance(Long.parseLong(platformId), parameters);
-        if (result == null) {
-            LOGGER.debug("Unknown platform with id '{}'", id);
-            return null;
-        }
-        return result;
-    }
-
-    @Override
-    protected List<PlatformEntity> getAllInstances(DbQuery query, Session session) {
-        List<PlatformEntity> platforms = new ArrayList<>();
-        FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallIncludeStationaryPlatformTypes()) {
-            platforms.addAll(getAllStationary(query, session));
-        }
-        if (filterResolver.shallIncludeMobilePlatformTypes()) {
-            platforms.addAll(getAllMobile(query, session));
-        }
-        return platforms;
-    }
-
-    private List<PlatformEntity> getAllStationary(DbQuery query, Session session) {
-        List<PlatformEntity> platforms = new ArrayList<>();
-        FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallIncludeInsituPlatformTypes()) {
-            platforms.addAll(getAllStationaryInsitu(query, session));
-        }
-        if (filterResolver.shallIncludeRemotePlatformTypes()) {
-            platforms.addAll(getAllStationaryRemote(query, session));
-        }
-        return platforms;
-    }
-
-    private List<PlatformEntity> getAllStationaryInsitu(DbQuery parameters, Session session) {
-        FeatureDao featureDao = createFeatureDao(session);
-        DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_INSITU);
-        return convertAllInsitu(featureDao.getAllInstances(query), query);
-    }
-
-    private List<PlatformEntity> getAllStationaryRemote(DbQuery parameters, Session session) {
-        FeatureDao featureDao = createFeatureDao(session);
-        DbQuery query = createPlatformFilter(parameters, FILTER_STATIONARY, FILTER_REMOTE);
-        return convertAllRemote(featureDao.getAllInstances(query), query);
-    }
-
-    private List<PlatformEntity> getAllMobile(DbQuery query, Session session) {
-        List<PlatformEntity> platforms = new ArrayList<>();
-        FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallIncludeInsituPlatformTypes()) {
-            platforms.addAll(getAllMobileInsitu(query, session));
-        }
-        if (filterResolver.shallIncludeRemotePlatformTypes()) {
-            platforms.addAll(getAllMobileRemote(query, session));
-        }
-        return platforms;
-    }
-
-    private List<PlatformEntity> getAllMobileInsitu(DbQuery parameters, Session session) {
-        DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_INSITU);
-        return createPlatformDao(session).getAllInstances(query);
-    }
-
-    private List<PlatformEntity> getAllMobileRemote(DbQuery parameters, Session session) {
-        DbQuery query = createPlatformFilter(parameters, FILTER_MOBILE, FILTER_REMOTE);
-        return createPlatformDao(session).getAllInstances(query);
-    }
-
-    private DbQuery createPlatformFilter(DbQuery parameters, String... filterValues) {
-        return getDbQuery(parameters.getParameters()
-                                    .replaceWith(Parameters.FILTER_PLATFORM_TYPES, filterValues));
-    }
-
-    private List<PlatformEntity> convertAllInsitu(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream()
-                       .map(x -> convertInsitu(x, query))
-                       .collect(toList());
-    }
-
-    private List<PlatformEntity> convertAllRemote(List<FeatureEntity> entities, DbQuery query) {
-        return entities.stream()
-                       .map(x -> convertRemote(x, query))
-                       .collect(toList());
-    }
-
-    private PlatformEntity convertInsitu(FeatureEntity entity, DbQuery query) {
-        PlatformEntity platform = convertToPlatform(entity, query);
-        platform.setInsitu(true);
-        return platform;
-    }
-
-    private PlatformEntity convertRemote(FeatureEntity entity, DbQuery query) {
-        PlatformEntity platform = convertToPlatform(entity, query);
-        platform.setInsitu(false);
-        return platform;
-    }
-
-    private PlatformEntity convertToPlatform(FeatureEntity entity, DbQuery query) {
-        PlatformEntity result = new PlatformEntity();
-        result.setIdentifier(entity.getIdentifier());
-        result.setId(entity.getId());
-        result.setName(entity.getName());
-        result.setParameters(entity.getParameters());
-        result.setTranslations(entity.getTranslations());
-        result.setDescription(entity.getDescription());
-        result.setGeometry(getGeometry(entity.getGeometryEntity(), query));
-        return result;
-    }
-
-    protected PlatformEntity getPlatformEntity(DatasetEntity dataset, DbQuery query, Session session) {
-        // platform has to be handled dynamically (see #309)
-        return getEntity(getPlatformId(dataset), query, session);
+    public PlatformOutput createCondensedPlatform(PlatformEntity platform, DbQuery query, Session session) {
+        return getCondensedPlatform(platform, query);
     }
 
 }

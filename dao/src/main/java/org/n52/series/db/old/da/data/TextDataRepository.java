@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,33 +35,20 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.ValueAssemblerComponent;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextDatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "text", datasetEntityType = TextDatasetEntity.class)
-public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity, TextDataEntity, TextValue, String> {
+@ValueAssemblerComponent(value = "text", datasetEntityType = DatasetEntity.class)
+public class TextDataRepository extends AbstractDataRepository<TextDataEntity, TextValue, String> {
 
     public TextDataRepository(HibernateSessionStore sessionStore,
                               DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    protected Data<TextValue> assembleData(TextDatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<TextValue> result = new Data<>();
-        DataDao<TextDataEntity> dao = new DataDao<>(session);
-        List<TextDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (TextDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
-            }
-        }
-        return result;
     }
 
     @Override
@@ -70,20 +57,38 @@ public class TextDataRepository extends AbstractDataRepository<TextDatasetEntity
     }
 
     @Override
-    public TextValue assembleDataValue(TextDataEntity observation, TextDatasetEntity series, DbQuery query) {
-        if (observation == null) {
-            // do not fail on empty observations
-            return null;
+    protected Data<TextValue> assembleData(Long dataset, DbQuery query, Session session) {
+        Data<TextValue> result = new Data<>();
+        DataDao<TextDataEntity> dao = new DataDao<>(session);
+        List<TextDataEntity> observations = dao.getAllInstancesFor(dataset, query);
+        for (TextDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
+            }
         }
+        return result;
+    }
 
+    @Override
+    public TextValue assembleDataValue(TextDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
             ? observation.getValue()
             : null;
 
-        TextValue value = prepareValue(observation, query);
-        value.setValue(observationValue);
+        TextValue value = createValue(observation, series, query, observationValue);
         return value;
+    }
+
+    private TextValue createValue(TextDataEntity observation,
+                                  DatasetEntity series,
+                                  DbQuery query,
+                                  String observationValue) {
+        ServiceEntity service = getServiceEntity(series);
+        String textValue = !service.isNoDataValue(observation)
+                ? observation.getValue()
+                : null;
+        return createValue(textValue, observation, query);
     }
 
     TextValue createValue(String observationValue,

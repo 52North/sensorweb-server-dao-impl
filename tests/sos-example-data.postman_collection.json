@@ -1,13 +1,12 @@
 {
 	"info": {
-		"_postman_id": "cfd31501-7e37-4fe0-b741-ef9ce9b19c7a",
+		"_postman_id": "48ade1aa-c2cd-4827-be87-1b295211a4cd",
 		"name": "sos-example-data",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "initialize",
-			"description": null,
 			"item": [
 				{
 					"name": "init-test-helperes",
@@ -15,7 +14,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "a17ac50a-51a7-4ffc-bea2-ba757e8c0d21",
+								"id": "f96f8b30-7da7-4894-a6eb-879df7efa99b",
 								"type": "text/javascript",
 								"exec": [
 									"// https://github.com/postmanlabs/postman-app-support/issues/882#issuecomment-278759032",
@@ -63,7 +62,6 @@
 									"    ",
 									"    helpers.testContentTypeStartsWith = function testContentTypeStartsWith(contentType) {",
 									"        var actualContentType = postman.getResponseHeader(\"Content-Type\");",
-									"        actualContentType = actualContentType || \"\";",
 									"        tests[\"Content-Type is \" + contentType] = actualContentType.startsWith(contentType)",
 									"                                                    || logFailWarning(\"Content-Type\", contentType, actualContentType);",
 									"    };",
@@ -194,14 +192,11 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/services",
-							"protocol": "http",
+							"raw": "{{url}}/services",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"services"
 							]
 						}
@@ -212,7 +207,6 @@
 		},
 		{
 			"name": "TODO",
-			"description": null,
 			"item": [
 				{
 					"name": "Dataset via DomainId",
@@ -230,17 +224,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data?datasets=http://to.be/done/8&matchDomainIds=true&timespan=PT36H/2012-11-20T16:00:00Z&handleAs=meansurement",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/data?datasets=http://to.be/done/8&matchDomainIds=true&timespan=PT36H/2012-11-20T16:00:00Z&handleAs=meansurement",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"data"
 							],
@@ -282,17 +273,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_7",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_7"
 							]
@@ -316,17 +304,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?datasets=http://to.be/done/8&matchDomainIds=true",
-							"protocol": "http",
+							"raw": "{{url}}/datasets?datasets=http://to.be/done/8&matchDomainIds=true",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets"
 							],
 							"query": [
@@ -363,14 +348,11 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.zip?timespan=P10M/2012-12-01",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_7/data.zip?timespan=P10M/2012-12-01",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_7",
 								"data.zip"
@@ -389,11 +371,9 @@
 		},
 		{
 			"name": "parameters",
-			"description": null,
 			"item": [
 				{
 					"name": "expanded",
-					"description": null,
 					"item": [
 						{
 							"name": "GET services expanded",
@@ -444,17 +424,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/services?platformtypes=all&expanded=true&datasets=foo",
-									"protocol": "http",
+									"raw": "{{url}}/services?platformtypes=all&expanded=true&datasets=foo",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"services"
 									],
 									"query": [
@@ -509,17 +486,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/phenomena?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"phenomena"
 									],
 									"query": [
@@ -569,17 +543,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/offerings?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/offerings?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"offerings"
 									],
 									"query": [
@@ -630,17 +601,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/categories?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/categories?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"categories"
 									],
 									"query": [
@@ -691,17 +659,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/procedures?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/procedures?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"procedures"
 									],
 									"query": [
@@ -755,17 +720,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/platforms?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"platforms"
 									],
 									"query": [
@@ -815,17 +777,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/features?platformtypes=all&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/features?platformtypes=all&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"features"
 									],
 									"query": [
@@ -847,7 +806,6 @@
 				},
 				{
 					"name": "filtered",
-					"description": null,
 					"item": [
 						{
 							"name": "GET phenomena (mobile)",
@@ -883,17 +841,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena?platformtypes=mobile",
-									"protocol": "http",
+									"raw": "{{url}}/phenomena?platformtypes=mobile",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"phenomena"
 									],
 									"query": [
@@ -939,17 +894,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/platforms?platformtypes=all&expanded=true&features=9",
-									"protocol": "http",
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true&features=9",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"platforms"
 									],
 									"query": [
@@ -1015,17 +967,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/platforms/?platformtypes=all&expanded=true&bbox=7.0,50.5,7.9,52",
-									"protocol": "http",
+									"raw": "{{url}}/platforms/?platformtypes=all&expanded=true&bbox=7.0,50.5,7.9,52",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"platforms",
 										""
 									],
@@ -1052,7 +1001,6 @@
 				},
 				{
 					"name": "HTTP errors",
-					"description": null,
 					"item": [
 						{
 							"name": "GET platform, HTTP 404 (unknown platform type)",
@@ -1088,17 +1036,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/platforms/unknown_7",
-									"protocol": "http",
+									"raw": "{{url}}/platforms/unknown_7",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"platforms",
 										"unknown_7"
 									]
@@ -1136,17 +1081,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena/?expanded=invalid",
-									"protocol": "http",
+									"raw": "{{url}}/phenomena/?expanded=invalid",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"phenomena",
 										""
 									],
@@ -1169,7 +1111,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "4c9f6d05-ad0d-47c7-90d2-0509739ab953",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1178,7 +1120,8 @@
 									"var jsonData = JSON.parse(responseBody);",
 									"",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1196,17 +1139,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/search?q=dlz&platformtypes=all",
-							"protocol": "http",
+							"raw": "{{url}}/search?q=dlz&platformtypes=all",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"search"
 							],
 							"query": [
@@ -1227,11 +1167,9 @@
 		},
 		{
 			"name": "datasets",
-			"description": null,
 			"item": [
 				{
 					"name": "HTTP errors",
-					"description": null,
 					"item": [
 						{
 							"name": "GET dataset, HTTP 406 (wrong accept header)",
@@ -1266,17 +1204,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7"
 									]
@@ -1315,17 +1250,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/unknown_7",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/unknown_7",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"unknown_7"
 									]
@@ -1364,17 +1296,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_999",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_999",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_999"
 									]
@@ -1387,7 +1316,6 @@
 				},
 				{
 					"name": "filtered",
-					"description": null,
 					"item": [
 						{
 							"name": "GET datasets (mobile)",
@@ -1422,17 +1350,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?platformtypes=mobile",
-									"protocol": "http",
+									"raw": "{{url}}/datasets?platformtypes=mobile",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets"
 									],
 									"query": [
@@ -1480,17 +1405,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?phenomena=9,5,6&expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/datasets?phenomena=9,5,6&expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets"
 									],
 									"query": [
@@ -1541,17 +1463,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?platformtypes=stationary,insitu",
-									"protocol": "http",
+									"raw": "{{url}}/datasets?platformtypes=stationary,insitu",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets"
 									],
 									"query": [
@@ -1599,17 +1518,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?valueTypes=text",
-									"protocol": "http",
+									"raw": "{{url}}/datasets?valueTypes=text",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets"
 									],
 									"query": [
@@ -1656,17 +1572,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets?valueTypes=text,quantity",
-									"protocol": "http",
+									"raw": "{{url}}/datasets?valueTypes=text,quantity",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets"
 									],
 									"query": [
@@ -1689,7 +1602,6 @@
 							"listen": "test",
 							"script": {
 								"id": "632cf2e1-c8ec-4e1c-b471-b5bfcd2a8da7",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1703,7 +1615,8 @@
 									"tests[\"Deleted Dataset text_5 is not listed\"] = !helpers.containsId(jsonData, \"text_5\");",
 									"tests[\"Reference Dataset quantity_13 is not listed\"] = !helpers.containsId(jsonData, \"quantity_13\");",
 									"tests[\"Unpublished Dataset quantity_10 is not listed\"] = !helpers.containsId(jsonData, \"quantity_10\");"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1721,17 +1634,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								""
 							]
@@ -1746,7 +1656,6 @@
 							"listen": "test",
 							"script": {
 								"id": "851890ef-fff3-45a4-a820-4579e5af73b9",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1763,17 +1672,23 @@
 									"tests[\"item has reference values listed\"] = refValues !== undefined;",
 									"tests[\"item lists reference value quantity_13\"] = refValues !== undefined && helpers.containsId(refValues, \"quantity_13\", \"referenceValueId\");",
 									"",
-									"tests[\"item has first value\"] = jsonData.firstValue !== undefined;",
-									"tests[\"first value has geometry\"] = jsonData.firstValue.geometry !== undefined;",
-									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue.geometry.coordinates[0] == 7 && jsonData.firstValue.geometry.coordinates[1] == 50;",
-									"tests[\"item has last value\"] = jsonData.lastValue !== undefined;",
-									"tests[\"last value has geometry\"] = jsonData.lastValue.geometry !== undefined;",
-									"tests[\"last value is POINT(7.8 51)\"] = jsonData.lastValue.geometry.coordinates[0] == 7.8 && jsonData.lastValue.geometry.coordinates[1] == 51;",
+									"tests[\"first value has geometry\"] = jsonData.firstValue && jsonData.firstValue.geometry !== undefined;",
+									"tests[\"first value is POINT(7 50)\"] = jsonData.firstValue",
+									"                                   && jsonData.firstValue.geometry",
+									"                                   && jsonData.firstValue.geometry.coordinates[0] == 7 ",
+									"                                   && jsonData.firstValue.geometry.coordinates[1] == 50;",
+									"                                   ",
+									"tests[\"last value has geometry\"] = jsonData.lastValue && jsonData.lastValue.geometry !== undefined;",
+									"tests[\"last value is POINT(7.8 51)\"] = jsonData.lastValue",
+									"                                    && jsonData.lastValue.geometry",
+									"                                    && jsonData.lastValue.geometry.coordinates[0] == 7.8 ",
+									"                                    && jsonData.lastValue.geometry.coordinates[1] == 51;",
 									"tests[\"platformType matches type of platform\"] = jsonData.parameters && jsonData.platformType === jsonData.parameters.platform.platformType;",
-									"tests[\"platformType is mobile\"] = jsonData.platformType.startsWith('mobile');",
+									"tests[\"platformType is mobile\"] = jsonData.platformType && jsonData.platformType.startsWith('mobile');",
 									"",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1791,17 +1706,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8?expanded=true",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_8?expanded=true",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_8"
 							],
@@ -1821,8 +1733,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "3ffa66bd-2ee0-411e-939c-7ae0c99ae320",
-								"type": "text/javascript",
+								"id": "578997da-a473-4784-9a60-9adfc0270429",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1831,10 +1742,10 @@
 									"",
 									"var jsonData = JSON.parse(responseBody);",
 									"",
-									"var resultTimes = jsonData.resultTimes || [];",
-									"tests[\"missing result time '2012-11-18T14:00:00.000+01:00'\"] = resultTimes.includes(\"2012-11-18T14:00:00.000+01:00\");",
-									"tests[\"missing result time '2012-11-19T14:00:00.000+01:00'\"] = resultTimes.includes(\"2012-11-19T14:00:00.000+01:00\");"
-								]
+									"tests[\"result times has 2012-11-18T14:00:00.000+01:00\"] = jsonData.resultTimes && jsonData.resultTimes.includes(\"2012-11-18T14:00:00.000+01:00\");",
+									"tests[\"result times has 2012-11-19T14:00:00.000+01:00\"] = jsonData.resultTimes && jsonData.resultTimes.includes(\"2012-11-19T14:00:00.000+01:00\");"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1852,17 +1763,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/extras",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_8/extras",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_8",
 								"extras"
@@ -1877,7 +1785,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "39c705d2-53a7-4a1e-8685-29639440c988",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1885,9 +1793,10 @@
 									"helpers.testContentTypeStartsWith(\"application/json\");",
 									"",
 									"var jsonData = JSON.parse(responseBody);",
-									"tests[\"first value contains timestart\"] = jsonData.firstValue.timestart !== undefined;",
-									"tests[\"first value contains timeend\"] = jsonData.firstValue.timeend !== undefined;"
-								]
+									"tests[\"first value contains timestart\"] = jsonData.firstValue && jsonData.firstValue.timestart !== undefined;",
+									"tests[\"first value contains timeend\"] = jsonData.firstValue && jsonData.firstValue.timeend !== undefined;"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1905,17 +1814,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8?expanded=true&platformtypes=all&showTimeIntervals=true",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_8?expanded=true&platformtypes=all&showTimeIntervals=true",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_8"
 							],
@@ -1944,7 +1850,6 @@
 							"listen": "test",
 							"script": {
 								"id": "c0affef2-8082-48ed-9f3c-5b161ddad5f3",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -1977,7 +1882,8 @@
 									"tests[\"lastValue has 2 child values\"] = jsonData.firstValue && jsonData.lastValue.value.length === 2;",
 									"",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1995,17 +1901,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity-profile_1/",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity-profile_1/",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity-profile_1",
 								""
@@ -2021,7 +1924,6 @@
 							"listen": "test",
 							"script": {
 								"id": "c7c561a5-0e42-4248-9577-4dbeac274328",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -2030,7 +1932,8 @@
 									"var jsonData = JSON.parse(responseBody);",
 									"",
 									"helpers.testAllMembersPresent(jsonData, [\"id\", \"href\", \"uom\", \"label\", \"platformType\"]);"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2048,17 +1951,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_13",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_13",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_13"
 							]
@@ -2070,11 +1970,9 @@
 		},
 		{
 			"name": "data",
-			"description": null,
 			"item": [
 				{
 					"name": "filtered",
-					"description": null,
 					"item": [
 						{
 							"name": "GET mobile data via bbox filter (quantity_8)",
@@ -2082,7 +1980,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
+										"id": "2a04a483-0c6d-4c02-adac-1eae33c1b70e",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
 											"",
@@ -2097,8 +1995,11 @@
 											"};",
 											"",
 											"var coordinatesWithinBBox = function(values, bbox) {",
+											"    if (values === undefined) {",
+											"        return false;",
+											"    }",
 											"    for (var i = 0; i < values.length; i++) {",
-											"    var path = [\"geometry\", \"coordinates\"];",
+											"        var path = [\"geometry\", \"coordinates\"];",
 											"        var ll_lon = bbox[0];",
 											"        var ll_lat = bbox[1];",
 											"        var ur_lon = bbox[2];",
@@ -2116,7 +2017,8 @@
 											"tests[\"Data within bbox\"] = coordinatesWithinBBox(jsonData.values, [7.0,50.5,7.9,52]);",
 											"",
 											""
-										]
+										],
+										"type": "text/javascript"
 									}
 								}
 							],
@@ -2134,17 +2036,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&bbox=7.0,50.5,7.9,52",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&bbox=7.0,50.5,7.9,52",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data"
@@ -2167,8 +2066,7 @@
 					"_postman_isSubFolder": true
 				},
 				{
-					"name": "image/png",
-					"description": null,
+					"name": "application/png",
 					"item": [
 						{
 							"name": "GET data (quantity_7) PNG via header",
@@ -2176,13 +2074,12 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "ac7f09fd-3e76-4b00-a0ce-a751d1f771a8",
 										"type": "text/javascript",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
 											"",
 											"helpers.test200();",
-											"//helpers.testContentTypeStartsWith(\"image/png\");"
+											"helpers.testContentTypeStartsWith(\"image/png\");"
 										]
 									}
 								}
@@ -2205,14 +2102,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7",
 										"data.png"
@@ -2265,14 +2159,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7/data.png?timespan=P10M/2012-12-01&locale=de",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7",
 										"data.png"
@@ -2324,14 +2215,11 @@
 									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"styleOptions\": {\n        \"quantity_7\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#0000FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 1\n\t      }\n        },\n        \"quantity_6\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#FF00FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 2\n\t      }\n        }\n    }\n}"
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/data",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"data"
 									]
@@ -2340,33 +2228,10 @@
 							"response": []
 						}
 					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "89188a7a-7500-4ed2-b716-fd6f1ed54c91",
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "43b667c7-40a4-4737-b2df-7f728b1a7a77",
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					],
 					"_postman_isSubFolder": true
 				},
 				{
 					"name": "application/json",
-					"description": null,
 					"item": [
 						{
 							"name": "POST data (quantity_6, quantity_7)",
@@ -2401,305 +2266,13 @@
 									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n\t    \"quantity_7\",\n\t    \"quantity_6\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/data",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"data"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"_postman_isSubFolder": true
-				},
-				{
-					"name": "application/pdf",
-					"description": null,
-					"item": [
-						{
-							"name": "POST data (quantity_6, quantity_7)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"id": "1b7f0975-a897-434f-ac12-54c27d6bceb8",
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"application/pdf\");"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									},
-									{
-										"key": "Accept",
-										"value": "application/pdf"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n\t    \"quantity_7\",\n\t    \"quantity_6\"\n    ],\n    \"styleOptions\": {\n        \"quantity_7\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#0000FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 1\n\t      }\n        },\n        \"quantity_6\": {\n        \t\"chartType\": \"line\",\n        \t\"properties\": {\n\t\t        \"color\": \"#FF00FF\",\n\t\t        \"lineType\": \"solid\",\n\t\t        \"width\": 2\n\t      }\n        }\n    }\n}"
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
-										"datasets",
-										"data"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "3b406935-95e9-438e-ae69-f9de7c4d56a5",
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "75ec9813-9805-4bd3-ac46-4065633ec90e",
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					],
-					"_postman_isSubFolder": true
-				},
-				{
-					"name": "csv/zip",
-					"description": "",
-					"item": [
-						{
-							"name": "GET data (quantity_7), csv via header",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"text/csv\");"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "text/csv"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
-										"datasets",
-										"quantity_7",
-										"data"
-									],
-									"query": [
-										{
-											"key": "timespan",
-											"value": "P10M/2012-12-01"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GET data (quantity_7), zip via header",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"application/zip\");"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/zip"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data?timespan=P10M/2012-12-01",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
-										"datasets",
-										"quantity_7",
-										"data"
-									],
-									"query": [
-										{
-											"key": "timespan",
-											"value": "P10M/2012-12-01"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GET data (timeseries  7), csv via header",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"text/csv\");"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "text/csv"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
-										"timeseries",
-										"7",
-										"getData"
-									],
-									"query": [
-										{
-											"key": "timespan",
-											"value": "P10M/2012-12-01"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GET data (timeseries  7), zip via header",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200();",
-											"helpers.testContentTypeStartsWith(\"application/zip\");"
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/zip"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
-										"timeseries",
-										"7",
-										"getData"
-									],
-									"query": [
-										{
-											"key": "timespan",
-											"value": "P10M/2012-12-01"
-										}
 									]
 								}
 							},
@@ -2710,7 +2283,6 @@
 				},
 				{
 					"name": "HTTP errors",
-					"description": null,
 					"item": [
 						{
 							"name": "GET data, HTTP 406",
@@ -2743,17 +2315,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/data.xls",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7/data.xls",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7",
 										"data.xls"
@@ -2793,17 +2362,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data.png?timespan=P200D/2012-11-20TZ&bbox=_7.0,50.5,7.9,52",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data.png?timespan=P200D/2012-11-20TZ&bbox=_7.0,50.5,7.9,52",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data.png"
@@ -2854,14 +2420,11 @@
 									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n        \"quantity_7\",\n        \"quantity_6\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/data",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"data"
 									]
@@ -2902,14 +2465,11 @@
 									"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"datasets\": [\n        \"quantity_7\",\n        \"text_5\"\n    ]\n}"
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/data",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/data",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"data"
 									]
@@ -2941,14 +2501,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/text_5/data?timespan=P10M/2012-12-01&expanded=false",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/text_5/data?timespan=P10M/2012-12-01&expanded=false",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"text_5",
 										"data"
@@ -2972,7 +2529,6 @@
 				},
 				{
 					"name": "prerendered",
-					"description": null,
 					"item": [
 						{
 							"name": "GET prerendered images",
@@ -3014,14 +2570,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images?",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7/images?",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7",
 										"images"
@@ -3077,14 +2630,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/images?",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_7/images?",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_7",
 										"images"
@@ -3105,7 +2655,6 @@
 				},
 				{
 					"name": "resultTimes/ensembles",
-					"description": null,
 					"item": [
 						{
 							"name": "GET dataset (quantity_8) extras",
@@ -3149,14 +2698,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/extras?",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/extras?",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"extras"
@@ -3212,14 +2758,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=2012-11-18T14:00:00.000%2b01:00",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=2012-11-18T14:00:00.000%2b01:00",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data"
@@ -3253,7 +2796,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
+										"id": "ccfbab73-31bc-44f6-80f7-e2054cbc6bf2",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
 											"",
@@ -3264,6 +2807,9 @@
 											"",
 											"allClassifiersAvailable = function(classifiers) {",
 											"    var times = JSON.parse(classifiers);",
+											"    if (times === undefined) {",
+											"        return false;",
+											"    }",
 											"    for (var i = 0; i < times.length ; i++) {",
 											"        var timestamp = new Date(times[i]).getTime() + \"\";",
 											"        console.log(timestamp);",
@@ -3275,9 +2821,10 @@
 											"};",
 											"",
 											"var resultTimes = postman.getEnvironmentVariable(\"datasets.quantity_8.extras.resulttimes\");",
-											"tests[\"data is classified for all result times\"] = resultTimes !== undefined && allClassifiersAvailable(resultTimes);",
+											"tests[\"data is classified for all result times\"] = resultTimes && allClassifiersAvailable(resultTimes);",
 											""
-										]
+										],
+										"type": "text/javascript"
 									}
 								}
 							],
@@ -3300,14 +2847,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=all",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P10M/2012-12-01&locale=de&resultTimes=all",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data"
@@ -3340,7 +2884,6 @@
 				},
 				{
 					"name": "mobile",
-					"description": null,
 					"item": [
 						{
 							"name": "GET mobile data (quantity_8)",
@@ -3373,17 +2916,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data"
@@ -3404,7 +2944,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
+										"id": "9ec1c9c4-6205-4343-af86-d5e23fdc7592",
 										"exec": [
 											"var helpers = eval(globals.loadHelpers);",
 											"",
@@ -3416,6 +2956,9 @@
 											"tests[\"expanded=true lists values explicitly (TODO: add reference datasets later)\"] = jsonData.quantity_8 !== undefined;",
 											"",
 											"var checkAllContainsGeometry = function(values) {",
+											"    if (!values || values.length === 0) {",
+											"        return false;",
+											"    }",
 											"    for (var i = 0; i < values.length; i++) {",
 											"        var geometry = values[i].geometry;",
 											"        if (geometry === undefined) {",
@@ -3424,8 +2967,9 @@
 											"    }",
 											"    return true;",
 											"};",
-											"tests[\"show samplinggeometries along values\"] = checkAllContainsGeometry(jsonData.quantity_8.values);"
-										]
+											"tests[\"show samplinggeometries along values\"] = jsonData.quantity_8 && checkAllContainsGeometry(jsonData.quantity_8.values);"
+										],
+										"type": "text/javascript"
 									}
 								}
 							],
@@ -3443,17 +2987,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true&showTimeIntervals=true",
-									"protocol": "http",
+									"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true&showTimeIntervals=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"datasets",
 										"quantity_8",
 										"data"
@@ -3485,14 +3026,15 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "a8a16db8-166f-4f34-a783-9589f3d7fabe",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
 									"helpers.test200();",
 									"helpers.testContentTypeStartsWith(\"application/json\");",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3510,14 +3052,11 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_7",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_7"
 							]
@@ -3531,7 +3070,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "6bb1e4c0-aca5-4231-ac63-93005e82277c",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3539,7 +3078,8 @@
 									"helpers.testContentTypeStartsWith(\"application/json\");",
 									"",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3557,17 +3097,210 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_7/extras",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_7/extras",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_7",
 								"extras"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (quantity_7), csv via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f00d6646-4b89-41bc-ade5-d1c463b0db58",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"text/csv\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (quantity_7), zip via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6193384-fc1f-440f-b129-21c568e76e5a",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/zip\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/zip"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/datasets/quantity_7/data?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasets",
+								"quantity_7",
+								"data"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (timeseries  7), csv via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8baf1f3d-e7f4-4c98-807b-10e90908258b",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"text/csv\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"timeseries",
+								"7",
+								"getData"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET data (timeseries  7), zip via header",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "40fd0f4d-5306-44a2-93b5-153b7fd719b1",
+								"exec": [
+									"var helpers = eval(globals.loadHelpers);",
+									"",
+									"helpers.test200();",
+									"helpers.testContentTypeStartsWith(\"application/zip\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/zip"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"timeseries",
+								"7",
+								"getData"
+							],
+							"query": [
+								{
+									"key": "timespan",
+									"value": "P10M/2012-12-01"
+								}
 							]
 						}
 					},
@@ -3580,7 +3313,6 @@
 							"listen": "test",
 							"script": {
 								"id": "f8543449-3864-4e7b-9552-52cb77a45b0f",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3590,6 +3322,9 @@
 									"var jsonData = JSON.parse(responseBody);",
 									"",
 									"var isProfileValue = function(data) {",
+									"    if (data === undefined) {",
+									"        return false;",
+									"    }",
 									"    for (var i = 0; i < data.length ; i++) {",
 									"        var values = data[i].value;",
 									"        console.log(values);",
@@ -3610,7 +3345,8 @@
 									"tests[\"firstValue is profile value\"] = isProfileValue(jsonData.values);",
 									"",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3633,17 +3369,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity-profile_1/data?timespan=P1D/2012-11-20TZ",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity-profile_1/data?timespan=P1D/2012-11-20TZ",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity-profile_1",
 								"data"
@@ -3665,21 +3398,20 @@
 							"listen": "test",
 							"script": {
 								"id": "c67e4e31-d6f2-4d67-8312-423dc9424398",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
 									"helpers.test200();",
 									"helpers.testContentTypeStartsWith(\"application/json\");",
 									"",
-									"var jsonData = JSON.parse(responseBody);",
-									"tests[\"values are qualified\"] = jsonData.quantity_8 !== undefined;",
 									"",
-									"var extra = jsonData.quantity_8.extra;",
-									"tests[\"reference values are serialized\"] = extra !== undefined && extra.referenceValues !== undefined;",
-									"tests[\"reference dataset quantity_13 is listed\"] = extra.referenceValues && extra.referenceValues.quantity_13 !== undefined;",
-									""
-								]
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('quantity_8 has reference to quantity_13', function() {",
+									"  pm.expect(quantity_8.extra.referenceValues.quantity_13).not.to.be(undefined)",
+									"});"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3697,17 +3429,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true",
-							"protocol": "http",
+							"raw": "{{url}}/datasets/quantity_8/data?timespan=P200D/2012-11-20TZ&expanded=true",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"datasets",
 								"quantity_8",
 								"data"
@@ -3730,7 +3459,6 @@
 		},
 		{
 			"name": "geometries",
-			"description": null,
 			"item": [
 				{
 					"name": "GET geometries (quantity_8)",
@@ -3738,7 +3466,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "7723bc1d-b661-4286-a2e6-cc6ece1307c3",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3747,7 +3475,8 @@
 									"",
 									"var jsonData = JSON.parse(responseBody);",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3765,17 +3494,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries?expanded=true&datasets=quantity_8",
-							"protocol": "http",
+							"raw": "{{url}}/geometries?expanded=true&datasets=quantity_8",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries"
 							],
 							"query": [
@@ -3800,7 +3526,6 @@
 							"listen": "test",
 							"script": {
 								"id": "d3629a0c-8414-4bf3-9492-8efb5a9a1cdb",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3809,10 +3534,16 @@
 									"",
 									"var jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"geometry type is LineString\"] = jsonData.geometry && jsonData.geometry.type === \"LineString\";",
-									"tests[\"properties contain platform reference\"] = jsonData.properties && jsonData.properties.platform !== undefined;",
-									"tests[\"platform reference is of type mobile\"] = jsonData.properties && jsonData.properties.platform.platformType.startsWith(\"mobile\")"
-								]
+									"pm.test('geometry type is LineString', function() {",
+									"  pm.expect(jsonData.geometry.type).to.be.eq(\"LineString\")",
+									"});",
+									"",
+									"pm.test('platform type is mobile', function() {",
+									"  pm.expect(jsonData.properties.platform.platformType).to.include(\"mobile\") ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3830,17 +3561,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries/platform_track_9",
-							"protocol": "http",
+							"raw": "{{url}}/geometries/platform_track_9",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries",
 								"platform_track_9"
 							]
@@ -3855,7 +3583,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "fafd11f9-c548-4390-aeec-3b1594dc2b19",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3865,7 +3593,8 @@
 									"var jsonData = JSON.parse(responseBody);",
 									"",
 									"tests[\"has correct number of items\"] = jsonData.length === 3;"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3883,17 +3612,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries?phenomena=9,5&expanded=true",
-							"protocol": "http",
+							"raw": "{{url}}/geometries?phenomena=9,5&expanded=true",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries"
 							],
 							"query": [
@@ -3917,7 +3643,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "ae193245-92d4-4703-854a-2d0d1a4ab582",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3927,7 +3653,8 @@
 									"var jsonData = JSON.parse(responseBody);",
 									"",
 									"tests[\"has correct number of items\"] = jsonData.length === 3;"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3945,17 +3672,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries?valuetypes=quantity",
-							"protocol": "http",
+							"raw": "{{url}}/geometries?valuetypes=quantity",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries"
 							],
 							"query": [
@@ -3975,7 +3699,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
+								"id": "ae8e15e9-1021-4d6b-a424-3e91166dbab7",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -3984,11 +3708,25 @@
 									"",
 									"var jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"has correct id\"] = jsonData.id === \"platform_site_10\";",
-									"tests[\"is geoJson feature\"] = jsonData.type === \"Feature\";",
-									"tests[\"has reference to platform\"] = jsonData.properties.platform !== undefined;",
-									"tests[\"is stationary platform\"] = jsonData.properties.platform.platformType.startsWith(\"stationary\") && jsonData.geometry.type === \"Point\";"
-								]
+									"pm.test('has correct id', function() {",
+									"  pm.expect(jsonData.id).to.be.eql(\"platform_site_10\");",
+									"});",
+									"",
+									"pm.test('is geoJson feature', function() {",
+									"  pm.expect(jsonData.type).to.be.eql(\"Feature\");",
+									"});",
+									"",
+									"pm.test('is stationary platform', function() {",
+									"    pm.expect(jsonData.properties.platform.platformType).not.to.be.eql(undefined);",
+									"    pm.expect(jsonData.properties.platform.platformType).to.include(\"stationary\");",
+									"    pm.expect(jsonData.geometry.type).to.be.eql(\"Point\");",
+									"});",
+									"",
+									"pm.test(\"has reference to platform\", function() {",
+									"   pm.expect(jsonData.properties.platform).not.to.be.eql(undefined); ",
+									"});"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -4006,17 +3744,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries/platform_site_10",
-							"protocol": "http",
+							"raw": "{{url}}/geometries/platform_site_10",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries",
 								"platform_site_10"
 							]
@@ -4032,7 +3767,6 @@
 							"listen": "test",
 							"script": {
 								"id": "f909e8e5-7b05-455a-ad02-a527740210fd",
-								"type": "text/javascript",
 								"exec": [
 									"var helpers = eval(globals.loadHelpers);",
 									"",
@@ -4048,7 +3782,8 @@
 									"",
 									"tests[\"Track intersects bbox\"] = helpers.intersectsBBox(jsonData, [7.0,50.5,7.9,52]);",
 									""
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -4066,17 +3801,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}:{{port}}{{context}}/api/geometries/?platformtypes=mobile&expanded=true&bbox=7.0,50.5,7.9,52",
-							"protocol": "http",
+							"raw": "{{url}}/geometries/?platformtypes=mobile&expanded=true&bbox=7.0,50.5,7.9,52",
 							"host": [
-								"{{host}}"
+								"{{url}}"
 							],
-							"port": "{{port}}{{context}}",
 							"path": [
-								"api",
 								"geometries",
 								""
 							],
@@ -4102,15 +3834,12 @@
 		},
 		{
 			"name": "backwards compatible",
-			"description": null,
 			"item": [
 				{
 					"name": "parameters (backwards compatible)",
-					"description": null,
 					"item": [
 						{
 							"name": "expanded",
-							"description": null,
 							"item": [
 								{
 									"name": "GET services expanded",
@@ -4157,17 +3886,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/services?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/services?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"services"
 											],
 											"query": [
@@ -4215,17 +3941,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/phenomena?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"phenomena"
 											],
 											"query": [
@@ -4271,17 +3994,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/offerings?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/offerings?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"offerings"
 											],
 											"query": [
@@ -4327,17 +4047,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/categories?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/categories?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"categories"
 											],
 											"query": [
@@ -4384,17 +4101,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/procedures?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/procedures?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"procedures"
 											],
 											"query": [
@@ -4441,17 +4155,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/stations?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/stations?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"stations"
 											],
 											"query": [
@@ -4499,17 +4210,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries?expanded=true",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries?expanded=true",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries"
 											],
 											"query": [
@@ -4527,7 +4235,6 @@
 						},
 						{
 							"name": "filtered",
-							"description": null,
 							"item": [
 								{
 									"name": "GET phenomena (mobile)",
@@ -4563,17 +4270,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena?platformtypes=mobile",
-											"protocol": "http",
+											"raw": "{{url}}/phenomena?platformtypes=mobile",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"phenomena"
 											],
 											"query": [
@@ -4591,7 +4295,6 @@
 						},
 						{
 							"name": "HTTP errors",
-							"description": null,
 							"item": [
 								{
 									"name": "GET platform, HTTP 404 (unknown platform type)",
@@ -4627,17 +4330,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/platforms/unknown_7",
-											"protocol": "http",
+											"raw": "{{url}}/platforms/unknown_7",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"platforms",
 												"unknown_7"
 											]
@@ -4675,17 +4375,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/phenomena/?expanded=invalid",
-											"protocol": "http",
+											"raw": "{{url}}/phenomena/?expanded=invalid",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"phenomena",
 												""
 											],
@@ -4732,17 +4429,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/platforms?platformtypes=all&expanded=true&features=9",
-									"protocol": "http",
+									"raw": "{{url}}/platforms?platformtypes=all&expanded=true&features=9",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"platforms"
 									],
 									"query": [
@@ -4796,17 +4490,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/features?platformtypes=all",
-									"protocol": "http",
+									"raw": "{{url}}/features?platformtypes=all",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"features"
 									],
 									"query": [
@@ -4850,17 +4541,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/search?q=DLZ",
-									"protocol": "http",
+									"raw": "{{url}}/search?q=DLZ",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"search"
 									],
 									"query": [
@@ -4878,11 +4566,9 @@
 				},
 				{
 					"name": "timeseries",
-					"description": null,
 					"item": [
 						{
 							"name": "filtered",
-							"description": null,
 							"item": [
 								{
 									"name": "GET timeseries via bbox",
@@ -4926,17 +4612,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries?bbox=7.0,50.5,7.9,52",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries?bbox=7.0,50.5,7.9,52",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries"
 											],
 											"query": [
@@ -4989,17 +4672,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/stations?bbox=7.0,50.5,7.9,52",
-											"protocol": "http",
+											"raw": "{{url}}/stations?bbox=7.0,50.5,7.9,52",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"stations"
 											],
 											"query": [
@@ -5048,17 +4728,14 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries?features=7",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries?features=7",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries"
 											],
 											"query": [
@@ -5101,55 +4778,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries",
-									"protocol": "http",
+									"raw": "{{url}}/timeseries",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
-										"timeseries"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GET timeseries filtered",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"type": "text/javascript",
-										"exec": [
-											"var helpers = eval(globals.loadHelpers);",
-											"",
-											"helpers.test200(\"application/json\");",
-											"var jsonData = JSON.parse(responseBody);",
-											"",
-											"helpers.testAllMembersPresent(jsonData, [\"id\", \"label\", \"uom\", \"station\"]);",
-											""
-										]
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries",
-									"protocol": "http",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{context}}",
-									"path": [
-										"api",
 										"timeseries"
 									]
 								}
@@ -5182,14 +4815,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7",
-									"protocol": "http",
+									"raw": "{{url}}/timeseries/7",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"timeseries",
 										"7"
 									]
@@ -5223,14 +4853,11 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7?status_intervals=true&rendering_hints=true",
-									"protocol": "http",
+									"raw": "{{url}}/timeseries/7?status_intervals=true&rendering_hints=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"timeseries",
 										"7"
 									],
@@ -5282,17 +4909,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"legend\": true,\r\n  \"timespan\": \"P0Y0M3D/2013-01-31TZ\",\r\n  \"width\": 400,\r\n  \"height\": 300,\r\n  \"language\": \"de\",\r\n  \"grid\": true,\r\n  \"styleOptions\": {\r\n    \"328\": {\r\n      \"chartType\": \"line\",\r\n      \"properties\": {\r\n        \"color\": \"#0000FF\",\r\n        \"lineType\": \"solid\",\r\n        \"width\": 1\r\n      }\r\n    },\r\n    \"159\": {\r\n      \"chartType\": \"bar\",\r\n      \"properties\": {\r\n        \"color\": \"#2f2f2f\",\r\n        \"interval\": \"byHour\",\r\n        \"width\": 0.7\r\n      }\r\n    }\r\n  }\r\n}"
+									"raw": ""
 								},
 								"url": {
-									"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries?expanded=true",
-									"protocol": "http",
+									"raw": "{{url}}/timeseries?expanded=true",
 									"host": [
-										"{{host}}"
+										"{{url}}"
 									],
-									"port": "{{port}}{{context}}",
 									"path": [
-										"api",
 										"timeseries"
 									],
 									"query": [
@@ -5310,11 +4934,9 @@
 				},
 				{
 					"name": "getData",
-					"description": null,
 					"item": [
 						{
-							"name": "image/png",
-							"description": null,
+							"name": "application/png",
 							"item": [
 								{
 									"name": "GET data (quantity_7) PNG via header",
@@ -5350,14 +4972,11 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries",
 												"7",
 												"getData"
@@ -5406,14 +5025,11 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData.png?timespan=P10M/2012-12-01&locale=de",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries/7/getData.png?timespan=P10M/2012-12-01&locale=de",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries",
 												"7",
 												"getData.png"
@@ -5433,33 +5049,10 @@
 									"response": []
 								}
 							],
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"id": "e809c65e-f943-4319-bc84-766eeded4ba2",
-										"type": "text/javascript",
-										"exec": [
-											""
-										]
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"id": "478616c1-5e5c-4f1e-9748-773467ccdd00",
-										"type": "text/javascript",
-										"exec": [
-											""
-										]
-									}
-								}
-							],
 							"_postman_isSubFolder": true
 						},
 						{
 							"name": "application/json",
-							"description": null,
 							"item": [
 								{
 									"name": "GET data (quantity_7)",
@@ -5494,14 +5087,11 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries/7/getData?timespan=P10M/2012-12-01&locale=de",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries",
 												"7",
 												"getData"
@@ -5557,86 +5147,13 @@
 											"raw": "{\n    \"timespan\" : \"P10M/2012-12-21TZ\",\n    \"expanded\": true,\n    \"timeseries\": [\n\t    \"7\",\n\t    \"6\"\n    ]\n}"
 										},
 										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/getData",
-											"protocol": "http",
+											"raw": "{{url}}/timeseries/getData",
 											"host": [
-												"{{host}}"
+												"{{url}}"
 											],
-											"port": "{{port}}{{context}}",
 											"path": [
-												"api",
 												"timeseries",
 												"getData"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "GET data (quantity_7) -- beyond timespan",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"id": "351c41c0-99be-4c8b-862e-c4d047c7864c",
-												"type": "text/javascript",
-												"exec": [
-													"var helpers = eval(globals.loadHelpers);",
-													"",
-													"helpers.test200(\"application/json\");",
-													"",
-													"var jsonData = JSON.parse(responseBody);",
-													"var data = jsonData[\"7\"] || {};",
-													"var extra = data.extra || {};",
-													"tests[\"previous value before timespan\"] = extra.valueBeforeTimespan !== undefined",
-													"tests[\"next value after timespan\"] = extra.valueAfterTimespan !== undefined"
-												]
-											}
-										}
-									],
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "accept",
-												"value": "application/json"
-											},
-											{
-												"key": "Accept-Language",
-												"value": "en",
-												"disabled": true
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": ""
-										},
-										"url": {
-											"raw": "http://{{host}}:{{port}}{{context}}/api/timeseries/7/getData?timespan=2012-11-19T14:02:00/2012-11-19T14:08:00&locale=de&expanded=true",
-											"protocol": "http",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{context}}",
-											"path": [
-												"api",
-												"timeseries",
-												"7",
-												"getData"
-											],
-											"query": [
-												{
-													"key": "timespan",
-													"value": "2012-11-19T14:02:00/2012-11-19T14:08:00"
-												},
-												{
-													"key": "locale",
-													"value": "de"
-												},
-												{
-													"key": "expanded",
-													"value": "true"
-												}
 											]
 										}
 									},
@@ -5682,14 +5199,11 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://{{host}}:{{port}}{{context}}/api/",
-					"protocol": "http",
+					"raw": "{{url}}/",
 					"host": [
-						"{{host}}"
+						"{{url}}"
 					],
-					"port": "{{port}}{{context}}",
 					"path": [
-						"api",
 						""
 					]
 				}

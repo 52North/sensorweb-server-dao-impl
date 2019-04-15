@@ -3,7 +3,7 @@ Copyright 2013 52°North Initiative for Geospatial Open Source Software GmbH
 Licensed under GNU General Public License, Version 2.0
 
 This project includes: 
-  52North Sensor Web Client PDF report structure under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+  52North REST-API PDF report structure under GNU General Public License, Version 2.0
   52°North Faroe Annotations under The Apache Software License, Version 2.0
   52°North Faroe Utilities under The Apache Software License, Version 2.0
   52°North Jan Mayen under The Apache Software License, Version 2.0
@@ -41,27 +41,32 @@ This project includes:
   Batik utility library under The Apache Software License, Version 2.0
   Batik XML utility library under The Apache Software License, Version 2.0
   Bridge method injection annotations under MIT License
+  Byte Buddy (without dependencies) under The Apache Software License, Version 2.0
   c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   ClassMate under The Apache Software License, Version 2.0
   Codegen under Apache License, Version 2.0
   com.vividsolutions:jts-core under GNU Lesser General Public License, Version 2.1
   Commons Lang under The Apache Software License, Version 2.0
-  Core Hibernate O/RM functionality under GNU Lesser General Public License
-  CORS Filter under The Apache Software License, Version 2.0
-  dom4j under DOM4J license, http://dom4j.sourceforge.net/dom4j-1.6.1/license.html (BSD style)
+  Cross-Origin Resource Sharing (CORS) Filter under The Apache Software License, Version 2.0
+  dom4j under BSD 3-clause New License
   Eclipse ECJ under Eclipse Public License v1.0
   ehcache under The Apache Software License, Version 2.0
   EPSG Authority Service using HSQL database under Lesser General Public License (LGPL) or EPSG database distribution license or BSD License for HSQL
   error-prone annotations under Apache 2.0
+  Extended StAX API under Dual license consisting of the CDDL v1.1 and GPL v2
+  fastinfoset under Apache License, Version 2.0
   FindBugs-Annotations under GNU Lesser Public License
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   geolatte-geom under LGPL 3.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
   Hamcrest Core under New BSD License
-  Hibernate Commons Annotations under GNU Lesser General Public License
-  hibernate-spatial under GNU Lesser General Public License (LGPL) version 2.1
-  Hibernate/Ehcache Integration under GNU Lesser General Public License
+  Hibernate Commons Annotations under GNU Library General Public License v2.1 or later
+  Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later
+  Hibernate ORM - hibernate-ehcache under GNU Library General Public License v2.1 or later
+  Hibernate ORM - hibernate-spatial under GNU Library General Public License v2.1 or later
+  HikariCP under The Apache Software License, Version 2.0
   HyperSQL Database under HSQLDB License, a BSD open source license
+  istack common utility code runtime under CDDL 1.1 or GPL2 w/ CPE
   J2ObjC Annotations under The Apache Software License, Version 2.0
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
@@ -70,10 +75,12 @@ This project includes:
   Java Persistence API, Version 2.1 under Eclipse Public License (EPL), Version 1.0 or Eclipse Distribution License (EDL), Version 1.0
   Java Property Utility under The Apache Software License, Version 2.0
   Java Transaction API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
+  JavaBeans Activation Framework API jar under CDDL/GPLv2+CE
   Javassist under MPL 1.1 or LGPL 2.1 or Apache License 2.0
   javax.annotation API under CDDL + GPLv2 with classpath exception
   javax.inject under The Apache Software License, Version 2.0
-  javax.persistence-api under Eclipse Public License v1.0 or Eclipse Distribution License v. 1.0
+  JAXB Runtime under CDDL+GPL License
+  jaxb-api under CDDL 1.1 or GPL2 w/ CPE
   JBoss Logging 3 under Apache License, version 2.0
   JCL 1.2 implemented over SLF4J under MIT License
   JCommon under GNU Lesser General Public Licence
@@ -99,13 +106,12 @@ This project includes:
   Reflections under WTFPL or The New BSD License
   Series DAO REST API under GNU General Public License, Version 2.0
   Series Database Model - Entities under The Apache Software License, Version 2.0
-  Series Database Model - Hibernate Types under The Apache Software License, Version 2.0
   Series Database Model - QueryDSL Code Generation under The Apache Software License, Version 2.0
-  Series REST API - DAO module under GNU General Public License, Version 2.0
-  Series REST API - DAO Webapp under GNU General Public License, Version 2.0
   Series REST API - IO module under GNU General Public License, Version 2.0
   Series REST API - REST module under GNU General Public License, Version 2.0
   Series REST API - SPI module under GNU General Public License, Version 2.0
+  Series REST API DAO - DAO under GNU General Public License, Version 2.0
+  Series REST API DAO - Webapp under GNU General Public License, Version 2.0
   SLF4J API Module under MIT License
   Spring AOP under Apache License, Version 2.0
   Spring Aspects under Apache License, Version 2.0
@@ -126,6 +132,7 @@ This project includes:
   Spring Web under Apache License, Version 2.0
   Spring Web MVC under Apache License, Version 2.0
   Stax2 API under The BSD License
+  TXW2 Runtime under CDDL+GPL License
   xalan under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0

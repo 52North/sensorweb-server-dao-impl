@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.old.dao;
-
-import static java.util.stream.Collectors.toSet;
 
 import java.util.Date;
 import java.util.List;
@@ -40,6 +37,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.spatial.criterion.SpatialRestrictions;
@@ -47,31 +45,31 @@ import org.hibernate.sql.JoinType;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.crs.BoundingBox;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.PlatformType;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.IdEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
+import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.n52.series.db.old.DataModelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.PrecisionModel;
-
 public class DbQuery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
+
+    private static final String PROPERTY_ID = "id";
 
     private static final String PROPERTY_LOCALE = "locale";
 
@@ -93,9 +91,7 @@ public class DbQuery {
         if (parameters != null) {
             this.parameters = parameters;
         }
-        this.databaseSridCode= databaseSridCode == null
-                ? CRSUtils.DEFAULT_CRS
-                : databaseSridCode;
+        this.databaseSridCode = databaseSridCode == null ? CRSUtils.DEFAULT_CRS : databaseSridCode;
 
         final PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
         this.geometryFactory = new GeometryFactory(pm, CRSUtils.getSrsIdFrom(databaseSridCode));
@@ -107,8 +103,7 @@ public class DbQuery {
      * @return a new instance with spatial filters removed
      */
     public DbQuery removeSpatialFilter() {
-        return new DbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                     .removeAllOf(Parameters.NEAR));
+        return new DbQuery(parameters.removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR));
     }
 
     public GeometryFactory getGeometryFactory() {
@@ -119,9 +114,9 @@ public class DbQuery {
      * Create a new instance and replaces given parameter values.
      *
      * @param parameter
-     *        the parameter which values to be replaced
+     *            the parameter which values to be replaced
      * @param values
-     *        the new values
+     *            the new values
      * @return a new instance with containing the new parameter values
      */
     public DbQuery replaceWith(String parameter, String... values) {
@@ -136,7 +131,7 @@ public class DbQuery {
      * Creates a new instance and removes all given parameters.
      *
      * @param parameterNames
-     *        the parameters to remove
+     *            the parameters to remove
      * @return a new instance with given parameters removed
      */
     public DbQuery removeAllOf(String... parameterNames) {
@@ -166,8 +161,7 @@ public class DbQuery {
     }
 
     public Interval getTimespan() {
-        return parameters.getTimespan()
-                         .toInterval();
+        return parameters.getTimespan().toInterval();
     }
 
     public Geometry getSpatialFilter() {
@@ -211,27 +205,24 @@ public class DbQuery {
     }
 
     public boolean isSetValueTypeFilter() {
-        return !parameters.getValueTypes()
-                          .isEmpty();
+        return !parameters.getValueTypes().isEmpty();
     }
 
-    public String getHandleAsValueTypeFallback() {
-        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
-            ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
-            : ValueType.DEFAULT_VALUE_TYPE;
-    }
+    // public String getHandleAsValueTypeFallback() {
+    // return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
+    // ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+    // : ValueType.DEFAULT_VALUE_TYPE;
+    // }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
-        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode()))
-                        .list()
-                        .isEmpty();
+        return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
     }
 
-    public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
+    public Criteria addLocaleTo(Criteria criteria, Class<?> clazz) {
         if ((getLocale() != null) && DataModelUtil.isEntitySupported(clazz, criteria)) {
             Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
-                                             Restrictions.isNull(PROPERTY_LOCALE)));
+                    Restrictions.isNull(PROPERTY_LOCALE)));
         }
         return criteria;
     }
@@ -249,7 +240,7 @@ public class DbQuery {
             Date start = startDate.toDate();
             Date end = endDate.toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_START, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
+                    Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
         }
         return criteria;
     }
@@ -261,36 +252,26 @@ public class DbQuery {
     }
 
     public Criteria addOdataFilterForData(Criteria criteria) {
-        FESCriterionGenerator generator = new DataFESCriterionGenerator(criteria,
-                                                                        true,
-                                                                        isMatchDomainIds(),
-                                                                        isComplexParent());
+        FESCriterionGenerator generator =
+                new DataFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
     public Criteria addOdataFilterForDataset(Criteria criteria) {
-        FESCriterionGenerator generator = new DatasetFESCriterionGenerator(criteria,
-                                                                           true,
-                                                                           isMatchDomainIds(),
-                                                                           isComplexParent());
+        FESCriterionGenerator generator =
+                new DatasetFESCriterionGenerator(criteria, true, isMatchDomainIds(), isComplexParent());
         return addOdataFilter(generator, criteria);
     }
 
     private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
-        return parameters.getODataFilter()
-                         .map(generator::create)
-                         .map(criteria::add)
-                         .orElse(criteria);
+        return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
     }
 
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT))
-                ? getParameters().getLimit()
-                : DEFAULT_LIMIT;
-            limit = (limit > 0)
-                ? limit
-                : DEFAULT_LIMIT;
+            int limit =
+                    (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit() : DEFAULT_LIMIT;
+            limit = (limit > 0) ? limit : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -307,51 +288,71 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
-        Set<String> series = parameters.getSeries();
+        // Set<String> series = parameters.getSeries();
 
-        if (! (hasValues(platforms)
-                || hasValues(phenomena)
-                || hasValues(procedures)
-                || hasValues(offerings)
-                || hasValues(features)
-                || hasValues(categories)
-                || hasValues(datasets)
-                || hasValues(series))) {
+        Set<String> samplings = parameters.getSamplings();
+        Set<String> measuringPrograms = parameters.getMeasuringPrograms();
+
+        boolean samplingSupported = DataModelUtil.isEntitySupported(SamplingEntity.class, criteria)
+                ? hasValues(samplings) || hasValues(measuringPrograms)
+                : false;
+
+        if (!(hasValues(platforms) || hasValues(phenomena) || hasValues(procedures) || hasValues(offerings)
+                || hasValues(features) || hasValues(categories) || hasValues(datasets) || samplingSupported)) {
             // no subquery neccessary
             return criteria;
         }
 
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-        QueryUtils.setFilterProjectionOn(datasetName, filter);
+        // if (hasValues(platforms)) {
+        // features.addAll(getStationaryIds(platforms));
+        // procedures.addAll(getMobileIds(platforms));
+        // }
 
-        if (hasValues(platforms)) {
-            features.addAll(getStationaryIds(platforms));
-            procedures.addAll(getMobileIds(platforms));
-        }
-
-        addHierarchicalFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
+        // FIXME check for simple or full db models
+        // addHierarchicalFilterRestriction(procedures,
+        // DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
+        // addHierarchicalFilterRestriction(offerings,
+        // DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        // addHierarchicalFilterRestriction(features,
+        // DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
+        addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
+        if (samplingSupported) {
+            if (hasValues(samplings)) {
+                addFilterRestriction(samplings, DatasetEntity.PROPERTY_SAMPLING_PROFILE + "."
+                        + SamplingProfileDatasetEntity.PROPERTY_SAMPLINGS, filter);
+            }
+            if (hasValues(measuringPrograms)) {
+                addFilterRestriction(measuringPrograms, DatasetEntity.PROPERTY_SAMPLING_PROFILE + "."
+                        + SamplingProfileDatasetEntity.PROPERTY_MEASURING_PROGRAMS, filter);
+            }
+        }
+        // addFilterRestriction(series, filter);
+
         addFilterRestriction(datasets, filter);
 
-        criteria.add(Subqueries.propertyIn(IdEntity.PROPERTY_ID, filter));
+        // TODO refactory/simplify projection
+        String projectionProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
+        filter.setProjection(Property.forName(projectionProperty));
+
+        String filterProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
+        criteria.add(Subqueries.propertyIn(filterProperty, filter));
         return criteria;
     }
 
-    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String property,
-                                                              DetachedCriteria filter) {
+    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values, String entity,
+            DetachedCriteria filter, String prefix) {
         if (hasValues(values)) {
-            String itemAlias = property + "_filter";
-            String parentAlias = property + "_parent";
-            String parentId = QueryUtils.createAssociation(parentAlias, IdEntity.PROPERTY_ID);
-            filter.createCriteria(property, itemAlias)
-                  // join the parents to enable filtering via parent ids
-                  .createAlias(itemAlias + ".parents", parentAlias, JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, itemAlias),
-                                       Restrictions.in(parentId, QueryUtils.parseToIds(values))));
+            filter.createCriteria(entity, prefix + "e")
+                    // join the parents to enable filtering via parent ids
+                    .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                            Restrictions.in(prefix + "p.id", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -367,8 +368,7 @@ public class DbQuery {
                 return filter.add(restriction);
             } else {
                 // return subquery for further chaining
-                return filter.createCriteria(entity)
-                             .add(restriction);
+                return filter.createCriteria(entity).add(restriction);
             }
         }
         return filter;
@@ -379,23 +379,17 @@ public class DbQuery {
     }
 
     private Criterion createIdCriterion(Set<String> values, String alias) {
-        return parameters.isMatchDomainIds()
-            ? createDomainIdFilter(values, alias)
-            : createIdFilter(values, alias);
+        return parameters.isMatchDomainIds() ? createDomainIdFilter(values, alias) : createIdFilter(values, alias);
     }
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DescribableEntity.PROPERTY_DOMAIN_ID);
-        return filterValues.stream()
-                           .map(filter -> Restrictions.ilike(column, filter))
-                           .collect(Restrictions::disjunction,
-                                    Disjunction::add,
-                                    (a, b) -> b.conditions()
-                                               .forEach(a::add));
+        return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
+                .collect(Restrictions::disjunction, Disjunction::add, (a, b) -> b.conditions().forEach(a::add));
     }
 
-    private Criterion createIdFilter(Set<String> filterValues, String alias) {
-        String column = QueryUtils.createAssociation(alias, IdEntity.PROPERTY_ID);
+    public Criterion createIdFilter(Set<String> filterValues, String alias) {
+        String column = QueryUtils.createAssociation(alias, PROPERTY_ID);
         return Restrictions.in(column, QueryUtils.parseToIds(filterValues));
     }
 
@@ -403,59 +397,48 @@ public class DbQuery {
         return (values != null) && !values.isEmpty();
     }
 
-    private Set<String> getStationaryIds(Set<String> platforms) {
-        return platforms.stream()
-                        .filter(PlatformType::isStationaryId)
-                        .map(PlatformType::extractId)
-                        .collect(toSet());
-    }
-
-    private Set<String> getMobileIds(Set<String> platforms) {
-        return platforms.stream()
-                        .filter(PlatformType::isMobileId)
-                        .map(PlatformType::extractId)
-                        .collect(toSet());
-    }
+    // private Set<String> getStationaryIds(Set<String> platforms) {
+    // return platforms.stream()
+    // .filter(PlatformType::isStationaryId)
+    // .map(PlatformType::extractId)
+    // .collect(toSet());
+    // }
+    //
+    // private Set<String> getMobileIds(Set<String> platforms) {
+    // return platforms.stream()
+    // .filter(PlatformType::isMobileId)
+    // .map(PlatformType::extractId)
+    // .collect(toSet());
+    // }
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            criteria.add(parameters.getResultTimes()
-                                   .stream()
-                                   .map(Instant::parse)
-                                   .map(Instant::toDate)
-                                   .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
-                                   .collect(Restrictions::disjunction,
-                                            Disjunction::add,
-                                            (a, b) -> b.conditions()
-                                                       .forEach(a::add)));
+            criteria.add(parameters.getResultTimes().stream().map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add, (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
 
     public Criteria addSpatialFilter(Criteria criteria) {
         Criterion filter = createSpatialFilter();
-        return filter != null
-            ? criteria.add(filter)
-            : criteria;
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
     public DetachedCriteria addSpatialFilter(DetachedCriteria criteria) {
         Criterion filter = createSpatialFilter();
-        return filter != null
-            ? criteria.add(filter)
-            : criteria;
+        return filter != null ? criteria.add(filter) : criteria;
     }
 
-    private Criterion createSpatialFilter() {
-        BoundingBox bbox = parameters.getSpatialFilter();
-        if (bbox != null) {
-            Geometry envelope = getSpatialFilter();
+    public Criterion createSpatialFilter() {
+        Geometry envelope = getSpatialFilter();
+        if (envelope != null) {
             String geometryMember = DataEntity.PROPERTY_GEOMETRY_ENTITY + ".geometry";
-
             return SpatialRestrictions.intersects(geometryMember, envelope);
 
             // TODO intersect with linestring
-            // XXX do sampling filter only on generated line strings stored in FOI table,
+            // XXX do sampling filter only on generated line strings stored in
+            // FOI table,
             // otherwise we would have to check each observation row
         }
         return null;
@@ -477,4 +460,9 @@ public class DbQuery {
     public DbQuery withoutFieldsFilter() {
         return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
+
+    public boolean expandWithNextValuesBeyondInterval() {
+        return parameters.isExpandWithNextValuesBeyondInterval();
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.assembler;
 
 import static java.lang.Boolean.TRUE;
@@ -37,6 +36,7 @@ import static org.n52.series.test.TestUtils.getIdAsString;
 
 import java.util.List;
 
+import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +71,7 @@ public class OfferingAssemblerTest extends TestBase {
     private OfferingRepository offeringRepository;
 
     @Autowired
-    private DatasetRepository<DatasetEntity> datasetRepository;
+    private DatasetRepository datasetRepository;
 
     @Autowired
     private TestRepositories testRepositories;
@@ -199,7 +199,7 @@ public class OfferingAssemblerTest extends TestBase {
         Assertions.assertAll("Assert members of serialized output assemble (Condensed)", () -> {
             List<OfferingOutput> offerings = assembler.getAllCondensed(defaultQuery);
 
-            ObjectAssert<OfferingOutput> element = assertThat(offerings).element(0);
+            ListAssert<OfferingOutput> element = assertThat(offerings);
             element.extracting(OfferingOutput::getId).allMatch(it -> it.equals(expectedId));
             element.extracting(OfferingOutput::getDomainId).allMatch(it -> it.equals(offeringIdentifier));
             element.extracting(OfferingOutput::getLabel).allMatch(it -> it.equals(offeringLabel));
@@ -213,7 +213,7 @@ public class OfferingAssemblerTest extends TestBase {
         Assertions.assertAll("Assert members of serialized output assemble (Expanded)", () -> {
             List<OfferingOutput> offerings = assembler.getAllExpanded(defaultQuery);
 
-            ObjectAssert<OfferingOutput> element = assertThat(offerings).element(0);
+            ListAssert<OfferingOutput> element = assertThat(offerings);
             element.extracting(OfferingOutput::getId).allMatch(it -> it.equals(expectedId));
             element.extracting(OfferingOutput::getDomainId).allMatch(it -> it.equals(offeringIdentifier));
             element.extracting(OfferingOutput::getLabel).allMatch(it -> it.equals(offeringLabel));
@@ -221,8 +221,8 @@ public class OfferingAssemblerTest extends TestBase {
             element.extracting(OfferingOutput::getExtras).allMatch(it -> it == null);
 
             element.extracting(OfferingOutput::getService).allMatch(it ->
-            			((ServiceOutput)it).getLabel().equals("TestService") &&
-						((ServiceOutput)it).getId().equals("42")
+            			it.getLabel().equals("TestService") &&
+						it.getId().equals("42")
 			);
         });
     }

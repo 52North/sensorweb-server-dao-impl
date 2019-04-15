@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,31 +36,18 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.BooleanDataEntity;
-import org.n52.series.db.beans.BooleanDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "boolean", datasetEntityType = BooleanDatasetEntity.class)
-public class BooleanDataRepository extends AbstractDataRepository<BooleanDatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
+@ValueAssemblerComponent(value = "boolean", datasetEntityType = DatasetEntity.class)
+public class BooleanDataRepository extends AbstractDataRepository<BooleanDataEntity, BooleanValue, Boolean> {
 
     public BooleanDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    protected Data<BooleanValue> assembleData(BooleanDatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<BooleanValue> result = new Data<>();
-        DataDao<BooleanDataEntity> dao = createDataDao(session);
-        List<BooleanDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (BooleanDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
-            }
-        }
-        return result;
     }
 
     @Override
@@ -69,8 +56,21 @@ public class BooleanDataRepository extends AbstractDataRepository<BooleanDataset
     }
 
     @Override
+    protected Data<BooleanValue> assembleData(Long dataset, DbQuery query, Session session) {
+        Data<BooleanValue> result = new Data<>();
+        DataDao<BooleanDataEntity> dao = createDataDao(session);
+        List<BooleanDataEntity> observations = dao.getAllInstancesFor(dataset, query);
+        for (BooleanDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public BooleanValue assembleDataValue(BooleanDataEntity observation,
-                                             BooleanDatasetEntity series,
+                                            DatasetEntity series,
                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         Boolean observationValue = !service.isNoDataValue(observation)

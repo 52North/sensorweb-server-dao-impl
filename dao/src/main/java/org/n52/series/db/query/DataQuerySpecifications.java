@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.query;
 
-import static org.n52.series.db.old.dao.QueryUtils.parseToIds;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,28 +37,30 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QDataEntity;
 import org.n52.series.db.beans.QGeometryEntity;
+import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.series.db.old.dao.DbQuery;
+import org.n52.series.db.old.dao.QueryUtils;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.jpa.impl.JPAQuery;
-import com.vividsolutions.jts.geom.Geometry;
 
-public class DataQuerySpecifications extends QuerySpecifications {
-
-    public static DataQuerySpecifications of(final DbQuery query) {
-        return new DataQuerySpecifications(query);
-    }
+public final class DataQuerySpecifications extends QuerySpecifications {
 
     private DataQuerySpecifications(final DbQuery query) {
         super(query);
+    }
+
+    public static DataQuerySpecifications of(final DbQuery query) {
+        return new DataQuerySpecifications(query);
     }
 
     /**
@@ -111,13 +111,13 @@ public class DataQuerySpecifications extends QuerySpecifications {
     }
 
     /**
-     * Matches entities so that {@link DataEntity#isParent()} is {@literal true}.
+     * Matches entities so that .
      *
      * @return a boolean expression
      */
     public BooleanExpression matchParents() {
         QDataEntity dataentity = QDataEntity.dataEntity;
-        return dataentity.parent.eq(query.isComplexParent());
+        return dataentity.parent.isNotNull();
     }
 
     /**
@@ -170,7 +170,7 @@ public class DataQuerySpecifications extends QuerySpecifications {
         final QDataEntity data = QDataEntity.dataEntity;
         return query.isMatchDomainIds()
             ? data.dataset.identifier.in(ids)
-            : data.dataset.id.in(parseToIds(ids));
+            : data.dataset.id.in(QueryUtils.parseToIds(ids));
     }
 
     public Optional<DataEntity< ? >> matchClosestBeforeStart(DatasetEntity dataset, EntityManager entityManager) {
@@ -222,7 +222,7 @@ public class DataQuerySpecifications extends QuerySpecifications {
         }
         final QDataEntity dataentity = QDataEntity.dataEntity;
         final QGeometryEntity geometryEntity = dataentity.geometryEntity;
-        return geometryEntity.geometry.intersects(geometry);
+        return geometryEntity.geometry.intersects(JTSGeometryConverter.convert(geometry));
 
     }
 

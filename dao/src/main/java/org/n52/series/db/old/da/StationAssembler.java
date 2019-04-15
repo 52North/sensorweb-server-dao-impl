@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,12 +34,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DatasetDao;
 import org.n52.series.db.old.dao.DbQuery;
@@ -52,12 +53,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.vividsolutions.jts.geom.Geometry;
-
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
+ * @deprecated sdffasn
  */
 @Component
+@Deprecated
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
 
@@ -98,9 +99,9 @@ public class StationAssembler extends SessionAwareAssembler
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
-            String id = Long.toString(searchResult.getId());
+            String pkid = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
-            results.add(new StationSearchResult(id, label));
+            results.add(new StationSearchResult(pkid, label));
         }
         return results;
     }
@@ -181,11 +182,12 @@ public class StationAssembler extends SessionAwareAssembler
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session) {
         StationOutput result = createCondensed(feature, query);
 
-        DatasetDao<QuantityDatasetEntity> seriesDao = new DatasetDao<>(session, QuantityDatasetEntity.class);
-        List<QuantityDatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
+        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session);
+        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
 
         Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
         result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+
         return result;
     }
 

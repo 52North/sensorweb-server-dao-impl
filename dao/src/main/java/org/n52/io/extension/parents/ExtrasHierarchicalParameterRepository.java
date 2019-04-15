@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,10 +42,8 @@ import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.old.DataAccessException;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.da.PlatformAssembler;
 import org.n52.series.db.old.da.SessionAwareAssembler;
@@ -77,8 +75,8 @@ public class ExtrasHierarchicalParameterRepository extends SessionAwareAssembler
 
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
             DatasetDao<DatasetEntity> dao = new DatasetDao<>(session);
-            for (DatasetOutput dataset : platform.getDatasets()) {
-                String datasetId = ValueType.extractId(dataset.getId());
+            for (DatasetOutput<?> dataset : platform.getDatasets()) {
+                String datasetId = dataset.getId();
                 DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
                 addProcedureParents(instance, dbQuery, extras);
                 // TODO add further parents

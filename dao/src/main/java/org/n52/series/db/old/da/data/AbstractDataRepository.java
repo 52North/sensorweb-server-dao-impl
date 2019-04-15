@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,35 +29,33 @@
 
 package org.n52.series.db.old.da.data;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.AbstractValue.ValidTime;
 import org.n52.io.response.dataset.Data;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.parameter.Parameter;
+import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.da.SessionAwareAssembler;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DatasetDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-public abstract class AbstractDataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T>
+public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends AbstractValue< ? >, T>
         extends
         SessionAwareAssembler implements
-        DataRepository<S, E, V, T> {
+        DataRepository<E, V, T> {
 
     public AbstractDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -67,44 +65,44 @@ public abstract class AbstractDataRepository<S extends DatasetEntity, E extends 
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            String id = ValueType.extractId(datasetId);
-            DatasetDao<S> dao = new DatasetDao<>(session);
-            IoParameters parameters = dbQuery.getParameters();
-            // remove spatial filter on metadata
-            S dataset = dao.getInstance(id,
-                                        getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                                             .removeAllOf(Parameters.NEAR)
-                                                             .removeAllOf(Parameters.ODATA_FILTER)));
-            dataset.setService(getServiceEntity(dataset));
             return dbQuery.isExpanded()
-                ? assembleExpandedData(dataset, dbQuery, session)
-                : assembleData(dataset, dbQuery, session);
+                ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
+                : assembleData(Long.parseLong(datasetId), dbQuery, session);
         } finally {
             returnSession(session);
         }
     }
 
+    protected Data<V> assembleExpandedData(DatasetEntity dataset, DbQuery dbQuery, Session session)  {
+        return assembleExpandedData(dataset.getId(), dbQuery, session);
+    }
+
+    protected Data<V> assembleExpandedData(Long dataset, DbQuery dbQuery, Session session)  {
+        return assembleData(dataset, dbQuery, session);
+    }
+
+    protected Data<V> assembleData(DatasetEntity dataset, DbQuery query, Session session) {
+        return assembleData(dataset.getId(), query, session);
+    }
+
+    protected abstract Data<V> assembleData(Long dataset, DbQuery query, Session session);
 
     @Override
-    public E getClosestValueBeforeStart(S dataset, DbQuery query) {
-        try (Session session = getSession()) {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
-
-            final DateTime lowerBound = timespan.getStart();
-            return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
-        }
+    public V assembleDataValueWithMetadata(E data, DatasetEntity dataset, DbQuery query) {
+        V value = assembleDataValue(data, dataset, query);
+        return addMetadatasIfNeeded(data, value, dataset, query);
     }
 
     @Override
-    public E getClosestValueAfterEnd(S dataset, DbQuery query) {
-        try (Session session = getSession()) {
-            final DataDao<E> dao = createDataDao(session);
-            final Interval timespan = query.getTimespan();
+    public V getFirstValue(DatasetEntity entity, DbQuery query) {
+        E data = (E) entity.getFirstObservation();
+        return assembleDataValue(data, entity, query);
+    }
 
-            final DateTime upperBound = timespan.getEnd();
-            return dao.getClosestOuterNextValue(dataset, upperBound, query);
-        }
+    @Override
+    public V getLastValue(DatasetEntity entity, DbQuery query) {
+        E data = (E) entity.getLastObservation();
+        return assembleDataValue(data, entity, query);
     }
 
 
@@ -114,17 +112,15 @@ public abstract class AbstractDataRepository<S extends DatasetEntity, E extends 
     // return platformRepository.getEntity(getPlatformId(dataset), query, session);
     // }
 
-    @Override
-    public V getFirstValue(S entity, DbQuery query) {
-        E data = (E) entity.getFirstObservation();
-        return assembleDataValue(data, entity, query);
-    }
-
-    @Override
-    public V getLastValue(S entity, DbQuery query) {
-        E data = (E) entity.getLastObservation();
-        return assembleDataValue(data, entity, query);
-    }
+//    @Override
+//    public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
+//        // DataDao<E> dao = createDataDao(session);
+//        // return dao.getValueGeometryViaTimeend(entity, query);
+//        DataEntity<?> lastObservation = entity.getLastObservation();
+//        return lastObservation != null
+//                ? lastObservation.getGeometryEntity()
+//                : null;
+//    }
 
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
@@ -139,25 +135,15 @@ public abstract class AbstractDataRepository<S extends DatasetEntity, E extends 
         }
 
         IoParameters parameters = query.getParameters();
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
+        TimeOutput timeend = createTimeOutput(observation.getSamplingTimeEnd(),
+                observation.getDataset().getOriginTimezone(), parameters);
+        TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
+                observation.getDataset().getOriginTimezone(), parameters);
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
-            emptyValue.setTimestart(timestart.getTime());
+            emptyValue.setTimestart(timestart);
         }
-        emptyValue.setTimestamp(timeend.getTime());
+        emptyValue.setTimestamp(timeend);
         return emptyValue;
-    }
-
-    @Override
-    public V assembleDataValueWithMetadata(E data, S dataset, DbQuery query) {
-        V value = assembleDataValue(data, dataset, query);
-        return addMetadatasIfNeeded(data, value, dataset, query);
-    }
-
-    protected abstract Data<V> assembleData(S datasetEntity, DbQuery query, Session session);
-
-    protected Data<V> assembleExpandedData(S datasetEntity, DbQuery dbQuery, Session session) {
-        return assembleData(datasetEntity, dbQuery, session);
     }
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
@@ -168,18 +154,19 @@ public abstract class AbstractDataRepository<S extends DatasetEntity, E extends 
         return observations.size() == 1;
     }
 
-    protected V addMetadatasIfNeeded(E observation, V value, S dataset, DbQuery query) {
-        // TODO move to appropriate location
-        addResultTime(observation, value);
+    protected V addMetadatasIfNeeded(E observation, V value, DatasetEntity dataset, DbQuery query) {
+        // TODO how to handle NULL values, e.g. for detection limit
+        if (value != null) {
+            addResultTime(observation, value);
 
-        if (query.isExpanded()) {
-            addValidTime(observation, value);
-            addParameters(observation, value, query);
-            addGeometry(observation, value, query);
-        } else {
-            if (dataset.getPlatform()
-                       .isMobile()) {
+            if (query.isExpanded()) {
+                addValidTime(observation, value, query.getParameters());
+                addParameters(observation, value, query);
                 addGeometry(observation, value, query);
+            } else {
+                if (dataset.isMobile()) {
+                    addGeometry(observation, value, query);
+                }
             }
         }
         return value;
@@ -187,39 +174,89 @@ public abstract class AbstractDataRepository<S extends DatasetEntity, E extends 
 
     protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
         if (dataEntity.isSetGeometryEntity()) {
-            GeometryEntity geometryEntity = dataEntity.getGeometryEntity();
-            Geometry geometry = getGeometry(geometryEntity, query);
-            value.setGeometry(geometry);
+            GeometryEntity geometry = dataEntity.getGeometryEntity();
+            value.setGeometry(geometry.getGeometry());
         }
     }
 
-    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value, IoParameters parameters) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
-            Long validFrom = observation.isSetValidStartTime()
-                ? observation.getValidTimeStart()
-                             .getTime()
+            TimeOutput validFrom = observation.isSetValidStartTime()
+                ? createTimeOutput(observation.getValidTimeStart(), parameters)
                 : null;
-            Long validUntil = observation.isSetValidEndTime()
-                ? observation.getValidTimeEnd()
-                             .getTime()
+                TimeOutput validUntil = observation.isSetValidEndTime()
+                ? createTimeOutput(observation.getValidTimeEnd(), parameters)
                 : null;
-            value.setValidTime(new ValidTime(validFrom, validUntil));
+            value.setValidTime(validFrom, validUntil);
         }
     }
 
     protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
         if (observation.getResultTime() != null) {
-            value.setResultTime(observation.getResultTime()
-                                           .getTime());
+            value.setResultTime(new DateTime(observation.getResultTime()));
         }
     }
 
     protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
         if (observation.hasParameters()) {
-            for (Parameter< ? > parameter : observation.getParameters()) {
+            for (ParameterEntity< ? > parameter : observation.getParameters()) {
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
         }
+    }
+
+    @Override
+    public E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            return getClosestValueBeforeStart(dataset, query, session);
+        } finally {
+            returnSession(session);
+        }
+    }
+
+    protected E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime lowerBound = timespan.getStart();
+        return dao.getClosestOuterPreviousValue(dataset, lowerBound, query);
+    }
+
+    @Override
+    public E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query) {
+        Session session = getSession();
+        try {
+            return getClosestValueAfterEnd(dataset, query, session);
+        } finally {
+            returnSession(session);
+        }
+    }
+
+    protected E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query, Session session) {
+        final DataDao<E> dao = createDataDao(session);
+        final Interval timespan = query.getTimespan();
+        final DateTime upperBound = timespan.getEnd();
+        return dao.getClosestOuterNextValue(dataset, upperBound, query);
+    }
+
+    protected E unproxy(DataEntity<?> dataEntity, Session session) {
+        if (dataEntity instanceof HibernateProxy
+                && ((HibernateProxy) dataEntity).getHibernateLazyInitializer().getSession() == null) {
+            return unproxy(session.load(DataEntity.class, dataEntity.getId()), session);
+        }
+        return (E) Hibernate.unproxy(dataEntity);
+    }
+
+
+    protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
+       return format(value, dataset.getNumberOfDecimals());
+    }
+
+    protected BigDecimal format(BigDecimal value, int scale) {
+        if (value == null) {
+            return value;
+        }
+        return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,12 +32,12 @@ import org.n52.series.db.old.dao.DbQuery;
 
 public class ParameterQuerySpecifications extends QuerySpecifications {
 
-    public static ParameterQuerySpecifications of(final DbQuery dbQuery) {
-        return new ParameterQuerySpecifications(dbQuery);
-    }
-
     protected ParameterQuerySpecifications(final DbQuery dbQuery) {
         super(dbQuery);
+    }
+
+    public static ParameterQuerySpecifications of(final DbQuery dbQuery) {
+        return new ParameterQuerySpecifications(dbQuery);
     }
 
 }

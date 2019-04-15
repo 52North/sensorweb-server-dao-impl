@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import java.util.Collections;
@@ -39,7 +38,7 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.dao.DbQuery;
 
-public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> {
+public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue< ? >, T> {
 
     /**
      * Assembles observation values as {@link Data} output.
@@ -61,7 +60,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query
      * @return a list of reference values
      */
-    default List<ReferenceValueOutput<V>> getReferenceValues(S datasetEntity, DbQuery query) {
+    default List<ReferenceValueOutput<V>> getReferenceValues(DatasetEntity datasetEntity, DbQuery query) {
         return Collections.emptyList();
     }
 
@@ -77,7 +76,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query
      * @return the assembled output
      */
-    V assembleDataValueWithMetadata(E dataEntity, S datasetEntity, DbQuery query);
+    V assembleDataValueWithMetadata(E dataEntity, DatasetEntity datasetEntity, DbQuery query);
 
     /**
      * Assembles an output for a data entity for a given query.
@@ -90,7 +89,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query
      * @return the assembled output
      */
-    V assembleDataValue(E dataEntity, S datasetEntity, DbQuery query);
+    V assembleDataValue(E dataEntity, DatasetEntity datasetEntity, DbQuery query);
 
     // /**
     // * Assembles plain output containing date/time and the as-is value for a given query.
@@ -112,7 +111,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query
      * @return the first value for the given dataset
      */
-    V getFirstValue(S entity, DbQuery query);
+    V getFirstValue(DatasetEntity entity, DbQuery query);
 
     /**
      * @param entity
@@ -121,7 +120,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query
      * @return the last value for the given dataset
      */
-    V getLastValue(S entity, DbQuery query);
+    V getLastValue(DatasetEntity entity, DbQuery query);
 
     /**
      * Finds the closest value before a given timespan.
@@ -132,7 +131,7 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query containing the timespan
      * @return the closest value before a given timespan
      */
-    E getClosestValueBeforeStart(S dataset, DbQuery query);
+    E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query);
 
     /**
      * Finds the closest value after a given timespan.
@@ -143,6 +142,6 @@ public interface ValueAssembler<S extends DatasetEntity, E extends DataEntity<T>
      *        the query containing the timespan
      * @return the closest value after a given timespan
      */
-    E getClosestValueAfterEnd(S dataset, DbQuery query);
+    E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query);
 
 }

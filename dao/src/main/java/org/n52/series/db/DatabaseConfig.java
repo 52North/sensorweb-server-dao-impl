@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import java.io.IOException;
@@ -62,7 +61,8 @@ public class DatabaseConfig {
     private String persistenceXmlLocation;
 
     /**
-     * https://docs.spring.io/spring-boot/docs/current/reference/html/howto-data-access.html#howto-use-traditional-persistence-xml
+     * https://docs.spring.io/spring-boot/docs/current/reference/html/
+     * howto-data-access.html#howto-use-traditional-persistence-xml
      */
     @Autowired
     @Qualifier("entityManagerFactory")
@@ -92,7 +92,8 @@ public class DatabaseConfig {
     }
 
     private TypeContributorList createTypeContributorsList() {
-        return (TypeContributorList) () -> Arrays.asList(toTypeContributor(SmallBooleanType.INSTANCE, "small_boolean"));
+        return (TypeContributorList) () -> Arrays
+                .asList(toTypeContributor(SmallBooleanType.INSTANCE, "small_boolean"));
     }
 
     private <T extends BasicType> TypeContributor toTypeContributor(T type, String... keys) {

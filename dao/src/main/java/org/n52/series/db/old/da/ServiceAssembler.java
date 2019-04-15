@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,7 +42,9 @@ import org.n52.io.DatasetFactoryException;
 import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.ServiceOutput.DatasetCount;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -105,31 +107,30 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
         try {
             Long rawId = parseId(id);
             ServiceDao dao = createDao(session);
-            return isConfiguredServiceInstance(rawId)
-                    || dao.hasInstance(rawId, parameters);
+            return isConfiguredServiceInstance(rawId) || dao.hasInstance(rawId, parameters);
         } finally {
             returnSession(session);
         }
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return serviceEntity != null
-                && serviceEntity.getId()
-                                .equals(id);
+        return (serviceEntity != null) && serviceEntity.getId().equals(id);
     }
 
     @Override
     public Collection<SearchResult> searchFor(DbQuery query) {
         /*
-         * final ServiceSearchResult result = new ServiceSearchResult(serviceInfo.getServiceId(),
+         * final ServiceSearchResult result = new
+         * ServiceSearchResult(serviceInfo.getServiceId(),
          * serviceInfo.getServiceDescription()); String queryString =
          * DbQuery.createFrom(parameters).getSearchTerm(); return
          * serviceInfo.getServiceDescription().contains(queryString) ?
          * Collections.<SearchResult>singletonList(result)ServiceRepository :
-         * Collections.<SearchResult>emptyList(); Session session = getSession(); try { ServiceDao serviceDao
-         * = createDao(session); DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
-         * serviceDao.find(query); return convertToSearchResults(found, query); } finally {
-         * returnSession(session); }
+         * Collections.<SearchResult>emptyList(); Session session =
+         * getSession(); try { ServiceDao serviceDao = createDao(session);
+         * DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
+         * serviceDao.find(query); return convertToSearchResults(found, query);
+         * } finally { returnSession(session); }
          */
         // TODO implement search
         throw new UnsupportedOperationException("not supported");
@@ -167,28 +168,30 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
         result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
         result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
 
-        if (parameters.shallBehaveBackwardsCompatible()) {
-            result.setValue(ServiceOutput.VERSION, "1.0.0", parameters, result::setVersion);
-            result.setValue(ServiceOutput.QUANTITIES, quantities, parameters, result::setQuantities);
-            result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-                            supportsFirstLatest,
-                            parameters,
-                            result::setSupportsFirstLatest);
-        } else {
-            Map<String, Object> features = new HashMap<>();
-            features.put(ServiceOutput.QUANTITIES, quantities);
-            features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
-            features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
+        // if (parameters.shallBehaveBackwardsCompatible()) {
+        // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
+        // result::setVersion);
+        // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
+        // result::setQuantities);
+        // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
+        // supportsFirstLatest,
+        // parameters,
+        // result::setSupportsFirstLatest);
+        // } else {
+        Map<String, Object> features = new HashMap<>();
+        features.put(ServiceOutput.QUANTITIES, quantities);
+        features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
+        features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
             String version = (entity.getVersion() != null)
                 ? entity.getVersion()
                 : "2.0";
 
-//            String hrefBase = urlHelper.getServicesHrefBaseUrl(query.getHrefBase());
-            result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
-            result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-//            result.setValue(ServiceOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-        }
+        String hrefBase = query.getHrefBase();
+        result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
+        result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
+        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+        // }
         return result;
     }
 
@@ -202,7 +205,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
         Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
-                IoHandlerFactory< ? , ? > factory = ioFactoryCreator.create(valueType);
+                IoHandlerFactory<?, ?> factory = ioFactoryCreator.create(valueType);
                 mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
             } catch (DatasetFactoryException e) {
                 LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
@@ -215,22 +218,35 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
         IoParameters parameters = query.getParameters();
         ParameterCount quantities = new ServiceOutput.ParameterCount();
         DbQuery serviceQuery = getDbQuery(parameters.extendWith(IoParameters.SERVICES, service.getId())
-                                                    .removeAllOf("offset")
-                                                    .removeAllOf("limit"));
+                .removeAllOf("offset").removeAllOf("limit"));
         quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
         quantities.setProceduresSize(counter.countProcedures(serviceQuery));
         quantities.setCategoriesSize(counter.countCategories(serviceQuery));
         quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
         quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
 
-        if (parameters.shallBehaveBackwardsCompatible()) {
-            quantities.setTimeseriesSize(counter.countTimeseries());
-            quantities.setStationsSize(counter.countStations());
-        } else {
-            quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-            quantities.setDatasetsSize(counter.countDatasets(serviceQuery));
-        }
+        // if (parameters.shallBehaveBackwardsCompatible()) {
+        // quantities.setTimeseriesSize(counter.countTimeseries());
+        // quantities.setStationsSize(counter.countStations());
+        // } else {
+        quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+        quantities.setDatasets(createDatasetCount(counter, serviceQuery));
+
+        // TODO
+        quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
+        quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
+        // }
         return quantities;
+    }
+
+    private DatasetCount createDatasetCount(EntityCounter counter, DbQuery query) {
+        DatasetCount datasetCount = new DatasetCount();
+        datasetCount.setTotalAmount(counter.countDatasets(query));
+        datasetCount.setAmountTimeseries(counter.countTimeseries(query));
+        datasetCount.setAmountIndividualObservations(counter.countIndividualObservations(query));
+        datasetCount.setAmountProfiles(counter.countProfiles(query));
+        datasetCount.setAmountTrajectories(counter.countTrajectories(query));
+        return datasetCount;
     }
 
 }

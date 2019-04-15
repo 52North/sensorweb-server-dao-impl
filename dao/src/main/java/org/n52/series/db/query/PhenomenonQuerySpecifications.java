@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.query;
 
 import org.n52.series.db.beans.DatasetEntity;
@@ -37,14 +36,14 @@ import org.n52.series.db.old.dao.DbQuery;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 
-public class PhenomenonQuerySpecifications extends ParameterQuerySpecifications {
-
-    public static PhenomenonQuerySpecifications of(DbQuery dbQuery) {
-        return new PhenomenonQuerySpecifications(dbQuery);
-    }
+public final class PhenomenonQuerySpecifications extends ParameterQuerySpecifications {
 
     private PhenomenonQuerySpecifications(DbQuery dbQuery) {
         super(dbQuery);
+    }
+
+    public static PhenomenonQuerySpecifications of(DbQuery dbQuery) {
+        return new PhenomenonQuerySpecifications(dbQuery);
     }
 
     /**

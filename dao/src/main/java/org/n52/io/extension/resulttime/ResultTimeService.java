@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,6 @@ package org.n52.io.extension.resulttime;
 import java.util.Set;
 
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.ValueType;
 
 public class ResultTimeService {
 
@@ -42,7 +41,7 @@ public class ResultTimeService {
     }
 
     public Set<String> getResultTimeList(IoParameters parameters, String datasetId) {
-        return repository.getExtras(ValueType.extractId(datasetId), parameters);
+        return repository.getExtras(datasetId, parameters);
     }
 
 }

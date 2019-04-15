@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
@@ -41,10 +44,11 @@ import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.PlatformType;
+import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -52,8 +56,8 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
@@ -64,9 +68,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-public abstract class SessionAwareAssembler implements InitializingBean {
+public abstract class SessionAwareAssembler implements InitializingBean, TimeOutputCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareAssembler.class);
 
@@ -76,7 +78,7 @@ public abstract class SessionAwareAssembler implements InitializingBean {
 
     protected final DbQueryFactory dbQueryFactory;
 
-    private final CRSUtils internalCrsUtils = CRSUtils.createEpsgStrictAxisOrder();
+    private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
 
     private final HibernateSessionStore sessionStore;
 
@@ -93,25 +95,24 @@ public abstract class SessionAwareAssembler implements InitializingBean {
     }
 
     protected CRSUtils getCrsUtils() {
-        return internalCrsUtils;
+        return crsUtils;
     }
 
-    protected Geometry getGeometry(final GeometryEntity geometryEntity, final DbQuery query) {
-        return geometryEntity != null
-            ? geometryEntity.getGeometry(query.getGeometryFactory())
-            : null;
+    protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
+        if (geometryEntity == null) {
+            return null;
+        } else {
+            String srid = query.getDatabaseSridCode();
+            geometryEntity.setGeometryFactory(createGeometryFactory(srid));
+            return geometryEntity.getGeometry();
+        }
     }
 
-    // XXX a bit misplaced here
-    protected static String getPlatformId(DatasetEntity dataset) {
-        ProcedureEntity procedure = dataset.getProcedure();
-        boolean mobile = dataset.isMobile();
-        boolean insitu = dataset.isInsitu();
-        PlatformType type = PlatformType.toInstance(mobile, insitu);
-        DescribableEntity entity = type.isStationary()
-            ? dataset.getFeature()
-            : procedure;
-        return type.createId(entity.getId());
+    private GeometryFactory createGeometryFactory(String srsId) {
+        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+        return srsId == null
+            ? new GeometryFactory(pm)
+            : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
     protected Long parseId(String id) {
@@ -139,13 +140,14 @@ public abstract class SessionAwareAssembler implements InitializingBean {
         }
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(List<QuantityDatasetEntity> series, DbQuery query) {
+    protected Map<String, DatasetParameters> createTimeseriesList(List<DatasetEntity> series,
+                                                                  DbQuery parameters) {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
         for (DatasetEntity timeseries : series) {
             if (!timeseries.getProcedure()
                            .isReference()) {
                 String timeseriesId = Long.toString(timeseries.getId());
-                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, query));
+                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
             }
         }
         return timeseriesOutputs;
@@ -158,7 +160,6 @@ public abstract class SessionAwareAssembler implements InitializingBean {
         metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
         metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
         metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
-        metadata.setFeature(getCondensedFeature(dataset.getFeature(), parameters));
         metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
         return metadata;
     }
@@ -170,35 +171,34 @@ public abstract class SessionAwareAssembler implements InitializingBean {
         metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), query));
         metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), query));
         metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
-        metadata.setFeature(getCondensedExtendedFeature(dataset.getFeature(), query));
-
-        DescribableEntity category = dataset.getCategory() == null
-            ? dataset.getPhenomenon()
-            : dataset.getCategory();
-        metadata.setCategory(getCondensedExtendedCategory(category, query));
-        // seriesParameter.setPlatform(getCondensedPlatform(series, parameters, session)); // #309
+        metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
+        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
         return metadata;
     }
 
-    private PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
+    protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
         return createCondensed(new PhenomenonOutput(), entity, parameters);
     }
 
-    private PhenomenonOutput getCondensedExtendedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
+    protected PhenomenonOutput getCondensedExtendedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
         return createCondensed(new PhenomenonOutput(), entity, parameters);
     }
 
-    private OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
+    protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
         return createCondensed(new OfferingOutput(), entity, parameters);
     }
 
-    protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
-        return entity != null
-            ? createCondensed(new ServiceOutput(), entity, parameters)
-            : createCondensed(new ServiceOutput(), serviceEntity, parameters);
+    protected ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
+        return createCondensed(new ProcedureOutput(), entity, parameters);
     }
 
-    private OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
+    protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery query) {
+        return entity != null
+            ? createCondensed(new ServiceOutput(), entity, query)
+            : createCondensed(new ServiceOutput(), serviceEntity, query);
+    }
+
+    protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
         return createCondensed(new OfferingOutput(), entity, parameters);
     }
 
@@ -209,8 +209,8 @@ public abstract class SessionAwareAssembler implements InitializingBean {
             : serviceEntity;
     }
 
-    protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery query) {
-        return createCondensed(new ServiceOutput(), entity, query);
+    protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
+        return createCondensed(new ServiceOutput(), entity, parameters);
     }
 
     protected <T extends ParameterOutput> T createCondensed(T result,
@@ -218,34 +218,46 @@ public abstract class SessionAwareAssembler implements InitializingBean {
                                                             DbQuery query) {
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
+        String domainId = entity.getIdentifier();
         String hrefBase = query.getHrefBase();
+
         result.setId(id);
+        result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
         result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
-        result.setValue(ParameterOutput.HREF, hrefBase, query.getParameters(), result::setHrefBase);
+        result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
         return result;
     }
 
-    private ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
+    protected ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
         return createCondensed(new ProcedureOutput(), entity, parameters);
     }
 
-    private ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
-        return createCondensed(new ProcedureOutput(), entity, parameters);
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
+        FeatureOutput result = createCondensed(new FeatureOutput(), entity, parameters);
+        result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity, parameters), parameters.getParameters(),
+                result::setGeometry);
+        return result;
     }
 
-    private FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
+    protected Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
+        return featureEntity.isSetGeometry()
+                ? getGeometry(featureEntity.getGeometryEntity(), query)
+                : null;
+    }
+
+    protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
+        return createCondensed(new PlatformOutput(), entity, parameters);
+    }
+
+    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
         return createCondensed(new FeatureOutput(), entity, parameters);
     }
 
-    private FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return createCondensed(new FeatureOutput(), entity, parameters);
-    }
-
-    private CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
+    protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
-    private CategoryOutput getCondensedExtendedCategory(DescribableEntity entity, DbQuery parameters) {
+    protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
@@ -257,9 +269,11 @@ public abstract class SessionAwareAssembler implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (getSession().getSessionFactory().getMetamodel().getEntities().isEmpty()) {
+        if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
             throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
         }
     }
+
+
 
 }

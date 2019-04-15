@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,14 +36,14 @@ import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.series.db.beans.CategoryDataEntity;
-import org.n52.series.db.beans.CategoryProfileDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-public class CategoryProfileDataRepository extends ProfileDataRepository<CategoryProfileDatasetEntity, String, String> {
+public class CategoryProfileDataRepository extends ProfileDataRepository<String, String> {
 
     private final CategoryDataRepository categoryRepository;
 
@@ -55,7 +55,7 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<Categor
 
     @Override
     public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
-                                               CategoryProfileDatasetEntity dataset,
+                                               DatasetEntity dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
@@ -71,6 +71,24 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<Categor
         }
         profile.setValue(dataItems);
         return profile;
+    }
+
+    @Override
+    protected ProfileValue<String> createValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
+        ProfileValue<String> value = prepareValue(observation, query);
+        List<ProfileDataItem<String>> dataItems = new ArrayList<>();
+        for (DataEntity<?> dataEntity : observation.getValue()) {
+            CategoryDataEntity categoryEntity = (CategoryDataEntity) dataEntity;
+            CategoryValue valueItem = categoryRepository.createValue(categoryEntity.getValue(), categoryEntity, query);
+            addParameters(categoryEntity, valueItem, query);
+            if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(categoryEntity, value, observation, query));
+            } else {
+                dataItems.add(assembleDataItem(categoryEntity, value, valueItem.getParameters(), dataset, query));
+            }
+        }
+        value.setValue(dataItems);
+        return value;
     }
 
 }

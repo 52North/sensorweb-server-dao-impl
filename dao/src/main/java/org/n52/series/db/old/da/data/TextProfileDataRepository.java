@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,15 +37,15 @@ import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.TextDataEntity;
-import org.n52.series.db.beans.TextProfileDatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "text-profile", datasetEntityType = TextProfileDatasetEntity.class)
-public class TextProfileDataRepository extends ProfileDataRepository<TextProfileDatasetEntity, String, String> {
+@ValueAssemblerComponent(value = "text-profile", datasetEntityType = DatasetEntity.class)
+public class TextProfileDataRepository extends ProfileDataRepository<String, String> {
 
     private final TextDataRepository textRepository;
 
@@ -57,7 +57,7 @@ public class TextProfileDataRepository extends ProfileDataRepository<TextProfile
 
     @Override
     public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
-                                               TextProfileDatasetEntity dataset,
+                                               DatasetEntity dataset,
                                                DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
@@ -73,6 +73,24 @@ public class TextProfileDataRepository extends ProfileDataRepository<TextProfile
         }
         profile.setValue(dataItems);
         return profile;
+    }
+
+    @Override
+    protected ProfileValue<String> createValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
+        ProfileValue<String> value = prepareValue(observation, query);
+        List<ProfileDataItem<String>> dataItems = new ArrayList<>();
+        for (DataEntity<?> dataEntity : observation.getValue()) {
+            TextDataEntity textEntity = (TextDataEntity) dataEntity;
+            TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
+            addParameters(textEntity, valueItem, query);
+            if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(textEntity, value, observation, query));
+            } else {
+                dataItems.add(assembleDataItem(textEntity, value, valueItem.getParameters(), dataset, query));
+            }
+        }
+        value.setValue(dataItems);
+        return value;
     }
 
 }

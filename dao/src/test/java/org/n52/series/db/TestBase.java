@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,14 +26,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.n52.series.db.beans.NotInitializedDatasetEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
-import org.n52.series.db.beans.TextDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.db.query.DatasetQuerySpecifications;
@@ -54,7 +50,7 @@ public abstract class TestBase {
         this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery);
     }
 
-    protected NotInitializedDatasetEntity uninitializedDataset(final String phenomenonIdentifier,
+    protected DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
                                                         final String offeringIdentifier,
                                                         final String procedureIdentifier,
                                                         final String procedureFormat) {
@@ -62,10 +58,10 @@ public abstract class TestBase {
                                                      offeringIdentifier,
                                                      procedureIdentifier,
                                                      procedureFormat,
-                                                     new NotInitializedDatasetEntity());
+                                                     new DatasetEntity());
     }
 
-    protected NotInitializedDatasetEntity uninitializedDataset(final String phenomenonIdentifier,
+    protected DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
                                                                final String offeringIdentifier,
                                                                final String procedureIdentifier,
                                                                final String procedureFormat,
@@ -77,10 +73,10 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new NotInitializedDatasetEntity());
+                                                     new DatasetEntity());
     }
 
-    protected QuantityDatasetEntity quantityDataset(final String phenomenonIdentifier,
+    protected DatasetEntity quantityDataset(final String phenomenonIdentifier,
                                                     final String offeringIdentifier,
                                                     final String procedureIdentifier,
                                                     final String procedureFormat) {
@@ -88,10 +84,10 @@ public abstract class TestBase {
                                                      offeringIdentifier,
                                                      procedureIdentifier,
                                                      procedureFormat,
-                                                     new QuantityDatasetEntity());
+                                                     new DatasetEntity());
     }
 
-    protected QuantityDatasetEntity quantityDataset(final String phenomenonIdentifier,
+    protected DatasetEntity quantityDataset(final String phenomenonIdentifier,
                                                     final String offeringIdentifier,
                                                     final String procedureIdentifier,
                                                     final String procedureFormat,
@@ -103,10 +99,10 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new QuantityDatasetEntity());
+                                                     new DatasetEntity());
     }
 
-    protected QuantityProfileDatasetEntity quantityProfileDataset(final String phenomenonIdentifier,
+    protected DatasetEntity quantityProfileDataset(final String phenomenonIdentifier,
                                                   final String offeringIdentifier,
                                                   final String procedureIdentifier,
                                                   final String procedureFormat,
@@ -118,10 +114,10 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new QuantityProfileDatasetEntity());
+                                                     new DatasetEntity());
     }
 
-    protected TextDatasetEntity textDataset(final String phenomenonIdentifier,
+    protected DatasetEntity textDataset(final String phenomenonIdentifier,
                                             final String offeringIdentifier,
                                             final String procedureIdentifier,
                                             final String procedureFormat,
@@ -133,7 +129,7 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new TextDatasetEntity());
+                                                     new DatasetEntity());
     }
 
 }

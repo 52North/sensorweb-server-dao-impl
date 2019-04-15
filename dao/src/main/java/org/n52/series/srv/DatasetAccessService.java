@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,15 +29,17 @@
 
 package org.n52.series.srv;
 
+import java.util.List;
+
+import org.n52.io.DatasetFactoryException;
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.da.DatasetAssembler;
@@ -69,28 +71,34 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
     @Override
     public DataCollection<Data<V>> getData(IoParameters parameters) {
         TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
-        for (String seriesId : parameters.getDatasets()) {
-            Data<V> data = getDataFor(seriesId, parameters);
-            if (data != null) {
-                dataCollection.addNewSeries(seriesId, data);
+        List<DatasetTypesMetadata> datasetTypesMetadata = getRepository().getDatasetTypesMetadata(parameters);
+        for (DatasetTypesMetadata metadata : datasetTypesMetadata) {
+            Data<V> data;
+            try {
+                data = getDataFor(metadata, parameters);
+                if (data != null) {
+                    dataCollection.addNewSeries(metadata.getId(), data);
+                }
+            } catch (DatasetFactoryException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
         return dataCollection;
     }
 
-    private Data<V> getDataFor(String datasetId, IoParameters parameters) {
+    private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters) throws DatasetFactoryException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
-        String handleAsDatasetFallback = parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE);
-        String valueType = ValueType.extractType(datasetId, handleAsDatasetFallback);
-
-        if (! ("all".equalsIgnoreCase(valueType) || dataFactory.isKnown(valueType))) {
-            LOGGER.debug("unknown type: " + valueType);
-            return new Data<>();
-        }
-        Class<? extends DatasetEntity> entityType = dataFactory.getDatasetEntityType(valueType);
-        ValueAssembler<? extends DatasetEntity, ?, V, ?> assembler = dataFactory.create(valueType, entityType);
-        return assembler.getData(datasetId, dbQuery);
+        Class<? extends DatasetEntity> entityType = DatasetEntity.class;
+        ValueAssembler< ?, V, ?> assembler =
+                (ValueAssembler<?, V, ?>) dataFactory
+                        .create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);
+        return assembler.getData(metadata.getId(), dbQuery);
     }
+
+    private DatasetAssembler<V> getRepository() {
+        return (DatasetAssembler<V>) repository;
+}
 
 
 }

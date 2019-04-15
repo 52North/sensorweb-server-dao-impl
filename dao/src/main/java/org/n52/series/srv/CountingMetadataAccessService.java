@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,6 +96,18 @@ public class CountingMetadataAccessService implements CountingMetadataService {
     public int getDatasetCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countDatasets(query);
+    }
+
+    @Override
+    public int getSamplingCounter(IoParameters parameters) {
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countSamplings(query);
+    }
+
+    @Override
+    public int getMeasuringProgramCounter(IoParameters parameters) {
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countMeasuringPrograms(query);
     }
 
     @Override

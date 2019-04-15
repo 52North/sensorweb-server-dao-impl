@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,17 +35,17 @@ import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
 import org.n52.series.db.ValueAssemblerComponent;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
-import org.n52.series.db.beans.RecordDatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "record", datasetEntityType = RecordDatasetEntity.class)
+@ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
 public class RecordDataRepository
-        extends AbstractDataRepository<RecordDatasetEntity, RecordDataEntity, RecordValue, Map<String, Object>> {
+        extends AbstractDataRepository<RecordDataEntity, RecordValue, Map<String, Object>> {
 
     public RecordDataRepository(HibernateSessionStore sessionStore,
                                 DbQueryFactory dbQueryFactory) {
@@ -58,21 +58,21 @@ public class RecordDataRepository
     }
 
     @Override
-    protected Data<RecordValue> assembleData(RecordDatasetEntity seriesEntity, DbQuery query, Session session) {
+    protected Data<RecordValue> assembleData(Long dataset, DbQuery query, Session session) {
         Data<RecordValue> result = new Data<>();
         DataDao<RecordDataEntity> dao = new DataDao<>(session);
-        List<RecordDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
+        List<RecordDataEntity> observations = dao.getAllInstancesFor(dataset, query);
         for (RecordDataEntity observation : observations) {
             // XXX n times same object?
             if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
             }
         }
         return result;
     }
 
     @Override
-    public RecordValue assembleDataValue(RecordDataEntity observation, RecordDatasetEntity series, DbQuery query) {
+    public RecordValue assembleDataValue(RecordDataEntity observation, DatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

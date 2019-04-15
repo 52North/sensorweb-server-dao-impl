@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,8 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
-public interface ParameterDataRepository<T extends DescribableEntity> extends JpaRepository<T, Long>, QuerydslPredicateExecutor<T> {
+public interface ParameterDataRepository<T extends DescribableEntity>
+        extends JpaRepository<T, Long>, QuerydslPredicateExecutor<T> {
 
     boolean existsByIdentifier(String identifier);
 

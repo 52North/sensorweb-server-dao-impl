@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,18 +26,16 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.old.da.data;
 
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 
-public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T>
+public interface DataRepository<E extends DataEntity<T>, V extends AbstractValue< ? >, T>
         extends
-        ValueAssembler<S, E, V, T> {
+        ValueAssembler<E, V, T> {
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void

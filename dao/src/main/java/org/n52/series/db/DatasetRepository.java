@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,31 +26,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.NotInitializedDatasetEntity;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface DatasetRepository<T extends DatasetEntity> extends ParameterDataRepository<T> {
-
-    /**
-     * Qualifies a 'not_initialized' dataset with the given value type. Once set, no update is possible
-     * anymore.
-     *
-     * @param valueType
-     *        the value type to qualify dataset with
-     * @param id
-     *        the dataset id
-     */
-    @Modifying(clearAutomatically = true)
-    @Query("Update DatasetEntity d set d.valueType = :valueType where d.id = :id and valueType = '"
-            + NotInitializedDatasetEntity.DATASET_TYPE + "'")
-    void initValueType(@Param("valueType") String valueType, @Param("id") Long id);
+public interface DatasetRepository extends ParameterDataRepository<DatasetEntity> {
 
 }

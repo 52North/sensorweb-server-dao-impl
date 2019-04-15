@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,8 +45,7 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
-import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,17 +68,15 @@ public class ProfileDataRepositoryTest extends TestBase {
     @Test
     @DisplayName("ProfileDataEntity data is found")
     public void given_aDatasetWithoutFeature_when_checkForAnyPublicDatasets_then_datasetIsNotFound() {
-        final QuantityProfileDatasetEntity dataset = quantityProfileDataset("ph1", "of1", "pr1", "fmt1", "f1", "fmt2");
+        final DatasetEntity dataset = quantityProfileDataset("ph1", "of1", "pr1", "fmt1", "f1", "fmt2");
         saveProfileValues(dataset, 20.3, 42d, 0d, -1d);
 
         assertAll("Query quantity data", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
             final Iterable< ? super DataEntity< ? >> results = dataRepository.findAll(filterSpec.matchDatasets());
             assertThat(results).allMatch(it -> it instanceof QuantityDataEntity)
-                               .extracting(it -> Objects.castIfBelongsToType(it, QuantityDataEntity.class))
-                               .areExactly(4, new Condition<>(QuantityDataEntity::isChild, "incorrect child size"))
-                               .areExactly(1, new Condition<>(QuantityDataEntity::isParent, "incorrect parent size"));
+                               .extracting(it -> Objects.castIfBelongsToType(it, QuantityDataEntity.class));
         });
 
         assertAll("Query profile values", () -> {
@@ -99,7 +95,6 @@ public class ProfileDataRepositoryTest extends TestBase {
         profileData.setSamplingTimeStart(now);
         profileData.setSamplingTimeEnd(now);
         profileData.setResultTime(now);
-        profileData.setParent(true);
 
         valueStream.map(it -> toQuantityData(dataset, it))
                    .forEach(dataRepository::save);
@@ -113,7 +108,6 @@ public class ProfileDataRepositoryTest extends TestBase {
         dataEntity.setSamplingTimeStart(new Date());
         dataEntity.setSamplingTimeEnd(new Date()); // XXX why is this required?
         dataEntity.setResultTime(new Date()); // XXX why is this required?
-        dataEntity.setChild(true);
         return dataEntity;
     }
 

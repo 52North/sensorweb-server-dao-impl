@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,10 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.assembler;
 
-import static org.springframework.data.util.StreamUtils.createStreamFromIterator;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,6 +48,7 @@ import org.n52.series.db.query.OfferingQuerySpecifications;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.StreamUtils;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
@@ -59,14 +58,14 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     private final ParameterDataRepository<E> parameterRepository;
 
-    private final DatasetRepository< ? > datasetRepository;
+    private final DatasetRepository datasetRepository;
 
     // via database or config
     @Autowired(required = false)
     private ServiceEntity serviceEntity;
 
     public ParameterOutputAssembler(final ParameterDataRepository<E> parameterRepository,
-                                    final DatasetRepository< ? > datasetRepository) {
+                                    final DatasetRepository datasetRepository) {
         this.parameterRepository = parameterRepository;
         this.datasetRepository = datasetRepository;
     }
@@ -74,10 +73,10 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     protected abstract O prepareEmptyOutput();
 
     protected O createExpanded(final E entity, final DbQuery query) {
-        final ServiceEntity serviceEntity = getServiceEntity(entity);
+        final ServiceEntity service = getServiceEntity(entity);
         final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
         final O output = mapper.createCondensed(entity, prepareEmptyOutput());
-        final ServiceOutput serviceOutput = mapper.createCondensed(serviceEntity, new ServiceOutput());
+        final ServiceOutput serviceOutput = mapper.createCondensed(service, new ServiceOutput());
         output.setValue(AbstractOutput.SERVICE, serviceOutput, query.getParameters(), output::setService);
         return output;
     }
@@ -122,7 +121,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     private Stream<E> findAll(final DbQuery query) {
         final BooleanExpression predicate = createFilterPredicate(query);
         final Iterable<E> entities = parameterRepository.findAll(predicate);
-        return createStreamFromIterator(entities.iterator());
+        return StreamUtils.createStreamFromIterator(entities.iterator());
     }
 
     private BooleanExpression createFilterPredicate(final DbQuery query) {

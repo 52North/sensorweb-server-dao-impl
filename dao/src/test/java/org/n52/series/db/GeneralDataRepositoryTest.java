@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +75,7 @@ public class GeneralDataRepositoryTest extends TestBase {
         dataRepository.saveAndFlush(dataEntity);
 
         assertAll("Query quantity data", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
             assertThat(dataRepository.findAll()).isNotEmpty();
             final Optional<DataEntity< ? >> result = dataRepository.findOne(filterSpec.matchDatasets());

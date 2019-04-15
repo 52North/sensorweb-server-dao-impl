@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.assembler;
 
 import java.math.BigDecimal;
@@ -40,31 +39,30 @@ import org.n52.series.db.DataRepository;
 import org.n52.series.db.DatasetRepository;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
-import org.n52.series.db.beans.dataset.QuantityProfileDataset;
 import org.n52.series.db.old.dao.DbQuery;
 
-@ValueAssemblerComponent(value = QuantityProfileDataset.VALUE_TYPE, datasetEntityType = QuantityProfileDatasetEntity.class)
+@ValueAssemblerComponent(value = "profil-quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityProfileValueAssembler extends
-        ProfileValueAssembler<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
+        ProfileValueAssembler<BigDecimal, BigDecimal> {
 
     public QuantityProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
-                                         DatasetRepository<QuantityProfileDatasetEntity> datasetRepository) {
+                                         DatasetRepository datasetRepository) {
         super(profileDataRepository, datasetRepository);
     }
 
     @Override
     public ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
-                                                      QuantityProfileDatasetEntity datasetEntity,
+                                                      DatasetEntity datasetEntity,
                                                       DbQuery query) {
         ProfileValue<BigDecimal> profile = prepareValue(new ProfileValue<>(), observation, query);
         return assembleDataValue(observation, datasetEntity, query, profile);
     }
 
     private ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
-                                                       QuantityProfileDatasetEntity datasetEntity,
+                                                       DatasetEntity datasetEntity,
                                                        DbQuery query,
                                                        ProfileValue<BigDecimal> profile) {
         profile.setValue(getDataValue(observation, datasetEntity, profile, query));
@@ -72,7 +70,7 @@ public class QuantityProfileValueAssembler extends
     }
 
     private List<ProfileDataItem<BigDecimal>> getDataValue(ProfileDataEntity observation,
-                                                           QuantityProfileDatasetEntity datasetEntity,
+                                                           DatasetEntity datasetEntity,
                                                            ProfileValue<BigDecimal> profile,
                                                            DbQuery query) {
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
@@ -80,8 +78,8 @@ public class QuantityProfileValueAssembler extends
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = prepareValue(new QuantityValue(), dataEntity, query);
 
-            addParameters(quantityEntity, valueItem, query); // XXX still needed?
-
+            // XXX still needed?
+            addParameters(quantityEntity, valueItem, query);
 
             if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@
 package org.n52.series.db.old.da;
 
 import org.hibernate.Session;
+import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
@@ -76,7 +77,7 @@ public class CategoryAssembler extends ParameterAssembler<CategoryEntity, Catego
         ServiceOutput service = (query.getHrefBase() != null)
             ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
             : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(CategoryOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
         return result;
     }
 

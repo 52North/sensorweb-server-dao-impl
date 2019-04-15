@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.assembler;
 
 import static java.lang.Boolean.TRUE;
@@ -37,6 +36,7 @@ import static org.n52.series.test.TestUtils.getIdAsString;
 
 import java.util.List;
 
+import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +71,7 @@ public class ProcedureAssemblerTest extends TestBase {
     private ProcedureRepository procedureRepository;
 
     @Autowired
-    private DatasetRepository<DatasetEntity> datasetRepository;
+    private DatasetRepository datasetRepository;
 
     @Autowired
     private TestRepositories testRepositories;
@@ -201,7 +201,7 @@ public class ProcedureAssemblerTest extends TestBase {
         Assertions.assertAll("Assert members of serialized output assemble (Condensed)", () -> {
             List<ProcedureOutput> procedures = assembler.getAllCondensed(defaultQuery);
 
-            ObjectAssert<ProcedureOutput> element = assertThat(procedures).element(0);
+            ListAssert<ProcedureOutput> element = assertThat(procedures);
             element.extracting(ProcedureOutput::getId).allMatch(it -> it.equals(expectedId));
             element.extracting(ProcedureOutput::getDomainId).allMatch(it -> it.equals(procedureIdentifier));
             element.extracting(ProcedureOutput::getLabel).allMatch(it -> it.equals(procedureLabel));
@@ -215,7 +215,7 @@ public class ProcedureAssemblerTest extends TestBase {
         Assertions.assertAll("Assert members of serialized output assemble (Expanded)", () -> {
             List<ProcedureOutput> procedures = assembler.getAllExpanded(defaultQuery);
 
-            ObjectAssert<ProcedureOutput> element = assertThat(procedures).element(0);
+            ListAssert<ProcedureOutput> element = assertThat(procedures);
             element.extracting(ProcedureOutput::getId).allMatch(it -> it.equals(expectedId));
             element.extracting(ProcedureOutput::getDomainId).allMatch(it -> it.equals(procedureIdentifier));
             element.extracting(ProcedureOutput::getLabel).allMatch(it -> it.equals(procedureLabel));
@@ -223,8 +223,8 @@ public class ProcedureAssemblerTest extends TestBase {
             element.extracting(ProcedureOutput::getExtras).allMatch(it -> it == null);
 
             element.extracting(ProcedureOutput::getService).allMatch(it ->
-            			((ServiceOutput)it).getLabel().equals("TestService") &&
-						((ServiceOutput)it).getId().equals("42")
+            			it.getLabel().equals("TestService") &&
+						it.getId().equals("42")
 			);
         });
     }

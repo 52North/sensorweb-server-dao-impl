@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ package org.n52.series.db.old.dao;
 
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +54,7 @@ import org.hibernate.spatial.criterion.SpatialRestrictions;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
-import org.n52.io.crs.JTSGeometryConverter;
+import org.locationtech.jts.geom.Geometry;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
@@ -82,7 +83,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO JavaDoc
@@ -302,7 +302,7 @@ public abstract class FESCriterionGenerator {
      * @return the criterion
      */
     protected Criterion createSpatialFilterCriterion(SpatialFilter filter) {
-        Geometry geom = JTSGeometryConverter.convert(filter.getGeometry().toGeometry());
+        Geometry geom = filter.getGeometry().toGeometry();
         return createSpatialFilterCriterion(filter.getOperator(), filter.getValueReference(), geom);
     }
 
@@ -1167,7 +1167,7 @@ public abstract class FESCriterionGenerator {
                 .map(lv -> DetachedCriteria.forClass(BooleanDataEntity.class)
                 .add(createComparison(filter, lv)));
         */
-        Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
+        Optional<DetachedCriteria> quantity = parseBigDecimal(filter.getValue())
                 // we can't apply PropertyIsLike to numeric values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
                 .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
@@ -1192,11 +1192,11 @@ public abstract class FESCriterionGenerator {
 
         // we are only returning top-level observations
         DetachedCriteria profile = DetachedCriteria.forClass(ProfileDataEntity.class)
-                .add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE))
+                .add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT))
                 .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
                 .add(subqueries.stream()
                         // restrict the subqueries to observations that are children
-                        .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.FALSE)))
+                        .map(q -> q.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT)))
                         // just get the PKID
                         .map(q -> q.setProjection(Projections.property(DataEntity.PROPERTY_ID)))
                         // create a property IN expression for each query
@@ -1206,7 +1206,7 @@ public abstract class FESCriterionGenerator {
 
         // restrict subqueries to observations that are not children
         Stream<DetachedCriteria> topLevelPrimitives = subqueries.stream()
-                .map(q -> q.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, Boolean.TRUE)));
+                .map(q -> q.add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT)));
 
         return Stream.concat(Stream.of(profile), topLevelPrimitives);
     }
@@ -1352,6 +1352,18 @@ public abstract class FESCriterionGenerator {
      */
     public static Optional<Double> parseDouble(String value) {
         return Optional.ofNullable(Doubles.tryParse(value));
+    }
+
+    /**
+     * Trys to parse {@code value} as a {@code BigDecimal}.
+     *
+     * @param value the value
+     *
+     * @return the parsed value or {@code Optional.empty()}
+     */
+    public static Optional<BigDecimal> parseBigDecimal(String value) {
+        Double tryParse = Doubles.tryParse(value);
+        return tryParse != null ? Optional.ofNullable(BigDecimal.valueOf(tryParse)) : Optional.ofNullable(null);
     }
 
     /**

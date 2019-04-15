@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,7 +45,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.IdEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,8 +85,8 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     /**
      * Retrieves all available observation instances.
      *
-     * @param parameters
-     *        query parameters.
+     * @param parameters query parameters.
+     *
      * @return all instances matching the given query parameters.
      */
     @Override
@@ -96,26 +95,28 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         LOGGER.debug("get all instances: {}", parameters);
         Criteria criteria = getDefaultCriteria(parameters);
         parameters.addTimespanTo(criteria);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
         return criteria.list();
     }
 
     /**
      * Retrieves all available observation instances belonging to a particular series.
      *
-     * @param series
-     *        the series the observations belongs to.
+     * @param dataset
+     *        the dataset the observations belongs to.
      * @param query
      *        some query parameters to restrict result.
      * @return all observation entities belonging to the given series which match the given query.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query){
-        final Long id = series.getId();
-        LOGGER.debug("get all instances for series '{}': {}", id, query);
-        Criteria criteria = query.addTimespanTo(getDefaultCriteria(query));
-        return criteria.createCriteria(DataEntity.PROPERTY_DATASET)
-                       .add(Restrictions.eq(DataEntity.PROPERTY_ID, id))
-                       .list();
+    public List<T> getAllInstancesFor(Long dataset, DbQuery query) {
+        LOGGER.debug("get all instances for series '{}': {}", dataset, query);
+        Criteria criteria = getDefaultCriteria(query);
+        criteria.createCriteria(DataEntity.PROPERTY_DATASET).add(Restrictions.eq(DatasetEntity.PROPERTY_ID, dataset));
+        query.addTimespanTo(criteria);
+        return criteria.list();
     }
 
     @Override
@@ -145,10 +146,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         query.addResultTimeFilter(criteria);
         query.addOdataFilterForData(criteria);
 
-        criteria = query.isComplexParent()
-            ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
-            : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
+//        criteria = query.isComplexParent()
+//                ? criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT))
+//                : criteria.add(Restrictions.isNotNull(DataEntity.PROPERTY_PARENT));
 
+        criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT));
         return criteria;
     }
 
@@ -201,7 +203,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                                           final DatasetEntity dataset,
                                           final DbQuery query) {
         LOGGER.debug("get data @{} for '{}'", new DateTime(timestamp.getTime()), dataset.getId());
-
         return createDataCriteria(column, dataset, query).add(Restrictions.eq(column, timestamp));
     }
 
@@ -210,11 +211,8 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
-        final String dsAlias = DatasetEntity.ENTITY_ALIAS;
-        final String dsId = QueryUtils.createAssociation(dsAlias, IdEntity.PROPERTY_ID);
-        final Criteria criteria = getDefaultCriteria(query, order);
-        criteria.createCriteria(DataEntity.PROPERTY_DATASET, dsAlias)
-                .add(Restrictions.eq(dsId, dataset.getId()));
+        Criteria criteria = getDefaultCriteria(query);
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
 
         IoParameters parameters = query.getParameters();
         if (parameters.isAllResultTimes()) {
@@ -225,24 +223,23 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             // filter based on given result times
             return query.addResultTimeFilter(criteria);
         } else {
-            // project on oldest result time
-            String rtAlias = "rt";
-            String rtDatasetAlias = "rtDataset";
+            // values for oldest result time
+            String rtAlias = "rtAlias";
             String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
             String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
-            String rtDatasetId = QueryUtils.createAssociation(rtDatasetAlias, DatasetEntity.PROPERTY_ID);
-            DetachedCriteria resultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
-            resultTimeQuery.createCriteria(DataEntity.PROPERTY_DATASET, rtDatasetAlias)
-                           .add(Restrictions.eq(rtDatasetId, dataset.getId()))
-                           .setProjection(Projections.projectionList()
-                                                     .add(Projections.groupProperty(rtColumn))
-                                                     .add(Projections.groupProperty(rtDatasetId))
-                                                     .add(Projections.max(rtResultTime)));
+            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
+            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset))
+                              .setProjection(Projections.projectionList()
+                                                        .add(Projections.groupProperty(rtColumn))
+                                                        .add(Projections.groupProperty(rtDatasetId))
+                                                        .add(Projections.max(rtResultTime)));
             criteria.add(Subqueries.propertiesIn(new String[] {
                 column,
-                dsId,
+                DataEntity.PROPERTY_DATASET,
                 DataEntity.PROPERTY_RESULT_TIME
-            }, resultTimeQuery));
+            }, maxResultTimeQuery));
+
         }
         return criteria;
     }

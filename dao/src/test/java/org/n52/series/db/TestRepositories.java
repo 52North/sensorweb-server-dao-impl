@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import static org.n52.series.test.DatasetEntityBuilder.newDataset;
@@ -78,7 +77,7 @@ public class TestRepositories {
     private FormatRepository formatRepository;
 
     @Autowired
-    private DatasetRepository<? super DatasetEntity> datasetRepository;
+    private DatasetRepository datasetRepository;
 
     public <T extends DatasetEntity> T persistSimpleDataset(final String phenomenonIdentifier,
                                   final String offeringIdentifier,

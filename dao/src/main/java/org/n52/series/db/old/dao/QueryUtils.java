@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -129,8 +129,8 @@ public class QueryUtils {
     }
 
     /**
-     * parsed the given string to the raw database id. strips prefixes ending with a "<tt>_</tt>", e.g.
-     * <tt>platform_track_8</tt> will return <tt>8</tt>.
+     * parsed the given string to the raw database id. strips prefixes ending with a "<code>_</code>", e.g.
+     * <code>platform_track_8</code> will return <code>8</code>.
      *
      * @param id
      *        the id string to parse.

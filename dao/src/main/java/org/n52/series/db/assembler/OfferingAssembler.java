@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.assembler;
 
 import org.n52.io.response.OfferingOutput;
@@ -46,7 +45,7 @@ import com.querydsl.jpa.JPQLQuery;
 public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput> {
 
     public OfferingAssembler(OfferingRepository offeringRepository,
-                             DatasetRepository<DatasetEntity> datasetRepository) {
+                             DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);
     }
 

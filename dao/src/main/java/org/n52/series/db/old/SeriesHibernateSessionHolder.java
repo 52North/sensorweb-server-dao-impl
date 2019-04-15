@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,8 @@
  */
 package org.n52.series.db.old;
 
+import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -49,7 +51,13 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
 
     @Override
     public Session getSession() {
-        return sessionFactory.openSession();
+         Session session = sessionFactory.openSession();
+         if (session != null && session.isOpen()) {
+             session.setFlushMode(FlushMode.COMMIT);
+             session.setCacheMode(CacheMode.IGNORE);
+             session.clear();
+         }
+         return session;
     }
 
     @Override

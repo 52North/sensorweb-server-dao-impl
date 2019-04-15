@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,16 +29,13 @@
 
 package org.n52.series.db.old.da.data;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.CategoryDataEntity;
-import org.n52.series.db.beans.CategoryDatasetEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
@@ -46,24 +43,11 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "category", datasetEntityType = CategoryDatasetEntity.class)
-public class CategoryDataRepository extends AbstractDataRepository<CategoryDatasetEntity, CategoryDataEntity, CategoryValue, String> {
+@ValueAssemblerComponent(value = "category", datasetEntityType = DatasetEntity.class)
+public class CategoryDataRepository extends AbstractDataRepository<CategoryDataEntity, CategoryValue, String> {
 
     public CategoryDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    protected Data<CategoryValue> assembleData(CategoryDatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<CategoryValue> result = new Data<>();
-        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
-        List<CategoryDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CategoryDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
-            }
-        }
-        return result;
     }
 
     @Override
@@ -72,7 +56,22 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     }
 
     @Override
-    public CategoryValue assembleDataValue(CategoryDataEntity observation, CategoryDatasetEntity series, DbQuery query) {
+    protected Data<CategoryValue> assembleData(Long dataset, DbQuery query, Session session) {
+        Data<CategoryValue> result = new Data<>();
+        DataDao<CategoryDataEntity> dao = new DataDao<>(session);
+        List<CategoryDataEntity> observations = dao.getAllInstancesFor(dataset, query);
+        for (CategoryDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public CategoryValue assembleDataValue(CategoryDataEntity observation,
+            DatasetEntity series,
+                                              DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
         String observationValue = !service.isNoDataValue(observation)
             ? observation.getValue()
@@ -95,14 +94,9 @@ public class CategoryDataRepository extends AbstractDataRepository<CategoryDatas
     CategoryValue createValue(String observationValue,
                               CategoryDataEntity observation,
                               DbQuery query) {
-        Date timeend = observation.getSamplingTimeEnd();
-        Date timestart = observation.getSamplingTimeStart();
-        long end = timeend.getTime();
-        long start = timestart.getTime();
-        IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-            ? new CategoryValue(start, end, observationValue)
-            : new CategoryValue(end, observationValue);
+        CategoryValue value = prepareValue(observation, query);
+        value.setValue(observationValue);
+        return value;
     }
 
 }

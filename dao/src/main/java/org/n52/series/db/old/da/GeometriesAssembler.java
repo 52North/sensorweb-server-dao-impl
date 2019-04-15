@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.old.da;
 
 import java.util.ArrayList;
@@ -36,7 +35,9 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.n52.io.request.FilterResolver;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.GeometryOutput;
@@ -55,10 +56,6 @@ import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 
 @Component
@@ -159,23 +156,25 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
 
     private List<GeometryOutput> getAllInstances(DbQuery query, Session session, boolean expanded) {
         List<GeometryOutput> geometries = new ArrayList<>();
-        final FilterResolver filterResolver = query.getFilterResolver();
-        if (filterResolver.shallIncludeInsituPlatformTypes()) {
-            if (filterResolver.shallIncludePlatformGeometriesSite()) {
-                geometries.addAll(getAllSites(query, session, expanded));
-            }
-            if (filterResolver.shallIncludePlatformGeometriesTrack()) {
-                geometries.addAll(getAllTracks(query, session, expanded));
-            }
-        }
-        if (filterResolver.shallIncludeRemotePlatformTypes()) {
-            if (filterResolver.shallIncludeObservedGeometriesStatic()) {
-                geometries.addAll(getAllObservedGeometriesStatic(query, session, expanded));
-            }
-            if (filterResolver.shallIncludeObservedGeometriesDynamic()) {
-                geometries.addAll(getAllObservedGeometriesDynamic(query, session, expanded));
-            }
-        }
+        // final FilterResolver filterResolver = query.getFilterResolver();
+        // if (filterResolver.shallIncludeInsituDatasets()) {
+        // if (filterResolver.shallIncludePlatformGeometriesSite()) {
+        // geometries.addAll(getAllSites(query, session, expanded));
+        // }
+        // if (filterResolver.shallIncludePlatformGeometriesTrack()) {
+        // geometries.addAll(getAllTracks(query, session, expanded));
+        // }
+        // }
+        // if (filterResolver.shallIncludeRemoteDatasets()) {
+        // if (filterResolver.shallIncludeObservedGeometriesStatic()) {
+        // geometries.addAll(getAllObservedGeometriesStatic(query, session,
+        // expanded));
+        // }
+        // if (filterResolver.shallIncludeObservedGeometriesDynamic()) {
+        // geometries.addAll(getAllObservedGeometriesDynamic(query, session,
+        // expanded));
+        // }
+        // }
         return geometries;
     }
 
@@ -199,11 +198,11 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
     }
 
     private List<GeometryOutput> getAllSites(DbQuery query, Session session, boolean expanded) {
-        IoParameters parameters = query.getParameters();
         List<GeometryOutput> geometryInfoList = new ArrayList<>();
-        DbQuery siteQuery = getDbQuery(parameters.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "stationary"));
-
         FeatureDao dao = createFeatureDao(session);
+        DbQuery siteQuery = dbQueryFactory.createFrom(query.getParameters()
+                                                                .replaceWith(Parameters.FILTER_MOBILE,
+                                                                             "false"));
         for (FeatureEntity featureEntity : dao.getAllInstances(siteQuery)) {
             GeometryOutput geometryInfo = createSite(featureEntity, query, expanded);
             if (geometryInfo != null) {
@@ -223,30 +222,13 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
     private Collection<GeometryOutput> getAllTracks(DbQuery query, Session session, boolean expanded) {
         List<GeometryOutput> geometryInfoList = new ArrayList<>();
         FeatureDao featureDao = createFeatureDao(session);
-        DbQuery mobileQuery = query.replaceWith(Parameters.FILTER_PLATFORM_TYPES, "mobile");
-        if (isFilterViaSamplingGeometries()) {
-            // filter via sampling_geometry will hit performance!
-            // if possible, keep a LINESTRING geometry updated in feature-Table for each trackv
-            DbQuery trackQuery = mobileQuery.removeSpatialFilter();
-            for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
-                GeometryOutput track = createTrack(featureEntity, trackQuery, expanded, session);
-                Geometry spatialFilter = query.getSpatialFilter();
-                if (spatialFilter == null || spatialFilter.intersects(track.getGeometry())) {
-                    geometryInfoList.add(track);
-                }
-            }
-        } else {
-            for (FeatureEntity featureEntity : featureDao.getAllInstances(mobileQuery)) {
-                geometryInfoList.add(createTrack(featureEntity, query, expanded, session));
-            }
+        DbQuery trackQuery = dbQueryFactory.createFrom(query.getParameters()
+                                                                 .replaceWith(Parameters.FILTER_MOBILE,
+                                                                              "true"));
+        for (FeatureEntity featureEntity : featureDao.getAllInstances(trackQuery)) {
+            geometryInfoList.add(createTrack(featureEntity, query, expanded, session));
         }
         return geometryInfoList;
-    }
-
-    private boolean isFilterViaSamplingGeometries() {
-        // TODO update test data to support LINESTRING tracks in feature-Table
-        // TODO apply config switch via HibernateSessionHolderImpl
-        return true;
     }
 
     private GeometryOutput createTrack(FeatureEntity entity, DbQuery query, boolean expanded, Session session) {
@@ -293,7 +275,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
             Coordinate[] points = coordinates.toArray(new Coordinate[0]);
             return getCrsUtils().createLineString(points, srid);
         } else {
-            // when named query not configured --> may be a performance issue
+            // when named query not configured --> bad performance
             final SamplingGeometryDao dao = new SamplingGeometryDao(session);
             IoParameters parameters = dbQuery.getParameters()
                                              .extendWith(Parameters.FEATURES, Long.toString(featureEntity.getId()));
@@ -308,9 +290,7 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
             Point geometry = (Point) getGeometry(geometryEntity, query);
             coordinates.add(geometry.getCoordinate());
         }
-
-        Coordinate[] points = coordinates.toArray(new Coordinate[0]);
-        return getCrsUtils().createLineString(points, query.getDatabaseSridCode());
+        return getCrsUtils().createLineString(coordinates.toArray(new Coordinate[0]), query.getDatabaseSridCode());
     }
 
     private Collection<GeometryOutput> getAllObservedGeometriesStatic(DbQuery parameters,
@@ -349,14 +329,12 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
     }
 
     private PlatformOutput getPlatfom(FeatureEntity entity, DbQuery parameters) {
-        DbQuery platformQuery = getDbQuery(parameters.getParameters()
-                                                     .extendWith(Parameters.FEATURES, String.valueOf(entity.getId()))
-                                                     .extendWith(Parameters.FILTER_PLATFORM_TYPES, "all")
-                                                     .removeAllOf(Parameters.FILTER_FIELDS));
+        DbQuery platformQuery = dbQueryFactory.createFrom(parameters.getParameters()
+                                                                    .extendWith(Parameters.FEATURES,
+                                                                                String.valueOf(entity.getId()))
+                                                                    .removeAllOf(Parameters.FILTER_FIELDS));
+
         List<PlatformOutput> platforms = platformRepository.getAllCondensed(platformQuery);
-        if (platforms.size() != 1) {
-            LOGGER.warn("expected unique platform (but was: #{}) for feature {}", platforms.size(), entity.getId());
-        }
         return platforms.iterator()
                         .next();
     }

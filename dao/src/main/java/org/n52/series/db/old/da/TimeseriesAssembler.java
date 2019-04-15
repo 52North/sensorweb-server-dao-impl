@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.old.da;
 
 import java.math.BigDecimal;
@@ -50,7 +49,6 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DatasetDao;
@@ -75,32 +73,30 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
     private final PlatformAssembler platformRepository;
 
-    private final ValueAssembler<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler;
+    private final ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler;
 
-    public TimeseriesAssembler(PlatformAssembler platformAssembler,
-                               StationAssembler stationAssembler,
-                               ValueAssembler<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler,
-                               HibernateSessionStore sessionStore,
-                               DbQueryFactory dbQueryFactory) {
+    public TimeseriesAssembler(PlatformAssembler platformAssembler, StationAssembler stationAssembler,
+            ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler,
+            HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.platformRepository = platformAssembler;
         this.stationRepository = stationAssembler;
         this.dataAssembler = dataAssembler;
     }
 
-    private DatasetDao<QuantityDatasetEntity> createDatasetDao(Session session) {
-        return new DatasetDao<>(session, QuantityDatasetEntity.class);
+    private DatasetDao<DatasetEntity> createDatasetDao(Session session) {
+        return new DatasetDao<>(session);
     }
 
     private DataDao<QuantityDataEntity> createDataDao(Session session) {
-        return new DataDao<>(session, QuantityDataEntity.class);
+        return new DataDao<>(session);
     }
 
     @Override
     public boolean exists(String id, DbQuery parameters) {
         Session session = getSession();
         try {
-            DatasetDao<QuantityDatasetEntity> dao = createDatasetDao(session);
+            DatasetDao<DatasetEntity> dao = createDatasetDao(session);
             return dao.hasInstance(parseId(id), parameters);
         } finally {
             returnSession(session);
@@ -111,20 +107,19 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
     public Collection<SearchResult> searchFor(DbQuery query) {
         Session session = getSession();
         try {
-            DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-            List<QuantityDatasetEntity> found = seriesDao.find(query);
+            DatasetDao<DatasetEntity> seriesDao = createDatasetDao(session);
+            List<DatasetEntity> found = seriesDao.find(query);
             return convertToResults(found, query.getLocale());
         } finally {
             returnSession(session);
         }
     }
 
-    private List<SearchResult> convertToResults(List<QuantityDatasetEntity> found, String locale) {
+    private List<SearchResult> convertToResults(List<DatasetEntity> found, String locale) {
         List<SearchResult> results = new ArrayList<>();
         for (DatasetEntity searchResult : found) {
-            String id = searchResult.getId()
-                                    .toString();
-            AbstractFeatureEntity< ? > feature = searchResult.getFeature();
+            String id = searchResult.getId().toString();
+            AbstractFeatureEntity<?> feature = searchResult.getFeature();
             PhenomenonEntity phenomenon = searchResult.getPhenomenon();
             ProcedureEntity procedure = searchResult.getProcedure();
             OfferingEntity offering = searchResult.getOffering();
@@ -150,8 +145,8 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
     private List<TimeseriesMetadataOutput> getAllCondensed(DbQuery query, Session session) {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-        for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
+        DatasetDao<DatasetEntity> seriesDao = createDatasetDao(session);
+        for (DatasetEntity timeseries : seriesDao.getAllInstances(query)) {
             results.add(createCondensed(timeseries, query, session));
         }
         return results;
@@ -169,8 +164,8 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
     private List<TimeseriesMetadataOutput> getAllExpanded(DbQuery query, Session session) {
         List<TimeseriesMetadataOutput> results = new ArrayList<>();
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-        for (QuantityDatasetEntity timeseries : seriesDao.getAllInstances(query)) {
+        DatasetDao<DatasetEntity> seriesDao = createDatasetDao(session);
+        for (DatasetEntity timeseries : seriesDao.getAllInstances(query)) {
             results.add(createExpanded(timeseries, query, session));
         }
         return results;
@@ -187,51 +182,47 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
     }
 
     private TimeseriesMetadataOutput getInstance(String timeseriesId, DbQuery query, Session session) {
-        DatasetDao<QuantityDatasetEntity> seriesDao = createDatasetDao(session);
-        QuantityDatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
+        DatasetDao<DatasetEntity> seriesDao = createDatasetDao(session);
+        DatasetEntity result = seriesDao.getInstance(parseId(timeseriesId), query);
         if (result == null) {
             LOGGER.debug("Resource with id '" + timeseriesId + "' could not be found.");
             return null;
         }
-        result.setPlatform(platformRepository.getPlatformEntity(result, query, session));
         return createExpanded(result, query, session);
     }
 
-    private TimeseriesMetadataOutput createExpanded(QuantityDatasetEntity dataset, DbQuery query, Session session) {
+    private TimeseriesMetadataOutput createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
         QuantityValue firstValue = dataAssembler.getFirstValue(dataset, query);
-        QuantityValue lastValue = dataAssembler.getLastValue(dataset, query);
-
-        List<ReferenceValueOutput<QuantityValue>> referenceValues = createReferenceValueOutputs(dataset,
-                                                                                                session,
-                                                                                                query);
+        TimeseriesMetadataOutput result = createCondensed(dataset, query, session);
+        List<ReferenceValueOutput<QuantityValue>> refValues = createReferenceValueOutputs(dataset, session, query);
         DatasetParameters timeseries = createTimeseriesOutput(dataset, query.withoutFieldsFilter());
 
-        IoParameters parameter = query.getParameters();
-        TimeseriesMetadataOutput result = createCondensed(dataset, query, session);
-        result.setValue(DatasetOutput.REFERENCE_VALUES, referenceValues, parameter, result::setReferenceValues);
-        result.setValue(DatasetOutput.DATASET_PARAMETERS, timeseries, parameter, result::setDatasetParameters);
-        result.setValue(DatasetOutput.FIRST_VALUE, firstValue, parameter, result::setFirstValue);
-        result.setValue(DatasetOutput.LAST_VALUE, lastValue, parameter, result::setLastValue);
+        QuantityValue lastValue = dataAssembler.getLastValue(dataset, query);
+
+        IoParameters params = query.getParameters();
+        result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
+        result.setValue(DatasetOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
+        result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
+        result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
         return result;
     }
 
-    private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity series,
-                                                                                  Session session,
-                                                                                  DbQuery query) {
+    private List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(DatasetEntity series,
+            Session session, DbQuery query) {
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
-        List<QuantityDatasetEntity> referenceValues = series.getReferenceValues();
+        List<DatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished() && (referenceSeriesEntity instanceof QuantityDatasetEntity)) {
+            if (referenceSeriesEntity.isPublished() && (referenceSeriesEntity instanceof DatasetEntity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
-                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId()
-                                                                            .toString());
+                refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId().toString());
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
-                QuantityDatasetEntity datasetEntity = (QuantityDatasetEntity) referenceSeriesEntity;
-                refenceValueOutput.setLastValue(dataAssembler.assembleDataValueWithMetadata(lastValue, datasetEntity, query));
+                DatasetEntity datasetEntity = referenceSeriesEntity;
+                refenceValueOutput
+                        .setLastValue(dataAssembler.assembleDataValueWithMetadata(lastValue, datasetEntity, query));
                 outputs.add(refenceValueOutput);
             }
         }
@@ -266,14 +257,10 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
     private String createTimeseriesLabel(String phenomenon, String procedure, String station, String offering) {
         StringBuilder sb = new StringBuilder();
-        sb.append(phenomenon)
-          .append(" ");
-        sb.append(procedure)
-          .append(", ");
-        sb.append(station)
-          .append(", ");
-        return sb.append(offering)
-                 .toString();
+        sb.append(phenomenon).append(" ");
+        sb.append(procedure).append(", ");
+        sb.append(station).append(", ");
+        return sb.append(offering).toString();
     }
 
     private StationOutput createCondensedStation(DatasetEntity entity, DbQuery query, Session session) {

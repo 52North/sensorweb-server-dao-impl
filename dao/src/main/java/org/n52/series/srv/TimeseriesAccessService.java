@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ package org.n52.series.srv;
 
 import java.math.BigDecimal;
 
+import org.n52.io.DatasetFactoryException;
 import org.n52.io.TvpDataCollection;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
@@ -39,9 +40,9 @@ import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.ValueAssembler;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
-import org.n52.series.db.old.DataAccessException;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.old.da.TimeseriesAssembler;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
@@ -74,13 +75,20 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
         return dataCollection;
     }
 
-    private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) throws DataAccessException {
+    private Data<QuantityValue> getDataFor(String timeseriesId, IoParameters parameters) {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         return createRepository().getData(timeseriesId, dbQuery);
     }
 
-    private  ValueAssembler<QuantityDatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
-        return factory.create(QuantityValue.TYPE, QuantityDatasetEntity.class);
+    private ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
+        try {
+            return factory
+                    .create(ObservationType.timeseries.name(), QuantityValue.TYPE, DatasetEntity.class);
+        } catch (DatasetFactoryException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

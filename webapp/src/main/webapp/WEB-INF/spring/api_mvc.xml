@@ -3,11 +3,11 @@
     xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:ctx="http://www.springframework.org/schema/context"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd">
     <!-- Not liked by springboot
     <mvc:annotation-driven />
     -->
@@ -29,55 +29,31 @@
     </bean>
 
     <bean class="org.n52.web.ctrl.OfferingsParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="offeringParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="offeringParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ServicesParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="serviceParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="serviceParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.CategoriesParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="categoryParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="categoryParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.FeaturesParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="featureParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="featureParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ProceduresParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="procedureParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="procedureParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.PhenomenaParameterController" parent="parameterController">
-        <property name="parameterService">
-            <bean class="org.n52.web.ctrl.ParameterBackwardsCompatibilityAdapter">
-                <constructor-arg index="0" ref="phenomenonParameterService" />
-            </bean>
-        </property>
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="phenomenonParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.PlatformsParameterController" parent="parameterController">
-        <property name="parameterService" ref="platformParameterService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="platformParameterService" />
         <property name="metadataExtensions">
             <list merge="true">
                 <bean class="org.n52.io.extension.parents.HierarchicalParameterExtension">
@@ -87,12 +63,29 @@
         </property>
     </bean>
 
-    <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
-        <property name="parameterService" ref="geometriesService" />
+    <bean class="org.n52.web.ctrl.IndividualObservationsController" parent="parameterController">
+        <constructor-arg  type="org.n52.series.spi.srv.ParameterService" ref="individualObservationService" />
     </bean>
 
+    <bean class="org.n52.web.ctrl.TrajectoriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="trajectoryService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.TimeseriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+    </bean>
+<!--
+    <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
+    </bean>
+ -->
+    <!--
+    <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
+    </bean>
+    -->
     <bean class="org.n52.web.ctrl.DatasetController" parent="parameterController">
-        <property name="parameterService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="metadataExtensions">
             <list merge="true">
 
@@ -115,11 +108,40 @@
         </property>
     </bean>
 
-    <bean class="org.n52.web.ctrl.DataController">
-        <property name="dataService" ref="datasetService" />
-        <property name="datasetService" ref="datasetService" />
+    <bean class="org.n52.web.ctrl.data.DatasetsDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="preRenderingTask" ref="preRenderingJob" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction}" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.data.TrajectoriesDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.data.TimeseriesDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.data.IndividualObservationsDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingParameterService" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.MeasuringProgramsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramParameterService" />
     </bean>
 
     <!-- ################################################################ -->
@@ -129,32 +151,28 @@
     <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
     <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
+    <!--
     <bean class="org.n52.web.ctrl.StationsParameterController">
-        <property name="parameterService" ref="stationParameterService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="stationParameterService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.TimeseriesMetadataController" parent="parameterController">
-        <property name="parameterService" ref="timeseriesService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
         <property name="metadataExtensions">
             <list merge="true">
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
                 <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-                <!-- Using DatabaseMetadataExtension requires some preparation work. -->
-                <!-- Have a look at the README.md at TBD -->
-                <!--<bean class="org.n52.io.extension.DatabaseMetadataExtension" /> -->
             </list>
         </property>
     </bean>
 
     <bean class="org.n52.web.ctrl.TimeseriesDataController">
-        <property name="timeseriesMetadataService" ref="timeseriesService" />
-        <property name="timeseriesDataService" ref="timeseriesService" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction}" />
-        <!-- reference task here so that controller is able to serve prerendered charts -->
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="timeseriesService" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
         <property name="preRenderingTask" ref="preRenderingJob" />
-        <!-- Prerendering is being controlled by a JobScheduler -->
         <property name="handlingPreRenderingTask" value="false" />
     </bean>
-
+   -->
 
 </beans>

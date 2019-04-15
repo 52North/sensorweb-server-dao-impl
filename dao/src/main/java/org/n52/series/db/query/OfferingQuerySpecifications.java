@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.query;
 
 import org.n52.series.db.beans.DatasetEntity;
@@ -37,14 +36,14 @@ import org.n52.series.db.old.dao.DbQuery;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 
-public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
-
-    public static OfferingQuerySpecifications of(final DbQuery dbQuery) {
-        return new OfferingQuerySpecifications(dbQuery);
-    }
+public final class OfferingQuerySpecifications extends ParameterQuerySpecifications {
 
     private OfferingQuerySpecifications(final DbQuery dbQuery) {
         super(dbQuery);
+    }
+
+    public static OfferingQuerySpecifications of(final DbQuery dbQuery) {
+        return new OfferingQuerySpecifications(dbQuery);
     }
 
     /**
@@ -55,7 +54,7 @@ public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
      * </pre>
      *
      * @param subquery
-     *        the query
+     *            the query
      * @return a boolean expression
      */
     public BooleanExpression selectFrom(final JPQLQuery<DatasetEntity> subquery) {
@@ -66,8 +65,7 @@ public class OfferingQuerySpecifications extends ParameterQuerySpecifications {
 
     public BooleanExpression matchesPublicOffering(final String id) {
         final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        final BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id)
-                                                         .and(dsFilterSpec.isPublic());
+        final BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id).and(dsFilterSpec.isPublic());
         return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 }

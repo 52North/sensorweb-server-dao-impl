@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,14 +36,14 @@ import org.n52.series.db.old.dao.DbQuery;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 
-public class ProcedureQuerySpecifications extends ParameterQuerySpecifications {
-
-	public static ProcedureQuerySpecifications of(DbQuery dbQuery) {
-        return new ProcedureQuerySpecifications(dbQuery);
-    }
+public final class ProcedureQuerySpecifications extends ParameterQuerySpecifications {
 
     private ProcedureQuerySpecifications(DbQuery dbQuery) {
         super(dbQuery);
+    }
+
+    public static ProcedureQuerySpecifications of(DbQuery dbQuery) {
+        return new ProcedureQuerySpecifications(dbQuery);
     }
 
     /**
@@ -54,7 +54,7 @@ public class ProcedureQuerySpecifications extends ParameterQuerySpecifications {
      * </pre>
      *
      * @param subquery
-     *        the query
+     *            the query
      * @return a boolean expression
      */
     public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
@@ -65,8 +65,7 @@ public class ProcedureQuerySpecifications extends ParameterQuerySpecifications {
 
     public BooleanExpression matchesPublicProcedure(String id) {
         DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        BooleanExpression datasetPredicate = dsFilterSpec.matchProcedures(id)
-                                                         .and(dsFilterSpec.isPublic());
+        BooleanExpression datasetPredicate = dsFilterSpec.matchProcedures(id).and(dsFilterSpec.isPublic());
         return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 }

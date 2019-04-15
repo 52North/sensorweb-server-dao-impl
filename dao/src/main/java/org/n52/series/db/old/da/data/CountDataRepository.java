@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,33 +35,21 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.CountDataEntity;
-import org.n52.series.db.beans.CountDatasetEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "count", datasetEntityType = CountDatasetEntity.class)
+
+@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<CountDatasetEntity, CountDataEntity, CountValue, Integer> {
+        extends AbstractDataRepository<CountDataEntity, CountValue, Integer> {
 
     public CountDataRepository(HibernateSessionStore sessionStore,
                                DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-    }
-
-    @Override
-    protected Data<CountValue> assembleData(CountDatasetEntity seriesEntity, DbQuery query, Session session) {
-        Data<CountValue> result = new Data<>();
-        DataDao<CountDataEntity> dao = createDataDao(session);
-        List<CountDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
-        for (CountDataEntity observation : observations) {
-            if (observation != null) {
-                result.addNewValue(assembleDataValue(observation, seriesEntity, query));
-            }
-        }
-        return result;
     }
 
     @Override
@@ -70,7 +58,20 @@ public class CountDataRepository
     }
 
     @Override
-    public CountValue assembleDataValue(CountDataEntity observation, CountDatasetEntity series, DbQuery query) {
+    protected Data<CountValue> assembleData(Long dataset, DbQuery query, Session session) {
+        Data<CountValue> result = new Data<>();
+        DataDao<CountDataEntity> dao = new DataDao<>(session);
+        List<CountDataEntity> observations = dao.getAllInstancesFor(dataset, query);
+        for (CountDataEntity observation : observations) {
+            if (observation != null) {
+                result.addNewValue(assembleDataValue(observation, observation.getDataset(), query));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public CountValue assembleDataValue(CountDataEntity observation, DatasetEntity series, DbQuery query) {
         if (observation == null) {
             // do not fail on empty observations
             return null;

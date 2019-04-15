@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,17 +29,25 @@
 
 package org.n52.series.db.old.dao;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
+import org.hibernate.transform.ResultTransformer;
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.IdEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -51,13 +59,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
-    public static final String FEATURE_PATH_ALIAS = "dsFeature";
-
-    public static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
 
+    private static final String FEATURE_PATH_ALIAS = "dsFeature";
+
+    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
+
     private final Class<T> entityType;
+
+    private final DatasetTypesMetadataTransformer transformer = new DatasetTypesMetadataTransformer();
 
     @SuppressWarnings("unchecked")
     public DatasetDao(Session session) {
@@ -120,16 +130,18 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public List<T> getAllInstances(DbQuery query) {
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = getDefaultCriteria(query);
-        return query.addFilters(criteria, getDatasetProperty())
-                    .list();
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(toSQLString(criteria));
+        }
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        String path = QueryUtils.createAssociation(DatasetEntity.PROPERTY_FEATURE, IdEntity.PROPERTY_ID);
+        String path = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, DescribableEntity.PROPERTY_ID);
         return criteria.add(Restrictions.eq(path, feature.getId()))
                        .list();
     }
@@ -151,7 +163,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    public Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class< ? > clazz) {
+        // declare explicit alias here
         return getDefaultCriteria(alias, true, query, clazz);
     }
 
@@ -162,10 +175,12 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private Criteria getDefaultCriteria(String alias, boolean ignoreReferenceSeries, DbQuery query, Class< ? > clazz) {
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
-        Criteria procCriteria = criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS);
         if (ignoreReferenceSeries) {
-            procCriteria.add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
+            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
+
+        query.addOdataFilterForDataset(criteria);
 
         return criteria;
     }
@@ -178,6 +193,53 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                                                      FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));
         return criteria;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(Collection<String> datasets, DbQuery query) {
+        Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+        if (query.isMatchDomainIds()) {
+            criteria.add(Restrictions.in(DescribableEntity.PROPERTY_DOMAIN_ID, datasets));
+        } else {
+            criteria.add(Restrictions.in(DescribableEntity.PROPERTY_ID,
+                    datasets.stream().map(d -> Long.parseLong(d)).collect(Collectors.toSet())));
+        }
+        criteria.setProjection(Projections.projectionList()
+                .add(Projections.groupProperty(DatasetEntity.PROPERTY_ID))
+                .add(Projections.property(DatasetEntity.PROPERTY_DATASET_TYPE))
+                .add(Projections.property(DatasetEntity.PROPERTY_OBSERVATION_TYPE))
+                .add(Projections.property(DatasetEntity.PROPERTY_VALUE_TYPE)));
+        criteria.setResultTransformer(transformer);
+        return criteria.list();
+    }
+
+    /**
+     * Offering time extrema {@link ResultTransformer}
+     *
+     * @author <a href="mailto:c.hollmann@52north.org">Carsten Hollmann</a>
+     * @since 4.4.0
+     *
+     */
+    private class DatasetTypesMetadataTransformer implements ResultTransformer {
+        private static final long serialVersionUID = -373512929481519459L;
+
+        @Override
+        public DatasetTypesMetadata transformTuple(Object[] tuple, String[] aliases) {
+            DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
+            if (tuple != null) {
+                datasetTypesMetadata.setId(tuple[0].toString());
+                datasetTypesMetadata.setDatasetType(DatasetType.valueOf(tuple[1].toString()));
+                datasetTypesMetadata.setObservationType(ObservationType.valueOf(tuple[2].toString()));
+                datasetTypesMetadata.setValueType(ValueType.valueOf(tuple[3].toString()));
+            }
+            return datasetTypesMetadata;
+        }
+
+        @Override
+        @SuppressWarnings({ "rawtypes"})
+        public List transformList(List collection) {
+            return collection;
+        }
     }
 
 }

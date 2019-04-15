@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,48 +36,62 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
-import org.n52.series.db.beans.QuantityProfileDatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-//@ValueAssemblerComponent(value = "quantity-profile", datasetEntityType = QuantityProfileDatasetEntity.class)
-public class QuantityProfileDataRepository extends
-        ProfileDataRepository<QuantityProfileDatasetEntity, BigDecimal, BigDecimal> {
+@ValueAssemblerComponent(value = "quantity-profile", datasetEntityType = DatasetEntity.class)
+public class QuantityProfileDataRepository extends ProfileDataRepository<BigDecimal, BigDecimal> {
 
     private final QuantityDataRepository dataAssembler;
 
-    public QuantityProfileDataRepository(HibernateSessionStore sessionStore,
-                                         DbQueryFactory dbQueryFactory) {
+    public QuantityProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.dataAssembler = new QuantityDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation,
-                                                      QuantityProfileDatasetEntity datasetEntity,
-                                                      DbQuery query) {
-        ProfileValue<BigDecimal> profile = prepareValue(observation, query);
+    public ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,
+            DbQuery query) {
+        ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = dataAssembler.createValue(quantityEntity.getValue(), quantityEntity, query);
             addParameters(quantityEntity, valueItem, query);
-            if (observation.hasVerticalFrom() || observation.hasVerticalTo()) {
+            if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
                 dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
             } else {
-                dataItems.add(assembleDataItem(quantityEntity,
-                                               profile,
-                                               valueItem.getParameters(),
-                                               datasetEntity,
-                                               query));
+                dataItems.add(
+                        assembleDataItem(quantityEntity, profile, valueItem.getParameters(), datasetEntity, query));
             }
         }
         profile.setValue(dataItems);
         return profile;
+    }
+
+    @Override
+    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query) {
+        ProfileValue<BigDecimal> value = prepareValue(observation, query);
+        List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
+        for (DataEntity<?> dataEntity : observation.getValue()) {
+            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
+            QuantityValue valueItem = dataAssembler.createValue(quantityEntity.getValue(), quantityEntity, query);
+            addParameters(quantityEntity, valueItem, query);
+            if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
+                dataItems.add(assembleDataItem(quantityEntity, value, observation, query));
+            } else {
+                dataItems.add(assembleDataItem(quantityEntity, value, valueItem.getParameters(), dataset, query));
+            }
+        }
+        value.setValue(dataItems);
+        return value;
     }
 
 }

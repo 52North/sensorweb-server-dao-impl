@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +38,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QuantityDatasetEntity;
-import org.n52.series.db.beans.data.Data;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class DatasetRepositoryTest extends TestBase {
 
     @Autowired
-    private DatasetRepository<DatasetEntity> datasetRepository;
+    private DatasetRepository datasetRepository;
 
     @Test
     @DisplayName("Uninitialized valueType is not found")
@@ -71,13 +69,13 @@ public class DatasetRepositoryTest extends TestBase {
         final DatasetEntity entity = uninitializedDataset("ph", "of", "pr", "pr_format");
 
         entity.setFeature(testRepositories.persistSimpleFeature("f1", "format_xy"));
-        datasetRepository.initValueType(Data.QuantityData.VALUE_TYPE, entity.getId());
+//        datasetRepository.initValueType(ValueType.quantity.name(), entity.getId());
 
         assertAll("qualified quantity dataset is found", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, Data.QuantityData.VALUE_TYPE);
+            final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
             final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
             final Optional<DatasetEntity> result = datasetRepository.findOne(filterSpec.matchValueTypes());
-            assertThat(result).get().isInstanceOf(QuantityDatasetEntity.class);
+            assertThat(result).get().isInstanceOf(DatasetEntity.class);
         });
     }
 
