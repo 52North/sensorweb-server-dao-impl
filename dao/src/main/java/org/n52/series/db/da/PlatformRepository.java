@@ -148,6 +148,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         return createExpanded(entity, query, session);
     }
 
+    @Override
+    public List<PlatformOutput> getAllExpanded(DbQuery query, Session session) throws DataAccessException {
+        List<PlatformEntity> allInstances = getAllInstances(query, session);
+        return createExpanded(allInstances, query, session);
+    }
+
     PlatformEntity getEntity(String id, DbQuery parameters, Session session) throws DataAccessException {
         if (PlatformType.isStationaryId(id)) {
             return getStation(id, parameters, session);
@@ -167,8 +173,26 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     }
 
     @Override
-    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
+    protected List<PlatformOutput> createExpanded(Iterable<PlatformEntity> allInstances, DbQuery query, Session session)
             throws DataAccessException {
+        List<PlatformOutput> results = new ArrayList<>();
+        for (PlatformEntity entity : allInstances) {
+            PlatformOutput instance = createExpanded(entity, query, session, false);
+            if (instance != null) {
+                /*
+                 *  there are cases where entities does not match a filter
+                 *  which could not be added to a db criteria, e.g. spatial
+                 *  filters on mobile platforms (last location is calculated
+                 *  after db query has been finished already)
+                 */
+                results.add(instance);
+            }
+        }
+        return results;
+    }
+
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session,
+            boolean includeDatasets) throws DataAccessException {
         PlatformOutput result = createCondensed(entity, query, session);
         DbQuery platformQuery = getDbQuery(query.getParameters()
                                            .extendWith(Parameters.PLATFORMS, result.getId())
@@ -177,13 +201,15 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                                        .removeAllOf(Parameters.BBOX)
                                                        .removeAllOf(Parameters.NEAR)
                                                        .removeAllOf(Parameters.ODATA_FILTER));
+        if (includeDatasets) {
+            List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
+            result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
+        }
 
-        List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
-
-        Geometry geometry = entity.getGeometry() == null
-                ? getLastSamplingGeometry(datasets, platformQuery, session)
-                : entity.getGeometry();
+        Geometry geometry = entity.getGeometry();
+//        Geometry geometry = entity.getGeometry() == null
+//                ? getLastSamplingGeometry(datasets, platformQuery, session)
+//                : entity.getGeometry();
 
         if (geometry == null) {
             // spatial filter does not match
@@ -195,6 +221,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
         result.setValue(PlatformOutput.PARAMETERS, parameters, query.getParameters(), result::setParameters);
         return result;
     }
+
+    @Override
+    protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
+            throws DataAccessException {
+        return createExpanded(entity, query, session, true);
+    }m mit 
 
     private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {

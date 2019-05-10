@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
@@ -67,9 +68,8 @@ class HierarchicalParameterRepository extends SessionAwareRepository {
             IoParameters parameters) {
         Session session = getSession();
         try {
-            DbQuery dbQuery = getDbQuery(parameters);
+            DbQuery dbQuery = getDbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
             Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
-
             PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
             DatasetDao<DatasetEntity<?>> dao = new DatasetDao<>(session);
             for (DatasetOutput dataset : platform.getDatasets()) {
