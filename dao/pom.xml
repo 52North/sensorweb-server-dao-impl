@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.n52.series-api.db</groupId>
+        <groupId>org.n52.ecmwf.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
@@ -20,6 +20,12 @@
         <dependency>
             <groupId>org.n52.series-api</groupId>
             <artifactId>spi</artifactId>
+            <exclusions>
+              <exclusion>
+                  <groupId>com.vividsolutions</groupId>
+                  <artifactId>jts</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.n52.series-api</groupId>
@@ -60,7 +66,7 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
         </dependency>
 
         <dependency>
