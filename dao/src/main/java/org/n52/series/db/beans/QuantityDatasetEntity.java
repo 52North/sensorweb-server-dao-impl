@@ -26,10 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.beans;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +66,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
-            BigDecimal value = firstValue.getValue();
+            String value = firstValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;
@@ -82,7 +80,7 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
         final QuantityDataEntity lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
-            BigDecimal value = lastValue.getValue();
+            String value = lastValue.getValue();
             if (when == null || value == null) {
                 // empty component
                 return null;

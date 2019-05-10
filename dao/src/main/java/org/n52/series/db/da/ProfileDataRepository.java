@@ -159,13 +159,13 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
 
     private void addValues(ProfileDataItem<T> dataItem, Set<Map<String, Object>> parameters,
             ProfileDatasetEntity dataset) {
-        if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
+//        if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
             dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalParameterName()));
-        } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
-                && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
-            dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
-            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
-        }
+//        } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
+//                && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
+//            dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
+//            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+//        }
     }
 
     private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {

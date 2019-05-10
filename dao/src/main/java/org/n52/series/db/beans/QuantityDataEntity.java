@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.beans;
 
 import java.math.BigDecimal;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-public class QuantityDataEntity extends DataEntity<BigDecimal> {
+public class QuantityDataEntity extends DataEntity<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuantityDataEntity.class);
 
@@ -50,19 +49,17 @@ public class QuantityDataEntity extends DataEntity<BigDecimal> {
 
     @Override
     public boolean isNoDataValue(Collection<String> noDataValues) {
-        BigDecimal value = getValue();
+        String value = getValue();
         return value == null
                 || containsValue(noDataValues, value);
     }
 
-    private boolean containsValue(Collection<String> collection, BigDecimal key) {
+    private boolean containsValue(Collection<String> collection, String key) {
         if (collection == null) {
             return false;
         }
-        for (BigDecimal noDataValue : convert(collection)) {
-            if (noDataValue.subtract(key)
-                           .abs()
-                           .compareTo(DOUBLE_THRESHOLD) < 0) {
+        for (String noDataValue : collection) {
+            if (noDataValue.contains(key)) {
                 return true;
             }
         }

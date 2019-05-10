@@ -33,10 +33,12 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -50,8 +52,10 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-public class QuantityDataRepository extends
-        AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
+public class QuantityDataRepository
+        extends AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
+
+    private static final String TOKEN_SEPARATOR = "#";
 
     @Override
     public Class<QuantityDatasetEntity> getDatasetEntityType() {
@@ -60,15 +64,14 @@ public class QuantityDataRepository extends
 
     @Override
     public List<ReferenceValueOutput<QuantityValue>> createReferenceValueOutputs(QuantityDatasetEntity datasetEntity,
-                                                                             DbQuery query) {
+            DbQuery query) {
         List<QuantityDatasetEntity> referenceValues = datasetEntity.getReferenceValues();
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
             ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
             refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
-            refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
-                                                                        .toString());
+            refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid().toString());
 
             QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
             refenceValueOutput.setLastValue(createSeriesValueFor(lastValue, referenceSeriesEntity, query));
@@ -78,10 +81,8 @@ public class QuantityDataRepository extends
     }
 
     @Override
-    protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries,
-                                                                  DbQuery dbQuery,
-                                                                  Session session)
-            throws DataAccessException {
+    protected Data<QuantityValue> assembleDataWithReferenceValues(QuantityDatasetEntity timeseries, DbQuery dbQuery,
+            Session session) throws DataAccessException {
         Data<QuantityValue> result = assembleData(timeseries, dbQuery, session);
         List<QuantityDatasetEntity> referenceValues = timeseries.getReferenceValues();
         if (referenceValues != null && !referenceValues.isEmpty()) {
@@ -93,9 +94,7 @@ public class QuantityDataRepository extends
     }
 
     private Map<String, Data<QuantityValue>> assembleReferenceSeries(List<QuantityDatasetEntity> referenceValues,
-                                                                     DbQuery query,
-                                                                     Session session)
-            throws DataAccessException {
+            DbQuery query, Session session) throws DataAccessException {
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (QuantityDatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
@@ -103,29 +102,24 @@ public class QuantityDataRepository extends
                 if (haveToExpandReferenceData(referenceSeriesData)) {
                     referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query, session);
                 }
-                referenceSeries.put(referenceSeriesEntity.getPkid()
-                                                         .toString(),
-                                    referenceSeriesData);
+                referenceSeries.put(referenceSeriesEntity.getPkid().toString(), referenceSeriesData);
             }
         }
         return referenceSeries;
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
-        return referenceSeriesData.getValues()
-                                  .size() <= 1;
+        return referenceSeriesData.getValues().size() <= 1;
     }
 
-    private Data<QuantityValue> expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity,
-                                                               DbQuery query,
-                                                               Session session)
-            throws DataAccessException {
+    private Data<QuantityValue> expandReferenceDataIfNecessary(QuantityDatasetEntity seriesEntity, DbQuery query,
+            Session session) throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             QuantityValue lastValue = getLastValue(seriesEntity, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), seriesEntity, query));
+            result.addValues(expandToInterval(lastValue.getValue().toPlainString(), seriesEntity, query));
         }
 
         if (hasSingleValidReferenceValue(observations)) {
@@ -149,37 +143,41 @@ public class QuantityDataRepository extends
         return result;
     }
 
-    private QuantityValue[] expandToInterval(BigDecimal value, QuantityDatasetEntity series, DbQuery query) {
+    private QuantityValue[] expandToInterval(String value, QuantityDatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setTimestamp(query.getTimespan()
-                                         .getStart()
-                                         .toDate());
-        referenceEnd.setTimestamp(query.getTimespan()
-                                       .getEnd()
-                                       .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new QuantityValue[] {
-            createSeriesValueFor(referenceStart, series, query),
-            createSeriesValueFor(referenceEnd, series, query),
-        };
+        referenceStart.setTimestamp(query.getTimespan().getStart().toDate());
+        referenceEnd.setTimestamp(query.getTimespan().getEnd().toDate());
+        referenceStart.setValue(value.toString());
+        referenceEnd.setValue(value.toString());
+        return new QuantityValue[] { createSeriesValueFor(referenceStart, series, query),
+                createSeriesValueFor(referenceEnd, series, query), };
 
     }
 
     @Override
-    public QuantityValue createSeriesValueFor(QuantityDataEntity observation,
-                                              QuantityDatasetEntity dataset,
-                                              DbQuery query) {
-        QuantityValue value = createValue(observation, dataset, query);
-        return addMetadatasIfNeeded(observation, value, dataset, query);
+    public QuantityValue createSeriesValueFor(QuantityDataEntity observation, QuantityDatasetEntity dataset,
+            DbQuery query) {
+        return createSeriesValuesFor(observation, dataset, query)[0];
     }
 
-    private QuantityValue createValue(QuantityDataEntity observation, QuantityDatasetEntity dataset, DbQuery query) {
+    public QuantityValue[] createSeriesValuesFor(QuantityDataEntity observation, QuantityDatasetEntity dataset,
+            DbQuery query) {
+        List<QuantityValue> list = new LinkedList<>();
+        String[] split = observation.getValue().split(TOKEN_SEPARATOR);
+        for (int i = 0; i < split.length / 2; i = i + 2) {
+            DateTime time = new DateTime(split[i]);
+            BigDecimal v = new BigDecimal(split[i + 1]);
+            QuantityValue value = createValue(observation, v, time, dataset, query);
+            list.add(addMetadatasIfNeeded(observation, value, dataset, query));
+        }
+        return list.toArray(new QuantityValue[0]);
+    }
+
+    private QuantityValue createValue(QuantityDataEntity observation, BigDecimal value, DateTime time,
+            QuantityDatasetEntity dataset, DbQuery query) {
         ServiceEntity service = getServiceEntity(dataset);
-        BigDecimal observationValue = !service.isNoDataValue(observation)
-                ? format(observation, dataset)
-                : null;
+        BigDecimal observationValue = !service.isNoDataValue(observation) ? format(value, dataset) : null;
         return createValue(observationValue, observation, query);
     }
 
@@ -189,18 +187,16 @@ public class QuantityDataRepository extends
         long end = timeend.getTime();
         long start = timestart.getTime();
         IoParameters parameters = query.getParameters();
-        return parameters.isShowTimeIntervals()
-                ? new QuantityValue(start, end, observationValue)
+        return parameters.isShowTimeIntervals() ? new QuantityValue(start, end, observationValue)
                 : new QuantityValue(end, observationValue);
     }
 
-    private BigDecimal format(QuantityDataEntity observation, QuantityDatasetEntity series) {
-        if (observation.getValue() == null) {
-            return observation.getValue();
+    private BigDecimal format(BigDecimal value, QuantityDatasetEntity series) {
+        if (value == null) {
+            return value;
         }
         int scale = series.getNumberOfDecimals();
-        return observation.getValue()
-                          .setScale(scale, RoundingMode.HALF_UP);
+        return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
 }
