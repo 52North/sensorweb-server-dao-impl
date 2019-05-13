@@ -226,7 +226,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session)
             throws DataAccessException {
         return createExpanded(entity, query, session, true);
-    }m mit 
+    }
 
     private Geometry getLastSamplingGeometry(List<DatasetOutput> datasets, DbQuery query, Session session)
             throws DataAccessException {
