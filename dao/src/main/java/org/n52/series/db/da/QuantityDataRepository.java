@@ -137,7 +137,7 @@ public class QuantityDataRepository
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (QuantityDataEntity observation : observations) {
             if (observation != null) {
-                result.addValues(createSeriesValueFor(observation, seriesEntity, query));
+                result.addValues(createSeriesValuesFor(observation, seriesEntity, query));
             }
         }
         return result;
@@ -178,7 +178,11 @@ public class QuantityDataRepository
             QuantityDatasetEntity dataset, DbQuery query) {
         ServiceEntity service = getServiceEntity(dataset);
         BigDecimal observationValue = !service.isNoDataValue(observation) ? format(value, dataset) : null;
-        return createValue(observationValue, observation, query);
+        long end = time.getMillis();
+        long start = time.getMillis();
+        IoParameters parameters = query.getParameters();
+        return parameters.isShowTimeIntervals() ? new QuantityValue(start, end, observationValue)
+                : new QuantityValue(end, observationValue);
     }
 
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
@@ -197,6 +201,32 @@ public class QuantityDataRepository
         }
         int scale = series.getNumberOfDecimals();
         return value.setScale(scale, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public QuantityValue getFirstValue(QuantityDatasetEntity entity, Session session, DbQuery query) {
+        DataDao<QuantityDataEntity> dao = createDataDao(session);
+        QuantityDataEntity valueEntity = dao.getDataValueViaTimestart(entity, query);
+        if (valueEntity != null) {
+            QuantityValue[] values = createSeriesValuesFor(valueEntity, entity, query);
+            if (values != null && values.length > 0) {
+                return values[0];
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public QuantityValue getLastValue(QuantityDatasetEntity entity, Session session, DbQuery query) {
+        DataDao<QuantityDataEntity> dao = createDataDao(session);
+        QuantityDataEntity valueEntity = dao.getDataValueViaTimeend(entity, query);
+        if (valueEntity != null) {
+            QuantityValue[] values = createSeriesValuesFor(valueEntity, entity, query);
+            if (values != null && values.length > 0) {
+                return values[values.length - 1];
+            }
+        }
+        return null;
     }
 
 }
