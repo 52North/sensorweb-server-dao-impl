@@ -165,7 +165,7 @@ public class QuantityDataRepository
             DbQuery query) {
         List<QuantityValue> list = new LinkedList<>();
         String[] split = observation.getValue().split(TOKEN_SEPARATOR);
-        for (int i = 0; i < split.length / 2; i = i + 2) {
+        for (int i = 0; i < split.length; i = i + 2) {
             DateTime time = new DateTime(split[i]);
             BigDecimal v = new BigDecimal(split[i + 1]);
             QuantityValue value = createValue(observation, v, time, dataset, query);
