@@ -13,9 +13,6 @@
 
     <properties>
 
-        <!-- optional properties file -->
-        <local.configFile>src/main/resources/application.properties</local.configFile>
-
         <postgis.version>2.3.0</postgis.version>
         <javax-jaxb.version>2.3.0</javax-jaxb.version>
 
@@ -260,13 +257,6 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
-
-        <filters>
-            <!-- filters src/main/resources -->
-            <!-- ordering is important here -->
-            <filter>src/main/resources/application.properties</filter>
-            <filter>${local.configFile}</filter>
-        </filters>
 
         <plugins>
             <plugin>
