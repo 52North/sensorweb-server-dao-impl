@@ -55,6 +55,7 @@ import org.n52.series.db.dao.DbQuery;
 public class QuantityDataRepository
         extends AbstractDataRepository<QuantityDatasetEntity, QuantityDataEntity, QuantityValue> {
 
+    private static final String BLOCK_SEPARATOR = "@";
     private static final String TOKEN_SEPARATOR = "#";
 
     @Override
@@ -164,13 +165,17 @@ public class QuantityDataRepository
     public QuantityValue[] createSeriesValuesFor(QuantityDataEntity observation, QuantityDatasetEntity dataset,
             DbQuery query) {
         List<QuantityValue> list = new LinkedList<>();
-        String[] split = observation.getValue().split(TOKEN_SEPARATOR);
-        for (int i = 0; i < split.length; i = i + 2) {
-            DateTime time = new DateTime(split[i]);
-            BigDecimal v = new BigDecimal(split[i + 1]);
-            QuantityValue value = createValue(observation, v, time, dataset, query);
-            list.add(addMetadatasIfNeeded(observation, value, dataset, query));
+        String[] blocks = observation.getValue().split(BLOCK_SEPARATOR);
+        for (int j = 0; j < blocks.length; j++) {
+            String[] split = blocks[j].split(TOKEN_SEPARATOR);
+            for (int i = 0; i < split.length; i = i + 2) {
+                DateTime time = new DateTime(split[i]);
+                BigDecimal v = new BigDecimal(split[i + 1]);
+                QuantityValue value = createValue(observation, v, time, dataset, query);
+                list.add(addMetadatasIfNeeded(observation, value, dataset, query));
+            }
         }
+
         return list.toArray(new QuantityValue[0]);
     }
 
