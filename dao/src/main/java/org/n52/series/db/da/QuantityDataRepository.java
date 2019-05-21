@@ -32,10 +32,12 @@ package org.n52.series.db.da;
 import static java.util.stream.Collectors.toList;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,6 +47,7 @@ import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.janmayen.i18n.LocaleHelper;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.DatasetEntity;
@@ -231,6 +234,10 @@ public class QuantityDataRepository
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
+
+        Locale locale = LocaleHelper.decode(query.getLocale());
+        NumberFormat formatter = NumberFormat.getInstance(locale);
+        value.setValueFormatter(formatter::format);
         return value;
     }
 
