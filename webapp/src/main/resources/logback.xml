@@ -3,7 +3,7 @@
     <!-- refer to http://logback.qos.ch/manual/appenders.html -->
 
     <property file="${local.configFile:-src/main/resources/application.properties}" />
-    <property name="logFile" value="${logger.fileappender.filepath}" />
+    <property name="logFile" value="${logger.fileappender.filepath:-webapp}" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logFile}.log</file>
