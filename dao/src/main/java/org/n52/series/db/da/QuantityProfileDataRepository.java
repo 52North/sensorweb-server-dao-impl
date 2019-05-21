@@ -26,11 +26,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -54,22 +57,21 @@ public class QuantityProfileDataRepository extends
 
     @Override
     protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                                   DatasetEntity datasetEntity,
+                                                   DatasetEntity dataset,
                                                    DbQuery query) {
         ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity< ? > dataEntity : observation.getValue()) {
-            QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
-            QuantityValue valueItem = quantityRepository.createValue(quantityEntity.getValue(), quantityEntity, query);
-            addParameters(quantityEntity, valueItem, query);
+            QuantityDataEntity quantity = (QuantityDataEntity) dataEntity;
+            QuantityValue valueItem = quantityRepository.createValue(quantity.getValue(), quantity, query);
+            addParameters(quantity, valueItem, query);
             if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
-                dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
+                ProfileDataItem<BigDecimal> item = assembleDataItem(quantity, profile, observation, query);
+                dataItems.add(item);
             } else {
-                dataItems.add(assembleDataItem(quantityEntity,
-                                               profile,
-                                               valueItem.getParameters(),
-                                               datasetEntity,
-                                               query));
+                Set<Map<String, Object>> parameters = valueItem.getParameters();
+                ProfileDataItem<BigDecimal> item = assembleDataItem(quantity, profile, parameters, dataset, query);
+                dataItems.add(item);
             }
         }
         profile.setValue(dataItems);
