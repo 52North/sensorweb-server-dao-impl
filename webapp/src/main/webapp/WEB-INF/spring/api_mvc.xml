@@ -77,11 +77,9 @@
     <bean class="org.n52.web.ctrl.TimeseriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
     </bean>
-<!--
     <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
     </bean>
- -->
     <!--
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
