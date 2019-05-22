@@ -89,16 +89,6 @@
             <artifactId>spring-oxm</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -272,11 +262,12 @@
                     </execution>
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
             </plugin>
+            
         </plugins>
 
         <pluginManagement>
