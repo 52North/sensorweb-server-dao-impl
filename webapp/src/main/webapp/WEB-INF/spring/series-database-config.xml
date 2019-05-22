@@ -28,6 +28,13 @@
         <property name="user" value="${series.database.username}" />
         <property name="password" value="${series.database.password}" />
         <property name="driverClass" value="${series.database.driver}" />
+        
+		<!-- c3p0 auto reconnect -->
+    	<property name="acquireRetryAttempts" value="0"/>
+	    <property name="acquireRetryDelay" value="10000"/>
+	    <property name="maxIdleTime" value="20"/>
+    	<property name="idleConnectionTestPeriod" value="30" />
+	    <property name="preferredTestQuery" value="values(1)" />
     </bean>
 
     <bean id="seriesSessionFactory" class="org.n52.series.db.SeriesLocalSessionFactoryBean">
