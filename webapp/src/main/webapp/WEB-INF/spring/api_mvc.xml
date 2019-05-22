@@ -109,33 +109,19 @@
         </property>
     </bean>
 
-    <bean class="org.n52.web.ctrl.data.DatasetsDataController">
+    
+    <bean id="dataControllerParent" class="org.n52.web.ctrl.data.DataController" abstract="true">
         <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
-        <property name="preRenderingTask" ref="preRenderingJob" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
     </bean>
-
-    <bean class="org.n52.web.ctrl.data.TrajectoriesDataController">
-        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+    <bean class="org.n52.web.ctrl.data.TimeseriesDataController" parent="dataControllerParent" >
         <property name="preRenderingTask" ref="preRenderingJob" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
     </bean>
-
-    <bean class="org.n52.web.ctrl.data.TimeseriesDataController">
-        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
-        <property name="preRenderingTask" ref="preRenderingJob" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
-    </bean>
-
-    <bean class="org.n52.web.ctrl.data.IndividualObservationsDataController">
-        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
-        <property name="preRenderingTask" ref="preRenderingJob" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
-    </bean>
+    <bean class="org.n52.web.ctrl.data.DatasetsDataController" parent="dataControllerParent" />
+    <bean class="org.n52.web.ctrl.data.ProfilesDataController" parent="dataControllerParent" />
+    <bean class="org.n52.web.ctrl.data.TrajectoriesDataController" parent="dataControllerParent" />
+    <bean class="org.n52.web.ctrl.data.IndividualObservationsDataController" parent="dataControllerParent" />
 
     <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingParameterService" />
