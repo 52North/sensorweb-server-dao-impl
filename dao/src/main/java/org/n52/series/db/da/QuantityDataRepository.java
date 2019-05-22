@@ -77,25 +77,25 @@ public class QuantityDataRepository
                                                      .filter(Objects::nonNull)
                                                      .filter(rv -> rv.getValueType() == ValueType.quantity)
                                                      .collect(toList());
-        
+
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (DatasetEntity referenceDatasetEntity : referenceValues) {
             ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
             String datasetId = createReferenceDatasetId(query, referenceDatasetEntity);
             refenceValueOutput.setReferenceValueId(datasetId);
-            
+
             ProcedureEntity procedure = referenceDatasetEntity.getProcedure();
             String label = procedure.getNameI18n(query.getLocale());
             refenceValueOutput.setLabel(label);
-            
+
             QuantityValue lastValue = getLastValue(referenceDatasetEntity, session, query);
             refenceValueOutput.setLastValue(lastValue);
-            
+
             outputs.add(refenceValueOutput);
         }
         return outputs;
     }
-    
+
     @Override
     protected Data<QuantityValue> assembleExpandedData(Long datasetId, DbQuery query, Session session)
             throws DataAccessException {
@@ -163,7 +163,7 @@ public class QuantityDataRepository
         Data<QuantityValue> result = new Data<>();
         DataDao<QuantityDataEntity> dao = createDataDao(session);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(dataset.getId(), query);
-        if ( !hasValidEntriesWithinRequestedTimespan(observations)) {
+        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
             QuantityValue lastValue = getLastValue(dataset, session, query);
             result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
         }
