@@ -107,7 +107,7 @@ public class QuantityDataRepository
         }
         DatasetEntity dataset = session.get(DatasetEntity.class, datasetId);
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ( (referenceValues != null) && !referenceValues.isEmpty()) {
+        if ((referenceValues != null) && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
         }
         if (query.expandWithNextValuesBeyondInterval()) {

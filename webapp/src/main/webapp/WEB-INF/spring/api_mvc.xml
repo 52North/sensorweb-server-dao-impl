@@ -109,7 +109,7 @@
         </property>
     </bean>
 
-    
+
     <bean id="dataControllerParent" class="org.n52.web.ctrl.data.DataController" abstract="true">
         <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
