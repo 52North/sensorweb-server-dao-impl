@@ -30,6 +30,7 @@ package org.n52.series.dao.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -43,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EnableWebMvc
 @Configuration
+@PropertySource(value = "file://${local.configFile}", ignoreResourceNotFound = true)
 public class DefaultConfig implements WebMvcConfigurer {
 
     @Autowired(required = false)

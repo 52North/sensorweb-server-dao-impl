@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.DatasetFactoryException;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.handler.IoHandlerFactory;
 import org.n52.io.request.IoParameters;
