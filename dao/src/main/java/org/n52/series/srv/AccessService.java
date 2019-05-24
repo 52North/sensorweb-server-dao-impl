@@ -58,7 +58,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
         try {
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             List<T> results = repository.getAllExpanded(dbQuery);
-            return createOutputCollection(results);
+            return new OutputCollection<T>(results);
         } catch (DataAccessException e) {
             throw new InternalServerException("Could not get expanded data.", e);
         }
@@ -69,7 +69,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
         try {
             DbQuery dbQuery = dbQueryFactory.createFrom(query);
             List<T> results = repository.getAllCondensed(dbQuery);
-            return createOutputCollection(results);
+            return new OutputCollection<T>(results);
         } catch (DataAccessException e) {
             throw new InternalServerException("Could not get condensed data.", e);
         }
@@ -83,7 +83,7 @@ public class AccessService<T extends ParameterOutput> extends ParameterService<T
             for (String id : ids) {
                 results.add(repository.getInstance(id, dbQuery));
             }
-            return createOutputCollection(results);
+            return new OutputCollection<>(results);
         } catch (DataAccessException e) {
             throw new InternalServerException("Could not get multiple instance data.", e);
         }
