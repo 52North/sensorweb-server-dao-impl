@@ -242,7 +242,7 @@ public class QuantityDataRepository
     }
 
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
-        return format(observation.getValue(), dataset.getNumberOfDecimals());
+        return format(observation.getValue(), dataset);
     }
 
 }
