@@ -15,11 +15,11 @@ This project includes:
   AntLR Parser Generator under BSD License
   Apache Commons Codec under Apache License, Version 2.0
   Apache Commons IO under Apache License, Version 2.0
+  Apache Commons Text under Apache License, Version 2.0
   Apache FOP under The Apache Software License, Version 2.0
   Apache HttpClient under Apache License, Version 2.0
   Apache HttpCore under Apache License, Version 2.0
   Apache XML Graphics Commons under The Apache Software License, Version 2.0
-  API interfaces under Lesser General Public License (LGPL)
   Avalon Framework API under The Apache Software License, Version 2.0
   Avalon Framework Implementation under The Apache Software License, Version 2.0
   Batik animation engine under The Apache Software License, Version 2.0
@@ -37,7 +37,7 @@ This project includes:
   Batik SVG transcoder classes under The Apache Software License, Version 2.0
   Batik utility library under The Apache Software License, Version 2.0
   Batik XML utility library under The Apache Software License, Version 2.0
-  Byte Buddy (without dependencies) under The Apache Software License, Version 2.0
+  Byte Buddy (without dependencies) under Apache License, Version 2.0
   c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   Checker Qual under The MIT License
   ClassMate under The Apache Software License, Version 2.0
@@ -53,7 +53,7 @@ This project includes:
   geolatte-geom under LGPL 3.0
   Guava InternalFutureFailureAccess and InternalFutures under The Apache Software License, Version 2.0
   Guava ListenableFuture only under The Apache Software License, Version 2.0
-  Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
+  Guava: Google Core Libraries for Java under Apache License, Version 2.0
   Hibernate Commons Annotations under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-c3p0 under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later
@@ -78,9 +78,11 @@ This project includes:
   jaxb-api under CDDL 1.1 or GPL2 w/ CPE
   JBoss Logging 3 under Apache License, version 2.0
   JCL 1.2 implemented over SLF4J under MIT License
+  JDOM under Similar to Apache License but with the acknowledgment clause removed
   JFreeChart under GNU Lesser General Public Licence
   Joda-Time under Apache 2
   Log4j Implemented Over SLF4J under Apache Software Licenses
+  Main module under Lesser General Public License (LGPL)
   mchange-commons-java under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   Netty/All-in-One under Apache License, Version 2.0
   odata-commons-api under The Apache Software License, Version 2.0
@@ -118,7 +120,8 @@ This project includes:
   Spring Web MVC under Apache License, Version 2.0
   Stax2 API under The BSD License
   TXW2 Runtime under CDDL+GPL License
-  xalan under The Apache Software License, Version 2.0
+  Xalan Java under The Apache Software License, Version 2.0
+  Xalan Java Serializer under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
   XmlBeans under The Apache Software License, Version 2.0
