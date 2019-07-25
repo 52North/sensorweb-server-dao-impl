@@ -56,7 +56,6 @@ import org.n52.io.request.Parameters;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.IdEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
