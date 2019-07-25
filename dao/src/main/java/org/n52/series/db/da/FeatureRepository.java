@@ -28,11 +28,18 @@
  */
 package org.n52.series.db.da;
 
+import java.util.List;
+import java.util.Map;
+
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.StationOutput;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -41,6 +48,7 @@ import org.n52.series.spi.search.SearchResult;
 
 public class FeatureRepository extends HierarchicalParameterRepository<FeatureEntity, FeatureOutput> {
 
+    @Override
     protected FeatureOutput prepareEmptyParameterOutput() {
         return new FeatureOutput();
     }
@@ -72,6 +80,12 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+
+        Class<DatasetEntity> clazz = DatasetEntity.class;
+        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        List<DatasetEntity> series = seriesDao.getInstancesWith(entity, query);
+        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result::setDatasets);
         return result;
     }
 

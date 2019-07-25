@@ -35,6 +35,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
@@ -55,6 +56,7 @@ import org.n52.io.request.Parameters;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.IdEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.opengis.referencing.FactoryException;
@@ -264,6 +266,7 @@ public class DbQuery {
         if (getParameters().containsParameter(Parameters.LIMIT)) {
             criteria.setMaxResults(getParameters().getLimit());
         }
+        criteria.addOrder(Order.asc(IdEntity.PROPERTY_ID));
         return criteria;
     }
 

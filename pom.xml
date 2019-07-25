@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.n52.series-api.db</groupId>
     <artifactId>series-dao</artifactId>
-    <version>3.0.0-alpha.5</version>
+    <version>3.0.0-alpha.6</version>
     <name>Series REST API DAO</name>
     <packaging>pom</packaging>
 
@@ -41,20 +41,20 @@
         <connection>scm:git:https://github.com/52North/dao-series-api.git</connection>
         <developerConnection>scm:git:https://github.com/52North/dao-series-api.git</developerConnection>
         <url>https://github.com/52North/dao-series-api</url>
-        <tag>v3.0.0-alpha.5</tag>
+        <tag>v3.0.0-alpha.6</tag>
     </scm>
 
     <properties>
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <geotools.version>20.1</geotools.version>
+        <geotools.version>21.2</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
-        <hibernate.version>5.4.2.Final</hibernate.version>
-        <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
-        <series-api.version>2.0.1-alpha.4</series-api.version>
-        <series-hibernate.version>1.0.0-alpha.4</series-hibernate.version>
-        <arctic-sea.version>6.0.0</arctic-sea.version>
+        <hibernate.version>5.4.3.Final</hibernate.version>
+        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+        <series-api.version>2.0.1-alpha.5</series-api.version>
+        <series-hibernate.version>1.0.0-alpha.5</series-hibernate.version>
+        <arctic-sea.version>7.0.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -145,19 +145,21 @@
                 <artifactId>shetland</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
-            
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>svalbard</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
-            
+            <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>janmayen</artifactId>
+                <version>${arctic-sea.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>svalbard-odata</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>iceland</artifactId>
@@ -166,7 +168,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.1-jre</version>
+                <version>28.0-jre</version>
             </dependency>
 
             <dependency>
@@ -193,7 +195,7 @@
             <dependency>
                 <groupId>xalan</groupId>
                 <artifactId>xalan</artifactId>
-                <version>2.7.0</version>
+                <version>2.7.2</version>
                 <exclusions>
                     <exclusion>
                         <!-- uses older xml-apis than other fop dependencies -->
@@ -203,21 +205,6 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-api</artifactId>
-                <version>${geotools.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-main</artifactId>

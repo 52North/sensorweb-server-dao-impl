@@ -42,11 +42,9 @@
     <bean id="timeseriesService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
-    <!--
      <bean id="profileService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
-     -->
     <!--
     <bean id="geometriesService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="geometriesRepository" />

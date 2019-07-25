@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.n52.series-api.db</groupId>
         <artifactId>series-dao</artifactId>
-        <version>3.0.0-alpha.5</version>
+        <version>3.0.0-alpha.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>webapp</artifactId>
@@ -12,9 +12,6 @@
     <description>RESTful Sensor Web Client API as template Web application.</description>
 
     <properties>
-
-        <!-- optional properties file -->
-        <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <postgis.version>2.3.0</postgis.version>
         <javax-jaxb.version>2.3.0</javax-jaxb.version>
@@ -92,16 +89,6 @@
             <artifactId>spring-oxm</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -135,24 +122,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
-        
-<!--         <dependency> -->
-<!--             <groupId>javax.xml.bind</groupId> -->
-<!--             <artifactId>jaxb-api</artifactId> -->
-<!--             <scope>runtime</scope> -->
-<!--         </dependency> -->
-<!--         <dependency> -->
-<!--             <groupId>com.sun.xml.bind</groupId> -->
-<!--             <artifactId>jaxb-impl</artifactId> -->
-<!--             <version>2.2.1.1</version> -->
-<!--             <scope>runtime</scope> -->
-<!--         </dependency> -->
-<!--         <dependency> -->
-<!--             <groupId>javax.activation</groupId> -->
-<!--             <artifactId>activation</artifactId> -->
-<!--             <version>1.1.1</version> -->
-<!--             <scope>runtime</scope> -->
-<!--         </dependency> -->
 
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -261,13 +230,6 @@
             </resource>
         </resources>
 
-        <filters>
-            <!-- filters src/main/resources -->
-            <!-- ordering is important here -->
-            <filter>src/main/resources/application.properties</filter>
-            <filter>${local.configFile}</filter>
-        </filters>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -282,11 +244,12 @@
                     </execution>
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
             </plugin>
+            
         </plugins>
 
         <pluginManagement>
@@ -360,7 +323,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.12.v20180830</version>
+                    <version>9.4.18.v20190429</version>
                     <configuration>
                         <stopKey>C</stopKey>
                         <stopPort>34343</stopPort>
@@ -710,7 +673,7 @@
                         <plugin>
                             <groupId>de.saumya.mojo</groupId>
                             <artifactId>gem-maven-plugin</artifactId>
-                            <version>1.1.5</version>
+                            <version>1.1.7</version>
                             <configuration>
                                 <supportNative>true</supportNative>
                                 <jrubyVersion>9.0.5.0</jrubyVersion>

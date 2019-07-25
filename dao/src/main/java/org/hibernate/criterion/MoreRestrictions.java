@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.hibernate.criterion;
 
 import static java.util.stream.Collectors.collectingAndThen;
