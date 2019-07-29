@@ -5,11 +5,11 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>12</version>
+        <version>14</version>
     </parent>
     <groupId>org.n52.series-api.db</groupId>
     <artifactId>series-dao</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <name>Series DAO REST API</name>
     <packaging>pom</packaging>
 
@@ -45,7 +45,7 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <arctic-sea.version>6.0.0</arctic-sea.version>
+        <arctic-sea.version>7.0.0</arctic-sea.version>
         <aspectj.version>1.8.9</aspectj.version>
         <geolatte.version>1.4.0</geolatte.version>
         <geotools.version>20.1</geotools.version>
@@ -88,11 +88,6 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-spatial</artifactId>
                 <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-spatial</artifactId>
-                <version>${querydsl.version}</version>
             </dependency>
 
             <dependency>
@@ -151,11 +146,6 @@
             <dependency>
                 <groupId>org.n52.series.db</groupId>
                 <artifactId>entities</artifactId>
-                <version>${series-hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>codegen</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
             <dependency>
