@@ -29,23 +29,20 @@
 package org.n52.series.db.assembler;
 
 import org.n52.io.response.OfferingOutput;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.OfferingRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.OfferingQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.OfferingRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
 
 @Component
 public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput> {
 
-    public OfferingAssembler(OfferingRepository offeringRepository,
-                             DatasetRepository datasetRepository) {
+    public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);
     }
 
@@ -54,12 +51,19 @@ public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, 
         return new OfferingOutput();
     }
 
-    BooleanExpression createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
-
+    @Override
+    protected Specification<OfferingEntity> createFilterPredicate(DbQuery query) {
         OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        return oFilterSpec.selectFrom(subQuery);
+        return oFilterSpec.selectFrom(getDatasetQuerySpecification(query).matchFilters());
+    }
+
+    @Override
+    protected Specification<OfferingEntity> createPublicPredicate(String id, DbQuery query) {
+        final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
+        final Specification<DatasetEntity> datasetPredicate =
+                dsFilterSpec.matchOfferings(id).and(dsFilterSpec.isPublic());
+        OfferingQuerySpecifications filterSpec = OfferingQuerySpecifications.of(query);
+        return filterSpec.selectFrom(datasetPredicate);
     }
 
 }

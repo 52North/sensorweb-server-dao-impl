@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.DatasetFactoryException;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.HrefHelper;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;

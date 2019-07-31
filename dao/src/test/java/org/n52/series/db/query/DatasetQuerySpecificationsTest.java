@@ -48,7 +48,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.io.ParseException;
 import org.n52.io.request.Parameters;
-import org.n52.series.db.DatasetRepository;
 import org.n52.series.db.TestBase;
 import org.n52.series.db.TestRepositories;
 import org.n52.series.db.TestRepositoryConfig;
@@ -56,7 +55,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.query.DatasetQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -114,19 +113,19 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         final DatasetEntity d2 = textDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
 
         Assertions.assertAll("Return all by default", () -> {
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(defaultQuery);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(defaultQuery);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1, d2);
         });
 
         Assertions.assertAll("'all' is not a valid filter", () -> {
             final DbQuery query = defaultQuery.replaceWith(Parameters.FILTER_VALUE_TYPES, "all");
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
 
         Assertions.assertAll("Return text datasets only", () -> {
             final DbQuery query = defaultQuery.replaceWith(Parameters.FILTER_VALUE_TYPES, "text");
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d2);
         });
 
@@ -150,14 +149,14 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 //
 //        Assertions.assertAll("Query matches 'stationary' datasets", () -> {
 //            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_STATIONARY);
-//            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_STATIONARY))).containsOnly(d1);
 //        });
 //
 //        Assertions.assertAll("Default query does not match 'mobile' datasets", () -> {
 //            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE);
-//            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE))).containsOnly(d2);
 //        });
@@ -165,7 +164,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 //        Assertions.assertAll("Default query does match 'remote' datasets ", () -> {
 //            d2.setInsitu(false);
 //            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_REMOTE);
-//            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_REMOTE))).containsOnly(d2);
 //        });
@@ -174,7 +173,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 //            d2.setInsitu(false);
 //            d2.setMobile(true);
 //            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE);
-//            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
 //            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE))).containsOnly(d2);
 //        });
@@ -192,14 +191,14 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Single value filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(OFFERING, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Single value and list filter match in combination", () -> {
             final DbQuery query = defaultQuery.replaceWith(OFFERING, id1)
                                         .replaceWith(OFFERINGS, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
@@ -215,20 +214,20 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Offering filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(OFFERINGS, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Offering filter matches all datasets", () -> {
             final DbQuery query = defaultQuery.replaceWith(OFFERINGS, id1, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
         Assertions.assertAll("Offering filter matches no dataset", () -> {
             final String notExistingId = "42";
             final DbQuery query = defaultQuery.replaceWith(OFFERINGS, notExistingId);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
@@ -245,14 +244,14 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Single value filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(PROCEDURE, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Single value and list filter match in combination", () -> {
             final DbQuery query = defaultQuery.replaceWith(PROCEDURE, id1)
                                         .replaceWith(PROCEDURES, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
@@ -268,20 +267,20 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Procedure filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(PROCEDURES, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Procedure filter matches all datasets", () -> {
             final DbQuery query = defaultQuery.replaceWith(PROCEDURES, id1, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
         Assertions.assertAll("Procedure filter matches no dataset", () -> {
             final String notExistingId = "42";
             final DbQuery query = defaultQuery.replaceWith(PROCEDURES, notExistingId);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
@@ -298,14 +297,14 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Single value filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(PHENOMENON, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Single value and list filter match in combination", () -> {
             final DbQuery query = defaultQuery.replaceWith(PHENOMENON, id1)
                                         .replaceWith(PHENOMENA, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
@@ -321,20 +320,20 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Phenomenon filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Phenomenon filter matches all datasets", () -> {
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, id1, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
         Assertions.assertAll("Phenomenon filter matches no dataset", () -> {
             final String notExistingId = "42";
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, notExistingId);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
@@ -351,14 +350,14 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Single value filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(FEATURE, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Single value and list filter match in combination", () -> {
             final DbQuery query = defaultQuery.replaceWith(FEATURE, id1)
                                         .replaceWith(FEATURES, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
@@ -374,20 +373,20 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Feature filter matches one dataset", () -> {
             final DbQuery query = defaultQuery.replaceWith(FEATURES, id1);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
         });
 
         Assertions.assertAll("Feature filter matches all datasets", () -> {
             final DbQuery query = defaultQuery.replaceWith(FEATURES, id1, id2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
         Assertions.assertAll("Feature filter matches no dataset", () -> {
             final String notExistingId = "42";
             final DbQuery query = defaultQuery.replaceWith(FEATURES, notExistingId);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
@@ -406,7 +405,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
             final String phId2 = getIdAsString(d2.getPhenomenon());
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, phId1, phId2)
                                         .replaceWith(OFFERINGS, offId1, offId2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
@@ -414,7 +413,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
             final String notExistingId = "42";
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, notExistingId)
                                         .replaceWith(OFFERINGS, offId1, offId2);
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
     }
@@ -430,7 +429,7 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("No match when laying outside bbox", () -> {
             final DbQuery query = defaultQuery.replaceWith(Parameters.BBOX, "5, 50, 6, 51");
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query, entityManager);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
 
@@ -441,11 +440,12 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
         Assertions.assertAll("Match when laying inside bbox", () -> {
             final DbQuery query = defaultQuery.replaceWith(Parameters.BBOX, "7, 52, 7.5, 53");
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query, entityManager);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).hasSize(1);
         });
     }
 
+    private
 
     @SpringBootConfiguration
     @EnableJpaRepositories(basePackageClasses = DatasetRepository.class)

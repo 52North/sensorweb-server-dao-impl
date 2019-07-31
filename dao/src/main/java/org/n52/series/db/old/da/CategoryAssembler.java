@@ -44,7 +44,7 @@ import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class CategoryAssembler extends ParameterAssembler<CategoryEntity, CategoryOutput> {
 
     public CategoryAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {

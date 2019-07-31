@@ -45,6 +45,7 @@ import org.n52.io.response.dataset.profile.VerticalExtentValueOutput;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
+import org.n52.series.db.beans.VerticalMetadataEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
@@ -55,8 +56,6 @@ public abstract class ProfileDataRepository<V, T>
         AbstractDataRepository<ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
 
     private static final String PARAMETER_NAME = "name";
-    private static final String PARAMETER_VALUE = "value";
-    private static final String PARAMETER_UNIT = "unit";
 
     public ProfileDataRepository(HibernateSessionStore sessionStore,
                                  DbQueryFactory dbQueryFactory) {
@@ -114,16 +113,24 @@ public abstract class ProfileDataRepository<V, T>
 
     private VerticalExtentOutput createVerticalExtent(ProfileDataEntity observation) {
         VerticalExtentOutput verticalExtent = new VerticalExtentOutput();
-        verticalExtent.setUom(observation.hasVerticalUnit() ? observation.getVerticalUnit().getSymbol() : null);
-        verticalExtent.setOrientation(observation.getOrientation());
-        verticalExtent.setVerticalOrigin(observation.getVerticalOriginName());
-        verticalExtent.setFrom(new VerticalExtentValueOutput(observation.getVerticalFromName(),
-                format(observation.getVerticalFrom(), observation.getDataset())));
-        verticalExtent.setTo(new VerticalExtentValueOutput(observation.getVerticalToName(),
-                format(observation.getVerticalTo(), observation.getDataset())));
-        for (DataEntity<?> value : observation.getValue()) {
-            verticalExtent.setInterval(value.hasVerticalInterval());
-            break;
+        if (observation.getDataset().hasVerticalMetadata()) {
+            VerticalMetadataEntity verticalMetadata = observation.getDataset().getVerticalMetadata();
+            verticalExtent.setUom(
+                    verticalMetadata.hasVerticalUnit() ? verticalMetadata.getVerticalUnit().getSymbol() : null);
+            if (verticalMetadata.isSetOrientation()) {
+                verticalExtent.setOrientation(verticalMetadata.getOrientation());
+            }
+            if (verticalMetadata.isSetVerticalOriginName()) {
+                verticalExtent.setVerticalOrigin(verticalMetadata.getVerticalOriginName());
+            }
+            verticalExtent.setFrom(new VerticalExtentValueOutput(verticalMetadata.getVerticalFromName(),
+                    format(observation.getVerticalFrom(), observation.getDataset())));
+            verticalExtent.setTo(new VerticalExtentValueOutput(verticalMetadata.getVerticalToName(),
+                    format(observation.getVerticalTo(), observation.getDataset())));
+            for (DataEntity<?> value : observation.getValue()) {
+                verticalExtent.setInterval(value.hasVerticalInterval());
+                break;
+            }
         }
         return verticalExtent;
     }
@@ -139,12 +146,10 @@ public abstract class ProfileDataRepository<V, T>
         ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
 
-//        IoParameters parameters = query.getParameters();
         BigDecimal verticalTo = format(dataEntity.getVerticalTo(), dataEntity.getDataset());
         BigDecimal verticalFrom = format(dataEntity.getVerticalFrom(), dataEntity.getDataset());
 
         dataItem.setVertical(verticalTo);
-//        if (parameters.isShowVerticalIntervals() && dataEntity.hasVerticalFrom()) {
         if (dataEntity.hasVerticalInterval()) {
             dataItem.setVerticalFrom(verticalFrom);
         }
@@ -158,53 +163,7 @@ public abstract class ProfileDataRepository<V, T>
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
-//        String verticalUnit = getVerticalUnit(parameters, dataset);
-
-//        if (getParameterNames(parameters).contains(dataset.getVerticalParameterName())) {
-//            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalParameterName()));
-//        } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
-//                && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
-//            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
-//            BigDecimal verticalFrom = getVerticalValue(parameters, dataset.getVerticalFromParameterName());
-//            boolean showVerticalIntervals = query.getParameters().isShowVerticalIntervals();
-//            if (showVerticalIntervals && dataEntity.hasVerticalFrom()) {
-//                dataItem.setVerticalFrom(verticalFrom);
-//            }
-//        }
         return dataItem;
     }
-
-//    private BigDecimal getVerticalValue(Set<Map<String, Object>> parameters, String verticalName) {
-//        for (Map<String, Object> parameterObject : parameters) {
-//            if (isVertical(parameterObject, verticalName)) {
-//                return (BigDecimal) parameterObject.get(PARAMETER_VALUE);
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private String getVerticalUnit(Set<Map<String, Object>> parameters, DatasetEntity dataset) {
-//        String unit = null;
-//        for (Map<String, Object> parameter : parameters) {
-            // Object verticalName = parameter.get(PARAMETER_NAME);
-            // if (unit == null && parameter.containsKey(PARAMETER_NAME) &&
-            // (verticalName.equals(dataset.getVerticalParameterName())
-            // || verticalName.equals(dataset.getVerticalFromParameterName())
-            // || verticalName.equals(dataset.getVerticalToParameterName()))) {
-            // unit = (String) parameter.get(PARAMETER_UNIT);
-            // }
-//        }
-//        return unit;
-//    }
-//
-//    private Set<String> getParameterNames(Set<Map<String, Object>> parameters) {
-//        Set<String> names = new HashSet<>();
-//        for (Map<String, Object> parameter : parameters) {
-//            if (parameter.containsKey(PARAMETER_NAME)) {
-//                names.add((String) parameter.get(PARAMETER_NAME));
-//            }
-//        }
-//        return names;
-//    }
 
 }

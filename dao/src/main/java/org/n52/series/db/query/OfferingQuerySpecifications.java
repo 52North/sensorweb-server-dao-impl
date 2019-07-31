@@ -28,18 +28,19 @@
  */
 package org.n52.series.db.query;
 
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDatasetEntity;
-import org.n52.series.db.beans.QOfferingEntity;
-import org.n52.series.db.old.dao.DbQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.old.dao.DbQuery;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class OfferingQuerySpecifications extends ParameterQuerySpecifications {
 
     private OfferingQuerySpecifications(final DbQuery dbQuery) {
-        super(dbQuery);
+        super(dbQuery, null);
     }
 
     public static OfferingQuerySpecifications of(final DbQuery dbQuery) {
@@ -47,25 +48,23 @@ public final class OfferingQuerySpecifications extends ParameterQuerySpecificati
     }
 
     /**
-     * Matches offerings included in a result of a given subquery, i.e.
+     * Matches offerings included in a result of a given filter, i.e.
      *
      * <pre>
-     *   where id in (select fk_offering_id from dataset where &lt;subquery&gt;)
+     *   where id in (select fk_offering_id from dataset where &lt;filter&gt;)
      * </pre>
      *
-     * @param subquery
+     * @param filter
      *            the query
      * @return a boolean expression
      */
-    public BooleanExpression selectFrom(final JPQLQuery<DatasetEntity> subquery) {
-        final QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
-        final QOfferingEntity offeringentity = QOfferingEntity.offeringEntity;
-        return offeringentity.id.in(subquery.select(datasetentity.offering.id));
-    }
-
-    public BooleanExpression matchesPublicOffering(final String id) {
-        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        final BooleanExpression datasetPredicate = dsFilterSpec.matchOfferings(id).and(dsFilterSpec.isPublic());
-        return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    public Specification<OfferingEntity> selectFrom(final Specification<DatasetEntity> filter) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_OFFERING).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
     }
 }

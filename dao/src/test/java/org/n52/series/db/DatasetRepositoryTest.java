@@ -30,6 +30,7 @@ package org.n52.series.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.n52.io.request.Parameters.FILTER_VALUE_TYPES;
 
 import java.util.Optional;
@@ -38,9 +39,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -69,12 +73,17 @@ public class DatasetRepositoryTest extends TestBase {
         final DatasetEntity entity = uninitializedDataset("ph", "of", "pr", "pr_format");
 
         entity.setFeature(testRepositories.persistSimpleFeature("f1", "format_xy"));
-//        datasetRepository.initValueType(ValueType.quantity.name(), entity.getId());
+        entity.setDatasetType(DatasetType.timeseries);
+        entity.setObservationType(ObservationType.simple);
+        entity.setValueType(ValueType.quantity);
+        DatasetEntity save = testRepositories.save(entity);
+
 
         assertAll("qualified quantity dataset is found", () -> {
             final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
-            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(query);
+            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             final Optional<DatasetEntity> result = datasetRepository.findOne(filterSpec.matchValueTypes());
+            assertTrue(result.isPresent());
             assertThat(result).get().isInstanceOf(DatasetEntity.class);
         });
     }

@@ -55,7 +55,7 @@ import org.springframework.stereotype.Component;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-@Component
+//@Component
 public class PlatformAssembler extends ParameterAssembler<PlatformEntity, PlatformOutput> {
 
     private final DatasetAssembler<AbstractValue<?>> datasetAssembler;

@@ -31,8 +31,8 @@ package org.n52.series.srv;
 
 import java.util.List;
 
-import org.n52.io.DatasetFactoryException;
 import org.n52.io.TvpDataCollection;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;

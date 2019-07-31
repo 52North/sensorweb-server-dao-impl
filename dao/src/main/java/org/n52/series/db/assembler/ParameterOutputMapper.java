@@ -39,9 +39,7 @@ public final class ParameterOutputMapper implements OutputMapper {
     private final DbQuery query;
 
     public ParameterOutputMapper(final DbQuery query) {
-        this.query = query == null
-                ? new DefaultDbQueryFactory().createDefault()
-                : query;
+        this.query = query == null ? new DefaultDbQueryFactory().createDefault() : query;
     }
 
     @Override

@@ -30,7 +30,7 @@ package org.n52.series.db;
 
 import java.util.Set;
 
-import org.n52.io.DatasetFactoryException;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;

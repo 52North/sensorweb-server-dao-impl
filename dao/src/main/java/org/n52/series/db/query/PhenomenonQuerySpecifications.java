@@ -28,18 +28,19 @@
  */
 package org.n52.series.db.query;
 
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDatasetEntity;
-import org.n52.series.db.beans.QPhenomenonEntity;
-import org.n52.series.db.old.dao.DbQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.old.dao.DbQuery;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class PhenomenonQuerySpecifications extends ParameterQuerySpecifications {
 
     private PhenomenonQuerySpecifications(DbQuery dbQuery) {
-        super(dbQuery);
+        super(dbQuery, null);
     }
 
     public static PhenomenonQuerySpecifications of(DbQuery dbQuery) {
@@ -47,26 +48,23 @@ public final class PhenomenonQuerySpecifications extends ParameterQuerySpecifica
     }
 
     /**
-     * Matches phenomena included in a result of a given subquery, i.e.
+     * Matches phenomena included in a result of a given filter, i.e.
      *
      * <pre>
-     *   where id in (select fk_phenomenon_id from dataset where &lt;subquery&gt;)
+     *   where id in (select fk_phenomenon_id from dataset where &lt;filter&gt;)
      * </pre>
      *
-     * @param subquery
-     *        the query
+     * @param filter
+     *            the query
      * @return a boolean expression
      */
-    public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
-        QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
-        QPhenomenonEntity phenomenonentity = QPhenomenonEntity.phenomenonEntity;
-        return phenomenonentity.id.in(subquery.select(datasetentity.phenomenon.id));
-    }
-
-    public BooleanExpression matchesPublicOffering(String id) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        BooleanExpression datasetPredicate = dsFilterSpec.matchPhenomena(id)
-                                                         .and(dsFilterSpec.isPublic());
-        return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    public Specification<PhenomenonEntity> selectFrom(final Specification<DatasetEntity> filter) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_PHENOMENON).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
     }
 }

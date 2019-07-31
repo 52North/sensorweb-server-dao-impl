@@ -33,7 +33,6 @@ import java.io.IOException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.n52.series.db.HibernatePersistenceLoadingLocalContainerEntityManagerFactoryBean;
 import org.n52.series.db.beans.DatasetEntity;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;

@@ -28,14 +28,23 @@
  */
 package org.n52.series.db;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class TestBase {
+
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     @Autowired
     protected TestRepositories testRepositories;
@@ -47,7 +56,7 @@ public abstract class TestBase {
     @BeforeEach
     public void setUp() {
         this.defaultQuery = new DefaultDbQueryFactory().createDefault();
-        this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery);
+        this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery, entityManager);
     }
 
     protected DatasetEntity uninitializedDataset(final String phenomenonIdentifier,
@@ -84,7 +93,9 @@ public abstract class TestBase {
                                                      offeringIdentifier,
                                                      procedureIdentifier,
                                                      procedureFormat,
-                                                     new DatasetEntity());
+                                                     new DatasetEntity(DatasetType.timeseries,
+                                                             ObservationType.simple,
+                                                             ValueType.quantity));
     }
 
     protected DatasetEntity quantityDataset(final String phenomenonIdentifier,
@@ -99,7 +110,9 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new DatasetEntity());
+                                                     new DatasetEntity(DatasetType.timeseries,
+                                                             ObservationType.simple,
+                                                             ValueType.quantity));
     }
 
     protected DatasetEntity quantityProfileDataset(final String phenomenonIdentifier,
@@ -114,7 +127,9 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new DatasetEntity());
+                                                     new DatasetEntity(DatasetType.timeseries,
+                                                             ObservationType.profile,
+                                                             ValueType.quantity));
     }
 
     protected DatasetEntity textDataset(final String phenomenonIdentifier,
@@ -129,7 +144,13 @@ public abstract class TestBase {
                                                      procedureFormat,
                                                      featureIdentifier,
                                                      featureFormat,
-                                                     new DatasetEntity());
+                                                     new DatasetEntity(DatasetType.timeseries,
+                                                             ObservationType.simple,
+                                                             ValueType.text));
+    }
+
+    protected DatasetQuerySpecifications getDatasetQuerySpecification(DbQuery query) {
+        return DatasetQuerySpecifications.of(query, entityManager);
     }
 
 }

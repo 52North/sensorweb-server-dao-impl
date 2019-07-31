@@ -46,8 +46,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.ProcedureRepository;
 import org.n52.series.db.TestBase;
 import org.n52.series.db.TestRepositories;
 import org.n52.series.db.TestRepositoryConfig;
@@ -55,6 +53,8 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.dao.DbQuery;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.ProcedureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.SpringBootConfiguration;
@@ -150,7 +150,7 @@ public class ProcedureAssemblerTest extends TestBase {
             assertThat(procedures).extracting(ProcedureOutput::getDomainId)
                                  .noneMatch(it -> it.equals("pr1"))
                                  .anyMatch(it -> it.equals("pr2"))
-                                 .anyMatch(it -> it.equals("pr3"));
+                                 .noneMatch(it -> it.equals("pr3"));
         });
 
         Assertions.assertAll("Procedures with matching (by Domain ID) Offerings filters", () -> {
@@ -185,7 +185,7 @@ public class ProcedureAssemblerTest extends TestBase {
         procedure.setName(procedureLabel);
         testRepositories.save(procedure);
 
-        final DatasetEntity dataset = quantityDataset("phen", procedureIdentifier, "proc", "sml", "feat", formatIdentifier);
+        final DatasetEntity dataset = quantityDataset("phen", "off", procedureIdentifier, "sml", "feat", formatIdentifier);
 
         final String expectedId = Long.toString(procedure.getId());
 
@@ -194,7 +194,7 @@ public class ProcedureAssemblerTest extends TestBase {
             final List<ProcedureOutput> procedures = assembler.getAllCondensed(query);
             assertThat(procedures).element(0)
                                  .returns(expectedId, ProcedureOutput::getId)
-                                 .returns("proc", ProcedureOutput::getDomainId)
+                                 .returns(procedureIdentifier, ProcedureOutput::getDomainId)
                                  .returns("https://foo.com/procedures/" + expectedId, ProcedureOutput::getHref);
         });
 

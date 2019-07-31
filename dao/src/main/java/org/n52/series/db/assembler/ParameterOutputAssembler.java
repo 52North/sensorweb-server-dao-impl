@@ -28,33 +28,34 @@
  */
 package org.n52.series.db.assembler;
 
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.ParameterDataRepository;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.query.OfferingQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.ParameterDataRepository;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
+public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends AbstractOutput>
+        implements OutputAssembler<O> {
 
-public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends AbstractOutput> implements
-        OutputAssembler<O> {
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final ParameterDataRepository<E> parameterRepository;
 
@@ -65,12 +66,16 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     private ServiceEntity serviceEntity;
 
     public ParameterOutputAssembler(final ParameterDataRepository<E> parameterRepository,
-                                    final DatasetRepository datasetRepository) {
+            final DatasetRepository datasetRepository) {
         this.parameterRepository = parameterRepository;
         this.datasetRepository = datasetRepository;
     }
 
     protected abstract O prepareEmptyOutput();
+
+    protected abstract Specification<E> createPublicPredicate(String id, DbQuery query);
+
+    protected abstract Specification<E> createFilterPredicate(DbQuery query);
 
     protected O createExpanded(final E entity, final DbQuery query) {
         final ServiceEntity service = getServiceEntity(entity);
@@ -84,20 +89,18 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
     @Override
     public List<O> getAllCondensed(final DbQuery query) {
         final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
-        return findAll(query).map(it -> mapper.createCondensed(it, prepareEmptyOutput()))
-                             .collect(Collectors.toList());
+        return findAll(query).map(it -> mapper.createCondensed(it, prepareEmptyOutput())).collect(Collectors.toList());
     }
 
     @Override
     public List<O> getAllExpanded(final DbQuery query) {
-        return findAll(query).map(it -> createExpanded(it, query))
-                             .collect(Collectors.toList());
+        return findAll(query).map(it -> createExpanded(it, query)).collect(Collectors.toList());
     }
 
     @Override
     public O getInstance(final String id, final DbQuery query) {
-        final BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
-        final Optional<E> entity = parameterRepository.findOne(publicOffering);
+        final Specification<E> publicEntity = createPublicPredicate(id, query);
+        final Optional<E> entity = parameterRepository.findOne(publicEntity);
         return entity.map(it -> createExpanded(it, query)).orElse(null);
     }
 
@@ -109,34 +112,22 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     @Override
     public boolean exists(final String id, final DbQuery query) {
-        final BooleanExpression publicOffering = createPublicOfferingPredicate(id, query);
-        return parameterRepository.exists(publicOffering);
+        return parameterRepository.exists(createPublicPredicate(id, query));
     }
 
-    private BooleanExpression createPublicOfferingPredicate(final String id, final DbQuery query) {
-        final OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        return oFilterSpec.matchesPublicOffering(id);
+    protected DatasetQuerySpecifications getDatasetQuerySpecification(DbQuery query) {
+        return DatasetQuerySpecifications.of(query, entityManager);
     }
 
     private Stream<E> findAll(final DbQuery query) {
-        final BooleanExpression predicate = createFilterPredicate(query);
+        final Specification<E> predicate = createFilterPredicate(query);
         final Iterable<E> entities = parameterRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
     }
 
-    private BooleanExpression createFilterPredicate(final DbQuery query) {
-        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        final JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
-
-        final OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        return oFilterSpec.selectFrom(subQuery);
-    }
-
     protected ServiceEntity getServiceEntity(final DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null
-            ? entity.getService()
-            : serviceEntity;
+        return entity.getService() != null ? entity.getService() : serviceEntity;
     }
 
     private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {

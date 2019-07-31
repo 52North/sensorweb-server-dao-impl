@@ -111,10 +111,9 @@
             <artifactId>gt-opengis</artifactId>
             <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-api</artifactId>
+            <artifactId>gt-main</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -227,6 +226,7 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-metadata</artifactId>

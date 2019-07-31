@@ -28,16 +28,18 @@
  */
 package org.n52.series.db.query;
 
+import javax.persistence.EntityManager;
+
 import org.n52.series.db.old.dao.DbQuery;
 
 public class ParameterQuerySpecifications extends QuerySpecifications {
 
-    protected ParameterQuerySpecifications(final DbQuery dbQuery) {
-        super(dbQuery);
+    protected ParameterQuerySpecifications(final DbQuery dbQuery, EntityManager entityManager) {
+        super(dbQuery, entityManager);
     }
 
-    public static ParameterQuerySpecifications of(final DbQuery dbQuery) {
-        return new ParameterQuerySpecifications(dbQuery);
+    public static ParameterQuerySpecifications of(final DbQuery dbQuery, EntityManager entityManager) {
+        return new ParameterQuerySpecifications(dbQuery, entityManager);
     }
 
 }

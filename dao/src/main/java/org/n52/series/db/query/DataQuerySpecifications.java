@@ -28,7 +28,6 @@
  */
 package org.n52.series.db.query;
 
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,44 +35,42 @@ import java.util.Date;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 
+import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
+import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDataEntity;
-import org.n52.series.db.beans.QGeometryEntity;
-import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.QueryUtils;
+import org.springframework.data.jpa.domain.Specification;
 
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.DateTimePath;
-import com.querydsl.jpa.impl.JPAQuery;
-
-public final class DataQuerySpecifications extends QuerySpecifications {
+public final class DataQuerySpecifications<E extends DatasetEntity> extends QuerySpecifications {
 
     private DataQuerySpecifications(final DbQuery query) {
-        super(query);
+        super(query, null);
     }
 
-    public static DataQuerySpecifications of(final DbQuery query) {
+    public static <E> DataQuerySpecifications of(final DbQuery query) {
         return new DataQuerySpecifications(query);
     }
 
     /**
-     * Matches data entities belonging to a given dataset and applying query via {@link #matchFilters()}
+     * Matches data entities belonging to a given dataset and applying query via
+     * {@link #matchFilters()}
      *
      * @param dataset
-     *        the dataset
+     *            the dataset
      * @return a boolean expression
      * @see #matchFilters()
      */
-    public BooleanExpression matchFilters(DatasetEntity dataset) {
-        QDataEntity dataentity = QDataEntity.dataEntity;
-        return dataentity.dataset.id.eq(dataset.getId()).and(matchFilters());
+    public Specification<DataEntity> matchFilters(DatasetEntity dataset) {
+        return matchDatasets(dataset.getId().toString()).and(matchFilters());
     }
 
     /**
@@ -87,10 +84,8 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression matching all filter criteria
      */
-    public BooleanExpression matchFilters() {
-        return matchDatasets().and(matchTimespan())
-                              .and(matchParents())
-                              .and(matchesSpatially());
+    public Specification<DataEntity> matchFilters() {
+        return matchDatasets().and(matchTimespan()).and(matchParents()).and(matchesSpatially());
     }
 
     /**
@@ -98,16 +93,14 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    private BooleanExpression matchTimespan() {
-        QDataEntity dataentity = QDataEntity.dataEntity;
-        Date requestedStart = getTimespanStart();
-        Date requestedEnd = getTimespanEnd();
+    private Specification<DataEntity> matchTimespan() {
+        return (root, query, builder) -> {
+            Date requestedStart = getTimespanStart();
+            Date requestedEnd = getTimespanEnd();
+            return builder.and(builder.greaterThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), requestedStart),
+                    builder.lessThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), requestedEnd));
+        };
 
-        DateTimePath<Date> timestart = dataentity.samplingTimeStart;
-        DateTimePath<Date> timeend = dataentity.samplingTimeEnd;
-        BooleanExpression afterStart = timestart.after(requestedStart);
-        BooleanExpression beforeEnd = timeend.before(requestedEnd);
-        return afterStart.and(beforeEnd);
     }
 
     /**
@@ -115,9 +108,8 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    public BooleanExpression matchParents() {
-        QDataEntity dataentity = QDataEntity.dataEntity;
-        return dataentity.parent.isNotNull();
+    public Specification<DataEntity> matchParents() {
+        return (root, query, builder) -> builder.notEqual(root.get(DataEntity.PROPERTY_PARENT), null);
     }
 
     /**
@@ -126,8 +118,8 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchDatasets(Collection)
      */
-    public BooleanExpression matchDatasets() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DataEntity> matchDatasets() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchDatasets(parameters.getDatasets());
     }
 
@@ -135,14 +127,16 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      * Matches data of datasets with given ids.
      *
      * @param ids
-     *        the ids to match
+     *            the ids to match
      * @return a boolean expression
      * @see #matchDatasets(Collection)
      */
-    public BooleanExpression matchDatasets(final String... ids) {
-        return ids != null
-            ? matchDatasets(Arrays.asList(ids))
-            : matchDatasets(Collections.emptyList());
+    public Specification<DataEntity> matchDatasets(final String... ids) {
+        return ids != null ? matchDatasets(Arrays.asList(ids)) : matchDatasets(Collections.emptyList());
+    }
+
+    private Specification<DataEntity> matchDatasets(Long id) {
+        return id != null ? matchDatasets(Arrays.asList(Long.toString(id))) : matchDatasets(Collections.emptyList());
     }
 
     /**
@@ -152,78 +146,82 @@ public final class DataQuerySpecifications extends QuerySpecifications {
      *  where dataset.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
-     * used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
+     * following query path will be used:
      *
      * <pre>
      *  where dataset.identifier in (&lt;ids&gt;)
      * </pre>
      *
      * @param ids
-     *        the ids to match
-     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     *            the ids to match
+     * @return a boolean expression or {@literal null} when given ids are
+     *         {@literal null} or empty
      */
-    public BooleanExpression matchDatasets(final Collection<String> ids) {
+    public Specification<DataEntity> matchDatasets(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
-        final QDataEntity data = QDataEntity.dataEntity;
-        return query.isMatchDomainIds()
-            ? data.dataset.identifier.in(ids)
-            : data.dataset.id.in(QueryUtils.parseToIds(ids));
+        return (root, query, builder) -> {
+            final Join<DataEntity, DatasetEntity> join = root.join(DataEntity.PROPERTY_DATASET, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
     }
 
-    public Optional<DataEntity< ? >> matchClosestBeforeStart(DatasetEntity dataset, EntityManager entityManager) {
-        QDataEntity dataentity = QDataEntity.dataEntity;
-        OrderSpecifier<Date> order = new OrderSpecifier<>(Order.DESC, dataentity.samplingTimeEnd);
-        BooleanExpression beforeSamplingTime = dataentity.samplingTimeStart.before(getTimespanStart());
-        BooleanExpression matchesDatasetId = matchDatasets(dataset.getId().toString());
-        BooleanExpression predicate = matchesDatasetId.and(beforeSamplingTime);
-        JPAQuery<DataEntity< ? >> query = new JPAQuery<>(entityManager);
-        return query.from(dataentity)
-                    .where(predicate)
-                    .orderBy(order)
-                    .limit(1)
-                    .fetch()
-                    .stream()
-                    .findFirst();
+    public Optional<DataEntity> matchClosestBeforeStart(DatasetEntity dataset, EntityManager entityManager) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
+                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
+                matcheBefore(getTimespanStart()).toPredicate(root, query, builder));
+        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
     }
 
-    public Optional<DataEntity< ? >> matchClosestAfterEnd(DatasetEntity dataset, EntityManager entityManager) {
-        QDataEntity dataentity = QDataEntity.dataEntity;
-        OrderSpecifier<Date> order = new OrderSpecifier<>(Order.ASC, dataentity.samplingTimeEnd);
-        BooleanExpression afterSamplingTime = dataentity.samplingTimeEnd.after(getTimespanEnd());
-        BooleanExpression matchesDatasetId = matchDatasets(dataset.getId().toString());
-        BooleanExpression predicate = matchesDatasetId.and(afterSamplingTime);
-        JPAQuery<DataEntity< ? >> query = new JPAQuery<>(entityManager);
-        return query.from(dataentity)
-                    .where(predicate)
-                    .orderBy(order)
-                    .limit(1)
-                    .fetch()
-                    .stream()
-                    .findFirst();
+    public Optional<DataEntity> matchClosestAfterEnd(DatasetEntity dataset, EntityManager entityManager) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
+                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
+                matcheAfter(getTimespanEnd()).toPredicate(root, query, builder));
+
+        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
+    }
+
+    private Specification<DataEntity> matcheBefore(Date date) {
+        return (root, query, builder) -> {
+            return builder.lessThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), date);
+        };
+    }
+
+    private Specification<DataEntity> matcheAfter(Date date) {
+        return (root, query, builder) -> {
+            return builder.greaterThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), date);
+        };
     }
 
     /**
-     * Matches datasets which have a feature laying within the given bbox using an intersects query. For
-     * example:
+     * Matches datasets which have a feature laying within the given bbox using
+     * an intersects query. For example:
      *
      * <pre>
      *   where ST_INTERSECTS(feature.geom, &lt;filter_geometry&gt;)=1
      * </pre>
      *
-     * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given spatial filter
+     *         is {@literal null} or empty
      */
-    public BooleanExpression matchesSpatially() {
-        final Geometry geometry = query.getSpatialFilter();
+    public Specification<DataEntity> matchesSpatially() {
+        final Geometry geometry = dbQuery.getSpatialFilter();
         if ((geometry == null) || geometry.isEmpty()) {
             return null;
         }
-        final QDataEntity dataentity = QDataEntity.dataEntity;
-        final QGeometryEntity geometryEntity = dataentity.geometryEntity;
-        return geometryEntity.geometry.intersects(JTSGeometryConverter.convert(geometry));
-
+        return (root, query, builder) -> {
+            return new IntersectsPredicate((CriteriaBuilderImpl) builder,
+                    root.get(DataEntity.PROPERTY_GEOMETRY_ENTITY).get(DataEntity.PROPERTY_GEOMETRY),
+                    new LiteralExpression<>((CriteriaBuilderImpl) builder, geometry), entityManager);
+        };
     }
 
 }

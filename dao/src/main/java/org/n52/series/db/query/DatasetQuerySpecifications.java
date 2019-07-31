@@ -32,28 +32,35 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+
+import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
+import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
+import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDatasetEntity;
-import org.n52.series.db.beans.QGeometryEntity;
+import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
-import org.n52.series.db.dao.JTSGeometryConverter;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.QueryUtils;
-
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class DatasetQuerySpecifications extends QuerySpecifications {
 
-    private DatasetQuerySpecifications(final DbQuery dbQuery) {
-        super(dbQuery);
+    private DatasetQuerySpecifications(final DbQuery dbQuery, EntityManager entityManager) {
+        super(dbQuery, entityManager);
     }
 
-    public static DatasetQuerySpecifications of(final DbQuery dbQuery) {
-        return new DatasetQuerySpecifications(dbQuery);
+    public static DatasetQuerySpecifications of(final DbQuery dbQuery, EntityManager entityManager) {
+        return new DatasetQuerySpecifications(dbQuery, entityManager);
     }
 
     /**
@@ -61,9 +68,13 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *            a filter each selected dataset have to match
      * @return a subquery selection only public datasets.
      */
-    public JPQLQuery<DatasetEntity> toSubquery(final BooleanExpression filter) {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return JPAExpressions.selectFrom(dataset).where(filter);
+    public Specification<DatasetEntity> toSubquery(final Specification<DatasetEntity> filter) {
+        return filter;
+        // return (root, query, builder) -> {
+        // return
+        // builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(filter.toPredicate(root,
+        // query, builder));
+        // };
     }
 
     /**
@@ -80,8 +91,9 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression matching all filter criteria
      */
-    public BooleanExpression matchFilters() {
-        return isPublic().and(matchFeatures()).and(matchOfferings()).and(matchPhenomena()).and(matchProcedures())
+    public Specification<DatasetEntity> matchFilters() {
+        return isPublic().and(matchFeatures()).and(matchCategory()).and(matchPhenomena()).and(matchProcedures())
+                .and(matchOfferings()).and(matchPlatforms()).and(matchDatasetTypes()).and(matchObservationTypes())
                 .and(matchValueTypes()).and(matchesSpatially());
     }
 
@@ -97,13 +109,17 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    public BooleanExpression isPublic() {
-        return hasFeature().and(isDeleted().not()).and(isEnabled()).and(isPublished());
+    public Specification<DatasetEntity> isPublic() {
+        return Specification.where(hasFeature()).and(isNotDeleted()).and(isEnabled()).and(isPublished());
     }
+    // public Specification<String> getIdSubqueryWithFilter(Specification
+    // filter) {
+    // return this.toSubquery(AbstractFeatureEntity.class,
+    // AbstractFeatureEntity.PROPERTY_IDENTIFIER, filter);
+    // }
 
-    private BooleanExpression hasFeature() {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.feature.isNotNull();
+    protected Specification<DatasetEntity> hasFeature() {
+        return (root, query, builder) -> builder.isNotNull(root.get(DatasetEntity.PROPERTY_FEATURE));
     }
 
     /**
@@ -115,9 +131,12 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    public BooleanExpression isPublished() {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.published.isTrue();
+    // public BooleanExpression isPublished() {
+    // final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+    // return dataset.published.isTrue();
+    // }
+    public Specification<DatasetEntity> isPublished() {
+        return (root, query, builder) -> builder.isTrue(root.get(DatasetEntity.PROPERTY_PUBLISHED));
     }
 
     /**
@@ -129,9 +148,12 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    public BooleanExpression isEnabled() {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.disabled.isFalse();
+    // public BooleanExpression isEnabled() {
+    // final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+    // return dataset.disabled.isFalse();
+    // }
+    public Specification<DatasetEntity> isEnabled() {
+        return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.PROPERTY_DISABLED));
     }
 
     /**
@@ -143,9 +165,16 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
-    public BooleanExpression isDeleted() {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return dataset.deleted.isTrue();
+    // public BooleanExpression isDeleted() {
+    // final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
+    // return dataset.deleted.isTrue();
+    // }
+    public Specification<DatasetEntity> isDeleted() {
+        return (root, query, builder) -> builder.isTrue(root.get(DatasetEntity.PROPERTY_DELETED));
+    }
+
+    public Specification<DatasetEntity> isNotDeleted() {
+        return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.PROPERTY_DELETED));
     }
 
     /**
@@ -154,8 +183,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchOfferings(Collection)
      */
-    public BooleanExpression matchOfferings() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DatasetEntity> matchOfferings() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchOfferings(parameters.getOfferings());
     }
 
@@ -167,7 +196,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchOfferings(Collection)
      */
-    public BooleanExpression matchOfferings(final String... ids) {
+    public Specification<DatasetEntity> matchOfferings(final String... ids) {
         return ids != null ? matchOfferings(Arrays.asList(ids)) : matchOfferings(Collections.emptyList());
     }
 
@@ -190,13 +219,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are
      *         {@literal null} or empty
      */
-    public BooleanExpression matchOfferings(final Collection<String> ids) {
+    public Specification<DatasetEntity> matchOfferings(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return query.isMatchDomainIds() ? dataset.offering.identifier.in(ids)
-                : dataset.offering.id.in(QueryUtils.parseToIds(ids));
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, OfferingEntity> join =
+                    root.join(DatasetEntity.PROPERTY_OFFERING, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
     }
 
     /**
@@ -205,8 +236,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchFeatures(Collection)
      */
-    public BooleanExpression matchFeatures() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DatasetEntity> matchFeatures() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchFeatures(parameters.getFeatures());
     }
 
@@ -218,7 +249,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchFeatures(Collection)
      */
-    public BooleanExpression matchFeatures(final String... ids) {
+    public Specification<DatasetEntity> matchFeatures(final String... ids) {
         return ids != null ? matchFeatures(Arrays.asList(ids)) : matchFeatures(Collections.emptyList());
     }
 
@@ -242,13 +273,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are
      *         {@literal null} or empty
      */
-    public BooleanExpression matchFeatures(final Collection<String> ids) {
+    public Specification<DatasetEntity> matchFeatures(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return query.isMatchDomainIds() ? dataset.feature.identifier.in(ids)
-                : dataset.feature.id.in(QueryUtils.parseToIds(ids));
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, AbstractFeatureEntity> join =
+                    root.join(DatasetEntity.PROPERTY_FEATURE, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
     }
 
     /**
@@ -257,8 +290,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchProcedures(Collection)
      */
-    public BooleanExpression matchProcedures() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DatasetEntity> matchProcedures() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchProcedures(parameters.getProcedures());
     }
 
@@ -270,7 +303,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchProcedures(Collection)
      */
-    public BooleanExpression matchProcedures(final String... ids) {
+    public Specification<DatasetEntity> matchProcedures(final String... ids) {
         return ids != null ? matchProcedures(Arrays.asList(ids)) : matchProcedures(Collections.emptyList());
     }
 
@@ -293,13 +326,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are
      *         {@literal null} or empty
      */
-    public BooleanExpression matchProcedures(final Collection<String> ids) {
+    public Specification<DatasetEntity> matchProcedures(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return query.isMatchDomainIds() ? dataset.procedure.identifier.in(ids)
-                : dataset.procedure.id.in(QueryUtils.parseToIds(ids));
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, ProcedureEntity> join =
+                    root.join(DatasetEntity.PROPERTY_PROCEDURE, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
     }
 
     /**
@@ -308,8 +343,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchPhenomena(Collection)
      */
-    public BooleanExpression matchPhenomena() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DatasetEntity> matchPhenomena() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchPhenomena(parameters.getPhenomena());
     }
 
@@ -321,7 +356,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchPhenomena(Collection)
      */
-    public BooleanExpression matchPhenomena(final String... ids) {
+    public Specification<DatasetEntity> matchPhenomena(final String... ids) {
         return ids != null ? matchPhenomena(Arrays.asList(ids)) : matchPhenomena(Collections.emptyList());
     }
 
@@ -344,13 +379,212 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are
      *         {@literal null} or empty
      */
-    public BooleanExpression matchPhenomena(final Collection<String> ids) {
+    public Specification<DatasetEntity> matchPhenomena(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        return query.isMatchDomainIds() ? dataset.phenomenon.identifier.in(ids)
-                : dataset.phenomenon.id.in(QueryUtils.parseToIds(ids));
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, PhenomenonEntity> join =
+                    root.join(DatasetEntity.PROPERTY_PHENOMENON, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
+    }
+
+    /**
+     * Matches datasets having category with given ids.
+     *
+     * @return a boolean expression
+     * @see #matchCategory(Collection)
+     */
+    public Specification<DatasetEntity> matchCategory() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchCategory(parameters.getCategories());
+    }
+
+    /**
+     * Matches datasets having category with given ids.
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression
+     * @see #matchCategory(Collection)
+     */
+    public Specification<DatasetEntity> matchCategory(final String... ids) {
+        return ids != null ? matchCategory(Arrays.asList(ids)) : matchCategory(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets having category with given ids. For example:
+     *
+     * <pre>
+     *  where category.id in (&lt;ids&gt;)
+     * </pre>
+     *
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
+     * following query path will be used:
+     *
+     * <pre>
+     *  where category.identifier in (&lt;ids&gt;)
+     * </pre>
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression or {@literal null} when given ids are
+     *         {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchCategory(final Collection<String> ids) {
+        if ((ids == null) || ids.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, CategoryEntity> join =
+                    root.join(DatasetEntity.PROPERTY_CATEGORY, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
+    }
+
+    /**
+     * Matches datasets having platform with given ids.
+     *
+     * @return a boolean expression
+     * @see #matchPlatforms(Collection)
+     */
+    public Specification<DatasetEntity> matchPlatforms() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchPlatforms(parameters.getPlatforms());
+    }
+
+    /**
+     * Matches datasets having platform with given ids.
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression
+     * @see #matchPlatforms(Collection)
+     */
+    public Specification<DatasetEntity> matchPlatforms(final String... ids) {
+        return ids != null ? matchPlatforms(Arrays.asList(ids)) : matchPlatforms(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets having platform with given ids. For example:
+     *
+     * <pre>
+     *  where platform.id in (&lt;ids&gt;)
+     * </pre>
+     *
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
+     * following query path will be used:
+     *
+     * <pre>
+     *  where platform.identifier in (&lt;ids&gt;)
+     * </pre>
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression or {@literal null} when given ids are
+     *         {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchPlatforms(final Collection<String> ids) {
+        if ((ids == null) || ids.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, PlatformEntity> join =
+                    root.join(DatasetEntity.PROPERTY_PHENOMENON, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
+    }
+
+    /**
+     * Matches datasets matching given dataset types.
+     *
+     * @return a boolean expression
+     * @see #matchDatasetTypes(Collection)
+     */
+    public Specification<DatasetEntity> matchDatasetTypes() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchDatasetTypes(parameters.getDatasetTypes());
+    }
+
+    /**
+     * Matches datasets matching given dataset types.
+     *
+     * @param datasetTypes
+     *            the dataset types to match
+     * @return a boolean expression
+     * @see #matchDatasetTypes(Collection)
+     */
+    public Specification<DatasetEntity> matchDatasetTypes(final String... datasetTypes) {
+        return datasetTypes != null ? matchDatasetTypes(Arrays.asList(datasetTypes))
+                : matchDatasetTypes(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets matching given dataset types. For example:
+     *
+     * <pre>
+     *  where datasetType in (&lt;datasetTypes&gt;)
+     * </pre>
+     *
+     * @param datasetTypes
+     *            the dataset types to match
+     * @return a boolean expression or {@literal null} when given dataset types
+     *         are {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchDatasetTypes(final Collection<String> datasetTypes) {
+        return (root, query, builder) -> {
+            if ((datasetTypes == null) || datasetTypes.isEmpty()) {
+                return builder.notEqual(root.get(DatasetEntity.PROPERTY_DATASET_TYPE), DatasetType.not_initialized);
+            }
+            return root.get(DatasetEntity.PROPERTY_DATASET_TYPE).in(DatasetType.convert(datasetTypes));
+        };
+    }
+
+    /**
+     * Matches datasets matching given observation types.
+     *
+     * @return a boolean expression
+     * @see #matchObservationTypes(Collection)
+     */
+    public Specification<DatasetEntity> matchObservationTypes() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchObservationTypes(parameters.getObservationTypes());
+    }
+
+    /**
+     * Matches datasets matching given observation types.
+     *
+     * @param observationTypes
+     *            the observation types to match
+     * @return a boolean expression
+     * @see #matchObservationTypes(Collection)
+     */
+    public Specification<DatasetEntity> matchObservationTypes(final String... observationTypes) {
+        return observationTypes != null ? matchObservationTypes(Arrays.asList(observationTypes))
+                : matchObservationTypes(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets matching given observation types. For example:
+     *
+     * <pre>
+     *  where observationType in (&lt;observationTypes&gt;)
+     * </pre>
+     *
+     * @param observationTypes
+     *            the observation types to match
+     * @return a boolean expression or {@literal null} when given observation
+     *         types are {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchObservationTypes(final Collection<String> observationTypes) {
+        return (root, query, builder) -> {
+            if ((observationTypes == null) || observationTypes.isEmpty()) {
+                return builder.notEqual(root.get(DatasetEntity.PROPERTY_OBSERVATION_TYPE),
+                        ObservationType.not_initialized);
+            }
+            return root.get(DatasetEntity.PROPERTY_OBSERVATION_TYPE).in(ObservationType.convert(observationTypes));
+        };
     }
 
     /**
@@ -359,8 +593,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchValueTypes(Collection)
      */
-    public BooleanExpression matchValueTypes() {
-        final IoParameters parameters = query.getParameters();
+    public Specification<DatasetEntity> matchValueTypes() {
+        final IoParameters parameters = dbQuery.getParameters();
         return matchValueTypes(parameters.getValueTypes());
     }
 
@@ -372,7 +606,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression
      * @see #matchValueTypes(Collection)
      */
-    public BooleanExpression matchValueTypes(final String... valueTypes) {
+    public Specification<DatasetEntity> matchValueTypes(final String... valueTypes) {
         return valueTypes != null ? matchValueTypes(Arrays.asList(valueTypes))
                 : matchValueTypes(Collections.emptyList());
     }
@@ -389,54 +623,14 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given value types
      *         are {@literal null} or empty
      */
-    public BooleanExpression matchValueTypes(final Collection<String> valueTypes) {
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        if ((valueTypes == null) || valueTypes.isEmpty()) {
-            return isInitializedDataset(dataset);
-        }
-        return isInitializedDataset(dataset).and(dataset.valueType.in(ValueType.convert(valueTypes)));
-
+    public Specification<DatasetEntity> matchValueTypes(final Collection<String> valueTypes) {
+        return (root, query, builder) -> {
+            if ((valueTypes == null) || valueTypes.isEmpty()) {
+                return builder.notEqual(root.get(DatasetEntity.PROPERTY_VALUE_TYPE), ValueType.not_initialized);
+            }
+            return root.get(DatasetEntity.PROPERTY_VALUE_TYPE).in(ValueType.convert(valueTypes));
+        };
     }
-
-    private BooleanExpression isInitializedDataset(final QDatasetEntity dataset) {
-        return dataset.valueType.notIn(ValueType.not_initialized);
-    }
-
-    // private BooleanExpression isInsituOrRemote(final FilterResolver
-    // filterResolver, final QDatasetEntity dataset) {
-    // return isRemote(dataset, filterResolver).or(isInsitu(dataset,
-    // filterResolver));
-    // }
-    //
-    // private BooleanExpression isMobileOrStationary(final FilterResolver
-    // filterResolver, final QDatasetEntity dataset) {
-    // return isMobile(dataset, filterResolver).or(isStationary(dataset,
-    // filterResolver));
-    // }
-    //
-    // private BooleanExpression isRemote(final QDatasetEntity dataset, final
-    // FilterResolver filterResolver) {
-    // return
-    // dataset.insitu.eq(filterResolver.shallIncludeRemotePlatformTypes()).not();
-    // }
-    //
-    // private BooleanExpression isStationary(final QDatasetEntity dataset,
-    // final FilterResolver filterResolver) {
-    // return
-    // dataset.mobile.eq(filterResolver.shallIncludeStationaryPlatformTypes()).not();
-    // }
-    //
-    // private BooleanExpression isMobile(final QDatasetEntity dataset, final
-    // FilterResolver filterResolver) {
-    // return
-    // dataset.mobile.eq(filterResolver.shallIncludeMobilePlatformTypes());
-    // }
-    //
-    // private BooleanExpression isInsitu(final QDatasetEntity dataset, final
-    // FilterResolver filterResolver) {
-    // return
-    // dataset.insitu.eq(filterResolver.shallIncludeInsituPlatformTypes());
-    // }
 
     /**
      * Matches datasets which have a feature laying within the given bbox using
@@ -449,14 +643,19 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given spatial filter
      *         is {@literal null} or empty
      */
-    public BooleanExpression matchesSpatially() {
-        final Geometry geometry = query.getSpatialFilter();
+    public Specification<DatasetEntity> matchesSpatially() {
+        final Geometry geometry = dbQuery.getSpatialFilter();
         if ((geometry == null) || geometry.isEmpty()) {
             return null;
         }
-        final QDatasetEntity dataset = QDatasetEntity.datasetEntity;
-        final QGeometryEntity geometryEntity = dataset.feature.geometryEntity;
-        return geometryEntity.geometry.intersects(JTSGeometryConverter.convert(geometry));
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, AbstractFeatureEntity> join =
+                    root.join(DatasetEntity.PROPERTY_FEATURE, JoinType.INNER);
+            return new IntersectsPredicate((CriteriaBuilderImpl) builder,
+                    join.get(AbstractFeatureEntity.PROPERTY_GEOMETRY_ENTITY)
+                            .get(AbstractFeatureEntity.PROPERTY_GEOMETRY),
+                    new LiteralExpression<>((CriteriaBuilderImpl) builder, geometry), entityManager);
+        };
     }
 
 }

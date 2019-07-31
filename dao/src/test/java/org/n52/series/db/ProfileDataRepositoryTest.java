@@ -36,7 +36,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Condition;
 import org.assertj.core.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +47,8 @@ import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
+import org.n52.series.db.repositories.DataRepository;
+import org.n52.series.db.repositories.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -63,7 +64,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ProfileDataRepositoryTest extends TestBase {
 
     @Autowired
-    private DataRepository< ? super DataEntity< ? >> dataRepository;
+    private DataRepository<DataEntity> dataRepository;
 
     @Test
     @DisplayName("ProfileDataEntity data is found")
@@ -74,7 +75,7 @@ public class ProfileDataRepositoryTest extends TestBase {
         assertAll("Query quantity data", () -> {
             final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
-            final Iterable< ? super DataEntity< ? >> results = dataRepository.findAll(filterSpec.matchDatasets());
+            final Iterable<DataEntity> results = dataRepository.findAll(filterSpec.matchDatasets());
             assertThat(results).allMatch(it -> it instanceof QuantityDataEntity)
                                .extracting(it -> Objects.castIfBelongsToType(it, QuantityDataEntity.class));
         });
@@ -108,6 +109,8 @@ public class ProfileDataRepositoryTest extends TestBase {
         dataEntity.setSamplingTimeStart(new Date());
         dataEntity.setSamplingTimeEnd(new Date()); // XXX why is this required?
         dataEntity.setResultTime(new Date()); // XXX why is this required?
+        dataEntity.setVerticalFrom(BigDecimal.valueOf(it));
+        dataEntity.setVerticalTo(BigDecimal.valueOf(it));
         return dataEntity;
     }
 

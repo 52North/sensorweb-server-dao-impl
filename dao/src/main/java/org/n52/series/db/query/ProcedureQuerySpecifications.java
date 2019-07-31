@@ -28,18 +28,19 @@
  */
 package org.n52.series.db.query;
 
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDatasetEntity;
-import org.n52.series.db.beans.QProcedureEntity;
-import org.n52.series.db.old.dao.DbQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.old.dao.DbQuery;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class ProcedureQuerySpecifications extends ParameterQuerySpecifications {
 
     private ProcedureQuerySpecifications(DbQuery dbQuery) {
-        super(dbQuery);
+        super(dbQuery, null);
     }
 
     public static ProcedureQuerySpecifications of(DbQuery dbQuery) {
@@ -47,25 +48,23 @@ public final class ProcedureQuerySpecifications extends ParameterQuerySpecificat
     }
 
     /**
-     * Matches procedures included in a result of a given subquery, i.e.
+     * Matches procedures included in a result of a given filter, i.e.
      *
      * <pre>
-     *   where id in (select fk_procedure_id from dataset where &lt;subquery&gt;)
+     *   where id in (select fk_procedure_id from dataset where &lt;filter&gt;)
      * </pre>
      *
-     * @param subquery
+     * @param filter
      *            the query
      * @return a boolean expression
      */
-    public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
-        QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
-        QProcedureEntity procedureentity = QProcedureEntity.procedureEntity;
-        return procedureentity.id.in(subquery.select(datasetentity.procedure.id));
-    }
-
-    public BooleanExpression matchesPublicProcedure(String id) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        BooleanExpression datasetPredicate = dsFilterSpec.matchProcedures(id).and(dsFilterSpec.isPublic());
-        return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    public Specification<ProcedureEntity> selectFrom(final Specification<DatasetEntity> filter) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_PROCEDURE).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
     }
 }

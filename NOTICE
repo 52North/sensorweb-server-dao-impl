@@ -15,11 +15,11 @@ This project includes:
   AntLR Parser Generator under BSD License
   Apache Commons Codec under Apache License, Version 2.0
   Apache Commons IO under Apache License, Version 2.0
+  Apache Commons Text under Apache License, Version 2.0
   Apache FOP under The Apache Software License, Version 2.0
   Apache HttpClient under Apache License, Version 2.0
   Apache HttpCore under Apache License, Version 2.0
   Apache XML Graphics Commons under The Apache Software License, Version 2.0
-  API interfaces under Lesser General Public License (LGPL)
   AspectJ runtime under Eclipse Public License - v 1.0
   AspectJ tools under Eclipse Public License - v 1.0
   AspectJ weaver under Eclipse Public License - v 1.0
@@ -40,8 +40,9 @@ This project includes:
   Batik SVG transcoder classes under The Apache Software License, Version 2.0
   Batik utility library under The Apache Software License, Version 2.0
   Batik XML utility library under The Apache Software License, Version 2.0
-  Byte Buddy (without dependencies) under The Apache Software License, Version 2.0
+  Byte Buddy (without dependencies) under Apache License, Version 2.0
   c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
+  Checker Qual under The MIT License
   ClassMate under The Apache Software License, Version 2.0
   com.vividsolutions:jts-core under GNU Lesser General Public License, Version 2.1
   Commons Lang under The Apache Software License, Version 2.0
@@ -54,7 +55,9 @@ This project includes:
   fastinfoset under Apache License, Version 2.0
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   geolatte-geom under LGPL 3.0
-  Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
+  Guava InternalFutureFailureAccess and InternalFutures under The Apache Software License, Version 2.0
+  Guava ListenableFuture only under The Apache Software License, Version 2.0
+  Guava: Google Core Libraries for Java under Apache License, Version 2.0
   Hamcrest Core under New BSD License
   Hibernate Commons Annotations under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later

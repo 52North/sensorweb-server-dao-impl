@@ -47,8 +47,6 @@ import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
-import org.n52.series.db.DataRepository;
-import org.n52.series.db.DatasetRepository;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DataEntity;
@@ -59,10 +57,11 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
+import org.n52.series.db.repositories.DataRepository;
+import org.n52.series.db.repositories.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
-
-import com.querydsl.core.types.dsl.BooleanExpression;
 
 public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends AbstractValue<?>, T>
         implements ValueAssembler<E, V, T>, TimeOutputCreator {
@@ -180,8 +179,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     protected Stream<E> findAll(DatasetEntity dataset, DbQuery query) {
-        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
-        BooleanExpression predicate = dataFilterSpec.matchFilters(dataset);
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E>of(query);
+        Specification<E> predicate = dataFilterSpec.matchFilters(dataset);
         Iterable<E> entities = dataRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
     }

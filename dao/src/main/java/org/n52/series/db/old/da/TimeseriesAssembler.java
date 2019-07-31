@@ -213,7 +213,7 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
         List<DatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished() && (referenceSeriesEntity instanceof DatasetEntity)) {
+            if (referenceSeriesEntity.isPublished()) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));

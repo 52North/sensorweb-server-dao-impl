@@ -33,7 +33,7 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.n52.io.DatasetFactoryException;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.dataset.DatasetOutput;

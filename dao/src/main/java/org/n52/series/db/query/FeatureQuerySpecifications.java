@@ -28,44 +28,61 @@
  */
 package org.n52.series.db.query;
 
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.QDatasetEntity;
-import org.n52.series.db.beans.QFeatureEntity;
-import org.n52.series.db.old.dao.DbQuery;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
+import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
+import org.hibernate.query.criteria.internal.expression.LiteralExpression;
+import org.locationtech.jts.geom.Geometry;
+import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.old.dao.DbQuery;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class FeatureQuerySpecifications extends ParameterQuerySpecifications {
 
-    private FeatureQuerySpecifications(DbQuery dbQuery) {
-        super(dbQuery);
+    private FeatureQuerySpecifications(DbQuery dbQuery, EntityManager entityManager) {
+        super(dbQuery, entityManager);
     }
 
-    public static FeatureQuerySpecifications of(DbQuery dbQuery) {
-        return new FeatureQuerySpecifications(dbQuery);
+    public static FeatureQuerySpecifications of(DbQuery dbQuery, EntityManager entityManager) {
+        return new FeatureQuerySpecifications(dbQuery, entityManager);
     }
 
     /**
-     * Matches procedures included in a result of a given subquery, i.e.
+     * Matches procedures included in a result of a given filter, i.e.
      *
      * <pre>
-     *   where id in (select fk_procedure_id from dataset where &lt;subquery&gt;)
+     *   where id in (select fk_procedure_id from dataset where &lt;filter&gt;)
      * </pre>
      *
-     * @param subquery
+     * @param filter
      *            the query
      * @return a boolean expression
      */
-    public BooleanExpression selectFrom(JPQLQuery<DatasetEntity> subquery) {
-        QDatasetEntity datasetentity = QDatasetEntity.datasetEntity;
-        QFeatureEntity featureentity = QFeatureEntity.featureEntity;
-        return featureentity.id.in(subquery.select(datasetentity.feature.id));
+    public Specification<AbstractFeatureEntity> selectFrom(final Specification<DatasetEntity> filter) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_FEATURE).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
     }
 
-    public BooleanExpression matchesPublicFeature(String id) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        BooleanExpression datasetPredicate = dsFilterSpec.matchFeatures(id).and(dsFilterSpec.isPublic());
-        return selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    public Specification<AbstractFeatureEntity> matchesSpatially() {
+        final Geometry geometry = dbQuery.getSpatialFilter();
+        if ((geometry == null) || geometry.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            return new IntersectsPredicate((CriteriaBuilderImpl) builder,
+                    root.get(AbstractFeatureEntity.PROPERTY_GEOMETRY_ENTITY)
+                            .get(AbstractFeatureEntity.PROPERTY_GEOMETRY),
+                    new LiteralExpression<>((CriteriaBuilderImpl) builder, geometry), entityManager);
+        };
     }
+
 }

@@ -28,24 +28,27 @@
  */
 package org.n52.series.db.assembler;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.response.FeatureOutput;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.FeatureRepository;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.FeatureQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.FeatureRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
-
 @Component
-public class FeatureAssembler extends ParameterOutputAssembler<FeatureEntity, FeatureOutput> {
+public class FeatureAssembler extends ParameterOutputAssembler<AbstractFeatureEntity, FeatureOutput> {
 
-    public FeatureAssembler(FeatureRepository featureRepository,
-                            DatasetRepository datasetRepository) {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public FeatureAssembler(FeatureRepository featureRepository, DatasetRepository datasetRepository) {
         super(featureRepository, datasetRepository);
     }
 
@@ -54,11 +57,20 @@ public class FeatureAssembler extends ParameterOutputAssembler<FeatureEntity, Fe
         return new FeatureOutput();
     }
 
-    BooleanExpression createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
-
-        FeatureQuerySpecifications fFilterSpec = FeatureQuerySpecifications.of(query);
-        return fFilterSpec.selectFrom(subQuery);
+    @Override
+    protected Specification<AbstractFeatureEntity> createFilterPredicate(DbQuery query) {
+        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
+        FeatureQuerySpecifications fFilterSpec = FeatureQuerySpecifications.of(query, entityManager);
+        return fFilterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
+
+    @Override
+    public Specification<AbstractFeatureEntity> createPublicPredicate(final String id, DbQuery query) {
+        final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
+        final Specification<DatasetEntity> datasetPredicate =
+                dsFilterSpec.matchFeatures(id).and(dsFilterSpec.isPublic());
+        FeatureQuerySpecifications filterSpec = FeatureQuerySpecifications.of(query, entityManager);
+        return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    }
+
 }

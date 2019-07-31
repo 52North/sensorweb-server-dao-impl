@@ -35,13 +35,7 @@ import static org.n52.series.test.OfferingBuilder.newOffering;
 import static org.n52.series.test.PhenomenonBuilder.newPhenomenon;
 import static org.n52.series.test.ProcedureBuilder.newProcedure;
 
-import org.n52.series.db.CategoryRepository;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.FeatureRepository;
-import org.n52.series.db.FormatRepository;
-import org.n52.series.db.OfferingRepository;
-import org.n52.series.db.PhenomenonRepository;
-import org.n52.series.db.ProcedureRepository;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -49,6 +43,13 @@ import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.repositories.CategoryRepository;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.FeatureRepository;
+import org.n52.series.db.repositories.FormatRepository;
+import org.n52.series.db.repositories.OfferingRepository;
+import org.n52.series.db.repositories.PhenomenonRepository;
+import org.n52.series.db.repositories.ProcedureRepository;
 import org.n52.series.test.CategoryBuilder;
 import org.n52.series.test.FeatureBuilder;
 import org.n52.series.test.ProcedureBuilder;
@@ -151,7 +152,7 @@ public class TestRepositories {
         return save(CategoryBuilder.newCategory(categoryIdentifier).build());
     }
 
-    public FeatureEntity upsertSimpleFeature(final String featureIdentifier, final String format) {
+    public AbstractFeatureEntity upsertSimpleFeature(final String featureIdentifier, final String format) {
         return featureRepository.findByIdentifier(featureIdentifier)
                                 .orElseGet(() -> persistSimpleFeature(featureIdentifier, format));
     }
@@ -192,7 +193,7 @@ public class TestRepositories {
     }
 
     public ProcedureEntity save(final ProcedureEntity entity) {
-        return procedureRepository.save(entity);
+        return procedureRepository.saveAndFlush(entity);
     }
 
     public CategoryEntity save(final CategoryEntity entity) {

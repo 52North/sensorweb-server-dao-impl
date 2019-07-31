@@ -29,23 +29,20 @@
 package org.n52.series.db.assembler;
 
 import org.n52.io.response.ProcedureOutput;
-import org.n52.series.db.DatasetRepository;
-import org.n52.series.db.ProcedureRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.ProcedureQuerySpecifications;
+import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.ProcedureRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPQLQuery;
 
 @Component
 public class ProcedureAssembler extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput> {
 
-    public ProcedureAssembler(ProcedureRepository procedureRepository,
-                             DatasetRepository datasetRepository) {
+    public ProcedureAssembler(ProcedureRepository procedureRepository, DatasetRepository datasetRepository) {
         super(procedureRepository, datasetRepository);
     }
 
@@ -54,11 +51,20 @@ public class ProcedureAssembler extends ParameterOutputAssembler<ProcedureEntity
         return new ProcedureOutput();
     }
 
-    BooleanExpression createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query);
-        JPQLQuery<DatasetEntity> subQuery = dsFilterSpec.toSubquery(dsFilterSpec.matchFilters());
-
+    @Override
+    protected Specification<ProcedureEntity> createFilterPredicate(DbQuery query) {
+        DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
         ProcedureQuerySpecifications pFilterSpec = ProcedureQuerySpecifications.of(query);
-        return pFilterSpec.selectFrom(subQuery);
+        return pFilterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
+
+    @Override
+    protected Specification<ProcedureEntity> createPublicPredicate(String id, DbQuery query) {
+        final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
+        final Specification<DatasetEntity> datasetPredicate =
+                dsFilterSpec.matchProcedures(id).and(dsFilterSpec.isPublic());
+        ProcedureQuerySpecifications filterSpec = ProcedureQuerySpecifications.of(query);
+        return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    }
+
 }

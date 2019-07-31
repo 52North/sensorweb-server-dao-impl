@@ -33,6 +33,10 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
+import org.n52.series.db.beans.dataset.ObservationType;
+import org.n52.series.db.beans.dataset.ValueType;
+import org.springframework.boot.ansi.AnsiOutput.Enabled;
 
 public class DatasetEntityBuilder {
 
@@ -52,6 +56,10 @@ public class DatasetEntityBuilder {
         entity.setProcedure(procedure);
         entity.setPhenomenon(phenomenon);
         entity.setCategory(category);
+        entity.setDatasetType(entity.getDatasetType() != null ? entity.getDatasetType() : DatasetType.not_initialized);
+        entity.setObservationType(
+                entity.getObservationType() != null ? entity.getObservationType() : ObservationType.not_initialized);
+        entity.setValueType(entity.getValueType() != null ? entity.getValueType() : ValueType.not_initialized);
         return entity;
     }
 
@@ -79,4 +87,5 @@ public class DatasetEntityBuilder {
         this.category = entity;
         return this;
     }
+
 }

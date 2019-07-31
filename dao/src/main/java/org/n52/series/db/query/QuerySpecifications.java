@@ -28,21 +28,29 @@
  */
 package org.n52.series.db.query;
 
+import java.util.Collection;
 import java.util.Date;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DefaultDbQueryFactory;
+import org.n52.series.db.old.dao.QueryUtils;
 
 public abstract class QuerySpecifications {
 
-    protected final DbQuery query;
+    protected final DbQuery dbQuery;
 
-    protected QuerySpecifications(final DbQuery query) {
-        this.query = query == null
-            ? new DefaultDbQueryFactory().createDefault()
-            : query;
+    protected final EntityManager entityManager;
+
+    protected QuerySpecifications(final DbQuery dbQuery, EntityManager entityManager) {
+        this.dbQuery = dbQuery == null ? new DefaultDbQueryFactory().createDefault() : dbQuery;
+        this.entityManager = entityManager;
     }
 
     protected Date getTimespanStart() {
@@ -56,7 +64,12 @@ public abstract class QuerySpecifications {
     }
 
     private Interval getTimespan() {
-        return query.getTimespan();
+        return dbQuery.getTimespan();
+    }
+
+    protected Predicate getIdPredicate(Join<?, ?> join, final Collection<String> ids) {
+        return dbQuery.isMatchDomainIds() ? join.get(DescribableEntity.PROPERTY_IDENTIFIER).in(ids)
+                : join.get(DescribableEntity.PROPERTY_ID).in(QueryUtils.parseToIds(ids));
     }
 
 }

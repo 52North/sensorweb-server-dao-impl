@@ -30,6 +30,7 @@ package org.n52.series.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.n52.io.request.Parameters.FILTER_VALUE_TYPES;
 
 import java.math.BigDecimal;
@@ -45,6 +46,8 @@ import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
+import org.n52.series.db.repositories.DataRepository;
+import org.n52.series.db.repositories.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -60,7 +63,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class GeneralDataRepositoryTest extends TestBase {
 
     @Autowired
-    private DataRepository<DataEntity< ? >> dataRepository;
+    private DataRepository<DataEntity> dataRepository;
 
     @Test
     @DisplayName("Quality Data are found")
@@ -72,13 +75,14 @@ public class GeneralDataRepositoryTest extends TestBase {
         dataEntity.setSamplingTimeStart(new Date());
         dataEntity.setSamplingTimeEnd(new Date()); // XXX why is this required?
         dataEntity.setResultTime(new Date()); // XXX why is this required?
-        dataRepository.saveAndFlush(dataEntity);
+        QuantityDataEntity persisted = dataRepository.saveAndFlush(dataEntity);
 
         assertAll("Query quantity data", () -> {
             final DbQuery query = defaultQuery.replaceWith(FILTER_VALUE_TYPES, ValueType.quantity.name());
             final DataQuerySpecifications filterSpec = DataQuerySpecifications.of(query);
             assertThat(dataRepository.findAll()).isNotEmpty();
-            final Optional<DataEntity< ? >> result = dataRepository.findOne(filterSpec.matchDatasets());
+            final Optional<DataEntity> result = dataRepository.findOne(filterSpec.matchDatasets());
+            assertTrue(result.isPresent());
             assertThat(result).get().isInstanceOf(QuantityDataEntity.class);
         });
     }
