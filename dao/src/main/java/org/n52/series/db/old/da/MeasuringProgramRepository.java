@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.old.da;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.MeasuringProgramDao;
 import org.n52.series.db.old.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.MeasuringProgramSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProgramEntity, MeasuringProgramOutput> {
@@ -66,7 +67,7 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new MeasuringProgramSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -120,16 +121,17 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
                 result::setFeatures);
         result.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(measuringProgram, query), parameters,
                 result::setPhenomena);
-        result.setValue(MeasuringProgramOutput.CATEGROIES, getCategories(measuringProgram, query), parameters,
+        result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
                 result::setCategories);
         return result;
     }
 
     private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> createCondensed(DatasetOutput.create(query.getParameters()), d, query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+//        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
+//                .map(d -> createCondensed(new DatasetOutput<?>(), d, query))
+//                .collect(Collectors.toList()) : new LinkedList<>();
+        return Collections.emptyList();
     }
 
     private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {

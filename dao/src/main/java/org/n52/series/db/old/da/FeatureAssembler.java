@@ -55,7 +55,7 @@ public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEnti
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new FeatureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -80,6 +80,7 @@ public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEnti
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(FeatureOutput.PROPERTIES, result.getLabel(), query.getParameters(), result::setLabel);
         return result;
     }
 

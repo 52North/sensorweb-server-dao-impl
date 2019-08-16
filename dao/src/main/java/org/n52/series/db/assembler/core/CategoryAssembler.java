@@ -26,21 +26,23 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
 
 import org.n52.io.response.CategoryOutput;
-import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.CategoryEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.CategoryQuerySpecifications;
 import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.repositories.CategoryRepository;
-import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.core.CategoryRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.spi.search.CategorySearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, CategoryOutput> {
+public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, CategoryOutput, CategorySearchResult> {
 
     public CategoryAssembler(CategoryRepository categoryRepository, DatasetRepository datasetRepository) {
         super(categoryRepository, datasetRepository);
@@ -52,7 +54,12 @@ public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, 
     }
 
     @Override
-    protected Specification<CategoryEntity> createFilterPredicate(DbQuery query) {
+    protected CategorySearchResult prepareEmptySearchResult() {
+        return new CategorySearchResult();
+    }
+
+    @Override
+    public Specification<CategoryEntity> createFilterPredicate(DbQuery query) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
         CategoryQuerySpecifications cFilterSpec = CategoryQuerySpecifications.of(query);
         return cFilterSpec.selectFrom(dsFilterSpec.matchFilters());
@@ -62,7 +69,7 @@ public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, 
     protected Specification<CategoryEntity> createPublicPredicate(String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
         final Specification<DatasetEntity> datasetPredicate =
-                dsFilterSpec.matchPhenomena(id).and(dsFilterSpec.isPublic());
+                dsFilterSpec.matchCategory(id).and(dsFilterSpec.isPublic());
         CategoryQuerySpecifications filterSpec = CategoryQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }

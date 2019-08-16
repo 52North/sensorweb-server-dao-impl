@@ -26,28 +26,26 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PlatformOutput;
-import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.query.FeatureQuerySpecifications;
 import org.n52.series.db.query.PlatformQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.FeatureRepository;
-import org.n52.series.db.repositories.PlatformRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.PlatformRepository;
+import org.n52.series.spi.search.PlatformSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, PlatformOutput> {
+public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, PlatformOutput, PlatformSearchResult> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -59,6 +57,11 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
     @Override
     protected PlatformOutput prepareEmptyOutput() {
         return new PlatformOutput();
+    }
+
+    @Override
+    protected PlatformSearchResult prepareEmptySearchResult() {
+        return new PlatformSearchResult();
     }
 
     @Override

@@ -56,7 +56,7 @@ public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEn
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new OfferingSearchResult(id, label, baseUrl);
+        return new OfferingSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

@@ -59,27 +59,23 @@ import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-@Component
+//@Component
 public class TimeseriesAssembler extends SessionAwareAssembler implements OutputAssembler<TimeseriesMetadataOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesAssembler.class);
 
     private final StationAssembler stationRepository;
 
-    private final PlatformAssembler platformRepository;
-
     private final ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler;
 
-    public TimeseriesAssembler(PlatformAssembler platformAssembler, StationAssembler stationAssembler,
+    public TimeseriesAssembler(StationAssembler stationAssembler,
             ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> dataAssembler,
             HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
-        this.platformRepository = platformAssembler;
         this.stationRepository = stationAssembler;
         this.dataAssembler = dataAssembler;
     }
@@ -128,7 +124,7 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
             String stationLabel = feature.getLabelFrom(locale);
             String offeringLabel = offering.getLabelFrom(locale);
             String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
-            results.add(new TimeseriesSearchResult(id, label));
+            results.add(new TimeseriesSearchResult().setId(id).setLabel(label));
         }
         return results;
     }

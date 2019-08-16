@@ -39,20 +39,23 @@ import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
 import org.n52.series.db.repositories.ParameterDataRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
-public abstract class ParameterOutputAssembler<E extends DescribableEntity, O extends AbstractOutput>
-        implements OutputAssembler<O> {
+public abstract class ParameterOutputAssembler<E extends DescribableEntity,
+                                               O extends AbstractOutput,
+                                               S extends SearchResult>
+        implements OutputAssembler<O>, InsertAssembler<E>, ClearAssembler<E> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -73,13 +76,19 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     protected abstract O prepareEmptyOutput();
 
+    protected abstract S prepareEmptySearchResult();
+
     protected abstract Specification<E> createPublicPredicate(String id, DbQuery query);
 
     protected abstract Specification<E> createFilterPredicate(DbQuery query);
 
+    public Long count(DbQuery query) {
+        return getParameterRepository().count(createFilterPredicate(query));
+    }
+
     protected O createExpanded(final E entity, final DbQuery query) {
         final ServiceEntity service = getServiceEntity(entity);
-        final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
+        final ParameterOutputSearchResultMapper mapper = getMapper(query);
         final O output = mapper.createCondensed(entity, prepareEmptyOutput());
         final ServiceOutput serviceOutput = mapper.createCondensed(service, new ServiceOutput());
         output.setValue(AbstractOutput.SERVICE, serviceOutput, query.getParameters(), output::setService);
@@ -88,8 +97,8 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     @Override
     public List<O> getAllCondensed(final DbQuery query) {
-        final ParameterOutputMapper mapper = new ParameterOutputMapper(query);
-        return findAll(query).map(it -> mapper.createCondensed(it, prepareEmptyOutput())).collect(Collectors.toList());
+        return findAll(query).map(it -> getMapper(query).createCondensed(it, prepareEmptyOutput()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -106,8 +115,8 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
 
     @Override
     public Collection<SearchResult> searchFor(final DbQuery query) {
-        // TODO Auto-generated method stub
-        return null;
+        return findAll(query).map(it -> getMapper(query).createSearchResult(it, prepareEmptySearchResult()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -134,6 +143,23 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity, O ex
         if ((serviceEntity == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    @Override
+    public ParameterDataRepository<E> getParameterRepository() {
+        return parameterRepository;
+    }
+
+    public DatasetRepository getDatasetRepository() {
+        return datasetRepository;
+    }
+
+    protected ParameterOutputSearchResultMapper getMapper(final DbQuery query) {
+        return new ParameterOutputSearchResultMapper(query);
     }
 
 }

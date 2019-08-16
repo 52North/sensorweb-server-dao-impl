@@ -26,27 +26,38 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.FeatureOutput;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.FeatureOutputMapper;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.FeatureQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.FeatureRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.FeatureRepository;
+import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FeatureAssembler extends ParameterOutputAssembler<AbstractFeatureEntity, FeatureOutput> {
+public class FeatureAssembler
+        extends ParameterOutputAssembler<AbstractFeatureEntity, FeatureOutput, FeatureSearchResult> {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Inject
+    private FormatAssembler formatAssembler;
 
     public FeatureAssembler(FeatureRepository featureRepository, DatasetRepository datasetRepository) {
         super(featureRepository, datasetRepository);
@@ -55,6 +66,11 @@ public class FeatureAssembler extends ParameterOutputAssembler<AbstractFeatureEn
     @Override
     protected FeatureOutput prepareEmptyOutput() {
         return new FeatureOutput();
+    }
+
+    @Override
+    protected FeatureSearchResult prepareEmptySearchResult() {
+        return new FeatureSearchResult();
     }
 
     @Override

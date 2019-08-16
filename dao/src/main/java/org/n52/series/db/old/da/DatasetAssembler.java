@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.HrefHelper;
+import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -66,13 +66,11 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-@Component
+//@Component
 public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAssembler
         implements OutputAssembler<DatasetOutput<V>> {
 
@@ -80,15 +78,10 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
 
-    @Autowired
-    private PlatformAssembler platformRepository;
-
     public DatasetAssembler(DataRepositoryTypeFactory dataRepositoryFactory,
-            // PlatformRepository platformRepository,
             HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.dataRepositoryFactory = dataRepositoryFactory;
-        // this.platformRepository = platformRepository;
     }
 
     @Override
@@ -219,7 +212,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         for (DescribableEntity searchResult : found) {
             String id = searchResult.getId().toString();
             String label = searchResult.getLabelFrom(locale);
-            results.add(new DatasetSearchResult(id, label, hrefBase));
+            results.add(new DatasetSearchResult().setId(id).setLabel(label).setBaseUrl(hrefBase));
         }
         return results;
     }
@@ -230,7 +223,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         if (dataset.getService() == null) {
             dataset.setService(serviceEntity);
         }
-        DatasetOutput<V> result = DatasetOutput.create(parameters);
+        DatasetOutput<V> result = new DatasetOutput();
 
         Long id = dataset.getId();
         String hrefBase = query.getHrefBase();

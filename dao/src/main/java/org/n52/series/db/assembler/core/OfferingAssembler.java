@@ -26,21 +26,23 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
 
 import org.n52.io.response.OfferingOutput;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.OfferingQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.OfferingRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.OfferingRepository;
+import org.n52.series.spi.search.OfferingSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput> {
+public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
 
     public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);
@@ -49,6 +51,11 @@ public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, 
     @Override
     protected OfferingOutput prepareEmptyOutput() {
         return new OfferingOutput();
+    }
+
+    @Override
+    protected OfferingSearchResult prepareEmptySearchResult() {
+        return new OfferingSearchResult();
     }
 
     @Override

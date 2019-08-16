@@ -51,13 +51,12 @@ import org.n52.series.spi.search.StationSearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  * @deprecated sdffasn
  */
-@Component
+//@Component
 @Deprecated
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
@@ -101,7 +100,7 @@ public class StationAssembler extends SessionAwareAssembler
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
-            results.add(new StationSearchResult(pkid, label));
+            results.add(new StationSearchResult().setId(pkid).setLabel(label));
         }
         return results;
     }

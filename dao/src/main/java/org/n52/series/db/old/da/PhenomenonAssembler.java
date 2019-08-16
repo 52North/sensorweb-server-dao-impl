@@ -39,7 +39,7 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.PhenomenonDao;
 import org.n52.series.db.old.dao.SearchableDao;
-import org.n52.series.spi.search.CategorySearchResult;
+import org.n52.series.spi.search.PhenomenonSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 //@Component
@@ -56,7 +56,7 @@ public class PhenomenonAssembler extends HierarchicalParameterAssembler<Phenomen
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new CategorySearchResult(id, label, baseUrl);
+        return new PhenomenonSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

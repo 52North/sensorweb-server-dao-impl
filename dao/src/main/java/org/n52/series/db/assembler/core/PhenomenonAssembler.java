@@ -26,21 +26,24 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
 
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.PhenomenonQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.PhenomenonRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.PhenomenonRepository;
+import org.n52.series.spi.search.PhenomenonSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PhenomenonAssembler extends ParameterOutputAssembler<PhenomenonEntity, PhenomenonOutput> {
+public class PhenomenonAssembler
+        extends ParameterOutputAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
 
     public PhenomenonAssembler(PhenomenonRepository phenomenonRepository, DatasetRepository datasetRepository) {
         super(phenomenonRepository, datasetRepository);
@@ -49,6 +52,11 @@ public class PhenomenonAssembler extends ParameterOutputAssembler<PhenomenonEnti
     @Override
     protected PhenomenonOutput prepareEmptyOutput() {
         return new PhenomenonOutput();
+    }
+
+    @Override
+    protected PhenomenonSearchResult prepareEmptySearchResult() {
+        return new PhenomenonSearchResult();
     }
 
     @Override

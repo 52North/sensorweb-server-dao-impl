@@ -42,7 +42,6 @@ import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.springframework.stereotype.Component;
 
 //@Component
 public class CategoryAssembler extends ParameterAssembler<CategoryEntity, CategoryOutput> {
@@ -58,7 +57,7 @@ public class CategoryAssembler extends ParameterAssembler<CategoryEntity, Catego
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new CategorySearchResult(id, label, baseUrl);
+        return new CategorySearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

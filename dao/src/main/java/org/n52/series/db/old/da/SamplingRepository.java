@@ -54,7 +54,7 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.SamplingDao;
 import org.n52.series.db.old.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.SamplingSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new SamplingSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
                     (ValueAssembler<DataEntity<?>, ?, ?>) getDataRepositoryFactory(o.getDataset());
             result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
             result.setDetectionLimit(getDetectionLimit(o));
-            result.setDataset(createCondensed(DatasetOutput.create(query.getParameters()), o.getDataset(), query));
+            result.setDataset(createCondensed(new DatasetOutput(), o.getDataset(), query));
 
             result.setCategory(getCondensedCategory(o.getDataset().getCategory(), query));
             result.setOffering(getCondensedOffering(o.getDataset().getOffering(), query));

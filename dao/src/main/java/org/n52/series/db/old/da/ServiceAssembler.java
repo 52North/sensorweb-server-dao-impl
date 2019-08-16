@@ -48,6 +48,7 @@ import org.n52.io.response.ServiceOutput.DatasetCount;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.series.db.assembler.core.EntityCounter;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
@@ -59,9 +60,8 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceAssembler.class);
@@ -88,7 +88,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new ServiceSearchResult(id, label, baseUrl);
+        return new ServiceSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
         IoParameters parameters = query.getParameters();
 
         ParameterCount quantities = countParameters(result, query);
-        boolean supportsFirstLatest = entity.isSupportsFirstLatest();
+        boolean supportsFirstLatest = entity.getSupportsFirstLast();
 
         String serviceUrl = entity.getUrl();
         String type = getServiceType(entity);

@@ -26,21 +26,31 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.core;
+
+import javax.inject.Inject;
 
 import org.n52.io.response.ProcedureOutput;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.ProcedureQuerySpecifications;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.ProcedureRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.ProcedureRepository;
+import org.n52.series.spi.search.ProcedureSearchResult;
+import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcedureAssembler extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput> {
+public class ProcedureAssembler
+        extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
+
+    @Inject
+    private FormatAssembler formatAssembler;
 
     public ProcedureAssembler(ProcedureRepository procedureRepository, DatasetRepository datasetRepository) {
         super(procedureRepository, datasetRepository);
@@ -49,6 +59,11 @@ public class ProcedureAssembler extends ParameterOutputAssembler<ProcedureEntity
     @Override
     protected ProcedureOutput prepareEmptyOutput() {
         return new ProcedureOutput();
+    }
+
+    @Override
+    protected ProcedureSearchResult prepareEmptySearchResult() {
+        return new ProcedureSearchResult();
     }
 
     @Override

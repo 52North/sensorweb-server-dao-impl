@@ -48,7 +48,6 @@ import org.n52.series.db.old.dao.PlatformDao;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
-import org.springframework.stereotype.Component;
 
 /**
  * TODO: JavaDoc
@@ -74,7 +73,7 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new FeatureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
