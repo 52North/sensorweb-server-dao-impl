@@ -37,7 +37,6 @@ import static org.n52.series.test.TestUtils.getIdAsString;
 import java.util.List;
 
 import org.assertj.core.api.ListAssert;
-import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,16 +44,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.ProcedureOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.TestBase;
 import org.n52.series.db.TestRepositories;
 import org.n52.series.db.TestRepositoryConfig;
+import org.n52.series.db.assembler.core.FormatAssembler;
+import org.n52.series.db.assembler.core.ProcedureAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.DatasetRepository;
-import org.n52.series.db.repositories.ProcedureRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.series.db.repositories.core.ProcedureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.SpringBootConfiguration;
@@ -249,6 +249,12 @@ public class ProcedureAssemblerTest extends TestBase {
             serviceEntity.setName("TestService");
             serviceEntity.setNoDataValues("-9999");
             return serviceEntity;
+        }
+
+        @Bean
+        public FormatAssembler formatAssembler() {
+            FormatAssembler formatAssembler = new FormatAssembler();
+            return formatAssembler;
         }
     }
 }

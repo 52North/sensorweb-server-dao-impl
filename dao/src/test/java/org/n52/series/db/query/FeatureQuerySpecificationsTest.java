@@ -41,7 +41,7 @@ import org.n52.series.db.TestBase;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.FeatureRepository;
+import org.n52.series.db.repositories.core.FeatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;

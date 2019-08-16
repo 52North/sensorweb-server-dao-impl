@@ -55,7 +55,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
