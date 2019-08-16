@@ -106,6 +106,7 @@ This project includes:
   Series REST API DAO - DAO under GNU General Public License, Version 2.0
   Series REST API DAO - Webapp under GNU General Public License, Version 2.0
   SLF4J API Module under MIT License
+  SpotBugs Annotations under GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1
   Spring AOP under Apache License, Version 2.0
   Spring Aspects under Apache License, Version 2.0
   Spring Beans under Apache License, Version 2.0

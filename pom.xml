@@ -184,6 +184,12 @@
                 <artifactId>jts-core</artifactId>
                 <version>1.16.1</version>
             </dependency>
+            
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
 
             <dependency>
                 <groupId>commons-io</groupId>
@@ -336,6 +342,11 @@
                 <artifactId>postgis-jdbc</artifactId>
                 <version>${postgis.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>3.1.12</version>
+            </dependency>  
         </dependencies>
     </dependencyManagement>
 
