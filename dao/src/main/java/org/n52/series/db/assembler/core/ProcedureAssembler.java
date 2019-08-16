@@ -82,4 +82,14 @@ public class ProcedureAssembler
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 
+    @Override
+    public ProcedureEntity getOrInsertInstance(ProcedureEntity entity) {
+        ProcedureEntity instance = getParameterRepository().getInstance(entity);
+        if (instance != null) {
+            return instance;
+        }
+        entity.setFormat(formatAssembler.getOrInsertInstance(
+                entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        return getParameterRepository().saveAndFlush(entity);
+    }
 }

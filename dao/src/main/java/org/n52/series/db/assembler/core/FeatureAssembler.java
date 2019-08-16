@@ -89,4 +89,26 @@ public class FeatureAssembler
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 
+    @Override
+    protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
+        FeatureOutput result = super.createExpanded(entity, query);
+        result.setValue(FeatureOutput.PROPERTIES, result.getLabel(), query.getParameters(), result::setLabel);
+        return result;
+    }
+
+    @Override
+    public AbstractFeatureEntity getOrInsertInstance(AbstractFeatureEntity entity) {
+        AbstractFeatureEntity instance = getParameterRepository().getInstance(entity);
+        if (instance != null) {
+            return instance;
+        }
+        entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
+                : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        return getParameterRepository().saveAndFlush(entity);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper getMapper(DbQuery query) {
+        return new FeatureOutputMapper(query);
+    }
 }
