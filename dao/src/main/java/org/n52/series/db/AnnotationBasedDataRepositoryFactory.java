@@ -59,7 +59,6 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.appContext = appContext;
     }
 
-    @SuppressWarnings("unchecked")
     private Stream<ValueAssembler<? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(ValueAssemblerComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
@@ -108,6 +107,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
                 : null;
     }
 
+    @SuppressWarnings("unchecked")
     private <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T> addToCache(
             String observationType, String valueType, ValueAssembler<DataEntity<T>, AbstractValue<?>, T> assembler) {
         cache.put(getType(observationType, valueType), assembler);

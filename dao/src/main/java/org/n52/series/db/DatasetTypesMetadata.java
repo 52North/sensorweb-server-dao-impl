@@ -43,32 +43,42 @@ public class DatasetTypesMetadata {
         return id;
     }
 
-    public void setId(String id) {
+
+    public DatasetTypesMetadata setId(Long id) {
+        this.id = Long.toString(id);
+        return this;
+    }
+
+    public DatasetTypesMetadata setId(String id) {
         this.id = id;
+        return this;
     }
 
     public DatasetType getDatasetType() {
         return datasetType;
     }
 
-    public void setDatasetType(DatasetType datasetType) {
+    public DatasetTypesMetadata setDatasetType(DatasetType datasetType) {
         this.datasetType = datasetType;
+        return this;
     }
 
     public ObservationType getObservationType() {
         return observationType;
     }
 
-    public void setObservationType(ObservationType observationType) {
+    public DatasetTypesMetadata setObservationType(ObservationType observationType) {
         this.observationType = observationType;
+        return this;
     }
 
     public ValueType getValueType() {
         return valueType;
     }
 
-    public void setValueType(ValueType valueType) {
+    public DatasetTypesMetadata setValueType(ValueType valueType) {
         this.valueType = valueType;
+        return this;
     }
 
 }

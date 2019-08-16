@@ -38,7 +38,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  *
  */
 @NoRepositoryBean
-public interface AbstractRepository<T extends AbstractStaEntity> extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+public interface AbstractRepository<T extends AbstractStaEntity>
+        extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
 }
-

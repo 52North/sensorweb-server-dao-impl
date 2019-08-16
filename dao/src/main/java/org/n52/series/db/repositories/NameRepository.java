@@ -34,7 +34,7 @@ import org.n52.series.db.beans.sta.AbstractStaEntity;
 import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
-public interface NameRepository<T extends AbstractStaEntity> extends AbstractRepository<T>{
+public interface NameRepository<T extends AbstractStaEntity> extends AbstractRepository<T> {
 
     boolean existsByName(String name);
 
