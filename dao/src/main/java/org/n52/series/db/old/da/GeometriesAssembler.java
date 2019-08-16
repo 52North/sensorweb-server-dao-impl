@@ -67,9 +67,9 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
 
     private static final String NAMED_QUERY_PARAMETER_FEATURE_ID = "featureid";
 
-    private final PlatformAssembler platformRepository;
+    private final org.n52.series.db.assembler.core.PlatformAssembler platformRepository;
 
-    public GeometriesAssembler(PlatformAssembler platformRepository,
+    public GeometriesAssembler(org.n52.series.db.assembler.core.PlatformAssembler platformRepository,
                                 HibernateSessionStore sessionStore,
                                 DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

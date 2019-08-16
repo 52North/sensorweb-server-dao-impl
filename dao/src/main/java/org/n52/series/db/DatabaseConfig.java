@@ -36,7 +36,6 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.hibernate.SessionFactory;
 import org.hibernate.boot.model.TypeContributor;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.TypeContributorList;
@@ -50,7 +49,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
@@ -100,12 +98,12 @@ public class DatabaseConfig {
         return (typeContributions, serviceRegistry) -> typeContributions.contributeType(type, keys);
     }
 
-    @Bean
-    @Primary
-    public SessionFactory sessionFactory() {
-        if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
-            throw new NullPointerException("factory is not a hibernate factory");
-        }
-        return entityManagerFactory.unwrap(SessionFactory.class);
-    }
+//    @Bean
+//    @Primary
+//    public SessionFactory sessionFactory() {
+//        if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
+//            throw new NullPointerException("factory is not a hibernate factory");
+//        }
+//        return entityManagerFactory.unwrap(SessionFactory.class);
+//    }
 }

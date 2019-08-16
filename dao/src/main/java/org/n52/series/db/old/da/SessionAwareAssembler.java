@@ -269,9 +269,9 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
-            throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
-        }
+//        if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
+//            throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
+//        }
     }
 
 

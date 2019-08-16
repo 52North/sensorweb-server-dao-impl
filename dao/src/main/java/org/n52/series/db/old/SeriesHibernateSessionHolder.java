@@ -28,10 +28,11 @@
  */
 package org.n52.series.db.old;
 
+import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
+
 import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,17 +44,17 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeriesHibernateSessionHolder.class);
 
-    private final SessionFactory sessionFactory;
+    private final EntityManager entityManager;
 
-    public SeriesHibernateSessionHolder(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public SeriesHibernateSessionHolder(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
     public Session getSession() {
-         Session session = sessionFactory.openSession();
+         Session session = (Session) entityManager.getDelegate();
+         entityManager.setFlushMode(FlushModeType.COMMIT);
          if (session != null && session.isOpen()) {
-             session.setFlushMode(FlushMode.COMMIT);
              session.setCacheMode(CacheMode.IGNORE);
              session.clear();
          }
@@ -71,7 +72,7 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
     @Override
     public void shutdown() {
         LOGGER.info("Closing '{}'", getClass().getSimpleName());
-        sessionFactory.close();
+        entityManager.close();
     }
 
 }
