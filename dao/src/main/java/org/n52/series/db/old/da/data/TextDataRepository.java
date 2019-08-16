@@ -34,7 +34,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.text.TextValue;
-import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.TextDataEntity;
@@ -43,7 +42,7 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "text", datasetEntityType = DatasetEntity.class)
+//@ValueAssemblerComponent(value = "text", datasetEntityType = DatasetEntity.class)
 public class TextDataRepository extends AbstractDataRepository<TextDataEntity, TextValue, String> {
 
     public TextDataRepository(HibernateSessionStore sessionStore,

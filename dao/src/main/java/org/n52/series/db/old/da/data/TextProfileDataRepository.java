@@ -35,7 +35,6 @@ import java.util.List;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
-import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
@@ -44,7 +43,7 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "text-profile", datasetEntityType = DatasetEntity.class)
+//@ValueAssemblerComponent(value = "text-profile", datasetEntityType = DatasetEntity.class)
 public class TextProfileDataRepository extends ProfileDataRepository<String, String> {
 
     private final TextDataRepository textRepository;

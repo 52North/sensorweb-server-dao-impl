@@ -34,7 +34,6 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
-import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -43,7 +42,7 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
+//@ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
 public class RecordDataRepository
         extends AbstractDataRepository<RecordDataEntity, RecordValue, Map<String, Object>> {
 

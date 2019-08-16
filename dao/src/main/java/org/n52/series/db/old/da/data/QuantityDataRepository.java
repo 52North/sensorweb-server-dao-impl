@@ -44,7 +44,6 @@ import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
-import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -55,7 +54,7 @@ import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
-@ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
+//@ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityDataRepository
         extends AbstractDataRepository<QuantityDataEntity, QuantityValue, BigDecimal> {
 
@@ -96,7 +95,7 @@ public class QuantityDataRepository
         if (metadata == null) {
             result.setMetadata(metadata = new DatasetMetadata<>());
         }
-        DatasetEntity dataset = (DatasetEntity) session.get(DatasetEntity.class, datasetId);
+        DatasetEntity dataset = session.get(DatasetEntity.class, datasetId);
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
         if ((referenceValues != null) && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query, session));
@@ -134,7 +133,7 @@ public class QuantityDataRepository
     }
 
     protected String createReferenceDatasetId(DbQuery query, DatasetEntity referenceDataset) {
-        DatasetOutput<?> dataset = DatasetOutput.create(query.getParameters());
+        DatasetOutput<?> dataset = new DatasetOutput();
         Long id = referenceDataset.getId();
         dataset.setId(id.toString());
         return dataset.getId();

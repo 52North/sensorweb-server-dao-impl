@@ -33,7 +33,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
-import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -43,7 +42,7 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
 
-@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
+//@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository
         extends AbstractDataRepository<CountDataEntity, CountValue, Integer> {
 
