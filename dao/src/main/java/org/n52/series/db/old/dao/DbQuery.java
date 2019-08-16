@@ -75,6 +75,8 @@ public class DbQuery {
 
     private static final String PROPERTY_TRANSLATIONS = "translations";
 
+    private static final String PROPERTY_SERVICE_ID = "service." + PROPERTY_ID;
+
     private static final int DEFAULT_LIMIT = 10000;
 
     private final GeometryFactory geometryFactory;
@@ -248,6 +250,10 @@ public class DbQuery {
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
+        if (getParameters().getServices() != null && !getParameters().getServices().isEmpty()) {
+            return criteria
+                    .add(Restrictions.in(PROPERTY_SERVICE_ID, QueryUtils.parseToIds(getParameters().getServices())));
+        }
         return criteria;
     }
 
