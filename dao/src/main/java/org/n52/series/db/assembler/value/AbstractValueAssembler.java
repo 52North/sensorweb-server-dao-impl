@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -57,8 +57,8 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DataQuerySpecifications;
-import org.n52.series.db.repositories.DataRepository;
-import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.core.DataRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
@@ -148,7 +148,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *            the query
      * @return an expanded view of assembled data
      */
-    Data<V> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
+    protected Data<V> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         return assembleDataValues(dataset, query);
     }
 
@@ -179,7 +179,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     protected Stream<E> findAll(DatasetEntity dataset, DbQuery query) {
-        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E>of(query);
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E> of(query);
         Specification<E> predicate = dataFilterSpec.matchFilters(dataset);
         Iterable<E> entities = dataRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
@@ -199,7 +199,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *            the query
      * @return the value with time
      */
-    <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DbQuery query) {
+    protected <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DbQuery query) {
         if (observation == null) {
             return value;
         }

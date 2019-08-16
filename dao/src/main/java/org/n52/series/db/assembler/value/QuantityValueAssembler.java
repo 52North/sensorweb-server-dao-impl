@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -46,8 +46,8 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.DataRepository;
-import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.core.DataRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
 
 @ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityValueAssembler extends AbstractValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> {
@@ -158,7 +158,7 @@ public class QuantityValueAssembler extends AbstractValueAssembler<QuantityDataE
     }
 
     private String createReferenceDatasetId(DbQuery query, DatasetEntity referenceSeriesEntity) {
-        DatasetOutput<?> dataset = DatasetOutput.create(query.getParameters());
+        DatasetOutput<?> dataset = new DatasetOutput<>();
         Long id = referenceSeriesEntity.getId();
         dataset.setId(id.toString());
 

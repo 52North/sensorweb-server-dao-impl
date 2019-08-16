@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler;
+package org.n52.series.db.assembler.value;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -39,8 +39,8 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.DataRepository;
-import org.n52.series.db.repositories.DatasetRepository;
+import org.n52.series.db.repositories.core.DataRepository;
+import org.n52.series.db.repositories.core.DatasetRepository;
 
 public abstract class ProfileValueAssembler<V, T>
         extends AbstractValueAssembler<ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {
