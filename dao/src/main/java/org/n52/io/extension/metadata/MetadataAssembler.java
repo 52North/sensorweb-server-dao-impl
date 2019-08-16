@@ -28,57 +28,78 @@
  */
 package org.n52.io.extension.metadata;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.hibernate.Session;
+import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
-import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.da.SessionAwareAssembler;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.parameter.ParameterEntity;
+import org.n52.series.db.beans.parameter.ParameterJsonEntity;
 import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.repositories.core.DatasetRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MetadataRepository extends SessionAwareAssembler {
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-    public MetadataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
+public class MetadataAssembler extends ExtensionAssembler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataAssembler.class);
+
+    public MetadataAssembler(DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
+        super(datasetRepository, dbQueryFactory);
     }
 
     List<String> getFieldNames(String id) {
-        Session session = getSession();
-        try {
-            DatabaseMetadataDao dao = new DatabaseMetadataDao(session);
-            return dao.getMetadataNames(parseId(id));
-        } finally {
-            returnSession(session);
-        }
+        DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(id));
+        return dataset.hasParameters()
+                ? dataset.getParameters().stream().map(p -> p.getName()).collect(Collectors.toList())
+                : Collections.emptyList();
     }
 
     Map<String, Object> getExtras(ParameterOutput output, IoParameters parameters) {
-        Session session = getSession();
-        try {
-            DatabaseMetadataDao dao = new DatabaseMetadataDao(session);
-            final Set<String> fields = parameters.getFields();
-            return fields == null
-                ? convertToOutputs(dao.getAllFor(parseId(output.getId())))
-                : convertToOutputs(dao.getSelected(parseId(output.getId()), fields));
-        } finally {
-            returnSession(session);
-        }
+        final Set<String> fields = parameters.getFields();
+        DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(output.getId()));
+        return !dataset.hasParameters() ? new LinkedHashMap<>()
+                : fields == null ? convertToOutputs(dataset.getParameters())
+                        : convertToOutputs(dataset.getParameters().stream().filter(p -> fields.contains(p.getName()))
+                                .collect(Collectors.toList()));
     }
 
-    private Map<String, Object> convertToOutputs(List<MetadataEntity< ? >> allInstances) {
+    private Map<String, Object> convertToOutputs(Collection<ParameterEntity<?>> allInstances) {
         if (allInstances == null) {
             return Collections.emptyMap();
         }
         Map<String, Object> outputs = new HashMap<>();
-        for (MetadataEntity< ? > entity : allInstances) {
-            outputs.put(entity.getName(), entity.toOutput());
+        for (ParameterEntity<?> entity : allInstances) {
+            outputs.put(entity.getName(), toOutput(entity));
         }
         return outputs;
+    }
+
+    private DatabaseMetadataOutput toOutput(ParameterEntity<?> entity) {
+        DatabaseMetadataOutput<Object> databaseMetadataOutput =
+                DatabaseMetadataOutput.create().setLastUpdatedAt(entity.getLastUpdate());
+        if (entity instanceof ParameterJsonEntity) {
+            try {
+                databaseMetadataOutput
+                        .setValue(new ObjectMapper().readTree(((ParameterJsonEntity) entity).getValue()));
+            } catch (IOException e) {
+                LOGGER.error("Could not parse to json ({}): {}", entity.getName(), entity.getValue(), e);
+            }
+        } else {
+            databaseMetadataOutput.setValue(entity.getValue());
+        }
+        return databaseMetadataOutput;
     }
 
 }

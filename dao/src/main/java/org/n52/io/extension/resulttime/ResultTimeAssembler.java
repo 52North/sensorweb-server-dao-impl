@@ -34,52 +34,65 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+
 import org.joda.time.DateTime;
+import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.da.SessionAwareAssembler;
-import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.old.dao.QueryUtils;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResultTimeRepository extends SessionAwareAssembler {
+public class ResultTimeAssembler extends ExtensionAssembler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeAssembler.class);
 
-    public ResultTimeRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
+    private EntityManager entityManager;
+
+    public ResultTimeAssembler(EntityManager entityManager, DatasetRepository datasetRepository,
+            DbQueryFactory dbQueryFactory) {
+        super(datasetRepository, dbQueryFactory);
+        this.entityManager = entityManager;
     }
 
     @SuppressWarnings("unchecked")
     Set<String> getExtras(String datasetId, IoParameters parameters) {
-        Session session = getSession();
         try {
             String alias = "datasets";
-            DataDao< ? > dao = new DataDao<>(session);
-            String datasetMember = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_ID);
-            List<Date> resultTimes = dao.getDefaultCriteria(getDbQuery(parameters))
-                                        .add(Restrictions.neProperty(DataEntity.PROPERTY_RESULT_TIME,
-                                                                     DataEntity.PROPERTY_SAMPLING_TIME_END))
-                                        .setProjection(Projections.property(DataEntity.PROPERTY_RESULT_TIME))
-                                        .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                                        .createCriteria(DataEntity.PROPERTY_DATASET, alias)
-                                        .add(Restrictions.eq(datasetMember, Long.parseLong(datasetId)))
-                                        .list();
-            return resultTimes.stream()
-                              .map(i -> new DateTime(i).toString())
-                              .collect(Collectors.toSet());
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Date> query = cb.createQuery(Date.class);
+            Root<DataEntity> root = query.distinct(true).from(DataEntity.class);
+            Join<DataEntity, DatasetEntity> join = root.join(DataEntity.PROPERTY_DATASET, JoinType.INNER);
+            query.select(root.get(DataEntity.PROPERTY_RESULT_TIME));
+
+            query.distinct(true)
+                    .where(cb.notEqual(root.get(DataEntity.PROPERTY_RESULT_TIME),
+                            root.get(DataEntity.PROPERTY_SAMPLING_TIME_END)),
+                            cb.equal(join.get(DatasetEntity.PROPERTY_ID), Long.parseLong(datasetId)));
+            List<Date> resultTimes = entityManager.createQuery(query).getResultList();
+            // DataDao< ? > dao = new DataDao<>(session);
+            // String datasetMember = QueryUtils.createAssociation(alias,
+            // DatasetEntity.PROPERTY_ID);
+            // List<Date> resultTimes =
+            // dao.getDefaultCriteria(getDbQuery(parameters))
+            // .add(Restrictions.neProperty(DataEntity.PROPERTY_RESULT_TIME,
+            // DataEntity.PROPERTY_SAMPLING_TIME_END))
+            //// .setProjection(Projections.property(DataEntity.PROPERTY_RESULT_TIME))
+            //// .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+            //// .createCriteria(DataEntity.PROPERTY_DATASET, alias)
+            // .add(Restrictions.eq(datasetMember, Long.parseLong(datasetId)))
+            // .list();
+            return resultTimes.stream().map(i -> new DateTime(i).toString()).collect(Collectors.toSet());
         } catch (NumberFormatException e) {
             LOGGER.debug("Could not convert id '{}' to long.", datasetId, e);
-        } finally {
-            returnSession(session);
         }
         return Collections.emptySet();
     }

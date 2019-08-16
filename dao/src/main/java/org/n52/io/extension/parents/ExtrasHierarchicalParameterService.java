@@ -33,12 +33,14 @@ import java.util.Set;
 
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ExtrasHierarchicalParameterService {
 
-    private final ExtrasHierarchicalParameterRepository repository;
+    private final ExtrasHierarchicalParameterAssembler repository;
 
-    public ExtrasHierarchicalParameterService(ExtrasHierarchicalParameterRepository repository) {
+    public ExtrasHierarchicalParameterService(ExtrasHierarchicalParameterAssembler repository) {
         this.repository = repository;
     }
 

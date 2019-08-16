@@ -39,9 +39,9 @@ public class DatabaseMetadataExtension extends MetadataExtension<ParameterOutput
 
     private static final String EXTENSION_NAME = "databaseMetadata";
 
-    private final MetadataRepository repository;
+    private final MetadataAssembler repository;
 
-    public DatabaseMetadataExtension(MetadataRepository repository) {
+    public DatabaseMetadataExtension(MetadataAssembler repository) {
         this.repository = repository;
     }
 

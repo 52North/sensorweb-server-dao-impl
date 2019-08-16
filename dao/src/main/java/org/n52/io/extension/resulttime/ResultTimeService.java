@@ -31,12 +31,14 @@ package org.n52.io.extension.resulttime;
 import java.util.Set;
 
 import org.n52.io.request.IoParameters;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ResultTimeService {
 
-    private final ResultTimeRepository repository;
+    private final ResultTimeAssembler repository;
 
-    public ResultTimeService(ResultTimeRepository repository) {
+    public ResultTimeService(ResultTimeAssembler repository) {
         this.repository = repository;
     }
 

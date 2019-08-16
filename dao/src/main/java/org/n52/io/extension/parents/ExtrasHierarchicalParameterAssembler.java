@@ -36,57 +36,48 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.Session;
+import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.series.db.assembler.core.PlatformAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.da.PlatformAssembler;
-import org.n52.series.db.old.da.SessionAwareAssembler;
-import org.n52.series.db.old.dao.DatasetDao;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExtrasHierarchicalParameterRepository extends SessionAwareAssembler {
+public class ExtrasHierarchicalParameterAssembler extends ExtensionAssembler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExtrasHierarchicalParameterRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtrasHierarchicalParameterAssembler.class);
 
     private static final String KEY_PROCEDURES = "procedures";
 
-    private final PlatformAssembler platformRepository;
+    private PlatformAssembler platformAssembler;
 
-    public ExtrasHierarchicalParameterRepository(PlatformAssembler repository,
-                                           HibernateSessionStore sessionStore,
-                                           DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
-        this.platformRepository = repository;
+    public ExtrasHierarchicalParameterAssembler(PlatformAssembler platformAssembler,
+            DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
+        super(datasetRepository, dbQueryFactory);
+        this.platformAssembler = platformAssembler;
     }
 
     Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId, IoParameters parameters) {
-        try (Session session = getSession()) {
             DbQuery dbQuery = getDbQuery(parameters);
             Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
 
-            PlatformOutput platform = platformRepository.getInstance(platformId, dbQuery);
-            DatasetDao<DatasetEntity> dao = new DatasetDao<>(session);
+            PlatformOutput platform = platformAssembler.getInstance(platformId, dbQuery);
             for (DatasetOutput<?> dataset : platform.getDatasets()) {
                 String datasetId = dataset.getId();
-                DatasetEntity instance = dao.getInstance(Long.parseLong(datasetId), dbQuery);
+                DatasetEntity instance = getDatasetRepository().getOne(Long.parseLong(datasetId));
                 addProcedureParents(instance, dbQuery, extras);
-                // TODO add further parents
             }
 
             return extras;
-        } catch (NumberFormatException e) {
-            LOGGER.debug("Could not convert id '{}' to long.", platformId, e);
-        }
-        return Collections.emptyMap();
     }
 
     private void addProcedureParents(DatasetEntity instance,
@@ -102,11 +93,15 @@ public class ExtrasHierarchicalParameterRepository extends SessionAwareAssembler
     private Set< ? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity,
                                                                             DbQuery dbQuery) {
         return !entity.hasParents()
-            ? Collections.singleton(createCondensed(new ProcedureOutput(), entity, dbQuery))
+            ? Collections.singleton(getMapper(dbQuery).createCondensed(entity, new ProcedureOutput()))
             : new HashSet<>(entity.getParents()
                                   .stream()
-                                  .map(e -> createCondensed(new ProcedureOutput(), e, dbQuery))
+                                  .map(e -> getMapper(dbQuery).createCondensed(e, new ProcedureOutput()))
                                   .collect(Collectors.toSet()));
+    }
+
+    protected ParameterOutputSearchResultMapper getMapper(final DbQuery query) {
+        return new ParameterOutputSearchResultMapper(query);
     }
 
 }
