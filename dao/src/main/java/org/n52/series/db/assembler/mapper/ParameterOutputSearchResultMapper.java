@@ -43,7 +43,7 @@ public final class ParameterOutputMapper implements OutputMapper {
     }
 
     @Override
-    public <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(final E entity, final O output) {
+    public O createCondensed(E entity, O output) {
         final IoParameters parameters = query.getParameters();
 
         final Long id = entity.getId();
