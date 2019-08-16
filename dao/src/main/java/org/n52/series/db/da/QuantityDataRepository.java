@@ -144,7 +144,7 @@ public class QuantityDataRepository
     }
 
     protected String createReferenceDatasetId(DbQuery query, DatasetEntity referenceDataset) {
-        DatasetOutput< ? > dataset = DatasetOutput.create(query.getParameters());
+        DatasetOutput< ? > dataset = new DatasetOutput();
         Long id = referenceDataset.getId();
         dataset.setId(id.toString());
         return dataset.getId();

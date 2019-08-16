@@ -80,7 +80,7 @@ This project includes:
   JCL 1.2 implemented over SLF4J under MIT License
   JDOM under Similar to Apache License but with the acknowledgment clause removed
   JFreeChart under GNU Lesser General Public Licence
-  Joda-Time under Apache 2
+  Joda-Time under Apache License, Version 2.0
   Log4j Implemented Over SLF4J under Apache Software Licenses
   Main module under Lesser General Public License (LGPL)
   mchange-commons-java under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0

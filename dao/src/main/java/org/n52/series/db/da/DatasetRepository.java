@@ -243,7 +243,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         for (DescribableEntity searchResult : found) {
             String id = searchResult.getId().toString();
             String label = searchResult.getLabelFrom(locale);
-            results.add(new DatasetSearchResult(id, label, hrefBase));
+            results.add(new DatasetSearchResult().setId(id).setLabel(label).setBaseUrl(hrefBase));
         }
         return results;
     }
@@ -253,7 +253,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         if (dataset.getService() == null) {
             dataset.setService(getServiceEntity());
         }
-        DatasetOutput<V> result = DatasetOutput.create(parameters);
+        DatasetOutput<V> result = new DatasetOutput();
 
         Long id = dataset.getId();
         String hrefBase = query.getHrefBase();

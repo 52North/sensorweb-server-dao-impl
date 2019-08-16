@@ -80,7 +80,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new ServiceSearchResult(id, label, baseUrl);
+        return new ServiceSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         IoParameters parameters = query.getParameters();
 
         ParameterCount quantities = countParameters(result, query);
-        boolean supportsFirstLatest = entity.isSupportsFirstLatest();
+        boolean supportsFirstLatest = entity.isSupportsFirstLast();
 
         String serviceUrl = entity.getUrl();
         String type = getServiceType(entity);

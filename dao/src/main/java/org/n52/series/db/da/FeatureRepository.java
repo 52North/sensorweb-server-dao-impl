@@ -55,7 +55,7 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new FeatureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
