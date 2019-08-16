@@ -47,6 +47,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
@@ -491,7 +492,59 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
         }
         return (root, query, builder) -> {
             final Join<DatasetEntity, PlatformEntity> join =
-                    root.join(DatasetEntity.PROPERTY_PHENOMENON, JoinType.INNER);
+                    root.join(DatasetEntity.PROPERTY_PLATFORM, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
+    }
+
+    /**
+     * Matches datasets having service with given ids.
+     *
+     * @return a boolean expression
+     * @see #matchServices(Collection)
+     */
+    public Specification<DatasetEntity> matchServices() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchServices(parameters.getServices());
+    }
+
+    /**
+     * Matches datasets having service with given ids.
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression
+     * @see #matchServices(Collection)
+     */
+    public Specification<DatasetEntity> matchServices(final String... ids) {
+        return ids != null ? matchServices(Arrays.asList(ids)) : matchServices(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets having service with given ids. For example:
+     *
+     * <pre>
+     *  where service.id in (&lt;ids&gt;)
+     * </pre>
+     *
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
+     * following query path will be used:
+     *
+     * <pre>
+     *  where service.identifier in (&lt;ids&gt;)
+     * </pre>
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression or {@literal null} when given ids are
+     *         {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchServices(final Collection<String> ids) {
+        if ((ids == null) || ids.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, ServiceEntity> join = root.join(DatasetEntity.PROPERTY_SERVICE, JoinType.INNER);
             return getIdPredicate(join, ids);
         };
     }
@@ -629,6 +682,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
                 return builder.notEqual(root.get(DatasetEntity.PROPERTY_VALUE_TYPE), ValueType.not_initialized);
             }
             return root.get(DatasetEntity.PROPERTY_VALUE_TYPE).in(ValueType.convert(valueTypes));
+        };
+    }
+
+    public Specification<DatasetEntity> matchId(final String id) {
+        return (root, query, builder) -> {
+            if (id == null || id.isEmpty()) {
+                return builder.isNull(root.get(DatasetEntity.PROPERTY_ID));
+            }
+            return builder.equal(root.get(DatasetEntity.PROPERTY_ID), Long.parseLong(id));
         };
     }
 
