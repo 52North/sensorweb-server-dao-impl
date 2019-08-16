@@ -26,15 +26,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
-
+package org.n52.series.db.repositories.core;
 
 import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.repositories.ParameterServiceRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface OfferingRepository extends ParameterDataRepository<OfferingEntity> {
+public interface OfferingRepository extends ParameterServiceRepository<OfferingEntity> {
 
 }

@@ -26,13 +26,19 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
-
+package org.n52.series.db.repositories.core;
 
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.repositories.ParameterDataRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface ServiceRepository extends ParameterDataRepository<ServiceEntity> {
+
+    default ServiceEntity getInstance(ServiceEntity service) {
+        return findByNameAndUrlAndType(service.getName(), service.getUrl(), service.getType());
+    }
+
+    ServiceEntity findByNameAndUrlAndType(String name, String url, String type);
 
 }

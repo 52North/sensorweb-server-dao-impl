@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.core;
 
 import org.n52.series.db.beans.ProcedureHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

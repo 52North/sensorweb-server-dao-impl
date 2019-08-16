@@ -28,18 +28,16 @@
  */
 package org.n52.series.db.repositories;
 
-import java.util.Optional;
-
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
 public interface ParameterDataRepository<T extends DescribableEntity>
-        extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+        extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T>, CrudRepository<T, Long> {
 
     boolean existsByName(String name);
 
@@ -47,11 +45,8 @@ public interface ParameterDataRepository<T extends DescribableEntity>
         return findOne(spcification).isPresent();
     }
 
- T getOrInsertInstance(T object);
-
-    default T getInstance(DescribableEntity entity) {
-        return findByIdentifierAndService(entity.getIdentifier(), entity.getService()).orElseGet(null);
+    default T getInstance(T entity) {
+        return findByIdentifier(entity.getIdentifier()).orElse(null);
     }
 
-    Optional<T> findByIdentifierAndService(String identifier, ServiceEntity service);
 }

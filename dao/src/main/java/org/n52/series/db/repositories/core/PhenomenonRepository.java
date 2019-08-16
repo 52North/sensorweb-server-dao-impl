@@ -26,16 +26,16 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
-
+package org.n52.series.db.repositories.core;
 
 import java.util.Optional;
 
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.repositories.ParameterServiceRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface PhenomenonRepository extends ParameterDataRepository<PhenomenonEntity> {
+public interface PhenomenonRepository extends ParameterServiceRepository<PhenomenonEntity> {
 
     Optional<PhenomenonEntity> findByStaIdentifier(String identifier);
 

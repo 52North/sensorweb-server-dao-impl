@@ -26,12 +26,20 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.core;
+
+import java.util.List;
 
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface DataRepository<T extends DataEntity> extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
+public interface DataRepository<T extends DataEntity<?>> extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
+    void deleteByDataset(DatasetEntity dataset);
+
+    List<T> findAllByDataset(DatasetEntity dataset);
+
+    ResutTimeView getResutTimeViewByDataset(long parseLong);
 }

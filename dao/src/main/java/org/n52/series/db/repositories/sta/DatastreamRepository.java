@@ -26,9 +26,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.sta;
 
 import org.n52.series.db.beans.sta.DatastreamEntity;
+import org.n52.series.db.repositories.NameRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,5 +39,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface DatastreamRepository extends NameRepository<DatastreamEntity> {
 
-    <S extends DatastreamEntity> S intermediateSave(S entity);
 }

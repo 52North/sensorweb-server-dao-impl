@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.core;
 
 import org.n52.series.db.beans.VerticalMetadataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Transactional
-public interface VerticalMetadataRepository extends JpaRepository<VerticalMetadataEntity, Long>, JpaSpecificationExecutor<VerticalMetadataEntity> {
+public interface VerticalMetadataRepository
+        extends JpaRepository<VerticalMetadataEntity, Long>, JpaSpecificationExecutor<VerticalMetadataEntity> {
 
 }

@@ -26,12 +26,47 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.core;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.repositories.ParameterServiceRepository;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface DatasetRepository extends ParameterDataRepository<DatasetEntity> {
+public interface DatasetRepository extends ParameterServiceRepository<DatasetEntity> {
+
+     default List<DatasetEntity> findByService(ServiceEntity service) {
+         DatasetEntity datasetEntity = new DatasetEntity();
+         datasetEntity.setService(service);
+         return findAll(createExample(datasetEntity, createMatcher()));
+     }
+
+     default void deleteByService(ServiceEntity service) {
+         deleteAll(findByService(service));
+     }
+
+     void deleteInBatchById(Iterable<Long> ids);
+
+    @Override
+    default ExampleMatcher createMatcher() {
+         return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
+                 .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
+     }
+
+    default List<DatasetTypesMetadata> getDatasetTypesMetadata(Specification<DatasetEntity> spec) {
+        return findAll(spec).stream()
+                .map(d -> new DatasetTypesMetadata().setId(d.getId()).setDatasetType(d.getDatasetType())
+                        .setObservationType(d.getObservationType()).setValueType(d.getValueType()))
+                .collect(Collectors.toList());
+    }
 
 }

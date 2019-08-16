@@ -26,25 +26,22 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
+package org.n52.series.db.repositories.core;
+
+import java.util.Optional;
 
 import org.n52.series.db.beans.UnitEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.n52.series.db.repositories.ParameterDataRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface UnitRepository extends JpaRepository<UnitEntity, Long>, JpaSpecificationExecutor<UnitEntity> {
-
-    boolean existsByIdentifier(String identifier);
-
-    UnitEntity findByIdentifier(String identifier);
+public interface UnitRepository extends ParameterDataRepository<UnitEntity> {
 
     default boolean existsBySymbol(String symbol) {
         return existsByIdentifier(symbol);
     }
 
-    default UnitEntity findBySymbol(String symbol) {
+    default Optional<UnitEntity> findBySymbol(String symbol) {
         return findByIdentifier(symbol);
     }
 }

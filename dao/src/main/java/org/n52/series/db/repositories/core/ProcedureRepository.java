@@ -26,13 +26,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories;
-
+package org.n52.series.db.repositories.core;
 
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.repositories.ParameterServiceRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface ProcedureRepository extends ParameterDataRepository<ProcedureEntity> {
+public interface ProcedureRepository extends ParameterServiceRepository<ProcedureEntity> {
 
 }
