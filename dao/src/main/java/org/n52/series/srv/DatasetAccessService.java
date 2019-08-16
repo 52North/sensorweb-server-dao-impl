@@ -41,8 +41,8 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.ValueAssembler;
+import org.n52.series.db.assembler.core.DatasetAssembler;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.da.DatasetAssembler;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
@@ -71,7 +71,8 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
     @Override
     public DataCollection<Data<V>> getData(IoParameters parameters) {
         TvpDataCollection<Data<V>> dataCollection = new TvpDataCollection<>();
-        List<DatasetTypesMetadata> datasetTypesMetadata = getRepository().getDatasetTypesMetadata(parameters);
+        List<DatasetTypesMetadata> datasetTypesMetadata =
+                getRepository().getDatasetTypesMetadata(dbQueryFactory.createFrom(parameters));
         for (DatasetTypesMetadata metadata : datasetTypesMetadata) {
             Data<V> data;
             try {
@@ -98,7 +99,5 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
 
     private DatasetAssembler<V> getRepository() {
         return (DatasetAssembler<V>) repository;
-}
-
-
+    }
 }
