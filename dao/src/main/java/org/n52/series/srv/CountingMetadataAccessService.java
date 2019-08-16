@@ -29,7 +29,7 @@
 package org.n52.series.srv;
 
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.old.da.EntityCounter;
+import org.n52.series.db.assembler.core.EntityCounter;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.DefaultDbQueryFactory;
@@ -51,75 +51,73 @@ public class CountingMetadataAccessService implements CountingMetadataService {
     }
 
     @Override
-    public int getServiceCount(IoParameters parameters) {
+    public Long getServiceCount(IoParameters parameters) {
         // Spring configuration has only 1 service
-        return 1;
+        return 1L;
     }
 
     @Override
-    public int getOfferingCount(IoParameters parameters) {
+    public Long getOfferingCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countOfferings(query);
     }
 
     @Override
-    public int getCategoryCount(IoParameters parameters) {
+    public Long getCategoryCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countCategories(query);
     }
 
     @Override
-    public int getFeatureCount(IoParameters parameters) {
+    public Long getFeatureCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countFeatures(query);
     }
 
     @Override
-    public int getProcedureCount(IoParameters parameters) {
+    public Long getProcedureCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countProcedures(query);
     }
 
     @Override
-    public int getPhenomenaCount(IoParameters parameters) {
+    public Long getPhenomenaCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countPhenomena(query);
     }
 
     @Override
-    public int getPlatformCount(IoParameters parameters) {
+    public Long getPlatformCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countPlatforms(query);
     }
 
     @Override
-    public int getDatasetCount(IoParameters parameters) {
+    public Long getDatasetCount(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countDatasets(query);
     }
 
     @Override
-    public int getSamplingCounter(IoParameters parameters) {
+    public Long getSamplingCounter(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countSamplings(query);
     }
 
     @Override
-    public int getMeasuringProgramCounter(IoParameters parameters) {
+    public Long getMeasuringProgramCounter(IoParameters parameters) {
         DbQuery query = dbQueryFactory.createFrom(parameters);
         return counter.countMeasuringPrograms(query);
     }
 
     @Override
-    @Deprecated
-    public int getStationCount() {
-        return counter.countStations();
+    public Long getStationCount() {
+        return 0L;
     }
 
     @Override
-    @Deprecated
-    public int getTimeseriesCount() {
-        return counter.countTimeseries();
+    public Long getTimeseriesCount() {
+        return 0L;
     }
 
 }

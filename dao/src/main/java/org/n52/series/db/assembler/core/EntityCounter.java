@@ -26,192 +26,118 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.da;
+package org.n52.series.db.assembler.core;
 
-import org.hibernate.Session;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
 import org.n52.io.request.IoParameters;
 import org.n52.series.db.DataRepositoryTypeFactory;
-import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.dao.AbstractDao;
-import org.n52.series.db.old.dao.CategoryDao;
-import org.n52.series.db.old.dao.DatasetDao;
+import org.n52.series.db.assembler.sampling.MeasuringProgramAssembler;
+import org.n52.series.db.assembler.sampling.SamplingAssembler;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.old.dao.FeatureDao;
-import org.n52.series.db.old.dao.MeasuringProgramDao;
-import org.n52.series.db.old.dao.OfferingDao;
-import org.n52.series.db.old.dao.PhenomenonDao;
-import org.n52.series.db.old.dao.PlatformDao;
-import org.n52.series.db.old.dao.ProcedureDao;
-import org.n52.series.db.old.dao.SamplingDao;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EntityCounter {
 
-    private final HibernateSessionStore sessionStore;
+    @Inject
+    private CategoryAssembler categoryAssembler;
+
+    @Inject
+    private FeatureAssembler featureAssembler;
+
+    @Inject
+    private OfferingAssembler offeringAssembler;
+
+    @Inject
+    private PhenomenonAssembler phenomenonAssembler;
+
+    @Inject
+    private ProcedureAssembler procedureAssembler;
+
+    @Inject
+    private PlatformAssembler platformAssembler;
+
+    @Inject
+    private Optional<MeasuringProgramAssembler> measuringProgramAssembler;
+
+    @Inject
+    private Optional<SamplingAssembler> samplingAssembler;
 
     private final DbQueryFactory dbQueryFactory;
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
 
-    public EntityCounter(HibernateSessionStore sessionStore,
-                         DbQueryFactory dbQueryFactory,
-                         DataRepositoryTypeFactory dataRepositoryFactory) {
-        this.sessionStore = sessionStore;
+    public EntityCounter(DbQueryFactory dbQueryFactory, DataRepositoryTypeFactory dataRepositoryFactory) {
         this.dbQueryFactory = dbQueryFactory;
         this.dataRepositoryFactory = dataRepositoryFactory;
     }
 
-    public Integer countFeatures(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new FeatureDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countFeatures(DbQuery query) {
+        return featureAssembler.count(query);
     }
 
-    public Integer countOfferings(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new OfferingDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countOfferings(DbQuery query) {
+        return offeringAssembler.count(query);
     }
 
-    public Integer countProcedures(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new ProcedureDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countProcedures(DbQuery query) {
+        return procedureAssembler.count(query);
     }
 
-    public Integer countPhenomena(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new PhenomenonDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countPhenomena(DbQuery query) {
+        return phenomenonAssembler.count(query);
     }
 
-    public Integer countCategories(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new CategoryDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countCategories(DbQuery query) {
+        return categoryAssembler.count(query);
     }
 
-    public Integer countPlatforms(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new PlatformDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countPlatforms(DbQuery query) {
+        return platformAssembler.count(query);
     }
 
-    public Integer countDatasets(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            IoParameters parameters = query.getParameters();
-            if (parameters.getValueTypes().isEmpty()) {
-                parameters = parameters.extendWith(
-                        "valueTypes",
-                        dataRepositoryFactory.getKnownTypes().toArray(new String[0])
-                );
-                return getCount(new DatasetDao<>(session),
-                                dbQueryFactory.createFrom(parameters));
-            }
-            return getCount(new DatasetDao<>(session), query);
-        } finally {
-            sessionStore.returnSession(session);
+    public Long countDatasets(DbQuery query) {
+        IoParameters parameters = query.getParameters();
+        if (parameters.getValueTypes().isEmpty()) {
+            parameters =
+                    parameters.extendWith("valueTypes", dataRepositoryFactory.getKnownTypes().toArray(new String[0]));
+            return platformAssembler.count(dbQueryFactory.createFrom(parameters));
         }
+        return platformAssembler.count(query);
     }
 
-    public int countSamplings(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new SamplingDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countSamplings(DbQuery query) {
+        return measuringProgramAssembler.isPresent() ? measuringProgramAssembler.get().count(query) : null;
     }
 
-    public int countMeasuringPrograms(DbQuery query) {
-        Session session = sessionStore.getSession();
-        try {
-            return getCount(new MeasuringProgramDao(session), query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
+    public Long countMeasuringPrograms(DbQuery query) {
+        return samplingAssembler.isPresent() ? samplingAssembler.get().count(query) : null;
     }
 
-    public Integer countStations() {
-        Session session = sessionStore.getSession();
-        try {
-            DbQuery query = createBackwardsCompatibleQuery();
-            return countFeatures(query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
-    }
-
-
-    @Deprecated
-    public Integer countTimeseries() {
-        Session session = sessionStore.getSession();
-        try {
-            DbQuery query = createBackwardsCompatibleQuery();
-            return countDatasets(query);
-        } finally {
-            sessionStore.returnSession(session);
-        }
-    }
-
-    public Integer countTimeseries(DbQuery query) {
+    public Long countTimeseries(DbQuery query) {
         return countDataset(query, "timeseries");
     }
 
-    public Integer countIndividualObservations(DbQuery query) {
+    public Long countIndividualObservations(DbQuery query) {
         return countDataset(query, "individualObservation");
     }
 
-    public Integer countTrajectories(DbQuery query) {
+    public Long countTrajectories(DbQuery query) {
         return countDataset(query, "trajectory");
     }
 
-    public Integer countProfiles(DbQuery query) {
+    public Long countProfiles(DbQuery query) {
         return countDataset(query, "profile");
     }
 
-    private Integer countDataset(DbQuery query, String datasetType) {
-        Session session = sessionStore.getSession();
-        try {
-            IoParameters parameters = query.getParameters();
-            parameters = parameters.extendWith("datasetTypes", datasetType);
-            return getCount(new DatasetDao<>(session), dbQueryFactory.createFrom(parameters));
-        } finally {
-            sessionStore.returnSession(session);
-        }
-    }
-
-    public Integer getCount(AbstractDao< ? > dao, DbQuery query) {
-        return dao.getCount(query);
-    }
-
-    private DbQuery createBackwardsCompatibleQuery() {
-        IoParameters parameters = IoParameters.createDefaults();
-        // parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES,
-        // "stationary", "insitu")
-        //     .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
-        return dbQueryFactory.createFrom(parameters);
+    private Long countDataset(DbQuery query, String datasetType) {
+        IoParameters parameters = query.getParameters();
+        parameters = parameters.extendWith("datasetTypes", datasetType);
+        return platformAssembler.count(dbQueryFactory.createFrom(parameters));
     }
 
 }
