@@ -28,12 +28,12 @@
  */
 package org.n52.springboot.init;
 
+import javax.persistence.EntityManager;
+
 import org.n52.io.extension.RenderingHintsExtension;
 import org.n52.io.extension.StatusIntervalsExtension;
 import org.n52.io.extension.metadata.DatabaseMetadataExtension;
-import org.n52.io.extension.metadata.MetadataRepository;
 import org.n52.io.extension.resulttime.ResultTimeExtension;
-import org.n52.io.extension.resulttime.ResultTimeRepository;
 import org.n52.io.extension.resulttime.ResultTimeService;
 import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.response.ParameterOutput;
@@ -41,8 +41,8 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.extension.LicenseExtension;
-import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQueryFactory;
+import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.web.ctrl.DatasetController;
 import org.n52.web.ctrl.ParameterController;
 import org.n52.web.ctrl.TimeseriesMetadataController;
@@ -65,14 +65,15 @@ public class ControllerConfig {
     }
 
     @Bean
-    public DatabaseMetadataExtension databaseMetadataExtension(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        MetadataRepository repository = new MetadataRepository(sessionStore, dbQueryFactory);
+    public DatabaseMetadataExtension databaseMetadataExtension(DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
+        MetadataAssembler repository = new MetadataAssembler(datasetRepository, dbQueryFactory);
         return new DatabaseMetadataExtension(repository);
     }
 
     @Bean
-    public ResultTimeExtension resultTimeExtension(DatasetController datasetController, HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        ResultTimeRepository repository = new ResultTimeRepository(sessionStore, dbQueryFactory);
+    public ResultTimeExtension resultTimeExtension(EntityManager entityManager, DatasetRepository datasetRepository,
+            DbQueryFactory dbQueryFactory) {
+        ResultTimeAssembler repository = new ResultTimeAssembler(entityManager, datasetRepository,  dbQueryFactory);
         ResultTimeService resultTimeService = new ResultTimeService(repository);
         ResultTimeExtension extension = new ResultTimeExtension(resultTimeService);
         datasetController.addMetadataExtension(extension);
