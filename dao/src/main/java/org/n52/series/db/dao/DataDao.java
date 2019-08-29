@@ -215,7 +215,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
-        Criteria criteria = getDefaultCriteria(query);
+        Criteria criteria = getDefaultCriteria(query, order);
         criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
 
         IoParameters parameters = query.getParameters();
