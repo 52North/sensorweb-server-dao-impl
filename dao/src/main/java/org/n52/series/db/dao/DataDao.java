@@ -31,6 +31,7 @@ package org.n52.series.db.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
@@ -246,6 +247,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
         }
         return criteria;
+    }
+
+    public T getLastObservationForSampling(DatasetEntity dataset, Date date, DbQuery query) {
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
+        final Order order = Order.desc(column);
+        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        return (T) criteria.add(Restrictions.lt(column, DateUtils.addMilliseconds(date, 1)))
+                           .setMaxResults(1)
+                           .uniqueResult();
     }
 
 }

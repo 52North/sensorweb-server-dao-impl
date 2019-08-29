@@ -28,8 +28,10 @@
  */
 package org.n52.series.db.da;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -47,6 +49,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.dao.AbstractDao;
+import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SamplingDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -141,22 +144,30 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     }
 
     private List<SamplingObservationOutput> getLastSamplingObservations(SamplingEntity sampling, DbQuery query) {
-        LinkedList<SamplingObservationOutput> result = new LinkedList<>();
-        if (sampling.hasObservations()) {
-            for (DataEntity<?> o : sampling.getObservations()) {
-                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
-                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), query));
+        SortedSet<DataEntity<?>> observations = new TreeSet<>();
+        if (sampling.hasDatasets()) {
+            DataDao<?> dataDao = new DataDao<>(getSession());
+            for (DatasetEntity dataset : sampling.getDatasets()) {
+                if (dataset.getLastValueAt() != null && (dataset.getLastValueAt().before(sampling.getSamplingTimeEnd())
+                        || dataset.getLastValueAt().equals(sampling.getSamplingTimeEnd()))) {
+                    observations.add((DataEntity<?>) Hibernate.unproxy(dataset.getLastObservation()));
+                } else {
+                    DataEntity<?> closestValue =
+                            dataDao.getLastObservationForSampling(dataset, sampling.getSamplingTimeEnd(), query);
+                    if (closestValue != null) {
+                        observations.add(closestValue);
+                    }
                 }
             }
         }
-        return result;
-//
-//        return sampling.hasObservations()
-//                ? sampling.getObservations().stream()
-//                        .filter(o -> o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd()))
-//                        .map(o -> getLastObservation(o, query)).collect(Collectors.toList())
-//                : new LinkedList<>();
-        // TODO get last observation for datasets whose obs do not have a sampling id
+        if (sampling.hasObservations()) {
+            for (DataEntity<?> o : sampling.getObservations()) {
+                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
+                    observations.add((DataEntity<?>) Hibernate.unproxy(o));
+                }
+            }
+        }
+        return observations.stream().map(o -> getLastObservation(o, query)).collect(Collectors.toList());
     }
 
     private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
