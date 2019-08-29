@@ -132,7 +132,9 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     }
 
     private FeatureOutput getFeature(SamplingEntity sampling, DbQuery query) {
-        if (sampling.hasObservations()) {
+        if (sampling.hasDatasets()) {
+            return getCondensedFeature(sampling.getDatasets().iterator().next().getFeature(), query);
+        } else if (sampling.hasObservations()) {
             return getCondensedFeature(sampling.getObservations().iterator().next().getDataset().getFeature(), query);
         }
         return null;
