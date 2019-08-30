@@ -42,6 +42,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EnableWebMvc
@@ -96,8 +97,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     private ObjectMapper configureObjectMapper() {
         final ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(Include.NON_NULL);
-        return om;
+        om.setSerializationInclusion(Include.NON_NULL)
+            .configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
     }
 
+    private ObjectMapper set
 }

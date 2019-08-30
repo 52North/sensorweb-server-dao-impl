@@ -128,10 +128,9 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
 
     private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
-//        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-//                .map(d -> createCondensed(new DatasetOutput<?>(), d, query))
-//                .collect(Collectors.toList()) : new LinkedList<>();
-        return Collections.emptyList();
+        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
+                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
+                .collect(Collectors.toList()) : new LinkedList<>();
     }
 
     private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {

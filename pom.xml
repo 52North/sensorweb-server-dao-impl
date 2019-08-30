@@ -45,16 +45,16 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <arctic-sea.version>7.0.0</arctic-sea.version>
+        <arctic-sea.version>7.1.0</arctic-sea.version>
         <aspectj.version>1.9.4</aspectj.version>
         <geolatte.version>1.4.0</geolatte.version>
         <geotools.version>21.2</geotools.version>
         <h2.version>1.4.197</h2.version>
-        <hibernate.version>5.4.3.Final </hibernate.version>
+        <hibernate.version>5.4.4.Final </hibernate.version>
         <postgis.version>2.3.0</postgis.version>
         <series-api.version>2.0.1-SNAPSHOT</series-api.version>
         <series-hibernate.version>2.0.0-SNAPSHOT</series-hibernate.version>
-        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+        <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>

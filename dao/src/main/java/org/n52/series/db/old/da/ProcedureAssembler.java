@@ -44,7 +44,7 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.ProcedureDao;
 import org.n52.series.db.old.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.ProcedureSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 //@Component
@@ -61,7 +61,7 @@ public class ProcedureAssembler extends HierarchicalParameterAssembler<Procedure
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
+        return new ProcedureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
