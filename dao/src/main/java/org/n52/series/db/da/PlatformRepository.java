@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import static java.util.stream.Collectors.toList;
@@ -156,7 +155,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
             return getPlatform(id, parameters, session);
         }
     }
-    
+
     @Override
     protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
         PlatformOutput result = super.createCondensed(entity, query, session);
@@ -184,7 +183,7 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
                                                        .removeAllOf(Parameters.ODATA_FILTER)
                                                        .removeAllOf(Parameters.FILTER_FIELDS));
         List<DatasetOutput> datasets = seriesRepository.getAllCondensed(datasetQuery);
-        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets); 
+        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
 
         Geometry geometry = entity.getGeometry() == null
                 ? getLastSamplingGeometry(datasets, platformQuery, session)

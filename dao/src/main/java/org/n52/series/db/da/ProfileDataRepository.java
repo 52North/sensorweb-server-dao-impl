@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-
 package org.n52.series.db.da;
 
 import java.math.BigDecimal;
@@ -165,7 +164,7 @@ public abstract class ProfileDataRepository<T, P extends ProfileDatasetEntity>
         } else if (getParameterNames(parameters).contains(dataset.getVerticalFromParameterName())
                 && getParameterNames(parameters).contains(dataset.getVerticalToParameterName())) {
             dataItem.setVerticalFrom(getVerticalValue(parameters, dataset.getVerticalFromParameterName()));
-            dataItem.setVerticalTo(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
+            dataItem.setVertical(getVerticalValue(parameters, dataset.getVerticalToParameterName()));
         }
     }
 
