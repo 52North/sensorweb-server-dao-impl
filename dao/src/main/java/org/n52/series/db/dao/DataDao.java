@@ -48,9 +48,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.CategoryDatasetEntity;
+import org.n52.series.db.beans.CountDataEntity;
+import org.n52.series.db.beans.CountDatasetEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.ProfileDataEntity;
+import org.n52.series.db.beans.ProfileDatasetEntity;
+import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.QuantityDatasetEntity;
+import org.n52.series.db.beans.RecordDataEntity;
+import org.n52.series.db.beans.RecordDatasetEntity;
+import org.n52.series.db.beans.TextDataEntity;
+import org.n52.series.db.beans.TextDatasetEntity;
 
 /**
  * TODO: JavaDoc
@@ -120,7 +132,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final Long pkid = series.getPkid();
         LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_SERIES_PKID, pkid);
-        Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
+        Criteria criteria = getDefaultCriteria(query, series).add(equalsPkid);
         query.addTimespanTo(criteria);
         if (query.isExpanded() && (!query.getParameters().containsParameter(Parameters.FORMAT)
                 || !("highcharts".equalsIgnoreCase(query.getParameters().getFormat())
@@ -143,23 +155,40 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return "";
     }
 
+    private Criteria getDefaultCriteria(DbQuery query, DatasetEntity series) {
+        Class<?> specific = entityType;
+        if (series instanceof QuantityDatasetEntity) {
+            specific = QuantityDataEntity.class;
+        } else if (series instanceof CategoryDatasetEntity) {
+            specific = CategoryDataEntity.class;
+        } else if (series instanceof CountDatasetEntity) {
+            specific = CountDataEntity.class;
+        } else if (series instanceof TextDatasetEntity) {
+            specific = TextDataEntity.class;
+        } else if (series instanceof ProfileDatasetEntity) {
+            specific = ProfileDataEntity.class;
+        } else if (series instanceof RecordDatasetEntity) {
+            specific = RecordDataEntity.class;
+        }
+        return addRestrictions(session.createCriteria(specific), query);
+    }
+
     @Override
     public Criteria getDefaultCriteria(DbQuery query) {
-        Criteria criteria = session.createCriteria(entityType)
-                                   // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(Order.asc(DataEntity.PROPERTY_TIMEEND))
-                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+        return addRestrictions(session.createCriteria(entityType), query);
+    }
+
+    private Criteria addRestrictions(Criteria criteria, DbQuery query) {
+        criteria.addOrder(Order.asc(DataEntity.PROPERTY_TIMEEND))
+                .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
         query.addOdataFilterForData(criteria);
 
-        criteria = query.isComplexParent()
-                ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
+        return query.isComplexParent() ? criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, true))
                 : criteria.add(Restrictions.eq(DataEntity.PROPERTY_PARENT, false));
-
-        return criteria;
     }
 
     @SuppressWarnings("unchecked")
