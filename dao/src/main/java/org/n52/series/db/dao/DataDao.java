@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -120,6 +122,13 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_SERIES_PKID, pkid);
         Criteria criteria = getDefaultCriteria(query).add(equalsPkid);
         query.addTimespanTo(criteria);
+        if (query.isExpanded() && (!query.getParameters().containsParameter(Parameters.FORMAT)
+                || !("highcharts".equalsIgnoreCase(query.getParameters().getFormat())
+                        || "flotcharts".equalsIgnoreCase(query.getParameters().getFormat())
+                        || "flot".equalsIgnoreCase(query.getParameters().getFormat())))) {
+            // force joining of parameters for expanded query to avoid x separate queries
+            criteria.setFetchMode("parameters", FetchMode.JOIN);
+        }
         return criteria.list();
     }
 
