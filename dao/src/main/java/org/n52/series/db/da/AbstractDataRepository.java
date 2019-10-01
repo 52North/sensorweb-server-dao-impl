@@ -135,8 +135,13 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
 
         if (query.isExpanded()) {
             addValidTime(observation, value);
-            addParameters(observation, value, query);
             addGeometry(observation, value, query);
+            if (!query.getParameters().containsParameter(Parameters.FORMAT)
+                    || !("highcharts".equalsIgnoreCase(query.getParameters().getFormat())
+                            || "flotcharts".equalsIgnoreCase(query.getParameters().getFormat())
+                            || "flot".equalsIgnoreCase(query.getParameters().getFormat()))) {
+                addParameters(observation, value, query);
+            }
         } else {
             if (dataset.getPlatform()
                        .isMobile()) {
