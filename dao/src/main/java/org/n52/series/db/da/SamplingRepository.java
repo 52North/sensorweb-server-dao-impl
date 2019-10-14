@@ -49,7 +49,6 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.dao.AbstractDao;
-import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SamplingDao;
 import org.n52.series.db.dao.SearchableDao;
@@ -116,8 +115,8 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         SamplingOutput result = createCondensed(sampling, query, session);
         result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query),
                 parameters, result::setFeature);
-        result.setValue(SamplingOutput.LAST_SAMPLING_OBSERVATIONS, getLastSamplingObservations(sampling, query),
-                parameters, result::setLastSamplingObservations);
+        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query),
+                parameters, result::setSamplingObservations);
         return result;
     }
 
@@ -143,34 +142,19 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         return null;
     }
 
-    private List<SamplingObservationOutput> getLastSamplingObservations(SamplingEntity sampling, DbQuery query) {
+    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
         SortedSet<DataEntity<?>> observations = new TreeSet<>();
-        if (sampling.hasDatasets()) {
-            DataDao<?> dataDao = new DataDao<>(getSession());
-            for (DatasetEntity dataset : sampling.getDatasets()) {
-                if (dataset.getLastValueAt() != null && (dataset.getLastValueAt().before(sampling.getSamplingTimeEnd())
-                        || dataset.getLastValueAt().equals(sampling.getSamplingTimeEnd()))) {
-                    observations.add((DataEntity<?>) Hibernate.unproxy(dataset.getLastObservation()));
-                } else {
-                    DataEntity<?> closestValue =
-                            dataDao.getLastObservationForSampling(dataset, sampling.getSamplingTimeEnd(), query);
-                    if (closestValue != null) {
-                        observations.add(closestValue);
-                    }
-                }
-            }
-        }
         if (sampling.hasObservations()) {
             for (DataEntity<?> o : sampling.getObservations()) {
-                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
+                if (!o.hasParent()) {
                     observations.add((DataEntity<?>) Hibernate.unproxy(o));
                 }
             }
         }
-        return observations.stream().map(o -> getLastObservation(o, query)).collect(Collectors.toList());
+        return observations.stream().map(o -> getObservation(o, query)).collect(Collectors.toList());
     }
 
-    private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
+    private SamplingObservationOutput getObservation(DataEntity<?> o, DbQuery query) {
         SamplingObservationOutput result = new SamplingObservationOutput();
         DataRepository factory = getDataRepositoryFactory(o.getDataset());
         result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
