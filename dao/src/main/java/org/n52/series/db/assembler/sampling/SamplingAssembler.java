@@ -82,8 +82,8 @@ public class SamplingAssembler
         IoParameters parameters = query.getParameters();
         SamplingOutput result = super.createExpanded(entity, query);
         result.setValue(SamplingOutput.FEATURE, getFeature(entity, query), parameters, result::setFeature);
-        result.setValue(SamplingOutput.LAST_SAMPLING_OBSERVATIONS, getLastSamplingObservations(entity, query),
-                parameters, result::setLastSamplingObservations);
+        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity, query),
+                parameters, result::setSamplingObservations);
         return result;
     }
 
@@ -102,7 +102,7 @@ public class SamplingAssembler
         }).findFirst().get() : null;
     }
 
-    private List<SamplingObservationOutput> getLastSamplingObservations(SamplingEntity sampling, DbQuery query) {
+    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
         LinkedList<SamplingObservationOutput> result = new LinkedList<>();
         if (sampling.hasObservations()) {
             for (DataEntity<?> o : sampling.getObservations()) {
