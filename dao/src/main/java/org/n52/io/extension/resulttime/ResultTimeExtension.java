@@ -93,6 +93,9 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput< ? >> {
 
     @Override
     public Map<String, Object> getExtras(DatasetOutput< ? > output, IoParameters parameters) {
+        if (!hasExtrasToReturn(output, parameters)) {
+            return Collections.emptyMap();
+        }
         return wrapSingleIntoMap(getResultTimes(parameters, output));
     }
 
