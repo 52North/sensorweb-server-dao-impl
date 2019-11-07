@@ -138,6 +138,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
                                                                             DbQuery query) {
         ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
+        dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
 
         BigDecimal verticalTo = format(dataEntity.getVerticalTo(), dataEntity.getDataset());
         BigDecimal verticalFrom = format(dataEntity.getVerticalFrom(), dataEntity.getDataset());
@@ -156,6 +157,7 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
+        dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
         return dataItem;
     }
 }

@@ -233,7 +233,7 @@ public class QuantityDataRepository
     QuantityValue createValue(BigDecimal observationValue, QuantityDataEntity observation, DbQuery query) {
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
-
+        value.setDetectionLimit(getDetectionLimit(observation));
         Locale locale = LocaleHelper.decode(query.getLocale());
         NumberFormat formatter = NumberFormat.getInstance(locale);
         value.setValueFormatter(formatter::format);
@@ -243,5 +243,4 @@ public class QuantityDataRepository
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
         return format(observation.getValue(), dataset);
     }
-
 }
