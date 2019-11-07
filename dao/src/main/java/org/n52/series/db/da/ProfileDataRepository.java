@@ -116,9 +116,9 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
             if (verticalMetadata.isSetVerticalOriginName()) {
                 verticalExtent.setVerticalOrigin(verticalMetadata.getVerticalOriginName());
             }
-            verticalExtent.setFrom(new VerticalExtentValueOutput(verticalMetadata.getVerticalFromName(),
+            verticalExtent.setFrom(new VerticalExtentValueOutput(getVerticalFromName(verticalMetadata),
                     format(observation.getVerticalFrom(), observation.getDataset())));
-            verticalExtent.setTo(new VerticalExtentValueOutput(verticalMetadata.getVerticalToName(),
+            verticalExtent.setTo(new VerticalExtentValueOutput(getVerticalToName(verticalMetadata),
                     format(observation.getVerticalTo(), observation.getDataset())));
             for (DataEntity<?> value : observation.getValue()) {
                 verticalExtent.setInterval(value.hasVerticalInterval());
@@ -126,6 +126,20 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
             }
         }
         return verticalExtent;
+    }
+
+    private String getVerticalFromName(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.isSetVerticalFromName() ? verticalMetadata.getVerticalFromName()
+                : getVerticalToName(verticalMetadata);
+    }
+
+    private String getVerticalToName(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.isSetVerticalToName() ? verticalMetadata.getVerticalToName()
+                : getNameFromOrientation(verticalMetadata);
+    }
+
+    private String getNameFromOrientation(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.getOrientation() != null && verticalMetadata.getOrientation() > 0 ? "height" : "depth";
     }
 
     protected abstract ProfileValue<V> createValue(ProfileDataEntity observation,
