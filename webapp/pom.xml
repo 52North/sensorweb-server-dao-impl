@@ -469,7 +469,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>html-pipeline</artifactId>
-                    <version>2.7.0</version>
+                    <version>2.12.1</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
