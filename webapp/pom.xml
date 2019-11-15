@@ -596,7 +596,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>timers</artifactId>
-                    <version>4.1.2</version>
+                    <version>4.3.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
