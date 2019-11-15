@@ -407,7 +407,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>celluloid</artifactId>
-                    <version>0.17.0</version>
+                    <version>0.17.4</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
