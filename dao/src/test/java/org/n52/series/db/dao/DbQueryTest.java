@@ -28,8 +28,8 @@
  */
 package org.n52.series.db.dao;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DbQueryTest {
 
@@ -37,7 +37,7 @@ public class DbQueryTest {
 
     @Test
     public void when_createWithNull_then_defaults() {
-        Assert.assertNotNull(dbQueryFactory.createFrom(null));
+        Assertions.assertNotNull(dbQueryFactory.createFrom(null));
     }
 
 }

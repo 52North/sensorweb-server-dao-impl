@@ -30,8 +30,8 @@ package org.n52.io.extension;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.n52.io.extension.metadata.MetadataJsonEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,7 +54,7 @@ public class MetadataJsonEntitiyTest {
         JsonNode jsonNode = om.readTree(jsonString);
         JsonNode at = jsonNode.path("value")
                               .path("object");
-        Assert.assertTrue(at.isObject());
+        Assertions.assertTrue(at.isObject());
     }
 
 }
