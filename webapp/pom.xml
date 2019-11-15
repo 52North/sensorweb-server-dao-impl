@@ -541,7 +541,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>listen</artifactId>
-                    <version>3.0.6</version>
+                    <version>3.2.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
