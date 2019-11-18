@@ -427,7 +427,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>celluloid-supervision</artifactId>
-                    <version>0.20.5</version>
+                    <version>0.20.6</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
