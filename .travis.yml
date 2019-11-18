@@ -1,5 +1,6 @@
 language: java
-jdk
+dist: bionic
+jdk:
 - openjdk10
 - openjdk11
 matrix:
@@ -19,7 +20,6 @@ matrix:
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
 
-dist: bionic
 before_install:
 - gem install bundler jekyll html-proofer
 #script: mvn -fae -U -B clean install -Pwith-docs -Pcheck
