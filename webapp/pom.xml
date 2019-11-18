@@ -462,7 +462,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>github-pages</artifactId>
-                    <version>140</version>
+                    <version>202</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
