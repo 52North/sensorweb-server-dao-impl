@@ -575,7 +575,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>pathutil</artifactId>
-                    <version>0.14.0</version>
+                    <version>0.16.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
