@@ -554,7 +554,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>liquid</artifactId>
-                    <version>3.0.6</version>
+                    <version>4.0.3</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
