@@ -448,7 +448,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>ffi</artifactId>
-                    <version>1.9.18</version>
+                    <version>1.11.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
