@@ -482,7 +482,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>i18n</artifactId>
-                    <version>0.8.4</version>
+                    <version>1.7.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
