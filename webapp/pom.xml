@@ -589,7 +589,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>sass</artifactId>
-                    <version>3.4.24</version>
+                    <version>3.7.4</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
