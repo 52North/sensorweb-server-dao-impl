@@ -568,7 +568,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>nokogiri</artifactId>
-                    <version>1.10.5</version>
+                    <version>1.10.7</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
