@@ -582,7 +582,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>rouge</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
