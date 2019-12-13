@@ -196,7 +196,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         List<DatasetEntity> referenceValues = series.getReferenceValues();
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()
+            if (referenceSeriesEntity != null && referenceSeriesEntity.isPublished()
                     && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
