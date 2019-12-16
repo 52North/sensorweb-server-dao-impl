@@ -196,8 +196,8 @@ public class QuantityDataRepository
                         QuantityValue firstItem = getFirstItem(referencedDatasetData);
                         QuantityValue quantityValue = new QuantityValue();
                         quantityValue.setValue(firstItem.getValue());
-                        quantityValue.setTimestamp(
-                                new TimeOutput(lowerBound.minusHours(1), firstItem.getTimestamp().isUnixTime()));
+                        quantityValue.setTimestamp(new TimeOutput(lowerBound.minus(getOverlappingTime(timespan)),
+                                firstItem.getTimestamp().isUnixTime()));
                         metadata.setValueBeforeTimespan(quantityValue);
                     }
                     QuantityValue after =
@@ -208,8 +208,8 @@ public class QuantityDataRepository
                         QuantityValue lastItem = getLastItem(referencedDatasetData);
                         QuantityValue quantityValue = new QuantityValue();
                         quantityValue.setValue(lastItem.getValue());
-                        quantityValue.setTimestamp(
-                                new TimeOutput(upperBound.plusHours(1), lastItem.getTimestamp().isUnixTime()));
+                        quantityValue.setTimestamp(new TimeOutput(upperBound.plus(getOverlappingTime(timespan)),
+                                lastItem.getTimestamp().isUnixTime()));
                         metadata.setValueAfterTimespan(quantityValue);
                     }
                 }
@@ -217,6 +217,10 @@ public class QuantityDataRepository
             }
         }
         return referencedDatasets;
+    }
+
+    private Long getOverlappingTime(Interval timespan) {
+        return ((Double) (timespan.toDurationMillis() * 0.1)).longValue();
     }
 
     private QuantityValue getFirstItem(Data<QuantityValue> referenceSeriesData) {
