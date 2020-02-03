@@ -28,7 +28,17 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collection;
+import java.util.Set;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.RootEntityResultTransformer;
+import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
@@ -54,6 +64,29 @@ public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
     @Override
     protected Class<I18nFeatureEntity> getI18NEntityClass() {
         return I18nFeatureEntity.class;
+    }
+
+    @Override
+    public Collection<FeatureEntity> get(DbQuery query) {
+        Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
+                .setResultTransformer(RootEntityResultTransformer.INSTANCE);
+        IoParameters parameters = query.getParameters();
+        if (parameters.getFeatures() != null && !parameters.getFeatures().isEmpty()) {
+            c.add(query.getParameters().isMatchDomainIds() ? createDomainIdFilter(parameters.getFeatures())
+                    : createIdFilter(parameters.getFeatures()));
+        }
+        query.addSpatialFilter(c);
+        return c.list();
+    }
+
+    private Criterion createDomainIdFilter(Set<String> filterValues) {
+        return filterValues.stream().map(filter -> Restrictions.ilike(FeatureEntity.PROPERTY_DOMAIN_ID, filter))
+                .collect(Restrictions::disjunction, Disjunction::add,
+                         (a, b) -> b.conditions().forEach(a::add));
+    }
+
+    private Criterion createIdFilter(Set<String> filterValues) {
+        return Restrictions.in(FeatureEntity.PROPERTY_ID, QueryUtils.parseToIds(filterValues));
     }
 
 }
