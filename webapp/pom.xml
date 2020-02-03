@@ -466,7 +466,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>github-pages</artifactId>
-                    <version>203</version>
+                    <version>204</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
