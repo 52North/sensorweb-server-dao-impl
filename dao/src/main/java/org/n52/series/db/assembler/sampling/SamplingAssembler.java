@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,6 @@ import java.util.List;
 import org.hibernate.Hibernate;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.sampling.DetectionLimitOutput;
 import org.n52.io.response.sampling.SamplingObservationOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
@@ -121,28 +120,17 @@ public class SamplingAssembler
         // (ValueAssembler<DataEntity<?>, ?, ?>)
         // getDataRepositoryFactory(o.getDataset());
         // result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
-        result.setDetectionLimit(getDetectionLimit(o));
         result.setDataset(getDataset(o.getDataset(), query));
         result.setCategory(getCategory(o.getDataset(), query));
         result.setOffering(getOffering(o.getDataset(), query));
         result.setPhenomenon(getPhenomenon(o.getDataset(), query));
-        result.setPlatfrom(getPlatform(o.getDataset(), query));
+        result.setPlatform(getPlatform(o.getDataset(), query));
         result.setProcedure(getProcedure(o.getDataset(), query));
         // } catch (Exception e) {
         // LOGGER.error("error while querying last observations for sampling",
         // e);
         // }
         return result;
-    }
-
-    private DetectionLimitOutput getDetectionLimit(DataEntity<?> o) {
-        if (o.hasSamplingProfile() && o.getSamplingProfile().hasDetectionLimit()) {
-            DetectionLimitOutput result = new DetectionLimitOutput();
-            result.setFlag(o.getSamplingProfile().getDetectionLimit().getFlag());
-            result.setDetectionLimit(o.getSamplingProfile().getDetectionLimit().getDetectionLimit());
-            return result;
-        }
-        return null;
     }
 
 }

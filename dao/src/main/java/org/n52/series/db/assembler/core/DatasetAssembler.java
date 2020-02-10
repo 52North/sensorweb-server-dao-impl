@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,13 +130,25 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     public DatasetEntity getOrInsertInstance(DatasetEntity dataset) {
         IoParameters parameters = IoParameters.createDefaults();
         DatasetQuerySpecifications dsQS = DatasetQuerySpecifications.of(dbQueryFactory.createFrom(parameters), null);
-        Specification<DatasetEntity> specification = dsQS.matchCategory(dataset.getCategory().getId().toString())
-                .and(dsQS.matchFeatures(dataset.getFeature().getId().toString()))
-                .and(dsQS.matchProcedures(dataset.getProcedure().getId().toString()))
-                .and(dsQS.matchOfferings(dataset.getOffering().getId().toString()))
-                .and(dsQS.matchPhenomena(dataset.getPhenomenon().getId().toString()))
-                .and(dsQS.matchPlatforms(dataset.getPlatform().getId().toString()))
-                .and(dsQS.matchServices(dataset.getService().getId().toString()));
+        Specification<DatasetEntity> specification = dsQS.matchCategory(dataset.getCategory().getId().toString());
+        if (dataset.getFeature() != null && dataset.getFeature().getId() != null) {
+            specification.and(dsQS.matchFeatures(dataset.getFeature().getId().toString()));
+        }
+        if (dataset.getProcedure() != null && dataset.getProcedure().getId() != null) {
+            specification.and(dsQS.matchProcedures(dataset.getProcedure().getId().toString()));
+        }
+        if (dataset.getOffering() != null && dataset.getOffering().getId() != null) {
+            specification.and(dsQS.matchOfferings(dataset.getOffering().getId().toString()));
+        }
+        if (dataset.getPhenomenon() != null && dataset.getPhenomenon().getId() != null) {
+            specification.and(dsQS.matchPhenomena(dataset.getPhenomenon().getId().toString()));
+        }
+        if (dataset.getPlatform() != null && dataset.getPlatform().getId() != null) {
+            specification.and(dsQS.matchPlatforms(dataset.getPlatform().getId().toString()));
+        }
+        if (dataset.getService() != null && dataset.getService().getId() != null) {
+            specification.and(dsQS.matchServices(dataset.getService().getId().toString()));
+        }
         Optional<DatasetEntity> instance = getParameterRepository().findOne(specification);
         return !instance.isPresent() ? getParameterRepository().saveAndFlush(dataset)
                 : update(instance.get(), dataset);

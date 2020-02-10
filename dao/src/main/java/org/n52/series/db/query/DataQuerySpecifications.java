@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,6 +50,8 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.springframework.data.jpa.domain.Specification;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public final class DataQuerySpecifications<E extends DatasetEntity> extends QuerySpecifications {
 
     private DataQuerySpecifications(final DbQuery query) {
@@ -84,6 +86,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      *
      * @return a boolean expression matching all filter criteria
      */
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DataEntity> matchFilters() {
         return matchDatasets().and(matchTimespan()).and(matchParents()).and(matchesSpatially());
     }

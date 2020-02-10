@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>14</version>
+        <version>16</version>
     </parent>
     <groupId>org.n52.series-api.db</groupId>
     <artifactId>series-dao</artifactId>
@@ -18,6 +18,11 @@
         <!-- <module>sos-integration</module> -->
         <module>webapp</module>
     </modules>
+
+    <organization>
+        <name>52North Initiative for Geospatial Open Source Software GmbH</name>
+        <url>http://52north.org</url>
+    </organization>
 
     <developers>
         <developer>
@@ -45,17 +50,14 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <arctic-sea.version>7.1.0</arctic-sea.version>
-        <aspectj.version>1.9.4</aspectj.version>
+        <geotools.version>22.3</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
-        <geotools.version>21.2</geotools.version>
-        <h2.version>1.4.197</h2.version>
-        <hibernate.version>5.4.4.Final </hibernate.version>
+        <hibernate.version>5.4.10.Final</hibernate.version>
+        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
         <postgis.version>2.3.0</postgis.version>
-        <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
         <series-api.version>2.0.1-SNAPSHOT</series-api.version>
         <series-hibernate.version>2.0.0-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>7.1.0</arctic-sea.version>
+        <arctic-sea.version>7.3.0-SNAPSHOT</arctic-sea.version>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -161,6 +163,11 @@
             </dependency>
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>janmayen</artifactId>
+                <version>${arctic-sea.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>svalbard</artifactId>
                 <version>${arctic-sea.version}</version>
                 <exclusions>
@@ -178,7 +185,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>28.0-jre</version>
+                <version>28.2-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
@@ -210,8 +217,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>fop</artifactId>
-                <version>2.1</version>
+                <artifactId>fop-core</artifactId>
+                <version>2.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -348,6 +355,12 @@
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>3.1.12</version>
             </dependency>  
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>8.0.1</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -372,20 +385,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -517,19 +516,23 @@
                         <generateChildNotices>false</generateChildNotices>
                     </configuration>
                 </plugin>
-
                 <plugin>
-                    <groupId>org.codehaus.groovy.maven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>1.0</version>
-                    <configuration>
-                        <source>
-                            import java.util.Date
-                            import java.text.MessageFormat
-                            def vartimestamp = MessageFormat.format("{0,date,yyyy}", new Date())
-                            project.properties['currentYearDynamic'] = vartimestamp
-                        </source>
-                    </configuration>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>build-helper-maven-plugin</artifactId>
+                  <version>3.0.0</version>
+                  <executions>
+                    <execution>
+                      <id>timestamp-property</id>
+                      <goals>
+                        <goal>timestamp-property</goal>
+                      </goals>
+                      <phase>validate</phase>
+                      <configuration>
+                        <name>currentYearDynamic</name>
+                        <pattern>yyyy</pattern>
+                      </configuration>
+                    </execution>
+                  </executions>
                 </plugin>
 
                 <plugin>
@@ -550,7 +553,7 @@
                 <plugin>
                     <groupId>net.revelc.code.formatter</groupId>
                     <artifactId>formatter-maven-plugin</artifactId>
-                    <version>2.0.1</version>
+                    <version>2.11.0</version>
                     <configuration>
                         <configFile>${project.basedir}/etc/eclipse_formatter.xml</configFile>
                         <lineEnding>LF</lineEnding>
@@ -642,6 +645,12 @@
             <url>http://download.osgeo.org/webdav/geotools/</url>
             <!--<url>https://boundless.artifactoryonline.com/boundless/main</url> -->
             <!-- <url>http://repo.boundlessgeo.com/main/</url> -->
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

@@ -1,22 +1,26 @@
 language: java
+dist: xenial
+jdk:
+- openjdk8
+- openjdk10
+- openjdk11
 matrix:
   include:
-    - jdk: oraclejdk8
     # https://www.deps.co/guides/travis-ci-latest-java/#certificate-issues
     - jdk: openjdk9
       before_install:
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-    - jdk: openjdk10
+    - jdk: openjdk12
       before_install:
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-    - jdk: openjdk11
+    - jdk: openjdk13
       before_install:
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
 
-dist: trusty
+
 before_install:
 - gem install bundler jekyll html-proofer
 #script: mvn -fae -U -B clean install -Pwith-docs -Pcheck

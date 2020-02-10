@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
  */
 package org.n52.series.db.old.da;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import java.time.ZoneOffset;
@@ -36,9 +36,9 @@ import java.util.TimeZone;
 
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;

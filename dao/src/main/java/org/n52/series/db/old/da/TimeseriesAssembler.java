@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 import org.n52.series.db.old.dao.DatasetDao;
@@ -209,7 +210,8 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
         List<DatasetEntity> referenceValues = series.getReferenceValues();
         DataDao<QuantityDataEntity> dataDao = createDataDao(session);
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()) {
+            if (referenceSeriesEntity != null && referenceSeriesEntity.isPublished()
+                    && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
                 refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));

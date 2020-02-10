@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,6 @@ import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.sampling.DetectionLimitOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplerOutput;
 import org.n52.io.response.sampling.SamplingObservationOutput;
@@ -171,28 +170,17 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
             ValueAssembler<DataEntity<?>, ?, ?> factory =
                     (ValueAssembler<DataEntity<?>, ?, ?>) getDataRepositoryFactory(o.getDataset());
             result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
-            result.setDetectionLimit(getDetectionLimit(o));
             result.setDataset(createCondensed(new DatasetOutput(), o.getDataset(), query));
 
             result.setCategory(getCondensedCategory(o.getDataset().getCategory(), query));
             result.setOffering(getCondensedOffering(o.getDataset().getOffering(), query));
             result.setPhenomenon(getCondensedPhenomenon(o.getDataset().getPhenomenon(), query));
-            result.setPlatfrom(getCondensedPlatform(o.getDataset().getPlatform(), query));
+            result.setPlatform(getCondensedPlatform(o.getDataset().getPlatform(), query));
             result.setProcedure(getCondensedProcedure(o.getDataset().getProcedure(), query));
         } catch (Exception e) {
             LOGGER.error("error while querying last observations for sampling", e);
         }
         return result;
-    }
-
-    private DetectionLimitOutput getDetectionLimit(DataEntity<?> o) {
-        if (o.hasSamplingProfile() && o.getSamplingProfile().hasDetectionLimit()) {
-            DetectionLimitOutput result = new DetectionLimitOutput();
-            result.setFlag(o.getSamplingProfile().getDetectionLimit().getFlag());
-            result.setDetectionLimit(o.getSamplingProfile().getDetectionLimit().getDetectionLimit());
-            return result;
-        }
-        return null;
     }
 
     private ValueAssembler<?, ?, ?> getDataRepositoryFactory(DatasetEntity dataset) throws DatasetFactoryException {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,6 +39,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.DetectionLimitOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
@@ -259,4 +260,13 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
         return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
+    protected DetectionLimitOutput getDetectionLimit(DataEntity<?> o) {
+        if (o.hasDetectionLimit()) {
+            DetectionLimitOutput result = new DetectionLimitOutput();
+            result.setFlag(o.getDetectionLimit().getFlag());
+            result.setDetectionLimit(o.getDetectionLimit().getDetectionLimit());
+            return result;
+        }
+        return null;
+    }
 }

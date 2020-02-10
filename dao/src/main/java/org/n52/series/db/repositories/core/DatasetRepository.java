@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ public interface DatasetRepository extends ParameterServiceRepository<DatasetEnt
          deleteAll(findByService(service));
      }
 
-     void deleteInBatchById(Iterable<Long> ids);
+     void deleteByIdIn(Iterable<Long> ids);
 
     @Override
     default ExampleMatcher createMatcher() {

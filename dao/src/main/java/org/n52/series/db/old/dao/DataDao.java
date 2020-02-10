@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ package org.n52.series.db.old.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
@@ -116,6 +117,14 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         LOGGER.debug("get all instances for series '{}': {}", dataset, query);
         Criteria criteria = getDefaultCriteria(query);
         criteria.createCriteria(DataEntity.PROPERTY_DATASET).add(Restrictions.eq(DatasetEntity.PROPERTY_ID, dataset));
+        query.addTimespanTo(criteria);
+        return criteria.list();
+    }
+
+    public List<DataEntity<?>> getAllInstancesFor(Set<Long> series, DbQuery query) {
+        Criteria criteria = getDefaultCriteria(query)
+                .add(Restrictions.in(DataEntity.PROPERTY_DATASET_ID, series))
+                .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
         query.addTimespanTo(criteria);
         return criteria.list();
     }

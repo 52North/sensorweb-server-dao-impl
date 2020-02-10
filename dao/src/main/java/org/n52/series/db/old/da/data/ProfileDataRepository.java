@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -123,9 +123,9 @@ public abstract class ProfileDataRepository<V, T>
             if (verticalMetadata.isSetVerticalOriginName()) {
                 verticalExtent.setVerticalOrigin(verticalMetadata.getVerticalOriginName());
             }
-            verticalExtent.setFrom(new VerticalExtentValueOutput(verticalMetadata.getVerticalFromName(),
+            verticalExtent.setFrom(new VerticalExtentValueOutput(getVerticalFromName(verticalMetadata),
                     format(observation.getVerticalFrom(), observation.getDataset())));
-            verticalExtent.setTo(new VerticalExtentValueOutput(verticalMetadata.getVerticalToName(),
+            verticalExtent.setTo(new VerticalExtentValueOutput(getVerticalToName(verticalMetadata),
                     format(observation.getVerticalTo(), observation.getDataset())));
             for (DataEntity<?> value : observation.getValue()) {
                 verticalExtent.setInterval(value.hasVerticalInterval());
@@ -133,6 +133,20 @@ public abstract class ProfileDataRepository<V, T>
             }
         }
         return verticalExtent;
+    }
+
+    private String getVerticalFromName(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.isSetVerticalFromName() ? verticalMetadata.getVerticalFromName()
+                : getVerticalToName(verticalMetadata);
+    }
+
+    private String getVerticalToName(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.isSetVerticalToName() ? verticalMetadata.getVerticalToName()
+                : getNameFromOrientation(verticalMetadata);
+    }
+
+    private String getNameFromOrientation(VerticalMetadataEntity verticalMetadata) {
+        return verticalMetadata.getOrientation() != null && verticalMetadata.getOrientation() > 0 ? "height" : "depth";
     }
 
     protected abstract ProfileValue<V> createValue(ProfileDataEntity observation,
@@ -145,6 +159,7 @@ public abstract class ProfileDataRepository<V, T>
                                                                             DbQuery query) {
         ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
+        dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
 
         BigDecimal verticalTo = format(dataEntity.getVerticalTo(), dataEntity.getDataset());
         BigDecimal verticalFrom = format(dataEntity.getVerticalFrom(), dataEntity.getDataset());
@@ -163,6 +178,7 @@ public abstract class ProfileDataRepository<V, T>
                                                                             DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
+        dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
         return dataItem;
     }
 

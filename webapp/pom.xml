@@ -31,6 +31,16 @@
             <groupId>org.n52.series-api</groupId>
             <artifactId>rest</artifactId>
             <scope>runtime</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.mchange</groupId>
+                <artifactId>mchange-commons-java</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.n52.series-api</groupId>
@@ -160,9 +170,20 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.5.4</version>
+                <groupId>com.mchange</groupId>
+                <artifactId>c3p0</artifactId>
+                <version>0.9.5.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.mchange</groupId>
+                        <artifactId>mchange-commons</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>runtime</scope>
+            </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -202,7 +223,7 @@
         <dependency>
             <groupId>com.thetransactioncompany</groupId>
             <artifactId>cors-filter</artifactId>
-            <version>2.6</version>
+            <version>2.8</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -319,7 +340,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.2.2</version>
+                    <version>3.2.3</version>
                     <configuration>
                         <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                         <webappDirectory>${webappDirectory}</webappDirectory>
@@ -360,7 +381,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.12.v20180830</version>
+                    <version>9.4.26.v20200117</version>
                     <configuration>
                         <stopKey>C</stopKey>
                         <stopPort>34343</stopPort>
@@ -420,21 +441,21 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>activesupport</artifactId>
-                    <version>4.2.8</version>
+                    <version>6.0.2.1</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>addressable</artifactId>
-                    <version>2.5.1</version>
+                    <version>2.7.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>celluloid</artifactId>
-                    <version>0.17.0</version>
+                    <version>0.17.4</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
@@ -454,7 +475,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>celluloid-supervision</artifactId>
-                    <version>0.20.5</version>
+                    <version>0.20.6</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -475,7 +496,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>ffi</artifactId>
-                    <version>1.9.18</version>
+                    <version>1.12.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -489,7 +510,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>github-pages</artifactId>
-                    <version>140</version>
+                    <version>204</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
@@ -502,21 +523,21 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>html-pipeline</artifactId>
-                    <version>2.7.0</version>
+                    <version>2.12.3</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>i18n</artifactId>
-                    <version>0.8.4</version>
+                    <version>1.8.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll</artifactId>
-                    <version>3.4.3</version>
+                    <version>4.0.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
@@ -529,14 +550,14 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll-sass-converter</artifactId>
-                    <version>1.5.0</version>
+                    <version>2.0.1</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll-sitemap</artifactId>
-                    <version>1.1.1</version>
+                    <version>1.4.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                     <exclusions>
@@ -549,7 +570,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll-watch</artifactId>
-                    <version>1.5.0</version>
+                    <version>2.2.1</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -567,63 +588,63 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>kramdown</artifactId>
-                    <version>1.13.2</version>
+                    <version>2.1.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>listen</artifactId>
-                    <version>3.0.6</version>
+                    <version>3.2.1</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>liquid</artifactId>
-                    <version>3.0.6</version>
+                    <version>4.0.3</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>mercenary</artifactId>
-                    <version>0.3.6</version>
+                    <version>0.4.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>nokogiri</artifactId>
-                    <version>1.8.0</version>
+                    <version>1.10.7</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>pathutil</artifactId>
-                    <version>0.14.0</version>
+                    <version>0.16.2</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>rouge</artifactId>
-                    <version>1.11.1</version>
+                    <version>3.15.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>sass</artifactId>
-                    <version>3.4.24</version>
+                    <version>3.7.4</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>timers</artifactId>
-                    <version>4.1.2</version>
+                    <version>4.3.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -710,7 +731,7 @@
                         <plugin>
                             <groupId>de.saumya.mojo</groupId>
                             <artifactId>gem-maven-plugin</artifactId>
-                            <version>1.1.5</version>
+                            <version>1.1.8</version>
                             <configuration>
                                 <supportNative>true</supportNative>
                                 <jrubyVersion>9.0.5.0</jrubyVersion>

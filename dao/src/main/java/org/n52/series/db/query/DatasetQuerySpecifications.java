@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,6 +54,8 @@ import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.springframework.data.jpa.domain.Specification;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public final class DatasetQuerySpecifications extends QuerySpecifications {
 
     private DatasetQuerySpecifications(final DbQuery dbQuery, EntityManager entityManager) {
@@ -92,6 +94,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression matching all filter criteria
      */
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DatasetEntity> matchFilters() {
         return isPublic().and(matchFeatures()).and(matchCategory()).and(matchPhenomena()).and(matchProcedures())
                 .and(matchOfferings()).and(matchPlatforms()).and(matchDatasetTypes()).and(matchObservationTypes())
@@ -110,6 +113,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @return a boolean expression
      */
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DatasetEntity> isPublic() {
         return Specification.where(hasFeature()).and(isNotDeleted()).and(isEnabled()).and(isPublished());
     }
