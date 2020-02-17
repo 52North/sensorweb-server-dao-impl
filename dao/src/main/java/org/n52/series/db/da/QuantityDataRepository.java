@@ -272,7 +272,6 @@ public class QuantityDataRepository
     protected Data<QuantityValue> assembleData(Long dataset, DbQuery query, Session session) {
         // TODO: How to handle observations with detection limit? Currentl, null
         // is returned a filtered
-        createDataDao(session).getAllInstancesFor(dataset, query);
         return assembleData(createDataDao(session).getAllInstancesFor(dataset, query), query);
     }
 
