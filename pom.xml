@@ -8,10 +8,10 @@
         <artifactId>parent</artifactId>
         <version>16</version>
     </parent>
-    <groupId>org.n52.series-api.db</groupId>
-    <artifactId>series-dao</artifactId>
+    <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
+    <artifactId>dao-impl-parent</artifactId>
     <version>3.0.0-SNAPSHOT</version>
-    <name>Series REST API DAO</name>
+    <name>Sensor Web Server DAO Impl</name>
     <packaging>pom</packaging>
 
     <modules>
@@ -40,9 +40,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/52North/dao-series-api.git</connection>
-        <developerConnection>scm:git:https://github.com/52North/dao-series-api.git</developerConnection>
-        <url>https://github.com/52North/dao-series-api</url>
+        <connection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</connection>
+        <developerConnection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</developerConnection>
+        <url>https://github.com/52North/sensorweb-server-dao-impl</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -55,7 +55,7 @@
         <hibernate.version>5.4.10.Final</hibernate.version>
         <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
         <series-api.version>3.0.0-SNAPSHOT</series-api.version>
-        <series-hibernate.version>1.0.0-SNAPSHOT</series-hibernate.version>
+        <series-hibernate.version>1.0.0</series-hibernate.version>
         <arctic-sea.version>7.3.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -101,44 +101,44 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>dao</artifactId>
+                <artifactId>dao-impl-dao</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>spi</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-spi</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>io</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-io</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>rest</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-rest</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>web-resources</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-web-resources</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>entities</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-entities</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>mappings</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-mappings</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>types</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-types</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
 
