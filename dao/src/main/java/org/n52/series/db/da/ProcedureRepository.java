@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,7 +41,7 @@ import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.ProcedureDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.ProcedureSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 public class ProcedureRepository extends HierarchicalParameterRepository<ProcedureEntity, ProcedureOutput> {
@@ -53,7 +53,7 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new ProcedureSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

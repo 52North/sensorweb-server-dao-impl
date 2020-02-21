@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -243,7 +243,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         for (DescribableEntity searchResult : found) {
             String id = searchResult.getId().toString();
             String label = searchResult.getLabelFrom(locale);
-            results.add(new DatasetSearchResult(id, label, hrefBase));
+            results.add(new DatasetSearchResult().setId(id).setLabel(label).setBaseUrl(hrefBase));
         }
         return results;
     }
@@ -253,7 +253,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         if (dataset.getService() == null) {
             dataset.setService(getServiceEntity());
         }
-        DatasetOutput<V> result = DatasetOutput.create(parameters);
+        DatasetOutput<V> result = new DatasetOutput();
 
         Long id = dataset.getId();
         String hrefBase = query.getHrefBase();
@@ -272,6 +272,10 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
         result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
         result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
+        if (dataset.hasSamplingProfile()) {
+            result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
+                    result::setHasSamplings);
+        }
         result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
         result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
                 dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,

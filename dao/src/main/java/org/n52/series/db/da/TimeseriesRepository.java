@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
             String stationLabel = searchResult.getFeature().getLabelFrom(locale);
             String offeringLabel = searchResult.getOffering().getLabelFrom(locale);
             String label = createTimeseriesLabel(phenomenonLabel, procedureLabel, stationLabel, offeringLabel);
-            results.add(new TimeseriesSearchResult(pkid, label));
+            results.add(new TimeseriesSearchResult().setId(pkid).setLabel(label));
         }
         return results;
     }
@@ -196,7 +196,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         List<DatasetEntity> referenceValues = series.getReferenceValues();
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
-            if (referenceSeriesEntity.isPublished()
+            if (referenceSeriesEntity != null && referenceSeriesEntity.isPublished()
                     && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
@@ -205,7 +205,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
                 QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
                 refenceValueOutput.setLastValue(
-                        repository.assembleDataValue(lastValue, (DatasetEntity) referenceSeriesEntity, query));
+                        repository.assembleDataValue(lastValue, referenceSeriesEntity, query));
                 outputs.add(refenceValueOutput);
             }
         }
@@ -253,7 +253,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         String featurePkid = Long.toString(feature.getId());
 
         // XXX explicit cast here
-        return ((StationRepository) stationRepository).getCondensedInstance(featurePkid, query, session);
+        return stationRepository.getCondensedInstance(featurePkid, query, session);
     }
 
 }

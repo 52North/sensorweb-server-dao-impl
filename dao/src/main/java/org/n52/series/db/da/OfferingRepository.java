@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.OfferingDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.OfferingSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 public class OfferingRepository extends HierarchicalParameterRepository<OfferingEntity, OfferingOutput> {
@@ -48,7 +48,7 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new OfferingSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

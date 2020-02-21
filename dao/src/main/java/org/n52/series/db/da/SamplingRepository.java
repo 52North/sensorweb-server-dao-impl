@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,15 +28,17 @@
  */
 package org.n52.series.db.da;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.OptionalOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.sampling.DetectionLimitOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplerOutput;
 import org.n52.io.response.sampling.SamplingObservationOutput;
@@ -50,7 +52,7 @@ import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SamplingDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.SamplingSearchResult;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,7 +69,7 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new SamplingSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -113,8 +115,8 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         SamplingOutput result = createCondensed(sampling, query, session);
         result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query),
                 parameters, result::setFeature);
-        result.setValue(SamplingOutput.LAST_SAMPLING_OBSERVATIONS, getLastSamplingObservations(sampling, query),
-                parameters, result::setLastSamplingObservations);
+        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query),
+                parameters, result::setSamplingObservations);
         return result;
     }
 
@@ -132,54 +134,40 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     }
 
     private FeatureOutput getFeature(SamplingEntity sampling, DbQuery query) {
-        if (sampling.hasObservations()) {
+        if (sampling.hasDatasets()) {
+            return getCondensedFeature(sampling.getDatasets().iterator().next().getFeature(), query);
+        } else if (sampling.hasObservations()) {
             return getCondensedFeature(sampling.getObservations().iterator().next().getDataset().getFeature(), query);
         }
         return null;
     }
 
-    private List<SamplingObservationOutput> getLastSamplingObservations(SamplingEntity sampling, DbQuery query) {
-        LinkedList<SamplingObservationOutput> result = new LinkedList<>();
+    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
+        SortedSet<DataEntity<?>> observations = new TreeSet<>();
         if (sampling.hasObservations()) {
             for (DataEntity<?> o : sampling.getObservations()) {
-                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
-                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), query));
+                if (!o.hasParent()) {
+                    observations.add((DataEntity<?>) Hibernate.unproxy(o));
                 }
             }
         }
-        return result;
-//
-//        return sampling.hasObservations()
-//                ? sampling.getObservations().stream()
-//                        .filter(o -> o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd()))
-//                        .map(o -> getLastObservation(o, query)).collect(Collectors.toList())
-//                : new LinkedList<>();
-        // TODO get last observation for datasets whose obs do not have a sampling id
+        return observations.stream().map(o -> getObservation(o, query)).collect(Collectors.toList());
     }
 
-    private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
+    private SamplingObservationOutput getObservation(DataEntity<?> o, DbQuery query) {
         SamplingObservationOutput result = new SamplingObservationOutput();
         DataRepository factory = getDataRepositoryFactory(o.getDataset());
         result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
-        result.setDetectionLimit(getDetectionLimit(o));
-        result.setDataset(createCondensed(DatasetOutput.create(query.getParameters()), o.getDataset(), query));
 
+        String uom = o.getDataset().getUnitI18nName(query.getLocale());
+        result.setUom(uom != null && !uom.isEmpty() ? OptionalOutput.of(uom) : null);
+        result.setDataset(createCondensed(new DatasetOutput(), o.getDataset(), query));
         result.setCategory(getCondensedCategory(o.getDataset().getCategory(), query));
         result.setOffering(getCondensedOffering(o.getDataset().getOffering(), query));
         result.setPhenomenon(getCondensedPhenomenon(o.getDataset().getPhenomenon(), query));
-        result.setPlatfrom(getCondensedPlatform(o.getDataset().getPlatform(), query));
+        result.setPlatform(getCondensedPlatform(o.getDataset().getPlatform(), query));
         result.setProcedure(getCondensedProcedure(o.getDataset().getProcedure(), query));
         return result;
-    }
-
-    private DetectionLimitOutput getDetectionLimit(DataEntity<?> o) {
-        if (o.hasSamplingProfile() && o.getSamplingProfile().hasDetectionLimit()) {
-            DetectionLimitOutput result = new DetectionLimitOutput();
-            result.setFlag(o.getSamplingProfile().getDetectionLimit().getFlag());
-            result.setDetectionLimit(o.getSamplingProfile().getDetectionLimit().getDetectionLimit());
-            return result;
-        }
-        return null;
     }
 
     private DataRepository<DatasetEntity, ?, ?, ?> getDataRepositoryFactory(DatasetEntity dataset) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EnableWebMvc
@@ -72,14 +73,19 @@ public class DefaultConfig implements WebMvcConfigurer {
     }
 
     private ObjectMapper getObjectMapper() {
-        ObjectMapper om = objectMapper == null
+        return objectMapper == null
                 ? createDefaultObjectMapper()
                 : objectMapper;
-        return om;
     }
 
     private ObjectMapper createDefaultObjectMapper() {
-        return new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+        return setObjectMappter(new ObjectMapper().setSerializationInclusion(Include.NON_NULL)
+                .configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true));
+    }
+
+    private ObjectMapper setObjectMappter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        return objectMapper;
     }
 
 }

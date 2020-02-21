@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +37,7 @@ import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.CategorySearchResult;
+import org.n52.series.spi.search.PhenomenonSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 public class PhenomenonRepository extends HierarchicalParameterRepository<PhenomenonEntity, PhenomenonOutput> {
@@ -49,7 +49,7 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new CategorySearchResult(id, label, baseUrl);
+        return new PhenomenonSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override

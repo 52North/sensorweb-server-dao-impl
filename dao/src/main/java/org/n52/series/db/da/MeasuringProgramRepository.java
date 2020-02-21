@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,7 +48,7 @@ import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.MeasuringProgramDao;
 import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.FeatureSearchResult;
+import org.n52.series.spi.search.MeasuringProgramSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
 public class MeasuringProgramRepository extends ParameterRepository<MeasuringProgramEntity, MeasuringProgramOutput>
@@ -61,7 +61,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
 
     @Override
     protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new FeatureSearchResult(id, label, baseUrl);
+        return new MeasuringProgramSearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
                 result::setFeatures);
         result.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(measuringProgram, query), parameters,
                 result::setPhenomena);
-        result.setValue(MeasuringProgramOutput.CATEGROIES, getCategories(measuringProgram, query), parameters,
+        result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
                 result::setCategories);
         return result;
     }
@@ -123,7 +123,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
     private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> createCondensed(DatasetOutput.create(query.getParameters()), d, query))
+                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
                 .collect(Collectors.toList()) : new LinkedList<>();
     }
 

@@ -1,12 +1,12 @@
-# DAO Implementation of 52n Series REST API
+# DAO Implementation of 52n Sensor Web Server Helgoland
 
-<img style="width: 60%; height: 60%" alt="series-rest-api architecture overview" src="https://52north.github.io/series-rest-api/version_3.x/assets/images/big-picture.png">
+<img style="width: 60%; height: 60%" alt="Sensor Web Server Helgoland architecture overview" src="https://52north.github.io/sensorweb-server-helgoland/version_3.x/assets/images/big-picture.png">
 
 ## Description
 
-**Provide database series data via 52n Series REST API.**
+**Provide database data via 52n Sensor Web Server Helgoland.**
 
-_This module is an SPI implementation of the 52°North Series REST API. It provides data access objects which
+_This module is an SPI implementation of the 52°North Sensor Web Server Helgoland. It provides data access objects which
  access series data from relational databases. Using Hibernate the data model is not fixed to one specific._
 
 The DAO module implements the Series API's Service Provider Interface (SPI). It serves as backend access layer 
@@ -27,7 +27,7 @@ The following main frameworks are used to provide this API:
 
 - [Spring](https://spring.io/) 
 - [Hibernate](https://hibernate.org/) 
-- [52°North Series API](https://github.com/52North/series-rest-api/) 
+- [52°North Series API](https://github.com/52North/sensorweb-server-helgoland/) 
 
 ## References
 tbd
@@ -37,8 +37,8 @@ tbd
 The module is published under the [GNU General Public License v2 (GPLv2)](http://www.gnu.org/licenses/gpl-2.0.html).
 
 ## Changelog
-- https://github.com/52North/dao-series-api/blob/develop/CHANGELOG.md
-- for detailed infos check https://github.com/52North/dao-series-api/pulls?q=is%3Apr+is%3Aclosed
+- https://github.com/52North/sensorweb-server-dao-impl/blob/develop/CHANGELOG.md
+- for detailed infos check https://github.com/52North/sensorweb-server-dao-impl/pulls?q=is%3Apr+is%3Aclosed
 
 ## Contributing
 We try to follow [the GitFlow model](http://nvie.com/posts/a-successful-git-branching-model/), 
@@ -72,12 +72,12 @@ Depending on which build environment you've chosen open one the `WEB-INF/classes
 you can edit log levels and log outputs.
 
 ### Client development
-Refer to the official [Series REST API documentation](http://52north.github.io/series-rest-api) to get a detailed 
+Refer to the official [Series REST API documentation](http://52north.github.io/sensorweb-server-helgoland) to get a detailed 
 overview on how to access the data provided by the API. 
 
 ## Credits
 
-The development of the 52°North REST-API DAO implementation was supported by several organizations and projects. Among other we would like to thank the following organisations and project
+The development of the 52°North Sensor Web Server Helgoland DAO implementation was supported by several organizations and projects. Among other we would like to thank the following organisations and project
 
 | Project/Logo | Description |
 | :-------------: | :------------- |

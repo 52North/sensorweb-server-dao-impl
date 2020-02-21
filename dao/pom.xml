@@ -2,20 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.n52.series-api.db</groupId>
-        <artifactId>series-dao</artifactId>
-        <version>3.0.0-alpha.6</version>
+        <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
+        <artifactId>dao-impl-parent</artifactId>
+        <version>3.0.0</version>
     </parent>
-    <artifactId>dao</artifactId>
+    <artifactId>dao-impl-dao</artifactId>
     <packaging>jar</packaging>
-    <name>Series REST API DAO - DAO</name>
-    <description>REST SPI Implementation for SOS Series Database.</description>
-    <url>http://52north.org/communities/sensorweb/</url>
+    <name>Sensor Web Server DAO Impl - DAO</name>
+    <description>REST SPI Implementation for SOS Sensor Web Server Database Model.</description>
+    <url>https://52north.org/research/research-labs/sensor-web/</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>io</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-io</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.xmlbeans</groupId>
@@ -29,8 +29,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>spi</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-spi</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.n52.arctic-sea</groupId>
@@ -59,12 +59,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>rest</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>entities</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-entities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geolatte</groupId>
@@ -128,6 +128,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <exclusions>
@@ -145,6 +150,7 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -178,19 +184,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
             <scope>test</scope>
         </dependency>
 

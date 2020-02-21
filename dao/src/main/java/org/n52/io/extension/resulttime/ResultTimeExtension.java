@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,6 +88,9 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput> {
 
     @Override
     public Map<String, Object> getExtras(DatasetOutput output, IoParameters parameters) {
+        if (!hasExtrasToReturn(output, parameters)) {
+            return Collections.emptyMap();
+        }
         return wrapSingleIntoMap(getResultTimes(parameters, output));
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,129 +50,129 @@ public class CountingMetadataAccessService implements CountingMetadataService {
     }
 
     @Override
-    public int getServiceCount(IoParameters parameters) {
+    public Long getServiceCount(IoParameters parameters) {
         // Spring configuration has only 1 service
-        return 1;
+        return 1L;
     }
 
     @Override
-    public int getOfferingCount(IoParameters parameters) {
+    public Long getOfferingCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countOfferings(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("offering", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getCategoryCount(IoParameters parameters) {
+    public Long getCategoryCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countCategories(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("category", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getFeatureCount(IoParameters parameters) {
+    public Long getFeatureCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countFeatures(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("feature", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getProcedureCount(IoParameters parameters) {
+    public Long getProcedureCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countProcedures(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("procedure", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getPhenomenaCount(IoParameters parameters) {
+    public Long getPhenomenaCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countPhenomena(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("phenomena", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getPlatformCount(IoParameters parameters) {
+    public Long getPlatformCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countPlatforms(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("platform", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getDatasetCount(IoParameters parameters) {
+    public Long getDatasetCount(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countDatasets(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("dataset", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getSamplingCounter(IoParameters parameters) {
+    public Long getSamplingCounter(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countSamplings(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("samplings", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
-    public int getMeasuringProgramCounter(IoParameters parameters) {
+    public Long getMeasuringProgramCounter(IoParameters parameters) {
         try {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countMeasuringPrograms(query);
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("measruing programs", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
     @Deprecated
-    public int getStationCount() {
+    public Long getStationCount() {
         try {
             return counter.countStations();
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("station", e);
-            return -1;
+            return -1L;
         }
     }
 
     @Override
     @Deprecated
-    public int getTimeseriesCount() {
+    public Long getTimeseriesCount() {
         try {
             return counter.countTimeseries();
         } catch (DataAccessException e) {
             throwCouldNotCountEntityException("timeseries", e);
-            return -1;
+            return -1L;
         }
     }
 

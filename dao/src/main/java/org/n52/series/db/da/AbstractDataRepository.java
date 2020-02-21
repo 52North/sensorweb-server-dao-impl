@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,12 +38,14 @@ import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
+import org.n52.io.response.DetectionLimitOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DatasetDao;
@@ -147,6 +149,10 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
             emptyValue.setTimestart(timestart);
         }
         emptyValue.setTimestamp(timeend);
+        if (DatasetType.trajectory.equals(observation.getDataset().getDatasetType())
+                && observation.isSetGeometryEntity()) {
+            emptyValue.setGeometry(observation.getGeometryEntity().getGeometry());
+        }
         return emptyValue;
     }
 
@@ -263,4 +269,13 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         return value.setScale(scale, RoundingMode.HALF_UP);
     }
 
+    protected DetectionLimitOutput getDetectionLimit(DataEntity<?> o) {
+        if (o.hasDetectionLimit()) {
+            DetectionLimitOutput result = new DetectionLimitOutput();
+            result.setFlag(o.getDetectionLimit().getFlag());
+            result.setDetectionLimit(o.getDetectionLimit().getDetectionLimit());
+            return result;
+        }
+        return null;
+    }
 }

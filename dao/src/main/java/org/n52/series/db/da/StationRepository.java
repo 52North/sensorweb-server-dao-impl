@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -90,7 +90,7 @@ public class StationRepository extends SessionAwareRepository
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getId());
             String label = searchResult.getLabelFrom(locale);
-            results.add(new StationSearchResult(pkid, label));
+            results.add(new StationSearchResult().setId(pkid).setLabel(label));
         }
         return results;
     }

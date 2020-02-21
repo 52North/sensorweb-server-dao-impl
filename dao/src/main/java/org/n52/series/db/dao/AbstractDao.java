@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -126,18 +126,18 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     @Override
-    public Integer getCount(DbQuery query) throws DataAccessException {
+    public Long getCount(DbQuery query) throws DataAccessException {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
-            return 0;
+            return 0L;
         }
         Criteria criteria = getDefaultCriteria(query).setProjection(Projections.rowCount());
         Object result = criteria.uniqueResult();
         if (result == null) {
             String sql = DataModelUtil.getSqlString(criteria);
             LOGGER.error("Please review query: {}", sql);
-            return 0;
+            return 0L;
         }
-        return ((Long) result).intValue();
+        return (Long) result;
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
