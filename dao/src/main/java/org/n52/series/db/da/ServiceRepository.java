@@ -150,7 +150,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         IoParameters parameters = query.getParameters();
 
         ParameterCount quantities = countParameters(result, query);
-        boolean supportsFirstLatest = entity.isSupportsFirstLast();
+        boolean supportsFirstLatest = entity.getSupportsFirstLast();
 
         String serviceUrl = entity.getUrl();
         String type = getServiceType(entity);
