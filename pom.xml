@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>16</version>
+        <version>18</version>
     </parent>
-    <groupId>org.n52.series-api.db</groupId>
-    <artifactId>series-dao</artifactId>
+    <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
+    <artifactId>dao-impl-parent</artifactId>
     <version>4.0.0-SNAPSHOT</version>
-    <name>Series DAO REST API</name>
+    <name>Sensor Web Server DAO Impl</name>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,7 +21,7 @@
 
     <organization>
         <name>52North Initiative for Geospatial Open Source Software GmbH</name>
-        <url>http://52north.org</url>
+        <url>https://52north.org</url>
     </organization>
 
     <developers>
@@ -35,14 +35,14 @@
     <licenses>
         <license>
             <name>GNU General Public License, Version 2.0</name>
-            <url>http://www.gnu.de/documents/gpl-2.0.en.html</url>
+            <url>https://www.gnu.de/documents/gpl-2.0.en.html</url>
         </license>
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/52North/dao-series-api.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/52North/dao-series-api.git</developerConnection>
-        <url>https://github.com/52North/dao-series-api</url>
+        <connection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</connection>
+        <developerConnection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</developerConnection>
+        <url>https://github.com/52North/sensorweb-server-dao-impl</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -51,13 +51,13 @@
         <env>dev</env>
 
         <geotools.version>22.3</geotools.version>
-        <geolatte.version>1.4.0</geolatte.version>
+        <geolatte.version>1.5.0</geolatte.version>
         <hibernate.version>5.4.10.Final</hibernate.version>
         <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
         <postgis.version>2.3.0</postgis.version>
-        <series-api.version>2.0.1-SNAPSHOT</series-api.version>
-        <series-hibernate.version>2.0.0-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>7.3.0-SNAPSHOT</arctic-sea.version>
+        <series-api.version>3.0.0</series-api.version>
+        <series-hibernate.version>1.1.0</series-hibernate.version>
+        <arctic-sea.version>7.3.0</arctic-sea.version>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -104,14 +104,20 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>webapp</artifactId>
+                <artifactId>dao-impl-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>dao-impl-webapp</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
             </dependency>
+            
 
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>spi</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-spi</artifactId>
                 <version>${series-api.version}</version>
                 <exclusions>
                     <exclusion>
@@ -125,34 +131,34 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>io</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-io</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>rest</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-rest</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series-api</groupId>
-                <artifactId>web-resources</artifactId>
+                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                <artifactId>helgoland-web-resources</artifactId>
                 <version>${series-api.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>entities</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-entities</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>mappings</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-mappings</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.n52.series.db</groupId>
-                <artifactId>types</artifactId>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-types</artifactId>
                 <version>${series-hibernate.version}</version>
             </dependency>
 
@@ -627,7 +633,7 @@
         <repository>
             <id>n52-releases</id>
             <name>52n Releases</name>
-            <url>http://52north.org/maven/repo/releases/</url>
+            <url>https://52north.org/maven/repo/releases/</url>
         </repository>
         <!--<repository>
             <id>n52-snapshots</id>
@@ -642,9 +648,9 @@
         <repository>
             <id>geotools</id>
             <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
+            <url>https://download.osgeo.org/webdav/geotools/</url>
             <!--<url>https://boundless.artifactoryonline.com/boundless/main</url> -->
-            <!-- <url>http://repo.boundlessgeo.com/main/</url> -->
+            <!-- <url>https://repo.boundlessgeo.com/main/</url> -->
             <releases>
                 <enabled>true</enabled>
             </releases>

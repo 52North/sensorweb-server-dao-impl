@@ -46,6 +46,7 @@ import org.n52.io.response.dataset.Data;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.da.SessionAwareAssembler;
@@ -144,6 +145,10 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
             emptyValue.setTimestart(timestart);
         }
         emptyValue.setTimestamp(timeend);
+        if (DatasetType.trajectory.equals(observation.getDataset().getDatasetType())
+                && observation.isSetGeometryEntity()) {
+            emptyValue.setGeometry(observation.getGeometryEntity().getGeometry());
+        }
         return emptyValue;
     }
 

@@ -242,6 +242,10 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
         result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
         result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
+        if (dataset.hasSamplingProfile()) {
+            result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
+                    result::setHasSamplings);
+        }
         result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
         result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
                 dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,

@@ -3,20 +3,20 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.n52.series-api.db</groupId>
-        <artifactId>series-dao</artifactId>
+        <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
+        <artifactId>dao-impl-parent</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>dao</artifactId>
+    <artifactId>dao-impl-dao</artifactId>
     <packaging>jar</packaging>
-    <name>Series REST API DAO - DAO</name>
-    <description>REST SPI Implementation for SOS Series Database.</description>
-    <url>http://52north.org/communities/sensorweb/</url>
+    <name>Sensor Web Server DAO Impl - DAO</name>
+    <description>REST SPI Implementation for SOS Sensor Web Server Database Model.</description>
+    <url>https://52north.org/research/research-labs/sensor-web/</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>io</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-io</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.xmlbeans</groupId>
@@ -25,8 +25,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>spi</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-spi</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.n52.arctic-sea</groupId>
@@ -40,17 +40,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>entities</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-entities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>types</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-types</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>mappings</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-mappings</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

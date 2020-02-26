@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.n52.series-api.db</groupId>
-        <artifactId>series-dao</artifactId>
+        <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
+        <artifactId>dao-impl-parent</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>webapp</artifactId>
+    <artifactId>dao-impl-webapp</artifactId>
     <packaging>war</packaging>
-    <name>Series REST API DAO - Webapp</name>
-    <description>RESTful Sensor Web Client API as template Web application.</description>
+    <name>Sensor Web Server DAO Impl - Webapp</name>
+    <description>RESTful Sensor Web Server Helgoland API as template Web application.</description>
 
     <properties>
 
@@ -28,8 +28,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>rest</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-rest</artifactId>
             <scope>runtime</scope>
             <exclusions>
               <exclusion>
@@ -43,28 +43,28 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.n52.series-api</groupId>
-            <artifactId>web-resources</artifactId>
+            <groupId>org.n52.sensorweb-server.helgoland</groupId>
+            <artifactId>helgoland-web-resources</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>dao</artifactId>
+            <artifactId>dao-impl-dao</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>entities</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-entities</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>mappings</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-mappings</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.n52.series.db</groupId>
-            <artifactId>types</artifactId>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-types</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -223,7 +223,7 @@
         <dependency>
             <groupId>com.thetransactioncompany</groupId>
             <artifactId>cors-filter</artifactId>
-            <version>2.8</version>
+            <version>2.9</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -319,16 +319,16 @@
                     <configuration>
                         <artifactItems>
                             <artifactItem>
-                                <groupId>org.n52.series-api</groupId>
-                                <artifactId>web-resources</artifactId>
+                                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                                <artifactId>helgoland-web-resources</artifactId>
                                 <includes>docs/**</includes>
                                 <excludes>docs/_config.yml</excludes>
                                 <overWrite>false</overWrite>
                                 <outputDirectory>${docs.sources.directory}</outputDirectory>
                             </artifactItem>
                             <artifactItem>
-                                <groupId>org.n52.series-api</groupId>
-                                <artifactId>web-resources</artifactId>
+                                <groupId>org.n52.sensorweb-server.helgoland</groupId>
+                                <artifactId>helgoland-web-resources</artifactId>
                                 <includes>static/**</includes>
                                 <overWrite>false</overWrite>
                                 <outputDirectory>${webapp.workdir}</outputDirectory>
@@ -425,7 +425,7 @@
                 <repository>
                     <id>rubygems-proxy</id>
                     <name>Rubygems Proxy</name>
-                    <url>http://rubygems-proxy.torquebox.org/releases</url>
+                    <url>https://rubygems-proxy.torquebox.org/releases</url>
                     <layout>default</layout>
                     <releases>
                         <enabled>true</enabled>
@@ -550,7 +550,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>jekyll-sass-converter</artifactId>
-                    <version>2.0.1</version>
+                    <version>2.1.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -616,7 +616,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>nokogiri</artifactId>
-                    <version>1.10.7</version>
+                    <version>1.10.8</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
@@ -630,7 +630,7 @@
                 <dependency>
                     <groupId>rubygems</groupId>
                     <artifactId>rouge</artifactId>
-                    <version>3.15.0</version>
+                    <version>3.16.0</version>
                     <scope>provided</scope>
                     <type>gem</type>
                 </dependency>
