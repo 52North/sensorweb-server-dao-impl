@@ -209,11 +209,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <!-- drop-in replacement for jog4j -->
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
