@@ -338,19 +338,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>com.vividsolutions</groupId>
-                <artifactId>jts-core</artifactId>
-                <version>1.14.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 
-            
             <dependency>
                 <groupId>net.postgis</groupId>
                 <artifactId>postgis-jdbc</artifactId>

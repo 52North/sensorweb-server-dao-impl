@@ -157,9 +157,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
@@ -281,12 +282,6 @@
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
         </dependency>
     </dependencies>
 
