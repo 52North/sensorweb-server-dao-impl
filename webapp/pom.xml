@@ -13,7 +13,7 @@
 
     <properties>
 
-        <postgis.version>2.3.0</postgis.version>
+        <postgis.version>2.4.0</postgis.version>
         <javax-jaxb.version>2.3.0</javax-jaxb.version>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
