@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>16</version>
+        <version>18</version>
     </parent>
     <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
     <artifactId>dao-impl-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <name>Sensor Web Server DAO Impl</name>
     <packaging>pom</packaging>
 
@@ -19,7 +19,7 @@
 
     <organization>
         <name>52North Initiative for Geospatial Open Source Software GmbH</name>
-        <url>http://52north.org</url>
+        <url>https://52north.org</url>
     </organization>
 
     <developers>
@@ -33,7 +33,7 @@
     <licenses>
         <license>
             <name>GNU General Public License, Version 2.0</name>
-            <url>http://www.gnu.de/documents/gpl-2.0.en.html</url>
+            <url>https://www.gnu.de/documents/gpl-2.0.en.html</url>
         </license>
     </licenses>
 
@@ -41,7 +41,7 @@
         <connection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</connection>
         <developerConnection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</developerConnection>
         <url>https://github.com/52North/sensorweb-server-dao-impl</url>
-        <tag>v3.0.0</tag>
+        <tag>v3.1.0</tag>
     </scm>
 
     <properties>
@@ -50,11 +50,11 @@
 
         <geotools.version>22.3</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
-        <hibernate.version>5.4.10.Final</hibernate.version>
-        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
-        <series-api.version>3.0.0</series-api.version>
-        <series-hibernate.version>1.0.0</series-hibernate.version>
-        <arctic-sea.version>7.3.0</arctic-sea.version>
+        <hibernate.version>5.4.12.Final</hibernate.version>
+        <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+        <series-api.version>3.1.0</series-api.version>
+        <series-hibernate.version>1.3.0</series-hibernate.version>
+        <arctic-sea.version>7.4.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -458,7 +458,7 @@
                 <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>build-helper-maven-plugin</artifactId>
-                  <version>3.0.0</version>
+                  <version>3.1.0</version>
                   <executions>
                     <execution>
                       <id>timestamp-property</id>
@@ -592,14 +592,14 @@
         <repository>
             <id>n52-releases</id>
             <name>52n Releases</name>
-            <url>http://52north.org/maven/repo/releases/</url>
+            <url>https://52north.org/maven/repo/releases/</url>
         </repository>
         <repository>
             <id>geotools</id>
             <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
+            <url>https://download.osgeo.org/webdav/geotools/</url>
             <!--<url>https://boundless.artifactoryonline.com/boundless/main</url> -->
-            <!-- <url>http://repo.boundlessgeo.com/main/</url> -->
+            <!-- <url>https://repo.boundlessgeo.com/main/</url> -->
             <releases>
                 <enabled>true</enabled>
             </releases>

@@ -9,6 +9,7 @@ This project includes:
   52°North Shetland under The Apache Software License, Version 2.0
   52°North Svalbard Core under The Apache Software License, Version 2.0
   52°North Svalbard OData under The Apache Software License, Version 2.0
+  ANTLR 4 Runtime under The BSD License
   AntLR Parser Generator under BSD License
   Apache Ant Core under The Apache Software License, Version 2.0
   Apache Ant Launcher under The Apache Software License, Version 2.0
@@ -54,7 +55,8 @@ This project includes:
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
-  jakarta.xml.bind-api under Eclipse Distribution License - v 1.0
+  Jakarta Activation API jar under EDL 1.0
+  Jakarta XML Binding API under Eclipse Distribution License - v 1.0
   Java Annotation Indexer under Apache License, Version 2.0
   Java Property Utility under The Apache Software License, Version 2.0
   Java Transaction API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
@@ -106,6 +108,7 @@ This project includes:
   org.apache.xmlgraphics:batik-util under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-xml under The Apache Software License, Version 2.0
   org.locationtech.jts:jts-core under Eclipse Publish License, Version 1.0 or Eclipse Distribution License - v 1.0
+  PostGIS Geometry under GNU Lesser General Public License
   Postgis JDBC Driver under GNU Lesser General Public License
   PostgreSQL JDBC Driver - JDBC 4.2 under BSD-2-Clause
   QDox under The Apache Software License, Version 2.0
