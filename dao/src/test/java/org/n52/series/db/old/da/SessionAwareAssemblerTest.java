@@ -29,15 +29,8 @@
 package org.n52.series.db.old.da;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.Assume.assumeThat;
 
-import java.time.ZoneOffset;
-import java.util.TimeZone;
-
-import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;

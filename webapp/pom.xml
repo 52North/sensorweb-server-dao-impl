@@ -14,6 +14,8 @@
     <properties>
 
         <!-- optional properties file -->
+        <postgis.version>2.5.0</postgis.version>
+        <javax-jaxb.version>2.3.0</javax-jaxb.version>
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
@@ -305,7 +307,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.2</version>
                     <configuration>
                         <artifactItems>
                             <artifactItem>
