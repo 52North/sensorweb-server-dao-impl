@@ -28,11 +28,20 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.n52.io.request.Parameters;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.OptionalOutput;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.mapper.FeatureOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
@@ -58,6 +67,9 @@ public class FeatureAssembler
 
     @Inject
     private FormatAssembler formatAssembler;
+
+    @Inject
+    private DatasetAssembler<?> datasetAssembler;
 
     public FeatureAssembler(FeatureRepository featureRepository, DatasetRepository datasetRepository) {
         super(featureRepository, datasetRepository);
@@ -93,7 +105,18 @@ public class FeatureAssembler
     protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
         FeatureOutput result = super.createExpanded(entity, query);
         result.setValue(FeatureOutput.PROPERTIES, result.getLabel(), query.getParameters(), result::setLabel);
+        result.setDatasets(OptionalOutput.of(createDatasetParameters(datasetAssembler.getAllExpanded(
+                new DbQuery(query.getParameters().extendWith(Parameters.FEATURES, entity.getId().toString()))))));
         return result;
+    }
+
+    private Map<String, DatasetParameters> createDatasetParameters(List<?> datasets) {
+        Map<String, DatasetParameters> map = new LinkedHashMap<>();
+        for (Object object : datasets) {
+            DatasetOutput<AbstractValue<?>> value = (DatasetOutput<AbstractValue<?>>) object;
+            map.put(value.getId(), value.getDatasetParameters());
+        }
+        return map;
     }
 
     @Override
