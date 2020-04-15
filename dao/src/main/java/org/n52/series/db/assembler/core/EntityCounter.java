@@ -33,6 +33,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.assembler.sampling.MeasuringProgramAssembler;
 import org.n52.series.db.assembler.sampling.SamplingAssembler;
@@ -66,6 +67,9 @@ public class EntityCounter {
 
     @Inject
     private Optional<SamplingAssembler> samplingAssembler;
+
+    @Inject
+    private DatasetAssembler<?> datasetAssembler;
 
     private final DbQueryFactory dbQueryFactory;
 
@@ -105,9 +109,9 @@ public class EntityCounter {
         if (parameters.getValueTypes().isEmpty()) {
             parameters =
                     parameters.extendWith("valueTypes", dataRepositoryFactory.getKnownTypes().toArray(new String[0]));
-            return platformAssembler.count(dbQueryFactory.createFrom(parameters));
+            return datasetAssembler.count(dbQueryFactory.createFrom(parameters));
         }
-        return platformAssembler.count(query);
+        return datasetAssembler.count(query);
     }
 
     public Long countSamplings(DbQuery query) {
@@ -136,8 +140,8 @@ public class EntityCounter {
 
     private Long countDataset(DbQuery query, String datasetType) {
         IoParameters parameters = query.getParameters();
-        parameters = parameters.extendWith("datasetTypes", datasetType);
-        return platformAssembler.count(dbQueryFactory.createFrom(parameters));
+        parameters = parameters.extendWith(Parameters.FILTER_DATASET_TYPES, datasetType);
+        return datasetAssembler.count(dbQueryFactory.createFrom(parameters));
     }
 
 }
