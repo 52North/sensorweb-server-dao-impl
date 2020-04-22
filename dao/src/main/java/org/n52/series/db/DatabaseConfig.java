@@ -43,8 +43,6 @@ import org.hibernate.type.BasicType;
 import org.n52.hibernate.type.SmallBooleanType;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.old.dao.DefaultDbQueryFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
@@ -57,14 +55,6 @@ public class DatabaseConfig {
 
     @Value("${database.jpa.persistence-location:classpath:META-INF/persistence.xml}")
     private String persistenceXmlLocation;
-
-    /**
-     * https://docs.spring.io/spring-boot/docs/current/reference/html/
-     * howto-data-access.html#howto-use-traditional-persistence-xml
-     */
-    @Autowired
-    @Qualifier("entityManagerFactory")
-    private EntityManagerFactory entityManagerFactory;
 
     @Bean
     public DbQueryFactory dbQueryFactory(@Value("${database.srid:'EPSG:4326'}") String srid) {
