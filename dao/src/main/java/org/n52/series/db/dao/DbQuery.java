@@ -307,12 +307,12 @@ public class DbQuery {
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         // FIXME check for simple or full db models
-//        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-//        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-//        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
-        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+//        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+//        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+//        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
         if (samplingSupported) {
