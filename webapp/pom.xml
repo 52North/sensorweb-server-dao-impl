@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
         <artifactId>dao-impl-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dao-impl-webapp</artifactId>
@@ -14,7 +14,7 @@
     <properties>
 
         <postgis.version>2.5.0</postgis.version>
-        <javax-jaxb.version>2.3.0</javax-jaxb.version>
+        <javax-jaxb.version>2.3.0.1</javax-jaxb.version>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
 
@@ -337,7 +337,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.27.v20200227</version>
+                    <version>9.4.29.v20200521</version>
                     <configuration>
                         <stopKey>C</stopKey>
                         <stopPort>34343</stopPort>
