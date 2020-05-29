@@ -149,6 +149,10 @@ public class DbQuery {
                          .toInterval();
     }
 
+    public Integer getLevel() {
+        return parameters.getLevel();
+    }
+
     public Envelope getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
