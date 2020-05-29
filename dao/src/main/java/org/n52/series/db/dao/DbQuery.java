@@ -80,6 +80,8 @@ public class DbQuery {
 
     private String databaseSridCode = "EPSG:4326";
 
+    private boolean includeHierarchy = true;
+
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
             this.parameters = parameters;
@@ -307,12 +309,15 @@ public class DbQuery {
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         // FIXME check for simple or full db models
-        addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
-        addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
-//        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-//        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-//        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        if (isIncludeHierarchy()) {
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+        } else {
+            addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+            addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+            addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        }
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
         if (samplingSupported) {
@@ -464,6 +469,22 @@ public class DbQuery {
 
     public boolean expandWithNextValuesBeyondInterval() {
         return parameters.isExpandWithNextValuesBeyondInterval();
+    }
+
+    /**
+     * @return the includeHierarchy
+     */
+    public boolean isIncludeHierarchy() {
+        return includeHierarchy;
+    }
+
+    /**
+     * @param includeHierarchy the includeHierarchy to set
+     * @return
+     */
+    public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
+        this.includeHierarchy = includeHierarchy;
+        return this;
     }
 
 }
