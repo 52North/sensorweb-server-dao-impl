@@ -375,12 +375,12 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     @SuppressWarnings("unchecked")
     @Deprecated
     public Collection<T> get(DbQuery query) {
+        query.setIncludeHierarchy(false);
         Criteria c = session.createCriteria(getEntityClass(), getDefaultAlias())
                 .setResultTransformer(RootEntityResultTransformer.INSTANCE);
         DetachedCriteria subquery = DetachedCriteria.forClass(getEntityClass());
         subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
         query.addFilters(c, getDatasetProperty());
         return c.list();
-
-}
+    }
 }
