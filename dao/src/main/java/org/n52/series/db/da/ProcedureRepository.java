@@ -28,13 +28,9 @@
  */
 package org.n52.series.db.da;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
+import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -73,19 +69,12 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setParents(createCondensed(entity.getParents(), query, session));
-        result.setChildren(createCondensed(entity.getChildren(), query, session));
-        return result;
-    }
 
-    protected List<ProcedureOutput> createCondensedHierarchyMembers(Set<ProcedureEntity> members,
-                                                                    DbQuery parameters,
-                                                                    Session session) {
-        return members == null
-                ? Collections.emptyList()
-                : members.stream()
-                         .map(e -> createCondensed(e, parameters, session))
-                         .collect(Collectors.toList());
+        result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session), query.getParameters(),
+                result::setParents);
+        result.setValue(HierarchicalParameterOutput.CHILDREN, createCondensed(entity.getChildren(), query, session), query.getParameters(),
+                result::setChildren);
+        return result;
     }
 
 }
