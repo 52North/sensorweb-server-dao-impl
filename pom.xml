@@ -128,6 +128,12 @@
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
                 <artifactId>db-model-entities</artifactId>
                 <version>${series-hibernate.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
