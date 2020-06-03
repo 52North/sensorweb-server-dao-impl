@@ -405,20 +405,6 @@ public class DbQuery {
         return values != null && !values.isEmpty();
     }
 
-//    private Set<String> getStationaryIds(Set<String> platforms) {
-//        return platforms.stream()
-//                        .filter(PlatformType::isStationaryId)
-//                        .map(PlatformType::extractId)
-//                        .collect(toSet());
-//    }
-//
-//    private Set<String> getMobileIds(Set<String> platforms) {
-//        return platforms.stream()
-//                .filter(PlatformType::isMobileId)
-//                .map(PlatformType::extractId)
-//                .collect(toSet());
-//    }
-
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
             criteria.add(parameters.getResultTimes().stream()

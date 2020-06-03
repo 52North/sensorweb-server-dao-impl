@@ -70,10 +70,10 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
 
-        result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session), query.getParameters(),
-                result::setParents);
-        result.setValue(HierarchicalParameterOutput.CHILDREN, createCondensed(entity.getChildren(), query, session), query.getParameters(),
-                result::setChildren);
+        result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session),
+                query.getParameters(), result::setParents);
+        result.setValue(HierarchicalParameterOutput.CHILDREN, createCondensed(entity.getChildren(), query, session),
+                query.getParameters(), result::setChildren);
         return result;
     }
 
