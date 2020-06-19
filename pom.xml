@@ -48,13 +48,13 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <geotools.version>23.0</geotools.version>
+        <geotools.version>23.1</geotools.version>
         <geolatte.version>1.4.0</geolatte.version>
         <hibernate.version>5.4.16.Final</hibernate.version>
-        <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
+        <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
         <series-api.version>3.2.1-SNAPSHOT</series-api.version>
-        <series-hibernate.version>2.0.1</series-hibernate.version>
-        <arctic-sea.version>7.5.0</arctic-sea.version>
+        <series-hibernate.version>2.0.2</series-hibernate.version>
+        <arctic-sea.version>7.5.1</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
