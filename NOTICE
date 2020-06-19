@@ -104,7 +104,7 @@ This project includes:
   org.locationtech.jts:jts-core under Eclipse Publish License, Version 1.0 or Eclipse Distribution License - v 1.0
   PostGIS Geometry under GNU Lesser General Public License
   Postgis JDBC Driver under GNU Lesser General Public License
-  PostgreSQL JDBC Driver - JDBC 4.2 under BSD-2-Clause
+  PostgreSQL JDBC Driver under BSD-2-Clause
   QDox under The Apache Software License, Version 2.0
   quartz under The Apache Software License, Version 2.0
   Sensor Web Server DAO Impl under GNU General Public License, Version 2.0
