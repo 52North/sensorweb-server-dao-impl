@@ -63,15 +63,6 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-//            DatasetDao<S> seriesDao = getSeriesDao(session);
-//            IoParameters parameters = dbQuery.getParameters();
-            // remove spatial filter on metadata
-//            S series = seriesDao.getInstance(datasetId, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
-//                                                                      .removeAllOf(Parameters.NEAR)
-//                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
-//            if (series.getService() == null) {
-//                series.setService(getServiceEntity());
-//            }
             return dbQuery.isExpanded()
                 ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
                 : assembleData(Long.parseLong(datasetId), dbQuery, session);
@@ -256,7 +247,6 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
         return (E) Hibernate.unproxy(dataEntity);
     }
-
 
     protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
        return format(value, dataset.getNumberOfDecimals());

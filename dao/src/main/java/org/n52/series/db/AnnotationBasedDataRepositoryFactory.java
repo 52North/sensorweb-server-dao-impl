@@ -64,7 +64,6 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.appContext = appContext;
     }
 
-    @SuppressWarnings("unchecked")
     private Stream<DataRepository<? extends DatasetEntity,
                                     ? extends DataEntity<?>,
                                     ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
