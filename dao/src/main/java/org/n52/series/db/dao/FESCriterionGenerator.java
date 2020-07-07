@@ -1363,7 +1363,8 @@ public abstract class FESCriterionGenerator {
      * @return the parsed value or {@code Optional.empty()}
      */
     public static Optional<BigDecimal> parseBigDecimal(String value) {
-        return Optional.ofNullable(BigDecimal.valueOf(Doubles.tryParse(value)));
+        Optional<Double> parseDouble = parseDouble(value);
+        return parseDouble.isPresent() ? Optional.of(BigDecimal.valueOf(parseDouble.get())) : Optional.empty();
     }
 
     /**
