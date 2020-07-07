@@ -149,7 +149,18 @@ public class CountingMetadataAccessService implements CountingMetadataService {
             DbQuery query = dbQueryFactory.createFrom(parameters);
             return counter.countMeasuringPrograms(query);
         } catch (DataAccessException e) {
-            throwCouldNotCountEntityException("measruing programs", e);
+            throwCouldNotCountEntityException("measuring programs", e);
+            return -1L;
+        }
+    }
+
+    @Override
+    public Long getTagCounter(IoParameters parameters) {
+        try {
+            DbQuery query = dbQueryFactory.createFrom(parameters);
+            return counter.countTags(query);
+        } catch (DataAccessException e) {
+            throwCouldNotCountEntityException("tag", e);
             return -1L;
         }
     }

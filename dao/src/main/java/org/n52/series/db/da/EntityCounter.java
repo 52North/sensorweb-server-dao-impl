@@ -46,6 +46,7 @@ import org.n52.series.db.dao.PhenomenonDao;
 import org.n52.series.db.dao.PlatformDao;
 import org.n52.series.db.dao.ProcedureDao;
 import org.n52.series.db.dao.SamplingDao;
+import org.n52.series.db.dao.TagDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class EntityCounter {
@@ -149,6 +150,15 @@ public class EntityCounter {
         Session session = sessionStore.getSession();
         try {
             return getCount(new MeasuringProgramDao(session), query);
+        } finally {
+            sessionStore.returnSession(session);
+        }
+    }
+
+    public Long countTags(DbQuery query) throws DataAccessException {
+        Session session = sessionStore.getSession();
+        try {
+            return getCount(new TagDao(session), query);
         } finally {
             sessionStore.returnSession(session);
         }

@@ -280,6 +280,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
+        Set<String> tags = parameters.getTags();
 //        Set<String> series = parameters.getSeries();
 
         Set<String> samplings = parameters.getSamplings();
@@ -296,6 +297,7 @@ public class DbQuery {
                 || hasValues(features)
                 || hasValues(categories)
                 || hasValues(datasets)
+                || hasValues(tags)
                 || samplingSupported)) {
             // no subquery neccessary
             return criteria;
@@ -330,6 +332,7 @@ public class DbQuery {
                         + SamplingProfileDatasetEntity.PROPERTY_MEASURING_PROGRAMS, filter);
             }
         }
+        addFilterRestriction(tags, DatasetEntity.PROPERTY_TAGS, filter);
 //        addFilterRestriction(series, filter);
 
         addFilterRestriction(datasets, filter);

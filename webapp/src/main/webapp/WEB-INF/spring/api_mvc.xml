@@ -131,35 +131,15 @@
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramParameterService" />
     </bean>
 
+    <bean class="org.n52.web.ctrl.TagsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="tagParameterService" />
+    </bean>
+
     <!-- ################################################################ -->
     <!-- ################# LEGACY CONTROLLER INJECTIONS ################# -->
     <!-- ################################################################ -->
 
     <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
     <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
-
-    <!--
-    <bean class="org.n52.web.ctrl.StationsParameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="stationParameterService" />
-    </bean>
-
-    <bean class="org.n52.web.ctrl.TimeseriesMetadataController" parent="parameterController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
-        <property name="metadataExtensions">
-            <list merge="true">
-                <bean class="org.n52.io.extension.RenderingHintsExtension" />
-                <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-            </list>
-        </property>
-    </bean>
-
-    <bean class="org.n52.web.ctrl.TimeseriesDataController">
-        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
-        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="timeseriesService" />
-        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
-        <property name="preRenderingTask" ref="preRenderingJob" />
-        <property name="handlingPreRenderingTask" value="false" />
-    </bean>
-   -->
 
 </beans>
