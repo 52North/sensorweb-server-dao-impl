@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.hibernate.Session;
 import org.n52.io.handler.DatasetFactoryException;
@@ -106,7 +107,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return (serviceEntity != null) && serviceEntity.getId().equals(id);
+        return (getServiceEntity() != null) && getServiceEntity().getId().equals(id);
     }
 
     @Override
@@ -130,14 +131,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return serviceEntity != null ? Collections.singletonList(serviceEntity)
+        return getServiceEntity() != null ? Collections.singletonList(getServiceEntity())
                 : createDao(session).getAllInstances(parameters);
     }
 
     @Override
     protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
             throws DataAccessException {
-        ServiceEntity result = !isConfiguredServiceInstance(id) ? dao.getInstance(id, query) : serviceEntity;
+        ServiceEntity result = !isConfiguredServiceInstance(id) ? dao.getInstance(id, query) : getServiceEntity();
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }
@@ -158,28 +159,17 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
         result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
         result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
 
-        // if (parameters.shallBehaveBackwardsCompatible()) {
-        // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
-        // result::setVersion);
-        // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
-        // result::setQuantities);
-        // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-        // supportsFirstLatest,
-        // parameters,
-        // result::setSupportsFirstLatest);
-        // } else {
         Map<String, Object> features = new HashMap<>();
         features.put(ServiceOutput.QUANTITIES, quantities);
         features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
         features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
-        String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
+        String version = (entity.getVersion() != null) ? entity.getVersion() : "3.0";
 
         String hrefBase = query.getHrefBase();
         result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
         result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
         result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-        // }
         return result;
     }
 
@@ -188,7 +178,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
-        Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
+        Map<String, Set<String>> mimeTypesByDatasetTypes = new TreeMap<>();
         for (String valueType : ioFactoryCreator.getKnownTypes()) {
             try {
                 IoHandlerFactory<?, ?> factory = ioFactoryCreator.create(valueType);
@@ -211,18 +201,11 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
             quantities.setCategoriesSize(counter.countCategories(serviceQuery));
             quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
             quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-
-            // if (parameters.shallBehaveBackwardsCompatible()) {
-            // quantities.setTimeseriesSize(counter.countTimeseries());
-            // quantities.setStationsSize(counter.countStations());
-            // } else {
             quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
             quantities.setDatasets(createDatasetCount(counter, serviceQuery));
-
-            // TODO
             quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
             quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
-            // }
+            quantities.setTagsSize(counter.countTags(serviceQuery));
             return quantities;
         } catch (DataAccessException e) {
             throw new InternalServerException("Could not count parameter entities.", e);
