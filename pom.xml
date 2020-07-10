@@ -54,7 +54,8 @@
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
         <series-api.version>3.3.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>7.6.0</arctic-sea.version>
+        <arctic-sea.version>7.6.1</arctic-sea.version>
+        <version.jts>1.16.1</version.jts>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -377,7 +378,7 @@
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
-                <version>1.17.0</version>
+                <version>${version.jts}</version>
             </dependency>
             <dependency>
                 <groupId>org.geolatte</groupId>
