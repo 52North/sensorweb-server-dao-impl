@@ -39,7 +39,6 @@ import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.TimeOutput;
-import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
 import org.n52.io.response.sampling.SamplingOutput;
@@ -107,8 +106,8 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
         IoParameters parameters = query.getParameters();
         MeasuringProgramOutput result = createCondensed(measuringProgram, query, session);
 
-        result.setValue(MeasuringProgramOutput.DATASETS, getDatasets(measuringProgram, query, session), parameters,
-                result::setDatasets);
+        result.setValue(MeasuringProgramOutput.DATASETS, getCondensedDataset(measuringProgram, query, session),
+                parameters, result::setDatasets);
         result.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(measuringProgram, query), parameters,
                 result::setSamplings);
         result.setValue(MeasuringProgramOutput.FEATURES, getFeatures(measuringProgram, query), parameters,
@@ -118,13 +117,6 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
         result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
                 result::setCategories);
         return result;
-    }
-
-    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
-            Session session) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
-                .collect(Collectors.toList()) : new LinkedList<>();
     }
 
     private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {

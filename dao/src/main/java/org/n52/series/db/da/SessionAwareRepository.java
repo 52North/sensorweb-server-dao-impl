@@ -290,6 +290,13 @@ public abstract class SessionAwareRepository {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
+    protected List<DatasetOutput<?>> getCondensedDataset(HibernateRelations.HasDatasets hasDatasets, DbQuery query,
+            Session session) {
+        return hasDatasets.hasDatasets() ? hasDatasets.getDatasets().stream()
+                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
+                .collect(Collectors.toList()) : new LinkedList<>();
+    }
+
     protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
