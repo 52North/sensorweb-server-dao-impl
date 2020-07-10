@@ -34,12 +34,14 @@ import java.util.List;
 import org.n52.io.response.dataset.category.CategoryValue;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.dao.DbQuery;
 
+@DataRepositoryComponent(value = "category-profile", datasetEntityType = DatasetEntity.class)
 public class CategoryProfileDataRepository extends ProfileDataRepository<DatasetEntity, String, String> {
 
     private final CategoryDataRepository categoryRepository;
