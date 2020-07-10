@@ -162,7 +162,7 @@ public abstract class SessionAwareRepository {
         }
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(List<DatasetEntity> series,
+    protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
                                                                   DbQuery parameters)
             throws DataAccessException {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
