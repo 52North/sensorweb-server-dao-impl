@@ -38,6 +38,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -57,6 +58,7 @@ import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.IdEntity;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
@@ -67,6 +69,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
+
+    private static final Order DEFAULT_ORDER = Order.asc(IdEntity.PROPERTY_ID);
 
     protected final Session session;
 
@@ -169,6 +173,15 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         addMobileInsituFilter(getDatasetProperty(), criteria, query);
         addDatasetTypesFilter(getDatasetProperty(), criteria, query);
         // addGeometryTypeFilter(query, criteria);
+        addDefaultOrder(criteria, clazz);
+        return criteria;
+    }
+
+    protected Criteria addDefaultOrder(Criteria criteria, Class<?> clazz) {
+        if (clazz.isAssignableFrom(IdEntity.class)) {
+            criteria.addOrder(DEFAULT_ORDER);
+        }
+
         return criteria;
     }
 

@@ -69,6 +69,8 @@ public class TagRepository extends ParameterRepository<TagEntity, TagOutput> {
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        result.setValue(TagOutput.DATASETS, getCondensedDataset(entity, query, session), query.getParameters(),
+                result::setDatasets);
         return result;
     }
 

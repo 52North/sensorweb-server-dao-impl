@@ -29,11 +29,17 @@
 package org.n52.series.db.da;
 
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.joda.time.DateTime;
@@ -51,7 +57,9 @@ import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.TagOutput;
 import org.n52.io.response.TimeOutput;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
@@ -61,11 +69,13 @@ import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.HibernateRelations;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.DbQueryFactory;
 import org.n52.series.db.dao.DefaultDbQueryFactory;
@@ -198,6 +208,7 @@ public abstract class SessionAwareRepository {
         metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
         metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
         metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
+        metadata.setTags(getCondensedTags(dataset.getTags(), query));
         return metadata;
     }
 
@@ -288,6 +299,20 @@ public abstract class SessionAwareRepository {
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(), entity, parameters);
+    }
+
+    protected Collection<ParameterOutput> getCondensedTags(Set<TagEntity> tags, DbQuery parameters) {
+        SortedSet<ParameterOutput> output = new TreeSet<>();
+        if (tags != null && !tags.isEmpty()) {
+           tags.forEach(t -> {
+               output.add(getCondensedTag(t, parameters));
+           });
+        }
+        return output;
+    }
+
+    protected TagOutput getCondensedTag(TagEntity tag, DbQuery parameters) {
+        return createCondensed(new TagOutput(), tag, parameters);
     }
 
     protected List<DatasetOutput<?>> getCondensedDataset(HibernateRelations.HasDatasets hasDatasets, DbQuery query,
