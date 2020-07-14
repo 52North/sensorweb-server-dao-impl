@@ -28,11 +28,14 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nEntity;
@@ -68,4 +71,27 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         criteria = i18n(getI18NEntityClass(), criteria, query);
         return query.addFilters(criteria, getDatasetProperty()).list();
     }
+
+    protected DbQuery checkLevelParameterForHierarchyQuery(DbQuery query) {
+        if (query.getLevel() != null) {
+            if (query.getParameters().containsParameter(Parameters.FEATURES) && !(this instanceof FeatureDao)) {
+                Collection<Long> ids = new FeatureDao(session).getChildrenIds(query);
+                if (ids != null && !ids.isEmpty()) {
+                    return new DbQuery(query.getParameters().extendWith(Parameters.FEATURES, toStringList(ids)));
+                }
+            } else if (query.getParameters().containsParameter(Parameters.PROCEDURES)
+                    && !(this instanceof ProcedureDao)) {
+                Collection<Long> ids = new ProcedureDao(session).getChildrenIds(query);
+                if (ids != null && !ids.isEmpty()) {
+                    return new DbQuery(query.getParameters().extendWith(Parameters.PROCEDURES, toStringList(ids)));
+                }
+            }
+        }
+        return query;
+    }
+
+    protected List<String> toStringList(Collection<Long> set) {
+        return set.stream().map(s -> s.toString()).collect(Collectors.toList());
+    }
+
 }

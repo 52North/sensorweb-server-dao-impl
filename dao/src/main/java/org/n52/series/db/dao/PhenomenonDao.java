@@ -28,7 +28,10 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.List;
+
 import org.hibernate.Session;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -54,6 +57,11 @@ public class PhenomenonDao extends ParameterDao<PhenomenonEntity, I18nPhenomenon
     @Override
     protected Class<I18nPhenomenonEntity> getI18NEntityClass() {
         return I18nPhenomenonEntity.class;
+    }
+
+    @Override
+    public List<PhenomenonEntity> getAllInstances(DbQuery query) throws DataAccessException {
+        return super.getAllInstances(checkLevelParameterForHierarchyQuery(query));
     }
 
 }
