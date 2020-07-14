@@ -29,21 +29,11 @@
 package org.n52.series.db.dao;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
@@ -53,7 +43,7 @@ import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
+public class FeatureDao extends HierarchicalDao<FeatureEntity, I18nFeatureEntity> {
 
     public FeatureDao(Session session) {
         super(session);
@@ -80,38 +70,16 @@ public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
     }
 
     @Override
-    public List<FeatureEntity> getAllInstances(DbQuery query) throws DataAccessException {
+    public Set<Long> getChildrenIds(DbQuery query) {
         Set<String> features = query.getParameters().getFeatures();
-        if (query.isExpanded() && query.getLevel() != null) {
-            if (hasFilterParameter(query)) {
-                List<FeatureEntity> children = null;
-                if (features != null && !features.isEmpty()) {
-                    IoParameters params = query.getParameters().replaceWith(Parameters.FEATURES,
-                            toStringList(getChildrenFeatureIds(query, features)));
-                    params.removeAllOf(Parameters.MATCH_DOMAIN_IDS);
-                    children = super.getAllInstances(new DbQuery(params));
-                } else {
-                    children = super.getAllInstances(query);
-                }
-                return createReverse(children, features);
-            } else {
-                Criteria c = getCriteria(query);
-                if (features == null || features.isEmpty()) {
-                    c.add(Restrictions.isEmpty(FeatureEntity.PROPERTY_PARENTS));
-                }
-                return c.list();
-            }
-        }
         if (features != null && !features.isEmpty()) {
-            IoParameters params = query.getParameters().replaceWith(Parameters.FEATURES,
-                    toStringList(getChildrenFeatureIds(query, features)));
-            params.removeAllOf(Parameters.MATCH_DOMAIN_IDS);
-            return super.getAllInstances(new DbQuery(params));
+            return getChildrenIds(query, features, query.getLevel());
         }
-        return super.getAllInstances(query);
+        return Collections.emptySet();
     }
 
-    private Criteria getCriteria(DbQuery query) throws DataAccessException {
+    @Override
+    protected Criteria getCriteria(DbQuery query) throws DataAccessException {
         Criteria c = getDefaultCriteria();
         IoParameters parameters = query.getParameters();
         if (parameters.getFeatures() != null && !parameters.getFeatures().isEmpty()) {
@@ -122,89 +90,13 @@ public class FeatureDao extends ParameterDao<FeatureEntity, I18nFeatureEntity> {
         return c;
     }
 
-    private Set<Long> getChildrenFeatureIds(DbQuery query, Set<String> features) {
-        Criteria c = getDefaultCriteria();
-        c.add(query.getParameters().isMatchDomainIds() ? createDomainIdFilter(features)
-                : createIdFilter(features));
-        c.createCriteria(FeatureEntity.PROPERTY_CHILDREN, "c");
-        c.setProjection(Projections.property("c." + FeatureEntity.PROPERTY_ID));
-        return queryRecursiv(new LinkedHashSet<>(c.list()));
+    @Override
+    protected Set<String> getParameter(DbQuery query) {
+        return query.getParameters().getFeatures();
     }
 
-    private Set<Long> queryRecursiv(Set<Long> feats) {
-        Set<Long> features = new LinkedHashSet<>(feats);
-        Criteria c = getDefaultCriteria();
-        c.add(createLongIdFilter(feats));
-        final String alias = "c";
-        c.createCriteria(FeatureEntity.PROPERTY_CHILDREN, alias);
-        c.setProjection(Projections.property(alias + "." + FeatureEntity.PROPERTY_ID));
-        List result = c.list();
-        if (result != null && !result.isEmpty()) {
-            result.removeAll(features);
-            features.addAll(queryRecursiv(new LinkedHashSet<>(result)));
-        }
-        return features;
+    @Override
+    protected IoParameters replaceParameter(DbQuery query, Collection<String> entites) {
+        return query.getParameters().replaceWith(Parameters.FEATURES, entites);
     }
-
-    private Criteria getDefaultCriteria() {
-        return session.createCriteria(getEntityClass(), getDefaultAlias())
-                .setResultTransformer(RootEntityResultTransformer.INSTANCE);
-    }
-
-    private Criterion createDomainIdFilter(Collection<String> filterValues) {
-        return filterValues.stream().map(filter -> Restrictions.ilike(FeatureEntity.PROPERTY_DOMAIN_ID, filter))
-                .collect(Restrictions::disjunction, Disjunction::add, (a, b) -> b.conditions().forEach(a::add));
-    }
-
-    private Criterion createIdFilter(Collection<String> filterValues) {
-        return createLongIdFilter(QueryUtils.parseToIds(filterValues));
-    }
-
-    private Criterion createLongIdFilter(Collection<Long> filterValues) {
-        return Restrictions.in(FeatureEntity.PROPERTY_ID, filterValues);
-    }
-
-    private List<String> toStringList(Set<Long> set) {
-        return set.stream().map(s -> s.toString()).collect(Collectors.toList());
-    }
-
-    private boolean hasFilterParameter(DbQuery query) {
-        IoParameters parameters = query.getParameters();
-        return parameters.containsParameter(Parameters.DATASETS) || parameters.containsParameter(Parameters.CATEGORIES)
-                || parameters.containsParameter(Parameters.OFFERINGS)
-                || parameters.containsParameter(Parameters.PHENOMENA)
-                || parameters.containsParameter(Parameters.PLATFORMS)
-                || parameters.containsParameter(Parameters.PROCEDURES);
-    }
-
-    private List<FeatureEntity> createReverse(Collection<FeatureEntity> children, Set<String> filterFeatures) {
-        Map<Long, FeatureEntity> roots = new LinkedHashMap<>();
-        processReverse(null, children, roots, new LinkedHashMap<>(), filterFeatures);
-        return new LinkedList<>(roots.values());
-    }
-
-    private void processReverse(Long childId, Collection<FeatureEntity> features,
-            Map<Long, FeatureEntity> roots, Map<Long, FeatureEntity> leafs, Set<String> filterFeatures) {
-        for (FeatureEntity feature : features) {
-            if (childId != null) {
-                if (!leafs.containsKey(feature.getId()) && feature.hasChildren()) {
-                    feature.getChildren().clear();
-                }
-                feature.addChild(leafs.get(childId)) ;
-            }
-            if (feature.hasParents() && notQueried(feature, filterFeatures)) {
-                leafs.put(feature.getId(), feature);
-                processReverse(feature.getId(), feature.getParents(), roots, leafs, filterFeatures);
-            } else {
-                roots.put(feature.getId(), feature);
-            }
-        }
-    }
-
-    private boolean notQueried(FeatureEntity feature, Collection<String> filterFeatures) {
-        return filterFeatures == null || filterFeatures.isEmpty()
-                || !(filterFeatures.contains(feature.getId().toString())
-                || filterFeatures.contains(feature.getIdentifier()));
-    }
-
 }

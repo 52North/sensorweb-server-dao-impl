@@ -29,9 +29,15 @@
 package org.n52.series.db.dao;
 
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -41,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEntity> {
+public class ProcedureDao extends HierarchicalDao<ProcedureEntity, I18nProcedureEntity> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcedureDao.class);
 
@@ -57,6 +63,15 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
         Criteria criteria = getDefaultCriteria(query);
         return getEntityClass().cast(criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                                              .uniqueResult());
+    }
+
+    @Override
+    public Set<Long> getChildrenIds(DbQuery query) {
+        Set<String> procedures = query.getParameters().getFeatures();
+        if (procedures != null && !procedures.isEmpty()) {
+           return getChildrenIds(query, procedures, query.getLevel());
+        }
+        return Collections.emptySet();
     }
 
     @Override
@@ -83,6 +98,16 @@ public class ProcedureDao extends ParameterDao<ProcedureEntity, I18nProcedureEnt
     @Override
     protected Class<I18nProcedureEntity> getI18NEntityClass() {
         return I18nProcedureEntity.class;
+    }
+
+    @Override
+    protected Set<String> getParameter(DbQuery query) {
+        return query.getParameters().getProcedures();
+    }
+
+    @Override
+    protected IoParameters replaceParameter(DbQuery query, Collection<String> entities) {
+        return query.getParameters().replaceWith(Parameters.PROCEDURES, entities);
     }
 
 }
