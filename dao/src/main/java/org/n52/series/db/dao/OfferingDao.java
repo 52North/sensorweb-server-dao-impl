@@ -28,10 +28,7 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
 import org.hibernate.Session;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
@@ -58,11 +55,5 @@ public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity
     protected Class<I18nOfferingEntity> getI18NEntityClass() {
         return I18nOfferingEntity.class;
     }
-
-    @Override
-    public List<OfferingEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        return super.getAllInstances(checkLevelParameterForHierarchyQuery(query));
-    }
-
 
 }

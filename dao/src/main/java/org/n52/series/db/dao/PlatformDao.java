@@ -28,12 +28,9 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
@@ -64,11 +61,6 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
     @Override
     protected Class<I18nPlatformEntity> getI18NEntityClass() {
         return I18nPlatformEntity.class;
-    }
-
-    @Override
-    public List<PlatformEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        return super.getAllInstances(checkLevelParameterForHierarchyQuery(query));
     }
 
 }

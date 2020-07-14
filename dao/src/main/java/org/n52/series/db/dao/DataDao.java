@@ -87,7 +87,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     /**
      * Retrieves all available observation instances.
      *
-     * @param parameters query parameters.
+     * @param q query parameters.
      *
      * @return all instances matching the given query parameters.
      *
@@ -95,10 +95,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", parameters);
-        Criteria criteria = getDefaultCriteria(parameters);
-        parameters.addTimespanTo(criteria);
+    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
+        LOGGER.debug("get all instances: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+        query.addTimespanTo(criteria);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(toSQLString(criteria));
         }
@@ -110,14 +111,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      *
      * @param dataset
      *        the dataset the observations belongs to.
-     * @param query
+     * @param q
      *        some query parameters to restrict result.
      * @return all observation entities belonging to the given series which match the given query.
      * @throws DataAccessException
      *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(Long dataset, DbQuery query) throws DataAccessException {
+    public List<T> getAllInstancesFor(Long dataset, DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances for series '{}': {}", dataset, query);
         Criteria criteria = getDefaultCriteria(query);
         criteria.createCriteria(DataEntity.PROPERTY_DATASET).add(Restrictions.eq(DatasetEntity.PROPERTY_ID, dataset));

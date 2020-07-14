@@ -28,10 +28,7 @@
  */
 package org.n52.series.db.dao;
 
-import java.util.List;
-
 import org.hibernate.Session;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.i18n.I18nCategoryEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,8 +57,4 @@ public class CategoryDao extends ParameterDao<CategoryEntity, I18nCategoryEntity
         return I18nCategoryEntity.class;
     }
 
-    @Override
-    public List<CategoryEntity> getAllInstances(DbQuery query) throws DataAccessException {
-        return super.getAllInstances(checkLevelParameterForHierarchyQuery(query));
-    }
 }
