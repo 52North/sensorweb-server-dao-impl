@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.dao;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.beans.i18n.I18nTagEntity;
@@ -53,6 +54,13 @@ public class TagDao extends ParameterDao<TagEntity, I18nTagEntity> {
     @Override
     protected Class<I18nTagEntity> getI18NEntityClass() {
         return I18nTagEntity.class;
+    }
+
+    @Override
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        Criteria criteria = session.createCriteria(clazz);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return criteria;
     }
 
 }
