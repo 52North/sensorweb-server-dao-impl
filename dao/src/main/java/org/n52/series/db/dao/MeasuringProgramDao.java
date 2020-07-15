@@ -109,8 +109,6 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-//        String nonNullAlias = alias != null ? alias : getDefaultAlias();
-//        Criteria criteria = session.createCriteria(clazz, nonNullAlias);
         Criteria criteria = session.createCriteria(clazz);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return criteria;
