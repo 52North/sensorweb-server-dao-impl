@@ -31,12 +31,16 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.n52.io.HrefHelper;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
+import org.n52.io.response.OptionalOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.AggregationOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.IndividualObservationOutput;
@@ -53,6 +57,7 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
@@ -313,6 +318,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters params = query.getParameters();
         DatasetOutput<V> result = createCondensed(dataset, query, session);
@@ -339,7 +345,48 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
         result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
 
+        if (query.getParameters().containsParameter(Parameters.AGGREGATION)
+                && dataRepository instanceof AbstractDataRepository) {
+            Set<String> aggParams = query.getParameters().getAggregation();
+            AggregationOutput<V> aggregation = new AggregationOutput<>();
+            addCount(aggregation, aggParams, (AbstractDataRepository<DatasetEntity, ?, V, ?>) dataRepository, dataset,
+                    query, session);
+            if (checkNumerical(dataset) && dataRepository instanceof AbstractNumericalDataRepository) {
+                addAggregation(aggregation, aggParams, (AbstractNumericalDataRepository<?, V, ?>) dataRepository,
+                        dataset, query, session);
+            }
+            if (!aggregation.isEmpty()) {
+                result.setValue(DatasetOutput.AGGREGATION, aggregation, params, result::setAggregations);
+            }
+        }
+
         return result;
+    }
+
+    private void addCount(AggregationOutput<V> aggregation, Set<String> params,
+            AbstractDataRepository<DatasetEntity, ?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
+            Session session) {
+        if (params.isEmpty() || params.contains("count")) {
+            aggregation.setCount(OptionalOutput.of(dataRepository.getCount(dataset, query, session)));
+        }
+    }
+
+    private void addAggregation(AggregationOutput<V> aggregation, Set<String> params,
+            AbstractNumericalDataRepository<?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
+            Session session) {
+        if (params.isEmpty() || params.contains("max")) {
+            aggregation.setMax(OptionalOutput.of(dataRepository.getMax(dataset, query, session)));
+        }
+        if (params.isEmpty() || params.contains("min")) {
+            aggregation.setMin(OptionalOutput.of(dataRepository.getMin(dataset, query, session)));
+        }
+        if (params.isEmpty() || params.contains("avg")) {
+            aggregation.setAvg(OptionalOutput.of(dataRepository.getAverage(dataset, query, session)));
+        }
+    }
+
+    private boolean checkNumerical(DatasetEntity dataset) {
+        return ValueType.quantity.equals(dataset.getValueType()) || ValueType.count.equals(dataset.getValueType());
     }
 
     private DataRepository<DatasetEntity, ?, V, ?> getDataRepositoryFactory(DatasetEntity dataset) {
