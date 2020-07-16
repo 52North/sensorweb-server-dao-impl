@@ -52,7 +52,7 @@
         <geolatte.version>1.6.0</geolatte.version>
         <hibernate.version>5.4.16.Final</hibernate.version>
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
-        <series-api.version>3.2.1</series-api.version>
+        <series-api.version>3.2.2-SNAPSHOT</series-api.version>
         <series-hibernate.version>3.0.0</series-hibernate.version>
         <arctic-sea.version>7.6.0</arctic-sea.version>
 
@@ -159,6 +159,11 @@
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>janmayen</artifactId>
+                <version>${arctic-sea.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>faroe-annotations</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
             <dependency>
