@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 
 @DataRepositoryComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityDataRepository
-        extends AbstractDataRepository<DatasetEntity, QuantityDataEntity, QuantityValue, BigDecimal> {
+        extends AbstractNumericalDataRepository<QuantityDataEntity, QuantityValue, BigDecimal> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesRepository.class);
 
