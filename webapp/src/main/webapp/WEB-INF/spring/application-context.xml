@@ -15,5 +15,5 @@
     <!-- For SOS Bundles (instead of extra database config) -->
     <!--<bean class="org.n52.series.db.da.sos.SOSHibernateSessionHolder" destroy-method="shutdown" />-->
     <import resource="../classes/contexts/configured/series-database-config.xml" />
-    
+
 </beans>

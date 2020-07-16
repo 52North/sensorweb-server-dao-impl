@@ -97,4 +97,35 @@ public class ServiceEntityFactory implements Constructable {
         updateEntity();
     }
 
+    private boolean check(String check) {
+        return check != null && !check.isEmpty();
+    }
+
+    private ServiceEntity createServiceEntity() {
+        ServiceEntity entity = new ServiceEntity();
+        entity.setId(Long.valueOf(id != null ? id : DEFAULT_ID));
+        entity.setName(check(name) ? name : DEFAULT_NAME);
+        entity.setVersion(check(version) ? version : DEFAULT_VERSION);
+        entity.setNoDataValues(noDataValues);
+        return entity;
+    }
+
+    private void updateEntity() {
+        if (initialized) {
+            serviceEntity.setId(Long.valueOf(id));
+            serviceEntity.setName(name);
+            serviceEntity.setVersion(version);
+            serviceEntity.setNoDataValues(noDataValues);
+        }
+    }
+
+    private ServiceEntity getDefaultServiceEntity() {
+        ServiceEntity entity = new ServiceEntity();
+        entity.setId(Long.valueOf(DEFAULT_ID));
+        entity.setName(DEFAULT_NAME);
+        entity.setVersion(DEFAULT_VERSION);
+        entity.setNoDataValues(DEFAULT_NO_DATA_VALUES);
+        return entity;
+    }
+
 }
