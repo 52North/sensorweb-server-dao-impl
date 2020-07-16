@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.dao;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -169,12 +170,19 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return getDefaultCriteria(query, DEFAULT_ORDER);
     }
 
-    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
-        Criteria criteria = session.createCriteria(entityType)
-                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
-                                   // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(order);
+    private Criteria getDefaultCriteria() {
+        Criteria criteria =
+                session.createCriteria(entityType).add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+        return criteria;
+    }
+
+    private Criteria getDefaultCriteria(Order order) {
+        return getDefaultCriteria().addOrder(order);
+    }
+
+    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
+        Criteria criteria = getDefaultCriteria(order);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
@@ -258,6 +266,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria;
     }
 
+    @SuppressWarnings("unchecked")
     public T getLastObservationForSampling(DatasetEntity dataset, Date date, DbQuery query) {
         final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
         final Order order = Order.desc(column);
@@ -265,6 +274,47 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (T) criteria.add(Restrictions.lt(column, DateUtils.addMilliseconds(date, 1)))
                            .setMaxResults(1)
                            .uniqueResult();
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public T getMax(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        addDatasetRestriction(c, dataset);
+        DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        filter.setProjection(Projections.max(DataEntity.PROPERTY_VALUE));
+        filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        return (T) c.setMaxResults(1).uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getMin(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        addDatasetRestriction(c, dataset);
+        DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        filter.setProjection(Projections.min(DataEntity.PROPERTY_VALUE));
+        filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        return (T) c.setMaxResults(1).uniqueResult();
+    }
+
+    public Long getCount(DatasetEntity dataset) {
+        Criteria c =
+                getDefaultCriteria().add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()))
+                        .setProjection(Projections.rowCount());
+        return (Long) c.uniqueResult();
+    }
+
+    public BigDecimal getAvg(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria();
+        addDatasetRestriction(c, dataset);
+        c.setProjection(Projections.avg(DataEntity.PROPERTY_VALUE));
+        return BigDecimal.valueOf((Double) c.uniqueResult());
+    }
+
+    private void addDatasetRestriction(Criteria c, DatasetEntity dataset) {
+        c.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
     }
 
 }
