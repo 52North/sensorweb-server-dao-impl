@@ -208,7 +208,9 @@ public abstract class SessionAwareRepository {
         metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
         metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
         metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
-        metadata.setTags(getCondensedTags(dataset.getTags(), query));
+        if (dataset.hasTagss()) {
+            metadata.setTags(getCondensedTags(dataset.getTags(), query));
+        }
         return metadata;
     }
 
