@@ -96,11 +96,13 @@
                     refactor out rendering_hints && status_intervals and autowire them
                     in TimeseriesMetadataController to set them in case of
                     rendering_hints=true or status_intervals=true
+                     -->
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
                 <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-                 -->
+                <!--
                 <ref bean="renderingHintsExtension" />
                 <ref bean="statusIntervalsExtension" />
+                 -->
                 <bean class="org.n52.io.extension.resulttime.ResultTimeExtension">
                     <property name="service" ref="resultTimeService" />
                 </bean>
