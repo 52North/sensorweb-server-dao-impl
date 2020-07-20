@@ -56,17 +56,4 @@ public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity
         return I18nOfferingEntity.class;
     }
 
-//    public Collection<OfferingEntity> get() throws DataAccessException {
-//        return getAllInstances(new DbQuery(IoParameters.createDefaults()));
-//    }
-//
-//    public Collection<OfferingEntity> get(Collection<String> identifiers) throws DataAccessException {
-//        Map<String, String> map = new HashMap<>();
-//        if (identifiers != null && !identifiers.isEmpty()) {
-//            map.put(IoParameters.OFFERINGS, identifiers.stream().collect(Collectors.joining(",")));
-//        }
-//        map.put(IoParameters.MATCH_DOMAIN_IDS, Boolean.toString(true));
-//        return getAllInstances(new DbQuery(IoParameters.createFromSingleValueMap(map)));
-//    }
-
 }
