@@ -43,7 +43,7 @@ import org.n52.series.db.dao.DbQuery;
 
 @DataRepositoryComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<DatasetEntity, CountDataEntity, CountValue, Integer> {
+        extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
 
     @Override
     protected CountValue createEmptyValue() {
