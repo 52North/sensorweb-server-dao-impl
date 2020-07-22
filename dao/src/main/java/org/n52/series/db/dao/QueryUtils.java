@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.dao;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -116,7 +117,7 @@ public class QueryUtils {
         // }
     }
 
-    public static Set<Long> parseToIds(Set<String> ids) {
+    public static Set<Long> parseToIds(Collection<String> ids) {
         return ids.stream()
                   .map(e -> parseToId(e))
                   .collect(Collectors.toSet());

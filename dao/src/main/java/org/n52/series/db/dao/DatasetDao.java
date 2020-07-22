@@ -82,7 +82,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> find(DbQuery query) {
+    public List<T> find(DbQuery q) {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find entities: {}", query);
 
         String searchTerm = "%" + query.getSearchTerm() + "%";
@@ -121,7 +122,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
         if (LOGGER.isDebugEnabled()) {
