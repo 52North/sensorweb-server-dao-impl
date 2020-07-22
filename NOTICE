@@ -29,6 +29,7 @@ This project includes:
   Checker Qual under The MIT License
   ClassMate under Apache License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
+  commons-compiler under New BSD License
   Cross-Origin Resource Sharing (CORS) Filter under The Apache Software License, Version 2.0
   dom4j under BSD 3-clause New License
   ehcache under The Apache Software License, Version 2.0
@@ -52,6 +53,7 @@ This project includes:
   jackson-databind under The Apache Software License, Version 2.0
   Jakarta Activation under EDL 1.0
   Jakarta XML Binding API under Eclipse Distribution License - v 1.0
+  janino under New BSD License
   Java Annotation Indexer under Apache License, Version 2.0
   Java Property Utility under The Apache Software License, Version 2.0
   Java Transaction API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
@@ -112,7 +114,6 @@ This project includes:
   Sensor Web Server DAO Impl - Webapp under GNU General Public License, Version 2.0
   Sensor Web Server Database Model - Entities under The Apache Software License, Version 2.0
   Sensor Web Server Database Model - Hibernate Types under The Apache Software License, Version 2.0
-  Sensor Web Server Database Model - Mappings under The Apache Software License, Version 2.0
   Sensor Web Server Helgoland - IO module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - PDF report structure under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - REST module under GNU General Public License, Version 2.0

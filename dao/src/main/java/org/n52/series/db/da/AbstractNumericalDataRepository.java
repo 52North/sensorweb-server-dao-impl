@@ -26,34 +26,31 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.dao;
+package org.n52.series.db.da;
+
+import java.math.BigDecimal;
 
 import org.hibernate.Session;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.OfferingEntity;
-import org.n52.series.db.beans.i18n.I18nOfferingEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.n52.series.db.dao.DbQuery;
 
-@Transactional
-public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity> {
+public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>,
+                                                      V extends AbstractValue< ? >,
+                                                      T>
+    extends AbstractDataRepository<DatasetEntity, E, V, T> {
 
-    public OfferingDao(Session session) {
-        super(session);
+    protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
+        return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);
     }
 
-    @Override
-    protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OFFERING;
+    protected V getMin(DatasetEntity dataset, DbQuery query, Session session) {
+        return assembleDataValue(createDataDao(session).getMin(dataset), dataset, query);
     }
 
-    @Override
-    protected Class<OfferingEntity> getEntityClass() {
-        return OfferingEntity.class;
-    }
-
-    @Override
-    protected Class<I18nOfferingEntity> getI18NEntityClass() {
-        return I18nOfferingEntity.class;
+    protected BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
+        return createDataDao(session).getAvg(dataset);
     }
 
 }

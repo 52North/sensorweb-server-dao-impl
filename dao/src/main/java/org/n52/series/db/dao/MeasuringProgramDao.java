@@ -59,10 +59,11 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<MeasuringProgramEntity> find(DbQuery query) {
+    public List<MeasuringProgramEntity> find(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -72,10 +73,11 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<MeasuringProgramEntity> getAllInstances(DbQuery query) throws DataAccessException {
+    public List<MeasuringProgramEntity> getAllInstances(DbQuery q) throws DataAccessException {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);

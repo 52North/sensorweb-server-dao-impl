@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.dao;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     /**
      * Retrieves all available observation instances.
      *
-     * @param parameters query parameters.
+     * @param q query parameters.
      *
      * @return all instances matching the given query parameters.
      *
@@ -95,10 +96,11 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery parameters) throws DataAccessException {
-        LOGGER.debug("get all instances: {}", parameters);
-        Criteria criteria = getDefaultCriteria(parameters);
-        parameters.addTimespanTo(criteria);
+    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
+        LOGGER.debug("get all instances: {}", query);
+        Criteria criteria = getDefaultCriteria(query);
+        query.addTimespanTo(criteria);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(toSQLString(criteria));
         }
@@ -110,14 +112,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      *
      * @param dataset
      *        the dataset the observations belongs to.
-     * @param query
+     * @param q
      *        some query parameters to restrict result.
      * @return all observation entities belonging to the given series which match the given query.
      * @throws DataAccessException
      *         if accessing database fails.
      */
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstancesFor(Long dataset, DbQuery query) throws DataAccessException {
+    public List<T> getAllInstancesFor(Long dataset, DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances for series '{}': {}", dataset, query);
         Criteria criteria = getDefaultCriteria(query);
         criteria.createCriteria(DataEntity.PROPERTY_DATASET).add(Restrictions.eq(DatasetEntity.PROPERTY_ID, dataset));
@@ -169,12 +172,19 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return getDefaultCriteria(query, DEFAULT_ORDER);
     }
 
-    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
-        Criteria criteria = session.createCriteria(entityType)
-                                   .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE))
-                                   // TODO check ordering when `showtimeintervals=true`
-                                   .addOrder(order);
+    private Criteria getDefaultCriteria() {
+        Criteria criteria =
+                session.createCriteria(entityType).add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+        return criteria;
+    }
+
+    private Criteria getDefaultCriteria(Order order) {
+        return getDefaultCriteria().addOrder(order);
+    }
+
+    private Criteria getDefaultCriteria(final DbQuery query, Order order) {
+        Criteria criteria = getDefaultCriteria(order);
 
         query.addSpatialFilter(criteria);
         query.addResultTimeFilter(criteria);
@@ -258,6 +268,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria;
     }
 
+    @SuppressWarnings("unchecked")
     public T getLastObservationForSampling(DatasetEntity dataset, Date date, DbQuery query) {
         final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
         final Order order = Order.desc(column);
@@ -265,6 +276,47 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (T) criteria.add(Restrictions.lt(column, DateUtils.addMilliseconds(date, 1)))
                            .setMaxResults(1)
                            .uniqueResult();
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public T getMax(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        addDatasetRestriction(c, dataset);
+        DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        filter.setProjection(Projections.max(DataEntity.PROPERTY_VALUE));
+        filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        return (T) c.setMaxResults(1).uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T getMin(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        addDatasetRestriction(c, dataset);
+        DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        filter.setProjection(Projections.min(DataEntity.PROPERTY_VALUE));
+        filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        return (T) c.setMaxResults(1).uniqueResult();
+    }
+
+    public Long getCount(DatasetEntity dataset) {
+        Criteria c =
+                getDefaultCriteria().add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()))
+                        .setProjection(Projections.rowCount());
+        return (Long) c.uniqueResult();
+    }
+
+    public BigDecimal getAvg(DatasetEntity dataset) {
+        Criteria c = getDefaultCriteria();
+        addDatasetRestriction(c, dataset);
+        c.setProjection(Projections.avg(DataEntity.PROPERTY_VALUE));
+        return BigDecimal.valueOf((Double) c.uniqueResult());
+    }
+
+    private void addDatasetRestriction(Criteria c, DatasetEntity dataset) {
+        c.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
     }
 
 }

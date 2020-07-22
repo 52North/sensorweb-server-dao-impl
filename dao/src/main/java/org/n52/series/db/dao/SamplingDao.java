@@ -57,10 +57,11 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SamplingEntity> find(DbQuery query) {
+    public List<SamplingEntity> find(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -70,10 +71,11 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SamplingEntity> getAllInstances(DbQuery query) throws DataAccessException {
+    public List<SamplingEntity> getAllInstances(DbQuery q) throws DataAccessException {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);

@@ -268,4 +268,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
         }
         return null;
     }
+
+    protected Long getCount(DatasetEntity dataset, DbQuery query, Session session) {
+        return createDataDao(session).getCount(dataset);
+    }
 }

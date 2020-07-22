@@ -30,7 +30,9 @@ package org.n52.series.db.dao;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.geolatte.geom.GeometryType;
 import org.hibernate.Criteria;
@@ -54,6 +56,7 @@ import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DatasetEntity;
@@ -348,6 +351,29 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return Arrays.stream(GeometryType.values())
                 .filter(type -> type.name().equalsIgnoreCase(geometryType))
                 .findAny().orElse(null);
+    }
+
+    protected DbQuery checkLevelParameterForHierarchyQuery(DbQuery query) {
+        IoParameters params = null;
+        if (query.getLevel() != null) {
+            if (query.getParameters().containsParameter(Parameters.FEATURES) && !(this instanceof FeatureDao)) {
+                Collection<Long> ids = new FeatureDao(session).getChildrenIds(query);
+                if (ids != null && !ids.isEmpty()) {
+                    params = query.getParameters().extendWith(Parameters.FEATURES, toStringList(ids));
+                }
+            } else if (query.getParameters().containsParameter(Parameters.PROCEDURES)
+                    && !(this instanceof ProcedureDao)) {
+                Collection<Long> ids = new ProcedureDao(session).getChildrenIds(query);
+                if (ids != null && !ids.isEmpty()) {
+                    params = query.getParameters().extendWith(Parameters.PROCEDURES, toStringList(ids));
+                }
+            }
+        }
+        return params != null ? new DbQuery(params) : query;
+    }
+
+    protected List<String> toStringList(Collection<Long> set) {
+        return set.stream().map(s -> s.toString()).collect(Collectors.toList());
     }
 
     /**
