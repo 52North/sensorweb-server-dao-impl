@@ -48,8 +48,9 @@ public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<RelatedFeatureEntity> getAllInstances(DbQuery query)
+    public List<RelatedFeatureEntity> getAllInstances(DbQuery q)
             throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         final Criteria criteria = session.createCriteria(RelatedFeatureEntity.class);
         if (query.getParameters().containsParameter(IoParameters.OFFERINGS)) {
             criteria.createCriteria(RelatedFeatureEntity.OFFERINGS)

@@ -52,7 +52,8 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> find(DbQuery query) {
+    public List<T> find(DbQuery q) {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -62,10 +63,12 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery query) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         return query.addFilters(criteria, getDatasetProperty()).list();
     }
+
 }
