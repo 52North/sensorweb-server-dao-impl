@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ctx="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="serviceEntity" class="org.n52.series.db.beans.ServiceEntity">
+        <property name="id" value="1" />
+        <property name="version" value="2.0" />
+        <property name="name" value="My RESTful Dataset Service" />
+        <property name="noDataValues" value="-9999.0,99999,NO_DATA" />
+    </bean>
+
+    <bean id="serviceEntityFactory" class="org.n52.series.db.ServiceEntityFactory" init-method="init"/>
+</beans>

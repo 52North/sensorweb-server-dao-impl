@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
     <artifactId>dao-impl-parent</artifactId>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
     <name>Sensor Web Server DAO Impl</name>
     <packaging>pom</packaging>
 
@@ -41,7 +41,7 @@
         <connection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</connection>
         <developerConnection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</developerConnection>
         <url>https://github.com/52North/sensorweb-server-dao-impl</url>
-        <tag>v3.3.0</tag>
+        <tag>v3.4.0</tag>
     </scm>
 
     <properties>
@@ -50,11 +50,11 @@
 
         <geotools.version>23.2</geotools.version>
         <geolatte.version>1.6.0</geolatte.version>
-        <hibernate.version>5.4.16.Final</hibernate.version>
-        <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
-        <series-api.version>3.3.0</series-api.version>
-        <series-hibernate.version>3.0.0</series-hibernate.version>
-        <arctic-sea.version>7.6.1</arctic-sea.version>
+        <hibernate.version>5.4.20.Final</hibernate.version>
+        <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+        <series-api.version>3.4.0</series-api.version>
+        <series-hibernate.version>3.0.1</series-hibernate.version>
+        <arctic-sea.version>8.0.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
@@ -159,6 +159,11 @@
             <dependency>
                 <groupId>org.n52.arctic-sea</groupId>
                 <artifactId>janmayen</artifactId>
+                <version>${arctic-sea.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.arctic-sea</groupId>
+                <artifactId>faroe-annotations</artifactId>
                 <version>${arctic-sea.version}</version>
             </dependency>
             <dependency>

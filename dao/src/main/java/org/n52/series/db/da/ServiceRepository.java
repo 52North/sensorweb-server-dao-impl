@@ -106,7 +106,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return (serviceEntity != null) && serviceEntity.getId().equals(id);
+        return (getServiceEntity() != null) && getServiceEntity().getId().equals(id);
     }
 
     @Override
@@ -130,14 +130,14 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) throws DataAccessException {
-        return serviceEntity != null ? Collections.singletonList(serviceEntity)
+        return getServiceEntity() != null ? Collections.singletonList(getServiceEntity())
                 : createDao(session).getAllInstances(parameters);
     }
 
     @Override
     protected ServiceEntity getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query)
             throws DataAccessException {
-        ServiceEntity result = !isConfiguredServiceInstance(id) ? dao.getInstance(id, query) : serviceEntity;
+        ServiceEntity result = !isConfiguredServiceInstance(id) ? dao.getInstance(id, query) : getServiceEntity();
         if (result == null) {
             throw new ResourceNotFoundException("Resource with id '" + id + "' could not be found.");
         }

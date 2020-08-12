@@ -56,6 +56,7 @@ import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -82,9 +83,8 @@ public abstract class SessionAwareRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
     private static final String OFFSET_REGEX = "([+-](?:2[0-3]|[01][0-9]):[0-5][0-9])";
 
-    // via xml or db
-    @Autowired(required = false)
-    protected ServiceEntity serviceEntity;
+    @Autowired
+    protected ServiceEntityFactory serviceEntityFactory;
 
     @Autowired
     protected DbQueryFactory dbQueryFactory;
@@ -223,19 +223,16 @@ public abstract class SessionAwareRepository {
         return createCondensed(new OfferingOutput(), entity, parameters);
     }
 
-    public void setServiceEntity(ServiceEntity serviceEntity) {
-        this.serviceEntity = serviceEntity;
-    }
 
     protected ServiceEntity getServiceEntity() {
-        return serviceEntity;
+        return serviceEntityFactory.getServiceEntity();
     }
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
         return entity.getService() != null
             ? entity.getService()
-            : serviceEntity;
+            : getServiceEntity();
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
@@ -295,7 +292,7 @@ public abstract class SessionAwareRepository {
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((serviceEntity == null) && (entity == null)) {
+        if ((getServiceEntity() == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }
