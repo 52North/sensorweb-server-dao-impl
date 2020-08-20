@@ -46,48 +46,10 @@
             }
         }
     ],
-    "timeseriesStyles": [
-        {
-            "id": "quantity_6",
-            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
-            "chartQualifier": "timeseriesStyles_without_legend",
-            "interval": [
-                "lastWeek",
-                "lastMonth"
-            ],
-            "style": {
-                "chartType": "bar",
-                "properties": {
-                    "interval": "byDay",
-                    "width": 0.8,
-                    "color": "#0000ff"
-                }
-            }
-        }
-    ],
-    "seriesStyles": [
-        {
-            "id": "quantity_6",
-            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
-            "chartQualifier": "seriesStyles_without_legend",
-            "interval": [
-                "lastWeek",
-                "lastMonth"
-            ],
-            "style": {
-                "chartType": "bar",
-                "properties": {
-                    "interval": "byDay",
-                    "width": 0.8,
-                    "color": "#0000ff"
-                }
-            }
-        }
-    ],
     "datasetStyles": [
         {
-            "id": "quantity_6",
-            "title": "Dataset quantity_6 from seriesStyles config  (without legend)",
+            "id": "6",
+            "title": "Dataset 6 from seriesStyles config  (without legend)",
             "chartQualifier": "datasetStyles_with_legend",
             "interval": [
                 "lastWeek",

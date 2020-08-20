@@ -12,6 +12,7 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-        <import resource="../classes/contexts/configured/api_mvc.xml" />
+    <!-- load default config from java -->
+    <ctx:component-scan base-package="org.n52.series.dao.spring" />
 
 </beans>

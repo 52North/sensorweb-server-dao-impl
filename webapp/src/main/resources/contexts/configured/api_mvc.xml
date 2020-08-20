@@ -15,6 +15,8 @@
     <!-- This bean description file injects the SPI implementation into the Web binding layer. Any change will corrupt the
         API Web layer. Custom implementation has to be defined by bean descriptions using the ref-ids associated below. -->
 
+    <bean class="org.n52.web.ctrl.HelgolandConfiguration" />
+
     <bean class="org.n52.web.ctrl.ResourcesController">
         <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
     </bean>
@@ -94,11 +96,13 @@
                     refactor out rendering_hints && status_intervals and autowire them
                     in TimeseriesMetadataController to set them in case of
                     rendering_hints=true or status_intervals=true
+                     -->
                 <bean class="org.n52.io.extension.RenderingHintsExtension" />
                 <bean class="org.n52.io.extension.StatusIntervalsExtension" />
-                 -->
+                <!--
                 <ref bean="renderingHintsExtension" />
                 <ref bean="statusIntervalsExtension" />
+                 -->
                 <bean class="org.n52.io.extension.resulttime.ResultTimeExtension">
                     <property name="service" ref="resultTimeService" />
                 </bean>

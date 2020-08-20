@@ -8,43 +8,12 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="serviceEntity" class="org.n52.series.db.beans.ServiceEntity">
-        <property name="id" value="1" />
-        <property name="version" value="2.0" />
-        <property name="name" value="My RESTful Dataset Service" />
-        <property name="noDataValues" value="-9999.0,99999,NO_DATA" />
-    </bean>
-
-    <bean id="ioFactory" class="org.n52.io.handler.DefaultIoFactory" />
-    <bean id="dbQueryFactory" class="org.n52.series.db.dao.DefaultDbQueryFactory">
-        <property name="databaseSrid" value="${database.srid}" />
-    </bean>
-
-    <bean id="dataRepositoryFactory" class="org.n52.series.db.AnnotationBasedDataRepositoryFactory" />
-    <bean class="org.n52.series.db.da.QuantityDataRepository" />
-    <bean class="org.n52.series.db.da.TextDataRepository" />
-    <bean class="org.n52.series.db.da.CountDataRepository" />
-    <bean class="org.n52.series.db.da.BooleanDataRepository" />
-    <bean class="org.n52.series.db.da.CategoryDataRepository" />
-    <bean class="org.n52.series.db.da.QuantityProfileDataRepository" />
-    <bean class="org.n52.series.db.da.CategoryProfileDataRepository" />
-    <bean class="org.n52.series.db.da.TextProfileDataRepository" />
-
-    <bean id="entityCounter" class="org.n52.series.db.da.EntityCounter" />
-    <bean id="metadataService" class="org.n52.series.srv.CountingMetadataAccessService" />
-    <bean id="searchService" class="org.n52.series.srv.Search" />
-
-    <import resource="spi-impl-dao_beans.xml"/>
-    <import resource="spi-impl-dao_tasks.xml" />
-
-    <!-- local.configFile overrides defaults from application.properties -->
-    <!-- <ctx:property-placeholder location="classpath:/application.properties,file://${local.configFile}"
-        ignore-resource-not-found="true" ignore-unresolvable="false" /> -->
-    <ctx:property-placeholder location="classpath:/application.properties"
-        ignore-resource-not-found="true" ignore-unresolvable="false" />
-
+    <import resource="../classes/contexts/configured/service-beans.xml" />
+    <import resource="../classes/contexts/configured/application.xml"/>
+    <import resource="../classes/contexts/configured/spi-impl-dao_beans.xml"/>
+    <import resource="../classes/contexts/configured/spi-impl-dao_tasks.xml" />
     <!-- For SOS Bundles (instead of extra database config) -->
     <!--<bean class="org.n52.series.db.da.sos.SOSHibernateSessionHolder" destroy-method="shutdown" />-->
-    <import resource="series-database-config.xml" />
+    <import resource="../classes/contexts/configured/series-database-config.xml" />
 
 </beans>
