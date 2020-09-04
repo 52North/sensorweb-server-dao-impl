@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
+import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -81,8 +82,15 @@ public class ProcedureAssembler extends HierarchicalParameterAssembler<Procedure
             ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
             : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setParents(createCondensed(entity.getParents(), query, session));
-        result.setChildren(createCondensed(entity.getChildren(), query, session));
+
+        if (entity.hasParents()) {
+            result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session),
+                    query.getParameters(), result::setParents);
+        }
+        if (entity.hasChildren()) {
+            result.setValue(HierarchicalParameterOutput.CHILDREN,
+                    createCondensed(entity.getChildren(), query, session), query.getParameters(), result::setChildren);
+        }
         return result;
     }
 

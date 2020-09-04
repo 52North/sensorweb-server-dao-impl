@@ -30,16 +30,23 @@ package org.n52.series.db.old.dao;
 
 import java.util.Objects;
 
+import org.n52.faroe.annotation.Configurable;
+import org.n52.faroe.annotation.Setting;
 import org.n52.io.request.IoParameters;
 
+@Configurable
 public class DefaultDbQueryFactory implements DbQueryFactory {
 
-    private static final String DEFAULT_DATABASE_SRID = "EPSG:4326";
+    private static final String STORAGE_EPSG_KEY = "service.defaultEpsg";
+    private static final String EPSG_PREFIX = "EPSG:";
+    private String databaseSrid = "EPSG:4326";
+    private Integer epsgCode;
 
-    private final String databaseSrid;
-
-    public DefaultDbQueryFactory() {
-        this(DEFAULT_DATABASE_SRID);
+    @Override
+    public DbQuery createFrom(IoParameters parameters) {
+        DbQuery query = new DbQuery(parameters);
+        query.setDatabaseSridCode(getDatabaseSrid());
+        return query;
     }
 
     public DefaultDbQueryFactory(String srid) {
@@ -48,13 +55,19 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     }
 
     @Override
-    public DbQuery createDefault() {
-        return createFrom(IoParameters.createDefaults());
+    public String getDatabaseSrid() {
+        return epsgCode != null && epsgCode > 0 ? EPSG_PREFIX.concat(epsgCode.toString()) : databaseSrid;
     }
 
     @Override
-    public DbQuery createFrom(final IoParameters parameters) {
-        return new DbQuery(parameters, databaseSrid);
+    public void setDatabaseSrid(String databaseSrid) {
+        if (databaseSrid != null && !databaseSrid.isEmpty()) {
+            this.databaseSrid = databaseSrid.startsWith(EPSG_PREFIX) ? databaseSrid : EPSG_PREFIX.concat(databaseSrid);
+        }
     }
 
+    @Setting(STORAGE_EPSG_KEY)
+    public void setStorageEpsg(int epsgCode) {
+        this.epsgCode = epsgCode;
+    }
 }

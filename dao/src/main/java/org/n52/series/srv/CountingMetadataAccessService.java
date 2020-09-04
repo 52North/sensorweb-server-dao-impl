@@ -111,6 +111,13 @@ public class CountingMetadataAccessService implements CountingMetadataService {
     }
 
     @Override
+    public Long getTagCounter(IoParameters parameters) {
+        DbQuery query = dbQueryFactory.createFrom(parameters);
+        return counter.countTags(query);
+    }
+
+    @Override
+    @Deprecated
     public Long getStationCount() {
         return 0L;
     }

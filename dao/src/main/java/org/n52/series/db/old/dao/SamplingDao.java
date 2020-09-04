@@ -56,10 +56,11 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SamplingEntity> find(DbQuery query) {
+    public List<SamplingEntity> find(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -69,10 +70,11 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SamplingEntity> getAllInstances(DbQuery query) {
+    public List<SamplingEntity> getAllInstances(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -122,8 +124,6 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-//      String nonNullAlias = alias != null ? alias : getDefaultAlias();
-//      Criteria criteria = session.createCriteria(clazz, nonNullAlias);
         Criteria criteria = session.createCriteria(clazz);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return criteria;

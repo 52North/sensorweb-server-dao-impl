@@ -34,13 +34,12 @@ This project includes:
   Checker Qual under The MIT License
   ClassMate under Apache License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
+  commons-compiler under New BSD License
   Cross-Origin Resource Sharing (CORS) Filter under The Apache Software License, Version 2.0
   dom4j under BSD 3-clause New License
   ehcache under The Apache Software License, Version 2.0
   EPSG Authority Service using HSQL database under Lesser General Public License (LGPL) or EPSG database distribution license or BSD License for HSQL
   error-prone annotations under Apache 2.0
-  Extended StAX API under Eclipse Distribution License - v 1.0
-  fastinfoset under Apache License, Version 2.0 or Eclipse Distribution License - v 1.0
   FindBugs-jsr305 under The Apache Software License, Version 2.0
   geolatte-geom under LGPL 3.0
   Guava InternalFutureFailureAccess and InternalFutures under The Apache Software License, Version 2.0
@@ -56,8 +55,9 @@ This project includes:
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
-  Jakarta Activation API jar under EDL 1.0
+  Jakarta Activation under EDL 1.0
   Jakarta XML Binding API under Eclipse Distribution License - v 1.0
+  janino under New BSD License
   Java Annotation Indexer under Apache License, Version 2.0
   Java Property Utility under The Apache Software License, Version 2.0
   Java Transaction API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
@@ -100,6 +100,7 @@ This project includes:
   org.apache.xmlgraphics:batik-i18n under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-parser under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-script under The Apache Software License, Version 2.0
+  org.apache.xmlgraphics:batik-shared-resources under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-svg-dom under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-svggen under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-transcoder under The Apache Software License, Version 2.0
@@ -108,13 +109,14 @@ This project includes:
   org.locationtech.jts:jts-core under Eclipse Publish License, Version 1.0 or Eclipse Distribution License - v 1.0
   PostGIS Geometry under GNU Lesser General Public License
   Postgis JDBC Driver under GNU Lesser General Public License
-  PostgreSQL JDBC Driver - JDBC 4.2 under BSD-2-Clause
+  PostgreSQL JDBC Driver under BSD-2-Clause
   QDox under The Apache Software License, Version 2.0
   quartz under The Apache Software License, Version 2.0
   Sensor Web Server DAO Impl under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - DAO under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - Webapp under GNU General Public License, Version 2.0
   Sensor Web Server Database Model - Entities under The Apache Software License, Version 2.0
+  Sensor Web Server Database Model - Hibernate Types under The Apache Software License, Version 2.0
   Sensor Web Server Helgoland - IO module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - PDF report structure under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - REST module under GNU General Public License, Version 2.0

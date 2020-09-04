@@ -253,7 +253,6 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
         return (E) Hibernate.unproxy(dataEntity);
     }
 
-
     protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
        return format(value, dataset.getNumberOfDecimals());
     }
@@ -273,5 +272,9 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
             return result;
         }
         return null;
+    }
+
+    protected Long getCount(DatasetEntity dataset, DbQuery query, Session session) {
+        return createDataDao(session).getCount(dataset);
     }
 }

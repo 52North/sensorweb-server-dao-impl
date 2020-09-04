@@ -34,6 +34,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.bool.BooleanValue;
+import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.BooleanDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -43,7 +44,8 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "boolean", datasetEntityType = DatasetEntity.class)
-public class BooleanDataRepository extends AbstractDataRepository<BooleanDataEntity, BooleanValue, Boolean> {
+public class BooleanDataRepository
+        extends AbstractDataRepository<DatasetEntity, BooleanDataEntity, BooleanValue, Boolean> {
 
     public BooleanDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

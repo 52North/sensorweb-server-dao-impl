@@ -26,34 +26,41 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.dao;
+package org.n52.series.db.dao;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.OfferingEntity;
-import org.n52.series.db.beans.i18n.I18nOfferingEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.n52.series.db.beans.TagEntity;
+import org.n52.series.db.beans.i18n.I18nTagEntity;
 
-@Transactional
-public class OfferingDao extends ParameterDao<OfferingEntity, I18nOfferingEntity> {
+public class TagDao extends ParameterDao<TagEntity, I18nTagEntity> {
 
-    public OfferingDao(Session session) {
+    private static final String DATASET_PROPERTY = "tags";
+
+    public TagDao(Session session) {
         super(session);
     }
 
     @Override
     protected String getDatasetProperty() {
-        return DatasetEntity.PROPERTY_OFFERING;
+        return DATASET_PROPERTY;
     }
 
     @Override
-    protected Class<OfferingEntity> getEntityClass() {
-        return OfferingEntity.class;
+    protected Class<TagEntity> getEntityClass() {
+        return TagEntity.class;
     }
 
     @Override
-    protected Class<I18nOfferingEntity> getI18NEntityClass() {
-        return I18nOfferingEntity.class;
+    protected Class<I18nTagEntity> getI18NEntityClass() {
+        return I18nTagEntity.class;
+    }
+
+    @Override
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        Criteria criteria = session.createCriteria(clazz);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return criteria;
     }
 
 }

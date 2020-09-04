@@ -89,6 +89,7 @@ public class DbQuery {
         this(parameters, CRSUtils.DEFAULT_CRS);
     }
 
+    private boolean includeHierarchy = true;
     public DbQuery(final IoParameters parameters, final String databaseSridCode) {
         if (parameters != null) {
             this.parameters = parameters;
@@ -166,7 +167,11 @@ public class DbQuery {
         return parameters.getTimespan().toInterval();
     }
 
-    public Geometry getSpatialFilter() {
+    public Integer getLevel() {
+        return parameters.getLevel();
+    }
+
+    public Envelope getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
             CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
@@ -294,7 +299,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
-        // Set<String> series = parameters.getSeries();
+        Set<String> tags = parameters.getTags();
 
         Set<String> samplings = parameters.getSamplings();
         Set<String> measuringPrograms = parameters.getMeasuringPrograms();
@@ -303,8 +308,15 @@ public class DbQuery {
                 ? hasValues(samplings) || hasValues(measuringPrograms)
                 : false;
 
-        if (!(hasValues(platforms) || hasValues(phenomena) || hasValues(procedures) || hasValues(offerings)
-                || hasValues(features) || hasValues(categories) || hasValues(datasets) || samplingSupported)) {
+        if (!(hasValues(platforms)
+                || hasValues(phenomena)
+                || hasValues(procedures)
+                || hasValues(offerings)
+                || hasValues(features)
+                || hasValues(categories)
+                || hasValues(datasets)
+                || hasValues(tags)
+                || samplingSupported)) {
             // no subquery neccessary
             return criteria;
         }
@@ -317,15 +329,15 @@ public class DbQuery {
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         // FIXME check for simple or full db models
-        // addHierarchicalFilterRestriction(procedures,
-        // DatasetEntity.PROPERTY_PROCEDURE, filter, "p_");
-        // addHierarchicalFilterRestriction(offerings,
-        // DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-        // addHierarchicalFilterRestriction(features,
-        // DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
-        addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-        addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-        addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        if (isIncludeHierarchy()) {
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+        } else {
+            addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+            addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+            addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        }
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
         if (samplingSupported) {
@@ -338,7 +350,7 @@ public class DbQuery {
                         + SamplingProfileDatasetEntity.PROPERTY_MEASURING_PROGRAMS, filter);
             }
         }
-        // addFilterRestriction(series, filter);
+        addFilterRestriction(tags, DatasetEntity.PROPERTY_TAGS, filter);
 
         addFilterRestriction(datasets, filter);
 
@@ -403,20 +415,6 @@ public class DbQuery {
         return (values != null) && !values.isEmpty();
     }
 
-    // private Set<String> getStationaryIds(Set<String> platforms) {
-    // return platforms.stream()
-    // .filter(PlatformType::isStationaryId)
-    // .map(PlatformType::extractId)
-    // .collect(toSet());
-    // }
-    //
-    // private Set<String> getMobileIds(Set<String> platforms) {
-    // return platforms.stream()
-    // .filter(PlatformType::isMobileId)
-    // .map(PlatformType::extractId)
-    // .collect(toSet());
-    // }
-
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
             criteria.add(parameters.getResultTimes().stream().map(Instant::parse).map(Instant::toDate)
@@ -469,6 +467,22 @@ public class DbQuery {
 
     public boolean expandWithNextValuesBeyondInterval() {
         return parameters.isExpandWithNextValuesBeyondInterval();
+    }
+
+    /**
+     * @return the includeHierarchy
+     */
+    public boolean isIncludeHierarchy() {
+        return includeHierarchy;
+    }
+
+    /**
+     * @param includeHierarchy the includeHierarchy to set
+     * @return
+     */
+    public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
+        this.includeHierarchy = includeHierarchy;
+        return this;
     }
 
 }

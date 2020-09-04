@@ -58,10 +58,11 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<MeasuringProgramEntity> find(DbQuery query) {
+    public List<MeasuringProgramEntity> find(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -71,10 +72,11 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<MeasuringProgramEntity> getAllInstances(DbQuery query) {
+    public List<MeasuringProgramEntity> getAllInstances(DbQuery q) {
         if (!DataModelUtil.isEntitySupported(getEntityClass(), session)) {
             return Collections.emptyList();
         }
+        DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
@@ -108,8 +110,6 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
 
     @Override
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-//        String nonNullAlias = alias != null ? alias : getDefaultAlias();
-//        Criteria criteria = session.createCriteria(clazz, nonNullAlias);
         Criteria criteria = session.createCriteria(clazz);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return criteria;

@@ -30,6 +30,7 @@ package org.n52.series.db.old.da;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +67,7 @@ public abstract class HierarchicalParameterAssembler<E extends HierarchicalEntit
     @Override
     protected List<O> createCondensed(Collection<E> entities, DbQuery query, Session session) {
         return entities == null
-                ? new ArrayList<>()
+                ? Collections.emptyList()
                 : entities.stream()
                           .map(entity -> createCondensed(entity, query, session))
                           .collect(Collectors.toList());

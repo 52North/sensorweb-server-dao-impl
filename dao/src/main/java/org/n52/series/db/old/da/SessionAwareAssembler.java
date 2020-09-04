@@ -27,11 +27,18 @@
  * for more details.
  */
 
-package org.n52.series.db.old.da;
-
+import java.time.ZoneOffset;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
@@ -47,13 +54,18 @@ import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.io.response.TagOutput;
+import org.n52.io.response.TimeOutput;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.TimeOutputCreator;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
+import org.n52.series.db.beans.HibernateRelations;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
@@ -72,9 +84,8 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareAssembler.class);
 
-    // via xml or db
-    @Autowired(required = false)
-    protected ServiceEntity serviceEntity;
+    @Autowired
+    protected ServiceEntityFactory serviceEntityFactory;
 
     protected final DbQueryFactory dbQueryFactory;
 
@@ -140,7 +151,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         }
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(List<DatasetEntity> series,
+    protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
                                                                   DbQuery parameters) {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
         for (DatasetEntity timeseries : series) {
@@ -173,6 +184,9 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
         metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
         metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
+        if (dataset.hasTagss()) {
+            metadata.setTags(getCondensedTags(dataset.getTags(), query));
+        }
         return metadata;
     }
 
@@ -202,11 +216,16 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         return createCondensed(new OfferingOutput(), entity, parameters);
     }
 
+
+    protected ServiceEntity getServiceEntity() {
+        return serviceEntityFactory.getServiceEntity();
+    }
+
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
         return entity.getService() != null
             ? entity.getService()
-            : serviceEntity;
+            : getServiceEntity();
     }
 
     protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
@@ -257,12 +276,33 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
+    protected Collection<ParameterOutput> getCondensedTags(Set<TagEntity> tags, DbQuery parameters) {
+        SortedSet<ParameterOutput> output = new TreeSet<>();
+        if (tags != null && !tags.isEmpty()) {
+           tags.forEach(t -> {
+               output.add(getCondensedTag(t, parameters));
+           });
+        }
+        return output;
+    }
+
+    protected TagOutput getCondensedTag(TagEntity tag, DbQuery parameters) {
+        return createCondensed(new TagOutput(), tag, parameters);
+    }
+
+    protected List<DatasetOutput<?>> getCondensedDataset(HibernateRelations.HasDatasets hasDatasets, DbQuery query,
+            Session session) {
+        return hasDatasets.hasDatasets() ? hasDatasets.getDatasets().stream()
+                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
+                .collect(Collectors.toList()) : new LinkedList<>();
+    }
+
     protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
         return createCondensed(new CategoryOutput(), entity, parameters);
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((serviceEntity == null) && (entity == null)) {
+        if ((getServiceEntity() == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }

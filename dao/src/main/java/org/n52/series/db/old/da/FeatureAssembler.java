@@ -28,9 +28,17 @@
  */
 package org.n52.series.db.old.da;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.old.HibernateSessionStore;
@@ -75,13 +83,55 @@ public class FeatureAssembler extends HierarchicalParameterAssembler<FeatureEnti
 
     @Override
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
+        return createExpanded(entity, query, false, false, query.getLevel(), session);
+    }
+
+    protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, boolean isParent, boolean isChild,
+            Integer level, Session session) {
         FeatureOutput result = createCondensed(entity, query, session);
         ServiceOutput service = (query.getHrefBase() != null)
                 ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
                 : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        result.setValue(FeatureOutput.PROPERTIES, result.getLabel(), query.getParameters(), result::setLabel);
+        if (!isParent && !isChild) {
+            Class<DatasetEntity> clazz = DatasetEntity.class;
+            DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+            List<DatasetEntity> series = seriesDao.getInstancesWith(entity, query);
+            Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+            result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result::setDatasets);
+        }
+        if (!isParent && !isChild && entity.hasParents()) {
+            List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false, session);
+            result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), result::setParents);
+        }
+        if (level != null && level > 0) {
+            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                List<FeatureOutput> children =
+                        getMemberList(entity.getChildren(), query, level - 1, false, true, session);
+                result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                        result::setChildren);
+            }
+
+        }
         return result;
+    }
+
+    private List<FeatureOutput> getMemberList(Set<FeatureEntity> entities, DbQuery query, Integer level,
+            boolean isNotParent, boolean isNotChild, Session session) {
+        List<FeatureOutput> list = new LinkedList<>();
+        for (FeatureEntity e : entities) {
+            list.add(createExpanded(e, query, isNotParent, isNotChild, level, session));
+        }
+        return list;
+    }
+
+    private boolean hasFilterParameter(DbQuery query) {
+        IoParameters parameters = query.getParameters();
+        return parameters.containsParameter(Parameters.DATASETS) || parameters.containsParameter(Parameters.CATEGORIES)
+                || parameters.containsParameter(Parameters.OFFERINGS)
+                || parameters.containsParameter(Parameters.PHENOMENA)
+                || parameters.containsParameter(Parameters.PLATFORMS)
+                || parameters.containsParameter(Parameters.PROCEDURES);
     }
 
 }

@@ -19,7 +19,7 @@
                 </property>
             </bean>
         </property>
-        <property name="enabled" value="${job.scheduler.enabled}" />
+        <property name="enabled" value="${job.scheduler.enabled:false}" />
         <property name="startupDelayInSeconds" value="5" />
         <property name="scheduledJobs">
             <list>
@@ -38,7 +38,7 @@
         <!-- http://quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/tutorial-lesson-06 -->
         <property name="cronExpression" value="0 0 03 * * ?" />
         <property name="triggerAtStartup" value="true" />
-        <property name="enabled" value="${job.scheduler.task.prerendering.enabled}" />
+        <property name="enabled" value="${job.scheduler.task.prerendering.enabled:true}" />
 
     </bean>
 

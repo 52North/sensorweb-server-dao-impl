@@ -65,7 +65,8 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
-public class QuantityDataRepository extends AbstractDataRepository<QuantityDataEntity, QuantityValue, BigDecimal> {
+public class QuantityDataRepository
+        extends AbstractNumericalDataRepository<QuantityDataEntity, QuantityValue, BigDecimal> {
 
     public QuantityDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

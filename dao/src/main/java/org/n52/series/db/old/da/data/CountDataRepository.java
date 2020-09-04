@@ -44,7 +44,7 @@ import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository
-        extends AbstractDataRepository<CountDataEntity, CountValue, Integer> {
+        extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
 
     public CountDataRepository(HibernateSessionStore sessionStore,
                                DbQueryFactory dbQueryFactory) {
