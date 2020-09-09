@@ -39,10 +39,8 @@ import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.io.response.OptionalOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.AggregationOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.IndividualObservationOutput;
@@ -72,7 +70,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-//@Component
+// @Component
 public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAssembler
         implements OutputAssembler<DatasetOutput<V>> {
 
@@ -80,8 +78,8 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
 
-    public DatasetAssembler(DataRepositoryTypeFactory dataRepositoryFactory,
-            HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
+    public DatasetAssembler(DataRepositoryTypeFactory dataRepositoryFactory, HibernateSessionStore sessionStore,
+            DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.dataRepositoryFactory = dataRepositoryFactory;
     }
@@ -223,7 +221,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         IoParameters parameters = query.getParameters();
 
         if (dataset.getService() == null) {
-            dataset.setService(serviceEntity);
+            dataset.setService(getServiceEntity());
         }
         DatasetOutput<V> result = new DatasetOutput();
 
@@ -271,16 +269,16 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
 
     private String getCollectionName(DatasetEntity dataset) {
         switch (dataset.getDatasetType()) {
-        case individualObservation:
-            return IndividualObservationOutput.COLLECTION_PATH;
-        case trajectory:
-            return TrajectoryOutput.COLLECTION_PATH;
-        case profile:
-            return ProfileOutput.COLLECTION_PATH;
-        case timeseries:
-            return TimeseriesMetadataOutput.COLLECTION_PATH;
-        default:
-            return DatasetOutput.COLLECTION_PATH;
+            case individualObservation:
+                return IndividualObservationOutput.COLLECTION_PATH;
+            case trajectory:
+                return TrajectoryOutput.COLLECTION_PATH;
+            case profile:
+                return ProfileOutput.COLLECTION_PATH;
+            case timeseries:
+                return TimeseriesMetadataOutput.COLLECTION_PATH;
+            default:
+                return DatasetOutput.COLLECTION_PATH;
         }
     }
 
@@ -293,9 +291,8 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
         dataset.setService(getServiceEntity(dataset));
 
-        ValueAssembler<?, V, ?> assembler;
         try {
-            assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory
+            ValueAssembler<?, V, ?> assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory
                     .create(dataset.getObservationType().name(), dataset.getValueType().name(), DatasetEntity.class);
             V firstValue = assembler.getFirstValue(dataset, query);
             V lastValue = assembler.getLastValue(dataset, query);
@@ -310,54 +307,12 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-
-        if (query.getParameters().containsParameter(Parameters.AGGREGATION)
-                && dataRepository instanceof AbstractDataRepository) {
-            Set<String> aggParams = query.getParameters().getAggregation();
-            AggregationOutput<V> aggregation = new AggregationOutput<>();
-            addCount(aggregation, aggParams, (AbstractDataRepository<DatasetEntity, ?, V, ?>) dataRepository, dataset,
-                    query, session);
-            if (checkNumerical(dataset) && dataRepository instanceof AbstractNumericalDataRepository) {
-                addAggregation(aggregation, aggParams, (AbstractNumericalDataRepository<?, V, ?>) dataRepository,
-                        dataset, query, session);
-            }
-            if (!aggregation.isEmpty()) {
-                result.setValue(DatasetOutput.AGGREGATION, aggregation, params, result::setAggregations);
-            }
+        } catch (DatasetFactoryException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         return result;
-    }
-
-    private void addCount(AggregationOutput<V> aggregation, Set<String> params,
-            AbstractDataRepository<DatasetEntity, ?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
-            Session session) {
-        if (params.isEmpty() || params.contains("count")) {
-            aggregation.setCount(OptionalOutput.of(dataRepository.getCount(dataset, query, session)));
-        }
-    }
-
-    private void addAggregation(AggregationOutput<V> aggregation, Set<String> params,
-            AbstractNumericalDataRepository<?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
-            Session session) {
-        if (params.isEmpty() || params.contains("max")) {
-            aggregation.setMax(OptionalOutput.of(dataRepository.getMax(dataset, query, session)));
-        }
-        if (params.isEmpty() || params.contains("min")) {
-            aggregation.setMin(OptionalOutput.of(dataRepository.getMin(dataset, query, session)));
-        }
-        if (params.isEmpty() || params.contains("avg")) {
-            aggregation.setAvg(OptionalOutput.of(dataRepository.getAverage(dataset, query, session)));
-        }
-    }
-
-    private boolean checkNumerical(DatasetEntity dataset) {
-        return ValueType.quantity.equals(dataset.getValueType()) || ValueType.count.equals(dataset.getValueType());
-    }
-
-    private DataRepository<DatasetEntity, ?, V, ?> getDataRepositoryFactory(DatasetEntity dataset) {
-        return dataRepositoryFactory.create(dataset.getObservationType().name(), dataset.getValueType().name(),
-                DatasetEntity.class);
     }
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
@@ -394,6 +349,6 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         } finally {
             returnSession(session);
         }
-}
+    }
 
 }

@@ -48,7 +48,7 @@ import org.n52.series.db.repositories.core.DataRepository;
 import org.n52.series.db.repositories.core.DatasetRepository;
 
 @ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
-public class CountValueAssembler extends AbstractValueAssembler<CountDataEntity, CountValue, Integer> {
+public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDataEntity, CountValue, Integer> {
 
     public CountValueAssembler(DataRepository<CountDataEntity> dataRepository,
             DatasetRepository datasetRepository) {
@@ -154,4 +154,5 @@ public class CountValueAssembler extends AbstractValueAssembler<CountDataEntity,
         String referenceDatasetId = dataset.getId();
         return referenceDatasetId.toString();
     }
+
 }

@@ -46,7 +46,7 @@ public class ParameterOutputSearchResultMapper implements OutputMapper {
     protected final DbQuery query;
 
     public ParameterOutputSearchResultMapper(final DbQuery query) {
-        this.query = query == null ? new DefaultDbQueryFactory().createDefault() : query;
+        this.query = query == null ? new DefaultDbQueryFactory().createFrom(IoParameters.createDefaults()) : query;
     }
 
     @Override

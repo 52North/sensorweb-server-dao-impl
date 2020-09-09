@@ -32,9 +32,10 @@ import org.n52.io.request.IoParameters;
 
 public interface DbQueryFactory {
 
-
-    DbQuery createDefault();
-
     DbQuery createFrom(IoParameters parameters);
+
+    String getDatabaseSrid();
+
+    void setDatabaseSrid(String databaseSrid);
 
 }

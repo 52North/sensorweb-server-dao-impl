@@ -42,16 +42,19 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     private String databaseSrid = "EPSG:4326";
     private Integer epsgCode;
 
-    @Override
-    public DbQuery createFrom(IoParameters parameters) {
-        DbQuery query = new DbQuery(parameters);
-        query.setDatabaseSridCode(getDatabaseSrid());
-        return query;
+    public DefaultDbQueryFactory() {
     }
 
     public DefaultDbQueryFactory(String srid) {
         Objects.requireNonNull(srid, "srid is null");
         this.databaseSrid = srid;
+    }
+
+    @Override
+    public DbQuery createFrom(IoParameters parameters) {
+        DbQuery query = new DbQuery(parameters);
+        query.setDatabaseSridCode(getDatabaseSrid());
+        return query;
     }
 
     @Override
@@ -70,4 +73,5 @@ public class DefaultDbQueryFactory implements DbQueryFactory {
     public void setStorageEpsg(int epsgCode) {
         this.epsgCode = epsgCode;
     }
+
 }

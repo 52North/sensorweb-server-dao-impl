@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.query;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,8 +64,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     /**
-     * Matches data entities belonging to a given dataset and applying query via
-     * {@link #matchFilters()}
+     * Matches data entities belonging to a given dataset and applying query via {@link #matchFilters()}
      *
      * @param dataset
      *            the dataset
@@ -149,8 +149,8 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      *  where dataset.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where dataset.identifier in (&lt;ids&gt;)
@@ -158,8 +158,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DataEntity> matchDatasets(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -192,6 +191,58 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
     }
 
+    public Long count(DatasetEntity dataset, EntityManager entityManager) {
+        // Criteria c =
+        // getDefaultCriteria().add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()))
+        // .setProjection(Projections.rowCount());
+        // return (Long) c.uniqueResult();
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(builder.count(root));
+        query.where(matchDatasets(dataset.getId()).toPredicate(root, query, builder));
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    public DataEntity min(DatasetEntity dataset, EntityManager entityManager) {
+        // Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        // addDatasetRestriction(c, dataset);
+        // DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        // filter.setProjection(Projections.min(DataEntity.PROPERTY_VALUE));
+        // filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        // c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        // return (T) c.setMaxResults(1).uniqueResult();
+
+        // TODO: impl min query
+        return null;
+    }
+
+    public DataEntity max(DatasetEntity dataset, EntityManager entityManager) {
+        // Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
+        // addDatasetRestriction(c, dataset);
+        // DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
+        // filter.setProjection(Projections.max(DataEntity.PROPERTY_VALUE));
+        // filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
+        // c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
+        // return (T) c.setMaxResults(1).uniqueResult();
+
+        // TODO: impl max query
+        return null;
+    }
+
+    public BigDecimal average(DatasetEntity dataset, EntityManager entityManager) {
+        // Criteria c = getDefaultCriteria();
+        // addDatasetRestriction(c, dataset);
+        // c.setProjection(Projections.avg(DataEntity.PROPERTY_VALUE));
+        // return BigDecimal.valueOf((Double) c.uniqueResult());
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Double> query = builder.createQuery(Double.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(builder.avg(root.get(DataEntity.PROPERTY_VALUE)));
+        query.where(matchDatasets(dataset.getId()).toPredicate(root, query, builder));
+        return BigDecimal.valueOf(entityManager.createQuery(query).getSingleResult());
+    }
+
     private Specification<DataEntity> matcheBefore(Date date) {
         return (root, query, builder) -> {
             return builder.lessThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), date);
@@ -205,15 +256,14 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     /**
-     * Matches datasets which have a feature laying within the given bbox using
-     * an intersects query. For example:
+     * Matches datasets which have a feature laying within the given bbox using an intersects query. For
+     * example:
      *
      * <pre>
      *   where ST_INTERSECTS(feature.geom, &lt;filter_geometry&gt;)=1
      * </pre>
      *
-     * @return a boolean expression or {@literal null} when given spatial filter
-     *         is {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
      */
     public Specification<DataEntity> matchesSpatially() {
         final Geometry geometry = dbQuery.getSpatialFilter();

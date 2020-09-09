@@ -81,15 +81,16 @@ public class DbQuery {
 
     private final GeometryFactory geometryFactory;
 
-    private final String databaseSridCode;
+    private String databaseSridCode;
 
     private IoParameters parameters = IoParameters.createDefaults();
+
+    private boolean includeHierarchy = true;
 
     public DbQuery(final IoParameters parameters) {
         this(parameters, CRSUtils.DEFAULT_CRS);
     }
 
-    private boolean includeHierarchy = true;
     public DbQuery(final IoParameters parameters, final String databaseSridCode) {
         if (parameters != null) {
             this.parameters = parameters;
@@ -151,6 +152,10 @@ public class DbQuery {
         return databaseSridCode;
     }
 
+    public void setDatabaseSridCode(String databaseSridCode) {
+        this.databaseSridCode = databaseSridCode;
+    }
+
     public String getHrefBase() {
         return parameters.getHrefBase();
     }
@@ -171,7 +176,7 @@ public class DbQuery {
         return parameters.getLevel();
     }
 
-    public Envelope getSpatialFilter() {
+    public Geometry getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
             CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
@@ -308,14 +313,8 @@ public class DbQuery {
                 ? hasValues(samplings) || hasValues(measuringPrograms)
                 : false;
 
-        if (!(hasValues(platforms)
-                || hasValues(phenomena)
-                || hasValues(procedures)
-                || hasValues(offerings)
-                || hasValues(features)
-                || hasValues(categories)
-                || hasValues(datasets)
-                || hasValues(tags)
+        if (!(hasValues(platforms) || hasValues(phenomena) || hasValues(procedures) || hasValues(offerings)
+                || hasValues(features) || hasValues(categories) || hasValues(datasets) || hasValues(tags)
                 || samplingSupported)) {
             // no subquery neccessary
             return criteria;
@@ -477,7 +476,8 @@ public class DbQuery {
     }
 
     /**
-     * @param includeHierarchy the includeHierarchy to set
+     * @param includeHierarchy
+     *            the includeHierarchy to set
      * @return
      */
     public DbQuery setIncludeHierarchy(boolean includeHierarchy) {

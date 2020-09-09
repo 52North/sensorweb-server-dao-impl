@@ -35,6 +35,8 @@ import static org.n52.series.test.OfferingBuilder.newOffering;
 import static org.n52.series.test.PhenomenonBuilder.newPhenomenon;
 import static org.n52.series.test.ProcedureBuilder.newProcedure;
 
+import java.util.UUID;
+
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;

@@ -67,8 +67,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         implements ValueAssembler<E, V, T>, TimeOutputCreator {
 
     /**
-     * Preconfigured service entity. Alternative to accessing service entities
-     * from a database (in case there data model and mappings supports it).
+     * Preconfigured service entity. Alternative to accessing service entities from a database (in case there
+     * data model and mappings supports it).
      *
      * @see #assertServiceAvailable(DescribableEntity)
      */
@@ -129,18 +129,15 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     /**
-     * Assembles an expanded view of data values. An expanded view may include
-     * for example
+     * Assembles an expanded view of data values. An expanded view may include for example
      * <ul>
      * <li>Reference values</li>
      * <li>First values beyond requested timespan interval</li>
      * <li>Further output for each data value</li>
      * </ul>
      *
-     * By default this returns the output of
-     * {@link #assembleDataValues(DatasetEntity, DbQuery)}. Implementations may
-     * override this method to include all metadata necessary for an expanded
-     * output.
+     * By default this returns the output of {@link #assembleDataValues(DatasetEntity, DbQuery)}.
+     * Implementations may override this method to include all metadata necessary for an expanded output.
      *
      * @param dataset
      *            the dataset
@@ -186,8 +183,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     /**
-     * Prepares data value by setting time/time interval depending on actual
-     * query.
+     * Prepares data value by setting time/time interval depending on actual query.
      *
      * @param <O>
      *            the type of the assembled output value
@@ -291,7 +287,16 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         // e.g. filter by bbox and get closest data point^
 
         DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
-        return (E) dataFilterSpec.matchClosestAfterEnd(dataset, entityManager).orElse(null);
+        return (E) dataFilterSpec.matchClosestAfterEnd(dataset, getEntityManager()).orElse(null);
+    }
+
+    public Long getCount(DatasetEntity dataset, DbQuery query) {
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
+        return dataFilterSpec.count(dataset, getEntityManager());
+    }
+
+    protected EntityManager getEntityManager() {
+        return entityManager;
     }
 
     protected boolean hasValidEntriesWithinRequestedTimespan(List<?> observations) {

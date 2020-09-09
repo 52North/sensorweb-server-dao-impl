@@ -28,49 +28,47 @@
  */
 package org.n52.series.db.assembler.core;
 
-import org.n52.io.response.PhenomenonOutput;
+import org.n52.io.response.TagOutput;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.query.PhenomenonQuerySpecifications;
+import org.n52.series.db.query.TagQuerySpecifications;
 import org.n52.series.db.repositories.core.DatasetRepository;
-import org.n52.series.db.repositories.core.PhenomenonRepository;
-import org.n52.series.spi.search.PhenomenonSearchResult;
+import org.n52.series.db.repositories.core.TagRepository;
+import org.n52.series.spi.search.TagSearchResult;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
-@Component
-public class PhenomenonAssembler
-        extends HierarchicalAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
+public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput, TagSearchResult> {
 
-    public PhenomenonAssembler(PhenomenonRepository phenomenonRepository, DatasetRepository datasetRepository) {
-        super(phenomenonRepository, datasetRepository);
+    public TagAssembler(TagRepository tagRepository, DatasetRepository datasetRepository) {
+        super(tagRepository, datasetRepository);
     }
 
     @Override
-    protected PhenomenonOutput prepareEmptyOutput() {
-        return new PhenomenonOutput();
+    protected TagOutput prepareEmptyOutput() {
+        return new TagOutput();
     }
 
     @Override
-    protected PhenomenonSearchResult prepareEmptySearchResult() {
-        return new PhenomenonSearchResult();
+    protected TagSearchResult prepareEmptySearchResult() {
+        return new TagSearchResult();
     }
 
     @Override
-    protected Specification<PhenomenonEntity> createFilterPredicate(DbQuery query) {
+    public Specification<TagEntity> createFilterPredicate(DbQuery query) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        PhenomenonQuerySpecifications pFilterSpec = PhenomenonQuerySpecifications.of(query);
-        return pFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        TagQuerySpecifications cFilterSpec = TagQuerySpecifications.of(query);
+        return cFilterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override
-    protected Specification<PhenomenonEntity> createPublicPredicate(String id, DbQuery query) {
+    protected Specification<TagEntity> createPublicPredicate(String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
         final Specification<DatasetEntity> datasetPredicate =
-                dsFilterSpec.matchPhenomena(id).and(dsFilterSpec.isPublic());
-        PhenomenonQuerySpecifications filterSpec = PhenomenonQuerySpecifications.of(query);
+                dsFilterSpec.matchCategory(id).and(dsFilterSpec.isPublic());
+        TagQuerySpecifications filterSpec = TagQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 }

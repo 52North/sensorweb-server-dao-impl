@@ -50,7 +50,9 @@ import org.n52.series.db.repositories.core.DataRepository;
 import org.n52.series.db.repositories.core.DatasetRepository;
 
 @ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
-public class QuantityValueAssembler extends AbstractValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> {
+public class QuantityValueAssembler extends AbstractNumericalValueAssembler<QuantityDataEntity,
+                                                                            QuantityValue,
+                                                                            BigDecimal> {
 
     public QuantityValueAssembler(DataRepository<QuantityDataEntity> dataRepository,
             DatasetRepository datasetRepository) {

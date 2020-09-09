@@ -139,8 +139,8 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
 
     @Override
     protected List<ServiceEntity> getAllInstances(DbQuery parameters, Session session) {
-        return serviceEntity != null
-            ? Collections.singletonList(serviceEntity)
+        return getServiceEntity() != null
+            ? Collections.singletonList(getServiceEntity())
             : createDao(session).getAllInstances(parameters);
     }
 
@@ -148,7 +148,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
     protected Optional<ServiceEntity> getEntity(Long id, AbstractDao<ServiceEntity> dao, DbQuery query) {
         ServiceEntity result = !isConfiguredServiceInstance(id)
             ? dao.getInstance(id, query)
-            : serviceEntity;
+            : getServiceEntity();
         if (result == null) {
             LOGGER.debug("Resource with id '" + id + "' could not be found.");
         }

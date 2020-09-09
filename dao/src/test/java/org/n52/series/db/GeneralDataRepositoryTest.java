@@ -36,6 +36,7 @@ import static org.n52.io.request.Parameters.FILTER_VALUE_TYPES;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,7 @@ public class GeneralDataRepositoryTest extends TestBase {
         dataEntity.setSamplingTimeStart(new Date());
         dataEntity.setSamplingTimeEnd(new Date()); // XXX why is this required?
         dataEntity.setResultTime(new Date()); // XXX why is this required?
+        dataEntity.setStaIdentifier(UUID.randomUUID().toString());
         QuantityDataEntity persisted = dataRepository.saveAndFlush(dataEntity);
 
         assertAll("Query quantity data", () -> {

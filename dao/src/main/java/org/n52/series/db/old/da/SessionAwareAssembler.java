@@ -26,17 +26,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+package org.n52.series.db.old.da;
 
-import java.time.ZoneOffset;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -55,11 +53,10 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.TagOutput;
-import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
-import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.ServiceEntityFactory;
+import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -71,6 +68,7 @@ import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
@@ -209,7 +207,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery query) {
         return entity != null
             ? createCondensed(new ServiceOutput(), entity, query)
-            : createCondensed(new ServiceOutput(), serviceEntity, query);
+            : createCondensed(new ServiceOutput(), getServiceEntity(), query);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {

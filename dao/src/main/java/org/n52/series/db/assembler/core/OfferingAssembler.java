@@ -29,7 +29,6 @@
 package org.n52.series.db.assembler.core;
 
 import org.n52.io.response.OfferingOutput;
-import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.old.dao.DbQuery;
@@ -42,7 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
+public class OfferingAssembler extends HierarchicalAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
 
     public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);

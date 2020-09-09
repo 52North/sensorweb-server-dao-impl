@@ -29,16 +29,17 @@
 package org.n52.series.db.assembler.core;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.n52.io.request.Parameters;
 import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.OptionalOutput;
+import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -103,11 +104,33 @@ public class FeatureAssembler
 
     @Override
     protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
+        return createExpanded(entity, query, false, false, query.getLevel());
+    }
+
+    protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query, boolean isParent,
+            boolean isChild, Integer level) {
         FeatureOutput result = super.createExpanded(entity, query);
-        result.setValue(FeatureOutput.PROPERTIES, result.getLabel(), query.getParameters(), result::setLabel);
-        result.setDatasets(OptionalOutput.of(createDatasetParameters(datasetAssembler.getAllExpanded(
-                new DbQuery(query.getParameters().extendWith(Parameters.FEATURES, entity.getId().toString()))))));
+        if (!isParent && !isChild && entity.hasParents()) {
+            List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false);
+            result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), result::setParents);
+        }
+        if (level != null && level > 0) {
+            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                List<FeatureOutput> children = getMemberList(entity.getChildren(), query, level - 1, false, true);
+                result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                        result::setChildren);
+            }
+        }
         return result;
+    }
+
+    private List<FeatureOutput> getMemberList(Set<AbstractFeatureEntity> entities, DbQuery query, Integer level,
+            boolean isNotParent, boolean isNotChild) {
+        List<FeatureOutput> list = new LinkedList<>();
+        for (AbstractFeatureEntity e : entities) {
+            list.add(createExpanded(e, query, isNotParent, isNotChild, level));
+        }
+        return list;
     }
 
     private Map<String, DatasetParameters> createDatasetParameters(List<?> datasets) {

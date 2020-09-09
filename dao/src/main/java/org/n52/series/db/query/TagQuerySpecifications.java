@@ -28,50 +28,43 @@
  */
 package org.n52.series.db.query;
 
-import java.util.Collection;
-import java.util.Date;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.n52.io.request.IoParameters;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DefaultDbQueryFactory;
-import org.n52.series.db.old.dao.QueryUtils;
+import org.springframework.data.jpa.domain.Specification;
 
-public abstract class QuerySpecifications {
+public final class TagQuerySpecifications extends ParameterQuerySpecifications {
 
-    protected final DbQuery dbQuery;
-
-    protected final EntityManager entityManager;
-
-    protected QuerySpecifications(final DbQuery dbQuery, EntityManager entityManager) {
-        this.dbQuery =
-                dbQuery == null ? new DefaultDbQueryFactory().createFrom(IoParameters.createDefaults()) : dbQuery;
-        this.entityManager = entityManager;
+    private TagQuerySpecifications(DbQuery dbQuery) {
+        super(dbQuery, null);
     }
 
-    protected Date getTimespanStart() {
-        DateTime start = getTimespan().getStart();
-        return start.toDate();
+    public static TagQuerySpecifications of(DbQuery dbQuery) {
+        return new TagQuerySpecifications(dbQuery);
     }
 
-    protected Date getTimespanEnd() {
-        DateTime end = getTimespan().getEnd();
-        return end.toDate();
+    /**
+     * Matches phenomena included in a result of a given filter, i.e.
+     *
+     * <pre>
+     *   where id in (select fk_category_id from dataset where &lt;filter&gt;)
+     * </pre>
+     *
+     * @param filter
+     *            the query
+     * @return a boolean expression
+     */
+    public Specification<TagEntity> selectFrom(final Specification<DatasetEntity> filter) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_TAGS).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
     }
-
-    private Interval getTimespan() {
-        return dbQuery.getTimespan();
-    }
-
-    protected Predicate getIdPredicate(Join<?, ?> join, final Collection<String> ids) {
-        return dbQuery.isMatchDomainIds() ? join.get(DescribableEntity.PROPERTY_IDENTIFIER).in(ids)
-                : join.get(DescribableEntity.PROPERTY_ID).in(QueryUtils.parseToIds(ids));
-    }
-
 }

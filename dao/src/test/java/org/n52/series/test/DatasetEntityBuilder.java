@@ -28,6 +28,8 @@
  */
 package org.n52.series.test;
 
+import java.util.UUID;
+
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -60,6 +62,7 @@ public class DatasetEntityBuilder {
         entity.setObservationType(
                 entity.getObservationType() != null ? entity.getObservationType() : ObservationType.not_initialized);
         entity.setValueType(entity.getValueType() != null ? entity.getValueType() : ValueType.not_initialized);
+        entity.setStaIdentifier(UUID.randomUUID().toString());
         return entity;
     }
 

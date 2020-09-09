@@ -34,6 +34,7 @@ import static org.n52.io.request.Parameters.FILTER_VALUE_TYPES;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.assertj.core.util.Objects;
@@ -96,7 +97,7 @@ public class ProfileDataRepositoryTest extends TestBase {
         profileData.setSamplingTimeStart(now);
         profileData.setSamplingTimeEnd(now);
         profileData.setResultTime(now);
-
+        profileData.setStaIdentifier(UUID.randomUUID().toString());
         valueStream.map(it -> toQuantityData(dataset, it))
                    .forEach(dataRepository::save);
         return dataRepository.save(profileData);
@@ -111,6 +112,7 @@ public class ProfileDataRepositoryTest extends TestBase {
         dataEntity.setResultTime(new Date()); // XXX why is this required?
         dataEntity.setVerticalFrom(BigDecimal.valueOf(it));
         dataEntity.setVerticalTo(BigDecimal.valueOf(it));
+        dataEntity.setStaIdentifier(UUID.randomUUID().toString());
         return dataEntity;
     }
 

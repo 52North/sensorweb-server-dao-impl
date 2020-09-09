@@ -31,7 +31,6 @@ package org.n52.series.db.assembler.core;
 import javax.inject.Inject;
 
 import org.n52.io.response.ProcedureOutput;
-import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -47,7 +46,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProcedureAssembler
-        extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
+        extends HierarchicalAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
 
     @Inject
     private FormatAssembler formatAssembler;

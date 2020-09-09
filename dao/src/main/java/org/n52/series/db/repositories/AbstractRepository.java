@@ -28,7 +28,7 @@
  */
 package org.n52.series.db.repositories;
 
-import org.n52.series.db.beans.sta.AbstractStaEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -38,7 +38,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  *
  */
 @NoRepositoryBean
-public interface AbstractRepository<T extends AbstractStaEntity>
+public interface AbstractRepository<T extends DescribableEntity>
         extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
 }

@@ -30,13 +30,17 @@ package org.n52.series.db.assembler.core;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
+import org.n52.io.response.OptionalOutput;
 import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.AggregationOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ReferenceValueOutput;
@@ -44,7 +48,11 @@ import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
+import org.n52.series.db.assembler.value.AbstractNumericalValueAssembler;
+import org.n52.series.db.assembler.value.AbstractValueAssembler;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.db.query.DatasetQuerySpecifications;
@@ -118,12 +126,52 @@ public class DatasetAssembler<V extends AbstractValue<?>>
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-
+            if (query.getParameters().containsParameter(Parameters.AGGREGATION)
+                    && assembler instanceof AbstractValueAssembler) {
+                Set<String> aggParams = query.getParameters().getAggregation();
+                AggregationOutput<V> aggregation = new AggregationOutput<>();
+                addCount(aggregation, aggParams, (AbstractValueAssembler<DataEntity<?>, V, ?>) assembler, entity,
+                        query, entityManager);
+                if (checkNumerical(entity) && assembler instanceof AbstractNumericalValueAssembler) {
+                    addAggregation(aggregation, aggParams,
+                            (AbstractNumericalValueAssembler<DataEntity<?>, V, ?>) assembler, entity, query,
+                            entityManager);
+                }
+                if (!aggregation.isEmpty()) {
+                    result.setValue(DatasetOutput.AGGREGATION, aggregation, params, result::setAggregations);
+                }
+            }
         } catch (DatasetFactoryException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return result;
+    }
+
+    private void addCount(AggregationOutput<V> aggregation, Set<String> params,
+            AbstractValueAssembler<DataEntity<?>, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
+            EntityManager entityManager) {
+        if (params.isEmpty() || params.contains("count")) {
+            aggregation.setCount(OptionalOutput.of(dataRepository.getCount(dataset, query)));
+        }
+    }
+
+    private void addAggregation(AggregationOutput<V> aggregation, Set<String> params,
+            AbstractNumericalValueAssembler<DataEntity<?>, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
+            EntityManager entityManager) {
+        if (params.isEmpty() || params.contains("max")) {
+            aggregation.setMax(OptionalOutput.of(dataRepository.getMax(dataset, query)));
+        }
+        if (params.isEmpty() || params.contains("min")) {
+            aggregation.setMin(OptionalOutput.of(dataRepository.getMin(dataset, query)));
+        }
+        if (params.isEmpty() || params.contains("avg")) {
+            aggregation.setAvg(OptionalOutput.of(dataRepository.getAverage(dataset, query)));
+        }
+    }
+
+    private boolean checkNumerical(DatasetEntity dataset) {
+        return ValueType.quantity.equals(dataset.getValueType()) || ValueType.count.equals(dataset.getValueType());
     }
 
     @Override

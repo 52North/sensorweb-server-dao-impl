@@ -94,7 +94,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery q) {
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);

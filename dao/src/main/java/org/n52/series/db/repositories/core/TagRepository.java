@@ -26,41 +26,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.dao;
+package org.n52.series.db.repositories.core;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.n52.series.db.beans.TagEntity;
-import org.n52.series.db.beans.i18n.I18nTagEntity;
+import org.n52.series.db.repositories.ParameterServiceRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-public class TagDao extends ParameterDao<TagEntity, I18nTagEntity> {
-
-    private static final String DATASET_PROPERTY = "tags";
-
-    public TagDao(Session session) {
-        super(session);
-    }
-
-    @Override
-    protected String getDatasetProperty() {
-        return DATASET_PROPERTY;
-    }
-
-    @Override
-    protected Class<TagEntity> getEntityClass() {
-        return TagEntity.class;
-    }
-
-    @Override
-    protected Class<I18nTagEntity> getI18NEntityClass() {
-        return I18nTagEntity.class;
-    }
-
-    @Override
-    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-        Criteria criteria = session.createCriteria(clazz);
-        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        return criteria;
-    }
+@Transactional
+public interface TagRepository extends ParameterServiceRepository<TagEntity> {
 
 }

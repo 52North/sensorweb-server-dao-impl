@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.dao;
+package org.n52.series.db.old.dao;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -46,7 +46,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.beans.IdEntity;
@@ -60,7 +59,7 @@ public abstract class HierarchicalDao<T extends HierarchicalEntity<T>, I extends
     }
 
     @Override
-    public List<T> getAllInstances(DbQuery q) throws DataAccessException {
+    public List<T> getAllInstances(DbQuery q) {
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         Set<String> entities = getParameter(query);
         if (query.isExpanded() && query.getLevel() != null) {
@@ -96,7 +95,7 @@ public abstract class HierarchicalDao<T extends HierarchicalEntity<T>, I extends
         return super.getAllInstances(query);
     }
 
-    protected Criteria getCriteria(DbQuery query) throws DataAccessException {
+    protected Criteria getCriteria(DbQuery query) {
         Criteria c = getDefaultCriteria();
         Set<String> parameters = getParameter(query);
         if (parameters != null && !parameters.isEmpty()) {

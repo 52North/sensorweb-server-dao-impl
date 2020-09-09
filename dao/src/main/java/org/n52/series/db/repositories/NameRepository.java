@@ -30,11 +30,11 @@ package org.n52.series.db.repositories;
 
 import java.util.Optional;
 
-import org.n52.series.db.beans.sta.AbstractStaEntity;
+import org.n52.series.db.beans.DescribableEntity;
 import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
-public interface NameRepository<T extends AbstractStaEntity> extends AbstractRepository<T> {
+public interface NameRepository<T extends DescribableEntity> extends AbstractRepository<T> {
 
     boolean existsByName(String name);
 

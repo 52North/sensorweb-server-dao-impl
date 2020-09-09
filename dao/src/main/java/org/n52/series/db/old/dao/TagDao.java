@@ -26,19 +26,41 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories.core;
+package org.n52.series.db.old.dao;
 
-import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.db.repositories.ParameterDataRepository;
-import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.n52.series.db.beans.TagEntity;
+import org.n52.series.db.beans.i18n.I18nTagEntity;
 
-@Transactional
-public interface ServiceRepository extends ParameterDataRepository<ServiceEntity> {
+public class TagDao extends ParameterDao<TagEntity, I18nTagEntity> {
 
-    default ServiceEntity getInstance(ServiceEntity service) {
-        return findByNameAndUrlAndType(service.getName(), service.getUrl(), service.getType());
+    private static final String DATASET_PROPERTY = "tags";
+
+    public TagDao(Session session) {
+        super(session);
     }
 
-    ServiceEntity findByNameAndUrlAndType(String name, String url, String type);
+    @Override
+    protected String getDatasetProperty() {
+        return DATASET_PROPERTY;
+    }
+
+    @Override
+    protected Class<TagEntity> getEntityClass() {
+        return TagEntity.class;
+    }
+
+    @Override
+    protected Class<I18nTagEntity> getI18NEntityClass() {
+        return I18nTagEntity.class;
+    }
+
+    @Override
+    protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
+        Criteria criteria = session.createCriteria(clazz);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        return criteria;
+    }
 
 }

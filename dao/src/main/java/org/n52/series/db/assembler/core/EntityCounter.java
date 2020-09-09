@@ -69,6 +69,9 @@ public class EntityCounter {
     private Optional<SamplingAssembler> samplingAssembler;
 
     @Inject
+    private TagAssembler tagAssembler;
+
+    @Inject
     private DatasetAssembler<?> datasetAssembler;
 
     private final DbQueryFactory dbQueryFactory;
@@ -98,6 +101,10 @@ public class EntityCounter {
 
     public Long countCategories(DbQuery query) {
         return categoryAssembler.count(query);
+    }
+
+    public Long countTags(DbQuery query) {
+        return tagAssembler.count(query);
     }
 
     public Long countPlatforms(DbQuery query) {

@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.n52.io.request.IoParameters;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
@@ -55,7 +56,7 @@ public abstract class TestBase {
 
     @BeforeEach
     public void setUp() {
-        this.defaultQuery = new DefaultDbQueryFactory().createDefault();
+        this.defaultQuery = new DefaultDbQueryFactory().createFrom(IoParameters.createDefaults());
         this.defaultFilterSpec = DatasetQuerySpecifications.of(defaultQuery, entityManager);
     }
 

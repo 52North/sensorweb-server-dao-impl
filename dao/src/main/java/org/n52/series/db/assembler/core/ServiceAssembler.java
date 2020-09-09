@@ -63,7 +63,6 @@ import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.ServiceQuerySpecifications;
 import org.n52.series.db.repositories.ParameterDataRepository;
 import org.n52.series.db.repositories.core.DatasetRepository;
-import org.n52.series.db.repositories.core.ServiceRepository;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
 import org.n52.series.srv.OutputAssembler;
@@ -85,7 +84,7 @@ public class ServiceAssembler
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final ServiceRepository serviceRepository;
+    private final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository;
 
     private final DatasetRepository datasetRepository;
 
@@ -99,8 +98,9 @@ public class ServiceAssembler
     @Autowired(required = false)
     private ServiceEntity serviceEntity;
 
-    public ServiceAssembler(final ServiceRepository serviceRepository, final DatasetRepository datasetRepository,
-            final EntityCounter entityCounter, final DbQueryFactory dbQueryFactory,
+    public ServiceAssembler(final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository,
+            final DatasetRepository datasetRepository, final EntityCounter entityCounter,
+            final DbQueryFactory dbQueryFactory,
             DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator) {
         this.serviceRepository = serviceRepository;
         this.datasetRepository = datasetRepository;
@@ -111,7 +111,7 @@ public class ServiceAssembler
 
     @Override
     public ParameterDataRepository<ServiceEntity> getParameterRepository() {
-        return serviceRepository;
+        return serviceRepository.isPresent() ? serviceRepository.get() : null;
     }
 
     @Override
@@ -144,10 +144,10 @@ public class ServiceAssembler
         return getParameterRepository().exists(createPublicPredicate(id, query)) || serviceEntity != null;
     }
 
-    @Override
-    public void clearUnusedForService(ServiceEntity service) {
-        serviceRepository.delete(service);
-    }
+//    @Override
+//    public void clearUnusedForService(ServiceEntity service) {
+//        serviceRepository.delete(service);
+//    }
 
     public Specification<ServiceEntity> createPublicPredicate(final String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
