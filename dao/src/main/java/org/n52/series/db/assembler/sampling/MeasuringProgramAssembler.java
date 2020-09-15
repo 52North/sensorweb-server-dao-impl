@@ -47,10 +47,12 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.db.repositories.sampling.MeasuringProgramRepository;
 import org.n52.series.spi.search.MeasuringProgramSearchResult;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("sampling")
 public class MeasuringProgramAssembler extends
         ParameterDatasetOutputAssembler<MeasuringProgramEntity, MeasuringProgramOutput, MeasuringProgramSearchResult> {
 

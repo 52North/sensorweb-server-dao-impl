@@ -45,8 +45,10 @@ import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.db.repositories.sampling.SamplingRepository;
 import org.n52.series.spi.search.SamplingSearchResult;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.domain.Specification;
 
+@Profile("sampling")
 public class SamplingAssembler
         extends ParameterDatasetOutputAssembler<SamplingEntity, SamplingOutput, SamplingSearchResult> {
 

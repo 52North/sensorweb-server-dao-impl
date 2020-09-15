@@ -30,9 +30,11 @@ package org.n52.series.db.repositories.sampling;
 
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.repositories.ParameterServiceRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
+@Profile("sampling")
 public interface SamplingRepository extends ParameterServiceRepository<SamplingEntity> {
 
 }
