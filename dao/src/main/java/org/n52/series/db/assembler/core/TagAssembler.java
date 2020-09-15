@@ -39,7 +39,9 @@ import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.db.repositories.core.TagRepository;
 import org.n52.series.spi.search.TagSearchResult;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput, TagSearchResult> {
 
     public TagAssembler(TagRepository tagRepository, DatasetRepository datasetRepository) {
