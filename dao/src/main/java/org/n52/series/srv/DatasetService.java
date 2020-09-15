@@ -51,15 +51,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DatasetAccessService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
+public class DatasetService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
         implements
         DataService<Data<V>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetService.class);
 
     private final DataRepositoryTypeFactory dataFactory;
 
-    public DatasetAccessService(DataRepositoryTypeFactory dataFactory,
+    public DatasetService(DataRepositoryTypeFactory dataFactory,
                                 DatasetAssembler<V> repository,
                                 DbQueryFactory queryFactory) {
         super(repository, queryFactory);
