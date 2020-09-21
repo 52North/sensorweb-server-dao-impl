@@ -33,6 +33,8 @@ import javax.persistence.EntityManager;
 import org.n52.io.extension.RenderingHintsExtension;
 import org.n52.io.extension.StatusIntervalsExtension;
 import org.n52.io.extension.metadata.DatabaseMetadataExtension;
+import org.n52.io.extension.metadata.MetadataAssembler;
+import org.n52.io.extension.resulttime.ResultTimeAssembler;
 import org.n52.io.extension.resulttime.ResultTimeExtension;
 import org.n52.io.extension.resulttime.ResultTimeService;
 import org.n52.io.handler.DefaultIoFactory;
@@ -58,7 +60,7 @@ public class ControllerConfig {
         controller.addMetadataExtension(new LicenseExtension());
         return controller;
     }
-    
+
     @Bean
     public DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> defaultIoFactory() {
         return new DefaultIoFactory<>();
@@ -71,7 +73,7 @@ public class ControllerConfig {
     }
 
     @Bean
-    public ResultTimeExtension resultTimeExtension(EntityManager entityManager, DatasetRepository datasetRepository,
+    public ResultTimeExtension resultTimeExtension(DatasetController datasetController, EntityManager entityManager, DatasetRepository datasetRepository,
             DbQueryFactory dbQueryFactory) {
         ResultTimeAssembler repository = new ResultTimeAssembler(entityManager, datasetRepository,  dbQueryFactory);
         ResultTimeService resultTimeService = new ResultTimeService(repository);

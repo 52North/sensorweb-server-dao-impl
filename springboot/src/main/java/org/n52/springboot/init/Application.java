@@ -35,6 +35,7 @@
 package org.n52.springboot.init;
 
 import org.n52.series.db.DatabaseConfig;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

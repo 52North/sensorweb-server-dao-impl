@@ -91,15 +91,14 @@ public class WebConfig implements WebMvcConfigurer {
         final MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
         jsonView.setExtractValueFromSingleKeyModel(true);
         jsonView.setDisableCaching(false);
-        jsonView.setObjectMapper(getObjectMapper());
+        jsonView.setObjectMapper(configureObjectMapper());
         return jsonView;
     }
 
     private ObjectMapper configureObjectMapper() {
         final ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(Include.NON_NULL)
-            .configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        om.setSerializationInclusion(Include.NON_NULL).configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        return om;
     }
 
-    private ObjectMapper set
 }
