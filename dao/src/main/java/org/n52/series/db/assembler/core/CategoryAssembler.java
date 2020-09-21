@@ -40,8 +40,10 @@ import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, CategoryOutput, CategorySearchResult> {
 
     public CategoryAssembler(CategoryRepository categoryRepository, DatasetRepository datasetRepository) {

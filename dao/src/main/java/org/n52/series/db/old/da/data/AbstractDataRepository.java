@@ -31,7 +31,9 @@ package org.n52.series.db.old.da.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -43,6 +45,7 @@ import org.n52.io.response.DetectionLimitOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
+import org.n52.series.db.assembler.value.ValueConnector;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
@@ -276,5 +279,10 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
 
     protected Long getCount(DatasetEntity dataset, DbQuery query, Session session) {
         return createDataDao(session).getCount(dataset);
+    }
+
+    @Override
+    public Map<String, ValueConnector> getConnectors() {
+        return Collections.emptyMap();
     }
 }

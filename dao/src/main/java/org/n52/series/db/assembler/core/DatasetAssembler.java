@@ -34,6 +34,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
@@ -48,6 +49,7 @@ import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.value.AbstractNumericalValueAssembler;
 import org.n52.series.db.assembler.value.AbstractValueAssembler;
 import org.n52.series.db.beans.DataEntity;
@@ -62,8 +64,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class DatasetAssembler<V extends AbstractValue<?>>
-        extends ParameterDatasetOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult> {
+        extends ParameterOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult>
+        implements ParameterDatasetOutputAssembler {
 
     @PersistenceContext
     private EntityManager entityManager;

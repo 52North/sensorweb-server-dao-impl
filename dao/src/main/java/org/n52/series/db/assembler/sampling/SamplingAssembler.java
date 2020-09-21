@@ -31,12 +31,15 @@ package org.n52.series.db.assembler.sampling;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.hibernate.Hibernate;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.sampling.SamplingObservationOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.assembler.mapper.SamplingOutputMapper;
 import org.n52.series.db.beans.DataEntity;
@@ -49,8 +52,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.domain.Specification;
 
 @Profile("sampling")
-public class SamplingAssembler
-        extends ParameterDatasetOutputAssembler<SamplingEntity, SamplingOutput, SamplingSearchResult> {
+@Transactional
+public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, SamplingOutput, SamplingSearchResult>
+        implements ParameterDatasetOutputAssembler {
 
     public SamplingAssembler(SamplingRepository parameterRepository, DatasetRepository datasetRepository) {
         super(parameterRepository, datasetRepository);

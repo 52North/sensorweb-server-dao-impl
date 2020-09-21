@@ -51,6 +51,7 @@ import org.n52.io.response.ServiceOutput.DatasetCount;
 import org.n52.io.response.ServiceOutput.ParameterCount;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.assembler.ClearAssembler;
 import org.n52.series.db.assembler.InsertAssembler;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
@@ -62,7 +63,6 @@ import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.query.ServiceQuerySpecifications;
 import org.n52.series.db.repositories.ParameterDataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
 import org.n52.series.srv.OutputAssembler;
@@ -86,8 +86,6 @@ public class ServiceAssembler
 
     private final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository;
 
-    private final DatasetRepository datasetRepository;
-
     private final EntityCounter counter;
 
     private final DbQueryFactory dbQueryFactory;
@@ -95,15 +93,13 @@ public class ServiceAssembler
     private final DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
     // via config
-    @Autowired(required = false)
-    private ServiceEntity serviceEntity;
+    @Autowired
+    private ServiceEntityFactory serviceEntityFactory;
 
     public ServiceAssembler(final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository,
-            final DatasetRepository datasetRepository, final EntityCounter entityCounter,
-            final DbQueryFactory dbQueryFactory,
+            final EntityCounter entityCounter, final DbQueryFactory dbQueryFactory,
             DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator) {
         this.serviceRepository = serviceRepository;
-        this.datasetRepository = datasetRepository;
         this.counter = entityCounter;
         this.dbQueryFactory = dbQueryFactory == null ? new DefaultDbQueryFactory() : dbQueryFactory;
         this.ioFactoryCreator = ioFactoryCreator;
@@ -129,7 +125,8 @@ public class ServiceAssembler
     public ServiceOutput getInstance(final String id, final DbQuery query) {
         final Specification<ServiceEntity> publicEntity = createPublicPredicate(id, query);
         final Optional<ServiceEntity> entity = getParameterRepository().findOne(publicEntity);
-        return entity.map(it -> createExpanded(it, query)).orElse(createExpanded(serviceEntity, query));
+        return entity.map(it -> createExpanded(it, query))
+                .orElse(createExpanded(serviceEntityFactory.getServiceEntity(), query));
     }
 
     @Override
@@ -141,13 +138,9 @@ public class ServiceAssembler
 
     @Override
     public boolean exists(final String id, final DbQuery query) {
-        return getParameterRepository().exists(createPublicPredicate(id, query)) || serviceEntity != null;
+        return getParameterRepository().exists(createPublicPredicate(id, query))
+                || serviceEntityFactory.getServiceEntity() != null;
     }
-
-//    @Override
-//    public void clearUnusedForService(ServiceEntity service) {
-//        serviceRepository.delete(service);
-//    }
 
     public Specification<ServiceEntity> createPublicPredicate(final String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
@@ -177,16 +170,6 @@ public class ServiceAssembler
             result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
             result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
 
-            // if (parameters.shallBehaveBackwardsCompatible()) {
-            // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
-            // result::setVersion);
-            // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
-            // result::setQuantities);
-            // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-            // supportsFirstLatest,
-            // parameters,
-            // result::setSupportsFirstLatest);
-            // } else {
             Map<String, Object> features = new HashMap<>();
             features.put(ServiceOutput.QUANTITIES, quantities);
             features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
@@ -205,10 +188,11 @@ public class ServiceAssembler
 
     private Stream<ServiceEntity> findAll(final DbQuery query) {
         final Specification<ServiceEntity> predicate = createFilterPredicate(query);
-        Iterable<ServiceEntity> entities = getParameterRepository().findAll(predicate);
-        if ((entities == null || !entities.iterator().hasNext()) && serviceEntity != null) {
+        Iterable<ServiceEntity> entities =
+                getParameterRepository() != null ? getParameterRepository().findAll(predicate) : null;
+        if ((entities == null || !entities.iterator().hasNext()) && serviceEntityFactory.getServiceEntity() != null) {
             LinkedHashSet<ServiceEntity> set = new LinkedHashSet<>();
-            set.add(serviceEntity);
+            set.add(serviceEntityFactory.getServiceEntity());
             entities = set;
         }
         return StreamUtils.createStreamFromIterator(entities.iterator());
@@ -233,17 +217,11 @@ public class ServiceAssembler
         quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
         quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
 
-        // if (parameters.shallBehaveBackwardsCompatible()) {
-        // quantities.setTimeseriesSize(counter.countTimeseries());
-        // quantities.setStationsSize(counter.countStations());
-        // } else {
         quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
         quantities.setDatasets(createDatasetCount(counter, serviceQuery));
 
-        // TODO
         quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
         quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
-        // }
         return quantities;
     }
 

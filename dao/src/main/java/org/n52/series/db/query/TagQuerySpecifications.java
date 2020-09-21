@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.query;
 
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
@@ -62,7 +63,8 @@ public final class TagQuerySpecifications extends ParameterQuerySpecifications {
         return (root, query, builder) -> {
             Subquery<Long> sq = query.subquery(Long.class);
             Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
-            sq.select(dataset.get(DatasetEntity.PROPERTY_TAGS).get(DescribableEntity.PROPERTY_ID))
+            final Join<DatasetEntity, TagEntity> joinTagsDataset = dataset.join(DatasetEntity.PROPERTY_TAGS);
+            sq.select(joinTagsDataset.get(DescribableEntity.PROPERTY_ID))
                     .where(filter.toPredicate(dataset, query, builder));
             return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
         };

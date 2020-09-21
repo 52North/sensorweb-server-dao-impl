@@ -42,6 +42,7 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.ValueAssemblerComponent;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
@@ -64,6 +65,36 @@ public class QuantityValueAssembler extends AbstractNumericalValueAssembler<Quan
         final QuantityValue assembledValue = prepareValue(new QuantityValue(), data, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
+    }
+
+    @Override
+    public QuantityValue getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((QuantityDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public QuantityValue getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((QuantityDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<QuantityValue> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<QuantityValue> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((QuantityDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     private BigDecimal getDataValue(QuantityDataEntity observation, DatasetEntity dataset) {

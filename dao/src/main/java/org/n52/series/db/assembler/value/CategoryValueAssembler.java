@@ -43,6 +43,7 @@ import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.CategoryDataEntity;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.repositories.core.DataRepository;
 import org.n52.series.db.repositories.core.DatasetRepository;
@@ -60,6 +61,36 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
         final CategoryValue assembledValue = prepareValue(new CategoryValue(), data, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
+    }
+
+    @Override
+    public CategoryValue getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((CategoryDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public CategoryValue getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((CategoryDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<CategoryValue> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<CategoryValue> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((CategoryDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     private String getDataValue(CategoryDataEntity observation, DatasetEntity dataset) {

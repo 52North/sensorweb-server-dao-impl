@@ -39,6 +39,7 @@ import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -65,8 +66,8 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
     private final DatasetRepository datasetRepository;
 
     // via database or config
-    @Autowired(required = false)
-    private ServiceEntity serviceEntity;
+    @Autowired
+    private ServiceEntityFactory serviceEntityFactory;
 
     public ParameterOutputAssembler(final ParameterDataRepository<E> parameterRepository,
             final DatasetRepository datasetRepository) {
@@ -128,7 +129,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
         return DatasetQuerySpecifications.of(query, entityManager);
     }
 
-    private Stream<E> findAll(final DbQuery query) {
+    public Stream<E> findAll(final DbQuery query) {
         final Specification<E> predicate = createFilterPredicate(query);
         final Iterable<E> entities = parameterRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
@@ -136,11 +137,11 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     protected ServiceEntity getServiceEntity(final DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null ? entity.getService() : serviceEntity;
+        return entity.getService() != null ? entity.getService() : serviceEntityFactory.getServiceEntity();
     }
 
     private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {
-        if ((serviceEntity == null) && (entity == null)) {
+        if ((serviceEntityFactory.getServiceEntity() == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }

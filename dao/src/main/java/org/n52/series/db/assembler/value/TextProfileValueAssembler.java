@@ -31,6 +31,7 @@ package org.n52.series.db.assembler.value;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.text.TextValue;
@@ -62,6 +63,36 @@ public class TextProfileValueAssembler extends ProfileValueAssembler<String, Str
             DbQuery query, ProfileValue<String> profile) {
         profile.setValue(getDataValue(observation, datasetEntity, profile, query));
         return profile;
+    }
+
+    @Override
+    public ProfileValue<String> getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((ProfileDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public ProfileValue<String> getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((ProfileDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<ProfileValue<String>> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<ProfileValue<String>> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((ProfileDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     private List<ProfileDataItem<String>> getDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,

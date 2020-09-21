@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
@@ -63,6 +64,36 @@ public class QuantityProfileValueAssembler extends ProfileValueAssembler<BigDeci
             DbQuery query, ProfileValue<BigDecimal> profile) {
         profile.setValue(getDataValue(observation, datasetEntity, profile, query));
         return profile;
+    }
+
+    @Override
+    public ProfileValue<BigDecimal> getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((ProfileDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public ProfileValue<BigDecimal> getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((ProfileDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<ProfileValue<BigDecimal>> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<ProfileValue<BigDecimal>> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((ProfileDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     private List<ProfileDataItem<BigDecimal>> getDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,

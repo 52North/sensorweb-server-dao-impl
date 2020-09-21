@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.ProcedureOutput;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.TestBase;
 import org.n52.series.db.TestRepositories;
 import org.n52.series.db.TestRepositoryConfig;
@@ -78,6 +79,9 @@ public class ProcedureAssemblerTest extends TestBase {
 
     @Autowired
     private AutowireCapableBeanFactory beanFactory;
+
+    @Autowired
+    private ServiceEntityFactory serviceEntityFactory;
 
     private ProcedureAssembler assembler;
 
@@ -249,6 +253,11 @@ public class ProcedureAssemblerTest extends TestBase {
             serviceEntity.setName("TestService");
             serviceEntity.setNoDataValues("-9999");
             return serviceEntity;
+        }
+
+        @Bean
+        public ServiceEntityFactory serviceEntityFactory() {
+            return new ServiceEntityFactory();
         }
 
         @Bean

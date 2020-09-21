@@ -30,6 +30,7 @@ package org.n52.series.db.assembler.core;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
@@ -45,6 +46,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, PlatformOutput, PlatformSearchResult> {
 
     @PersistenceContext

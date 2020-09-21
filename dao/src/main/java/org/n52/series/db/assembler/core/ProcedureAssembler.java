@@ -28,7 +28,11 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import javax.inject.Inject;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.ProcedureOutput;
 import org.n52.series.db.beans.DatasetEntity;
@@ -45,6 +49,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class ProcedureAssembler
         extends HierarchicalAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
 
@@ -86,6 +91,13 @@ public class ProcedureAssembler
         ProcedureEntity instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
             return instance;
+        }
+        if (entity.hasParents()) {
+            Set<ProcedureEntity> parents = new LinkedHashSet<>();
+            for (ProcedureEntity parent : entity.getParents()) {
+                parents.add(getOrInsertInstance(parent));
+            }
+            entity.setParents(parents);
         }
         entity.setFormat(formatAssembler.getOrInsertInstance(
                 entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));

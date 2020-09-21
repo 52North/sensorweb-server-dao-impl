@@ -46,7 +46,7 @@ public interface ParameterServiceRepository<T extends DescribableEntity> extends
 
     @Override
     default T getInstance(T entity) {
-        return findByIdentifierAndService(entity).orElse(null);
+        return findByIdentifierAndService(createIdentifierServiceExample(entity)).orElse(null);
     }
 
     default Example<T> createExample(T entity, ExampleMatcher matcher) {
@@ -57,5 +57,16 @@ public interface ParameterServiceRepository<T extends DescribableEntity> extends
         return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
                 .withMatcher(DescribableEntity.PROPERTY_IDENTIFIER, GenericPropertyMatchers.ignoreCase())
                 .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
+    }
+
+    default <T extends DescribableEntity> T createIdentifierServiceExample(T entity) {
+        try {
+            DescribableEntity example = entity.getClass().newInstance();
+            example.setIdentifier(entity.getIdentifier());
+            example.setService(entity.getService());
+            return (T) example;
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException e) {
+            return entity;
+        }
     }
 }

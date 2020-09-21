@@ -28,6 +28,11 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
@@ -41,6 +46,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class PhenomenonAssembler
         extends HierarchicalAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
 
@@ -72,5 +78,21 @@ public class PhenomenonAssembler
                 dsFilterSpec.matchPhenomena(id).and(dsFilterSpec.isPublic());
         PhenomenonQuerySpecifications filterSpec = PhenomenonQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    }
+
+    @Override
+    public PhenomenonEntity getOrInsertInstance(PhenomenonEntity entity) {
+        PhenomenonEntity instance = getParameterRepository().getInstance(entity);
+        if (instance != null) {
+            return instance;
+        }
+        if (entity.hasParents()) {
+            Set<PhenomenonEntity> parents = new LinkedHashSet<>();
+            for (PhenomenonEntity parent : entity.getParents()) {
+                parents.add(getOrInsertInstance(parent));
+            }
+            entity.setParents(parents);
+        }
+        return getParameterRepository().saveAndFlush(entity);
     }
 }

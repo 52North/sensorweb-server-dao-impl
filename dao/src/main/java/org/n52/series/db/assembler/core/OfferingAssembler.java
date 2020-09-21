@@ -28,6 +28,11 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.io.response.OfferingOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
@@ -41,6 +46,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class OfferingAssembler extends HierarchicalAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
 
     public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
@@ -70,6 +76,22 @@ public class OfferingAssembler extends HierarchicalAssembler<OfferingEntity, Off
                 dsFilterSpec.matchOfferings(id).and(dsFilterSpec.isPublic());
         OfferingQuerySpecifications filterSpec = OfferingQuerySpecifications.of(query);
         return filterSpec.selectFrom(datasetPredicate);
+    }
+
+    @Override
+    public OfferingEntity getOrInsertInstance(OfferingEntity entity) {
+        OfferingEntity instance = getParameterRepository().getInstance(entity);
+        if (instance != null) {
+            return instance;
+        }
+        if (entity.hasParents()) {
+            Set<OfferingEntity> parents = new LinkedHashSet<>();
+            for (OfferingEntity parent : entity.getParents()) {
+                parents.add(getOrInsertInstance(parent));
+            }
+            entity.setParents(parents);
+        }
+        return getParameterRepository().saveAndFlush(entity);
     }
 
 }

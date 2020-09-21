@@ -48,6 +48,7 @@ import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
@@ -97,7 +98,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DatasetEntity> matchFilters() {
         return isPublic().and(matchFeatures()).and(matchCategory()).and(matchPhenomena()).and(matchProcedures())
-                .and(matchOfferings()).and(matchPlatforms()).and(matchDatasetTypes()).and(matchObservationTypes())
+                .and(matchOfferings()).and(matchPlatforms()).and(matchTag()).and(matchDatasetTypes()).and(matchObservationTypes())
                 .and(matchValueTypes()).and(matchesSpatially());
     }
 
@@ -444,6 +445,59 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
         return (root, query, builder) -> {
             final Join<DatasetEntity, CategoryEntity> join =
                     root.join(DatasetEntity.PROPERTY_CATEGORY, JoinType.INNER);
+            return getIdPredicate(join, ids);
+        };
+    }
+
+    /**
+     * Matches datasets having Tag with given ids.
+     *
+     * @return a boolean expression
+     * @see #matchTag(Collection)
+     */
+    public Specification<DatasetEntity> matchTag() {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchTag(parameters.getTags());
+    }
+
+    /**
+     * Matches datasets having Tag with given ids.
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression
+     * @see #matchTag(Collection)
+     */
+    public Specification<DatasetEntity> matchTag(final String... ids) {
+        return ids != null ? matchTag(Arrays.asList(ids)) : matchTag(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets having Tag with given ids. For example:
+     *
+     * <pre>
+     *  where Tag.id in (&lt;ids&gt;)
+     * </pre>
+     *
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
+     * following query path will be used:
+     *
+     * <pre>
+     *  where Tag.identifier in (&lt;ids&gt;)
+     * </pre>
+     *
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression or {@literal null} when given ids are
+     *         {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchTag(final Collection<String> ids) {
+        if ((ids == null) || ids.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            final Join<DatasetEntity, TagEntity> join =
+                    root.join(DatasetEntity.PROPERTY_TAGS, JoinType.INNER);
             return getIdPredicate(join, ids);
         };
     }

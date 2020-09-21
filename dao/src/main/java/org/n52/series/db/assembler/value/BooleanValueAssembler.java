@@ -43,13 +43,14 @@ import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.BooleanDataEntity;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.old.dao.DbQuery;
 import org.n52.series.db.repositories.core.DataRepository;
 import org.n52.series.db.repositories.core.DatasetRepository;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@ValueAssemblerComponent(value = "boolean", datasetEntityType = DatasetEntity.class)
+@ValueAssemblerComponent(value = "bool", datasetEntityType = DatasetEntity.class)
 public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEntity, BooleanValue, Boolean> {
 
     public BooleanValueAssembler(DataRepository<BooleanDataEntity> dataRepository,
@@ -62,6 +63,36 @@ public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEnt
         final BooleanValue assembledValue = prepareValue(new BooleanValue(), data, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
+    }
+
+    @Override
+    public BooleanValue getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((BooleanDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public BooleanValue getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((BooleanDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<BooleanValue> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<BooleanValue> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((BooleanDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     @SuppressFBWarnings("NP_BOOLEAN_RETURN_NULL")

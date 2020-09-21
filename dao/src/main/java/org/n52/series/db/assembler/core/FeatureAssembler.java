@@ -29,6 +29,7 @@
 package org.n52.series.db.assembler.core;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.HierarchicalParameterOutput;
@@ -60,6 +62,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class FeatureAssembler
         extends ParameterOutputAssembler<AbstractFeatureEntity, FeatureOutput, FeatureSearchResult> {
 
@@ -148,8 +151,18 @@ public class FeatureAssembler
         if (instance != null) {
             return instance;
         }
+        if (entity.hasParents()) {
+            Set<AbstractFeatureEntity> parents = new LinkedHashSet<>();
+            for (Object parent : entity.getParents()) {
+                if (parent instanceof AbstractFeatureEntity) {
+                    parents.add(getOrInsertInstance((AbstractFeatureEntity) parent));
+                }
+            }
+            entity.setParents(parents);
+        }
         entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
                 : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+
         return getParameterRepository().saveAndFlush(entity);
     }
 

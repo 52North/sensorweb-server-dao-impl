@@ -41,6 +41,7 @@ import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.count.CountValue;
 import org.n52.series.db.ValueAssemblerComponent;
 import org.n52.series.db.beans.CountDataEntity;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.dao.DbQuery;
@@ -60,6 +61,36 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
         final CountValue assembledValue = prepareValue(new CountValue(), data, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
+    }
+
+    @Override
+    public CountValue getFirstValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
+            return assembleDataValue((CountDataEntity) data, dataset, query);
+        }
+        return super.getFirstValue(dataset, query);
+    }
+
+    @Override
+    public CountValue getLastValue(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
+            return assembleDataValue((CountDataEntity) data, dataset, query);
+        }
+        return super.getLastValue(dataset, query);
+    }
+
+    @Override
+    protected Data<CountValue> assembleDataValues(DatasetEntity dataset, DbQuery query) {
+        if (hasConnector(dataset)) {
+            Data<CountValue> result = new Data<>();
+            getConnector(dataset).getObservations(dataset, query).stream()
+                    .map(entry -> assembleDataValue((CountDataEntity) entry, dataset, query))
+                    .forEach(entry -> result.addNewValue(entry));
+            return result;
+        }
+        return super.assembleDataValues(dataset, query);
     }
 
     private Integer getDataValue(CountDataEntity observation, DatasetEntity dataset) {

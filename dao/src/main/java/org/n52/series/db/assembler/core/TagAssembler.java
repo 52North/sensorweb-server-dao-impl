@@ -28,6 +28,8 @@
  */
 package org.n52.series.db.assembler.core;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.io.response.TagOutput;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.DatasetEntity;
@@ -42,6 +44,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
+@Transactional
 public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput, TagSearchResult> {
 
     public TagAssembler(TagRepository tagRepository, DatasetRepository datasetRepository) {
@@ -69,7 +72,7 @@ public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput,
     protected Specification<TagEntity> createPublicPredicate(String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
         final Specification<DatasetEntity> datasetPredicate =
-                dsFilterSpec.matchCategory(id).and(dsFilterSpec.isPublic());
+                dsFilterSpec.matchTag(id).and(dsFilterSpec.isPublic());
         TagQuerySpecifications filterSpec = TagQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }

@@ -32,6 +32,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
@@ -40,6 +42,7 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.mapper.MeasuringProgramOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
@@ -53,8 +56,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("sampling")
-public class MeasuringProgramAssembler extends
-        ParameterDatasetOutputAssembler<MeasuringProgramEntity, MeasuringProgramOutput, MeasuringProgramSearchResult> {
+@Transactional
+public class MeasuringProgramAssembler
+        extends ParameterOutputAssembler<MeasuringProgramEntity, MeasuringProgramOutput, MeasuringProgramSearchResult>
+        implements ParameterDatasetOutputAssembler {
 
     public MeasuringProgramAssembler(MeasuringProgramRepository parameterRepository,
             DatasetRepository datasetRepository) {

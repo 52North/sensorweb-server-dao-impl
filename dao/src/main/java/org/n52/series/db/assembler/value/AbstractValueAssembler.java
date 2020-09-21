@@ -28,13 +28,20 @@
  */
 package org.n52.series.db.assembler.value;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -82,9 +89,18 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     @PersistenceContext
     private EntityManager entityManager;
 
+    private Map<String, ValueConnector> connectors;
+
     protected AbstractValueAssembler(DataRepository<E> dataRepository, DatasetRepository datasetRepository) {
         this.dataRepository = dataRepository;
         this.datasetRepository = datasetRepository;
+    }
+
+    @Inject
+    public void setConnectors(Optional<List<ValueConnector>> connectors) {
+        this.connectors = connectors.isPresent()
+                ? connectors.get().stream().collect(toMap(ValueConnector::getName, Function.identity()))
+                : new LinkedHashMap<>();
     }
 
     protected boolean isNoDataValue(DataEntity<?> data, DatasetEntity dataset) {
@@ -113,13 +129,13 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     @Override
     public V getFirstValue(DatasetEntity entity, DbQuery query) {
-        E data = (E) entity.getFirstObservation();
+        E data = (E)  Hibernate.unproxy(entity.getFirstObservation());
         return assembleDataValueWithMetadata(data, entity, query);
     }
 
     @Override
     public V getLastValue(DatasetEntity entity, DbQuery query) {
-        E data = (E) entity.getLastObservation();
+        E data = (E) Hibernate.unproxy(entity.getLastObservation());
         return assembleDataValueWithMetadata(data, entity, query);
     }
 
@@ -316,6 +332,11 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
             return value;
         }
         return value.setScale(scale, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public Map<String, ValueConnector> getConnectors() {
+        return connectors;
     }
 
 }

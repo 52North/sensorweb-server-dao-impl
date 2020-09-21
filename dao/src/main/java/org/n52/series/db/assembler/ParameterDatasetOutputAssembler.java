@@ -28,7 +28,6 @@
  */
 package org.n52.series.db.assembler;
 
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
@@ -42,57 +41,50 @@ import org.n52.series.db.assembler.mapper.DatasetOutputMapper;
 import org.n52.series.db.assembler.mapper.FeatureOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.ParameterDataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
-import org.n52.series.spi.search.SearchResult;
 
-public abstract class ParameterDatasetOutputAssembler<E extends DescribableEntity,
-                                                      O extends AbstractOutput,
-                                                      S extends SearchResult>
-        extends ParameterOutputAssembler<E, O, S> {
+public interface ParameterDatasetOutputAssembler {
 
-    public ParameterDatasetOutputAssembler(ParameterDataRepository<E> parameterRepository,
-            DatasetRepository datasetRepository) {
-        super(parameterRepository, datasetRepository);
-    }
-
-    protected DatasetOutput<AbstractValue<?>> getDataset(DatasetEntity datasetEntity, DbQuery query) {
+    default DatasetOutput<AbstractValue<?>> getDataset(DatasetEntity datasetEntity, DbQuery query) {
         return new DatasetOutputMapper(query).createCondensed(datasetEntity, new DatasetOutput());
     }
 
-    protected FeatureOutput getFeature(DatasetEntity datasetEntity, DbQuery query) {
+    default FeatureOutput getFeature(DatasetEntity datasetEntity, DbQuery query) {
         return new FeatureOutputMapper(query).createCondensed(datasetEntity.getFeature(), new FeatureOutput());
     }
 
-    protected OfferingOutput getOffering(DatasetEntity datasetEntity, DbQuery query) {
-        return getDefaultMapper(query).createCondensed(datasetEntity.getOffering(), new OfferingOutput());
+    default OfferingOutput getOffering(DatasetEntity datasetEntity, DbQuery query) {
+        return getDefaultMapper(query).createCondensed(datasetEntity.getOffering(),
+                new OfferingOutput());
     }
 
-    protected PhenomenonOutput getPhenomenon(DatasetEntity datasetEntity, DbQuery query) {
-        return getDefaultMapper(query).createCondensed(datasetEntity.getPhenomenon(), new PhenomenonOutput());
+    default PhenomenonOutput getPhenomenon(DatasetEntity datasetEntity, DbQuery query) {
+        return getDefaultMapper(query).createCondensed(datasetEntity.getPhenomenon(),
+                new PhenomenonOutput());
     }
 
-    protected CategoryOutput getCategory(DatasetEntity datasetEntity, DbQuery query) {
-        return getDefaultMapper(query).createCondensed(datasetEntity.getCategory(), new CategoryOutput());
+    default CategoryOutput getCategory(DatasetEntity datasetEntity, DbQuery query) {
+        return getDefaultMapper(query).createCondensed(datasetEntity.getCategory(),
+                new CategoryOutput());
     }
 
-    protected ProcedureOutput getProcedure(DatasetEntity datasetEntity, DbQuery query) {
-        return getDefaultMapper(query).createCondensed(datasetEntity.getProcedure(), new ProcedureOutput());
+    default ProcedureOutput getProcedure(DatasetEntity datasetEntity, DbQuery query) {
+        return getDefaultMapper(query).createCondensed(datasetEntity.getProcedure(),
+                new ProcedureOutput());
     }
 
-    protected PlatformOutput getPlatform(DatasetEntity datasetEntity, DbQuery query) {
-        return getDefaultMapper(query).createCondensed(datasetEntity.getPlatform(), new PlatformOutput());
+    default PlatformOutput getPlatform(DatasetEntity datasetEntity, DbQuery query) {
+        return getDefaultMapper(query).createCondensed(datasetEntity.getPlatform(),
+                new PlatformOutput());
     }
 
-    protected ServiceOutput getService(ServiceEntity service, DbQuery query) {
+    default ServiceOutput getService(ServiceEntity service, DbQuery query) {
         return getDefaultMapper(query).createCondensed(service, new ServiceOutput());
     }
 
-    protected ParameterOutputSearchResultMapper getDefaultMapper(DbQuery query) {
-        return super.getMapper(query);
+    default ParameterOutputSearchResultMapper getDefaultMapper(DbQuery query) {
+        return new ParameterOutputSearchResultMapper(query);
     }
 
 }

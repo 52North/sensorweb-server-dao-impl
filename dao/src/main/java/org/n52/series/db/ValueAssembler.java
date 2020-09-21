@@ -30,10 +30,12 @@ package org.n52.series.db;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
+import org.n52.series.db.assembler.value.ValueConnector;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.dao.DbQuery;
@@ -143,5 +145,17 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * @return the closest value after a given timespan
      */
     E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query);
+
+    Map<String, ValueConnector> getConnectors();
+
+    default boolean hasConnector(DatasetEntity entity) {
+        String connectorName = entity.getService().getConnector();
+        return getConnectors().containsKey(connectorName);
+    }
+
+    default ValueConnector getConnector(DatasetEntity entity) {
+        String connectorName = entity.getService().getConnector();
+        return getConnectors().get(connectorName);
+    }
 
 }

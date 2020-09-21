@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.OfferingOutput;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.TestBase;
 import org.n52.series.db.TestRepositories;
 import org.n52.series.db.TestRepositoryConfig;
@@ -84,6 +85,7 @@ public class OfferingAssemblerTest extends TestBase {
     @BeforeEach
     public void setUp() {
         super.setUp();
+        beanFactory.autowireBean(new ServiceEntityFactory());
         this.assembler = new OfferingAssembler(offeringRepository, datasetRepository);
         // Manually start autowiring on non-spring managed Object
         beanFactory.autowireBean(assembler);
@@ -246,6 +248,11 @@ public class OfferingAssemblerTest extends TestBase {
             serviceEntity.setName("TestService");
             serviceEntity.setNoDataValues("-9999");
             return serviceEntity;
+        }
+
+        @Bean
+        public ServiceEntityFactory serviceEntityFactory() {
+            return new ServiceEntityFactory();
         }
     }
 }
