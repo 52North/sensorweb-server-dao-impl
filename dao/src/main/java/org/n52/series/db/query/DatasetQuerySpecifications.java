@@ -98,8 +98,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DatasetEntity> matchFilters() {
         return isPublic().and(matchFeatures()).and(matchCategory()).and(matchPhenomena()).and(matchProcedures())
-                .and(matchOfferings()).and(matchPlatforms()).and(matchTag()).and(matchDatasetTypes()).and(matchObservationTypes())
-                .and(matchValueTypes()).and(matchesSpatially());
+                .and(matchOfferings()).and(matchPlatforms()).and(matchTag()).and(matchDatasetTypes())
+                .and(matchObservationTypes()).and(matchValueTypes()).and(matchesSpatially());
     }
 
     /**
@@ -213,8 +213,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where offering.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where offering.identifier in (&lt;ids&gt;)
@@ -222,8 +222,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchOfferings(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -266,8 +265,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where feature.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where feature.identifier in (&lt;ids&gt;)
@@ -276,8 +275,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchFeatures(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -320,8 +318,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where procedure.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where procedure.identifier in (&lt;ids&gt;)
@@ -329,8 +327,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchProcedures(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -373,8 +370,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where phenomenon.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where phenomenon.identifier in (&lt;ids&gt;)
@@ -382,8 +379,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchPhenomena(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -426,8 +422,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where category.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where category.identifier in (&lt;ids&gt;)
@@ -435,8 +431,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchCategory(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -479,8 +474,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where Tag.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where Tag.identifier in (&lt;ids&gt;)
@@ -488,16 +483,14 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchTag(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
-            final Join<DatasetEntity, TagEntity> join =
-                    root.join(DatasetEntity.PROPERTY_TAGS, JoinType.INNER);
+            final Join<DatasetEntity, TagEntity> join = root.join(DatasetEntity.PROPERTY_TAGS, JoinType.INNER);
             return getIdPredicate(join, ids);
         };
     }
@@ -532,8 +525,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where platform.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where platform.identifier in (&lt;ids&gt;)
@@ -541,8 +534,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchPlatforms(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -585,8 +577,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *  where service.id in (&lt;ids&gt;)
      * </pre>
      *
-     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the
-     * following query path will be used:
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
      *
      * <pre>
      *  where service.identifier in (&lt;ids&gt;)
@@ -594,8 +586,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param ids
      *            the ids to match
-     * @return a boolean expression or {@literal null} when given ids are
-     *         {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchServices(final Collection<String> ids) {
         if ((ids == null) || ids.isEmpty()) {
@@ -640,8 +631,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param datasetTypes
      *            the dataset types to match
-     * @return a boolean expression or {@literal null} when given dataset types
-     *         are {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given dataset types are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchDatasetTypes(final Collection<String> datasetTypes) {
         return (root, query, builder) -> {
@@ -685,8 +675,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param observationTypes
      *            the observation types to match
-     * @return a boolean expression or {@literal null} when given observation
-     *         types are {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given observation types are {@literal null} or
+     *         empty
      */
     public Specification<DatasetEntity> matchObservationTypes(final Collection<String> observationTypes) {
         return (root, query, builder) -> {
@@ -731,8 +721,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      *
      * @param valueTypes
      *            the value types to match
-     * @return a boolean expression or {@literal null} when given value types
-     *         are {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given value types are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchValueTypes(final Collection<String> valueTypes) {
         return (root, query, builder) -> {
@@ -753,15 +742,14 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
     }
 
     /**
-     * Matches datasets which have a feature laying within the given bbox using
-     * an intersects query. For example:
+     * Matches datasets which have a feature laying within the given bbox using an intersects query. For
+     * example:
      *
      * <pre>
      *   where ST_INTERSECTS(feature.geom, &lt;filter_geometry&gt;)=1
      * </pre>
      *
-     * @return a boolean expression or {@literal null} when given spatial filter
-     *         is {@literal null} or empty
+     * @return a boolean expression or {@literal null} when given spatial filter is {@literal null} or empty
      */
     public Specification<DatasetEntity> matchesSpatially() {
         final Geometry geometry = dbQuery.getSpatialFilter();
