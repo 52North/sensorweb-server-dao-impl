@@ -7,27 +7,13 @@
         <artifactId>dao-impl-parent</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>dao-impl-dao</artifactId>
+    <artifactId>dao-impl-repo</artifactId>
     <packaging>jar</packaging>
-    <name>Sensor Web Server DAO Impl - DAO</name>
-    <description>REST SPI Implementation for SOS Sensor Web Server Database Model.</description>
+    <name>Sensor Web Server DAO Impl - Jpa Repositories</name>
+    <description>JPA repositories.</description>
     <url>https://52north.org/research/research-labs/sensor-web/</url>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>dao-impl-repo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.n52.sensorweb-server.helgoland</groupId>
-            <artifactId>helgoland-io</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.xmlbeans</groupId>
-                    <artifactId>xmlbeans</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.n52.sensorweb-server.helgoland</groupId>
             <artifactId>helgoland-spi</artifactId>
@@ -49,17 +35,12 @@
         </dependency>
         <dependency>
             <groupId>org.n52.sensorweb-server.db-model</groupId>
-            <artifactId>db-model-types</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.n52.sensorweb-server.db-model</groupId>
             <artifactId>db-model-mappings</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.n52.arctic-sea</groupId>
-            <artifactId>janmayen</artifactId>
+            <artifactId>shetland</artifactId>
         </dependency>
          <dependency>
             <groupId>org.n52.arctic-sea</groupId>
@@ -78,28 +59,8 @@
 
         <!-- Spring dependencies -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-        <!-- <dependency> -->
-        <!-- <groupId>org.springframework.boot</groupId> -->
-        <!-- <artifactId>spring-boot-actuator</artifactId> -->
-        <!-- </dependency> -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -114,10 +75,6 @@
             <artifactId>spring-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>tech.units</groupId>
             <artifactId>indriya</artifactId>
             <scope>provided</scope>
@@ -126,6 +83,16 @@
             <groupId>si.uom</groupId>
             <artifactId>si-quantity</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-opengis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -138,15 +105,13 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.geolatte</groupId>
-            <artifactId>geolatte-geom</artifactId>
-            <version>1.4.0</version>
         </dependency>
 
         <dependency>
@@ -154,30 +119,18 @@
             <artifactId>jts-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <!-- 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-         -->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-        </dependency>
-        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>jsr305</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

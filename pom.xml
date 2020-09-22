@@ -15,7 +15,8 @@
 
     <modules>
         <module>dao</module>
-        <!-- <module>sos-integration</module> -->
+        <module>repo</module>
+        <!-- <module>springboot</module> -->
         <module>webapp</module>
     </modules>
 
@@ -94,17 +95,17 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>dao</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>springboot</artifactId>
+                <artifactId>dao-impl-springboot</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>dao-impl-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>dao-impl-repo</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -317,7 +318,7 @@
                         <groupId>org.eclipse.emf</groupId>
                         <artifactId>org.eclipse.emf.common</artifactId>
                     </exclusion>
-                     <exclusion>
+                    <exclusion>
                         <groupId>tech.units</groupId>
                         <artifactId>indriya</artifactId>
                     </exclusion>

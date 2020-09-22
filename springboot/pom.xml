@@ -9,10 +9,10 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>springboot</artifactId>
+    <artifactId>dao-impl-springboot</artifactId>
     <packaging>jar</packaging>
-    <name>Series REST API - Spring Boot Starter</name>
-    <description>RESTful Sensor Web Client API as ready-to-go Spring Boot application.</description>
+    <name>Sensor Web Server DAO Impl - Spring Boot Starter</name>
+    <description>Helgoland Sensor Web Viewer API as ready-to-go Spring Boot application.</description>
 
     <properties>
         <docs.context>docs</docs.context>
@@ -33,6 +33,20 @@
         <dependency>
             <groupId>org.n52.sensorweb-server.helgoland</groupId>
             <artifactId>helgoland-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dao-impl-repo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.n52.sensorweb-server.dao-impl</groupId> 

@@ -54,6 +54,7 @@ This project includes:
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
   Jakarta Activation under EDL 1.0
+  Jakarta Annotations API under EPL 2.0 or GPL2 w/ CPE
   Jakarta XML Binding API under Eclipse Distribution License - v 1.0
   janino under New BSD License
   Java Annotation Indexer under Apache License, Version 2.0
@@ -85,6 +86,7 @@ This project includes:
   odata-commons-core under The Apache Software License, Version 2.0
   odata-server-api under The Apache Software License, Version 2.0
   odata-server-core under The Apache Software License, Version 2.0
+  Open GIS Interfaces under OGC copyright or Lesser General Public License (LGPL)
   org.apache.xmlgraphics:batik-anim under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-awt-util under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-bridge under The Apache Software License, Version 2.0
@@ -111,12 +113,14 @@ This project includes:
   quartz under The Apache Software License, Version 2.0
   Sensor Web Server DAO Impl under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - DAO under GNU General Public License, Version 2.0
+  Sensor Web Server DAO Impl - Jpa Repositories under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - Webapp under GNU General Public License, Version 2.0
   Sensor Web Server Database Model - Entities under The Apache Software License, Version 2.0
   Sensor Web Server Helgoland - IO module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - PDF report structure under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - REST module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - SPI module under GNU General Public License, Version 2.0
+  SI Units under BSD
   SLF4J API Module under MIT License
   SpotBugs Annotations under GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1
   Spring AOP under Apache License, Version 2.0
@@ -138,6 +142,8 @@ This project includes:
   spring-boot under Apache License, Version 2.0
   spring-boot-autoconfigure under Apache License, Version 2.0
   TXW2 Runtime under Eclipse Distribution License - v 1.0
+  Units of Measurement API under BSD
+  Units of Measurement Common Unit Systems under BSD
   xalan under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
