@@ -30,7 +30,7 @@ package org.n52.sensorweb.server.db.repositories.core;
 
 import java.util.Date;
 
-public interface ResutTimeView {
+public interface ResultTimeView {
 
     Date getResultTime();
 }
