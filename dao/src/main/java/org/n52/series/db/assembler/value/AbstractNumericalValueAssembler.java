@@ -31,12 +31,12 @@ package org.n52.series.db.assembler.value;
 import java.math.BigDecimal;
 
 import org.n52.io.response.dataset.AbstractValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.query.DataQuerySpecifications;
+import org.n52.sensorweb.server.db.repositories.core.DataRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.query.DataQuerySpecifications;
-import org.n52.series.db.repositories.core.DataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 
 public abstract class AbstractNumericalValueAssembler<E extends DataEntity<T>,
                                                       V extends AbstractValue<?>,

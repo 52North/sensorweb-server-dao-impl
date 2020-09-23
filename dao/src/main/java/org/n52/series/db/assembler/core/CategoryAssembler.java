@@ -29,14 +29,14 @@
 package org.n52.series.db.assembler.core;
 
 import org.n52.io.response.CategoryOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.query.CategoryQuerySpecifications;
+import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
+import org.n52.sensorweb.server.db.repositories.core.CategoryRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.query.CategoryQuerySpecifications;
-import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.repositories.core.CategoryRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.CategorySearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

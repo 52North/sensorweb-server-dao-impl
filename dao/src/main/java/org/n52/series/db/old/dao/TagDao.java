@@ -30,6 +30,7 @@ package org.n52.series.db.old.dao;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.TagEntity;
 import org.n52.series.db.beans.i18n.I18nTagEntity;
 

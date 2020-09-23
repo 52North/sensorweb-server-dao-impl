@@ -34,13 +34,13 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.record.RecordValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
 public class RecordDataRepository

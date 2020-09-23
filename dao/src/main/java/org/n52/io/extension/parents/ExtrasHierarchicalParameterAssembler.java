@@ -42,13 +42,13 @@ import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.assembler.core.PlatformAssembler;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

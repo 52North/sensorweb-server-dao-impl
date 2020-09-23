@@ -39,14 +39,14 @@ import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.ServiceOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
+import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.repositories.ParameterDataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -34,11 +34,11 @@ import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public class MeasuringProgramOutputMapper extends ParameterOutputSearchResultMapper implements TimeOutputCreator {
 

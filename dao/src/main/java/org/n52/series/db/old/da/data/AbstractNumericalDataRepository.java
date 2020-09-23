@@ -32,11 +32,11 @@ import java.math.BigDecimal;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.AbstractValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>,
                                                       V extends AbstractValue< ? >,

@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.dao;
+package org.n52.sensorweb.server.db.old.dao;
 
 import java.util.Date;
 import java.util.List;
@@ -56,12 +56,12 @@ import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
+import org.n52.sensorweb.server.db.old.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
-import org.n52.series.db.old.DataModelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

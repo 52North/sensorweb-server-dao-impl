@@ -42,14 +42,14 @@ import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.profile.VerticalExtentOutput;
 import org.n52.io.response.dataset.profile.VerticalExtentValueOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.VerticalMetadataEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 public abstract class ProfileDataRepository<V, T>
         extends

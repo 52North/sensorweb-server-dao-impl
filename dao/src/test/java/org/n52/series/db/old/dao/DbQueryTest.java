@@ -30,8 +30,8 @@ package org.n52.series.db.old.dao;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.old.dao.DefaultDbQueryFactory;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
 
 public class DbQueryTest {
 

@@ -30,9 +30,9 @@ package org.n52.series.db.assembler.mapper;
 
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ParameterOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public class FeatureOutputMapper extends ParameterOutputSearchResultMapper {
 

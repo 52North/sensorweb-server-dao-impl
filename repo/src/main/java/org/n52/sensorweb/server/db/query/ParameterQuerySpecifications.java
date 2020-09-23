@@ -26,11 +26,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.query;
+package org.n52.sensorweb.server.db.query;
 
 import javax.persistence.EntityManager;
 
-import org.n52.series.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 
 public class ParameterQuerySpecifications extends QuerySpecifications {
 

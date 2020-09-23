@@ -37,6 +37,13 @@ import static org.n52.series.test.ProcedureBuilder.newProcedure;
 
 import java.util.UUID;
 
+import org.n52.sensorweb.server.db.repositories.core.CategoryRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
+import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
+import org.n52.sensorweb.server.db.repositories.core.FormatRepository;
+import org.n52.sensorweb.server.db.repositories.core.OfferingRepository;
+import org.n52.sensorweb.server.db.repositories.core.PhenomenonRepository;
+import org.n52.sensorweb.server.db.repositories.core.ProcedureRepository;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -45,13 +52,6 @@ import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.repositories.core.CategoryRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
-import org.n52.series.db.repositories.core.FeatureRepository;
-import org.n52.series.db.repositories.core.FormatRepository;
-import org.n52.series.db.repositories.core.OfferingRepository;
-import org.n52.series.db.repositories.core.PhenomenonRepository;
-import org.n52.series.db.repositories.core.ProcedureRepository;
 import org.n52.series.test.CategoryBuilder;
 import org.n52.series.test.FeatureBuilder;
 import org.n52.series.test.ProcedureBuilder;

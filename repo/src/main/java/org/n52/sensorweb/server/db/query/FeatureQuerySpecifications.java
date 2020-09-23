@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.query;
+package org.n52.sensorweb.server.db.query;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Root;
@@ -35,10 +35,10 @@ import javax.persistence.criteria.Subquery;
 import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.old.dao.DbQuery;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class FeatureQuerySpecifications extends ParameterQuerySpecifications {

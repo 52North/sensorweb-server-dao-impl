@@ -34,13 +34,13 @@ import java.util.List;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.category.CategoryValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "category", datasetEntityType = DatasetEntity.class)
 public class CategoryDataRepository extends AbstractDataRepository<CategoryDataEntity, CategoryValue, String> {

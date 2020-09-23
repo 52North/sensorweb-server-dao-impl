@@ -31,6 +31,8 @@ package org.n52.series.db.old.dao;
 import java.io.Serializable;
 import java.util.List;
 
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+
 /**
  * @param <T> entity type
  * @param <K> primary key

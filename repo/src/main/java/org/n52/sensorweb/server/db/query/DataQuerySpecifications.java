@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.query;
+package org.n52.sensorweb.server.db.query;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -46,9 +46,9 @@ import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.dao.DbQuery;
 import org.springframework.data.jpa.domain.Specification;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.n52.io.response.HierarchicalParameterOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.HierarchicalEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.ParameterDataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.n52.series.spi.search.SearchResult;
 
 public abstract class HierarchicalAssembler<E extends HierarchicalEntity<E>,

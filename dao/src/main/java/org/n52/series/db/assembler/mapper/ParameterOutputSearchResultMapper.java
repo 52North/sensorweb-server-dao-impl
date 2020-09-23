@@ -34,11 +34,11 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 
 public class ParameterOutputSearchResultMapper implements OutputMapper {

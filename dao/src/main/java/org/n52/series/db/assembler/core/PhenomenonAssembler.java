@@ -34,13 +34,13 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.PhenomenonOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
+import org.n52.sensorweb.server.db.query.PhenomenonQuerySpecifications;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
+import org.n52.sensorweb.server.db.repositories.core.PhenomenonRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.query.DatasetQuerySpecifications;
-import org.n52.series.db.query.PhenomenonQuerySpecifications;
-import org.n52.series.db.repositories.core.DatasetRepository;
-import org.n52.series.db.repositories.core.PhenomenonRepository;
 import org.n52.series.spi.search.PhenomenonSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

@@ -38,10 +38,10 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.srv.OutputAssembler;
 
 public abstract class HierarchicalParameterAssembler<E extends HierarchicalEntity<E>, O extends AbstractOutput>

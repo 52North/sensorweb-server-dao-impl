@@ -37,12 +37,12 @@ import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.assembler.mapper.DatasetOutputMapper;
 import org.n52.series.db.assembler.mapper.FeatureOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public interface ParameterDatasetOutputAssembler {
 

@@ -39,10 +39,11 @@ import org.joda.time.Interval;
 import org.n52.io.IntervalWithTimeZone;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
+import org.n52.sensorweb.server.db.old.DataModelUtil;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nSamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
-import org.n52.series.db.old.DataModelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

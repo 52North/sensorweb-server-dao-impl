@@ -28,8 +28,8 @@
  */
 package org.n52.series.db.assembler.core;
 
+import org.n52.sensorweb.server.db.repositories.core.FormatRepository;
 import org.n52.series.db.beans.FormatEntity;
-import org.n52.series.db.repositories.core.FormatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

@@ -34,11 +34,11 @@ import javax.inject.Inject;
 
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.assembler.sampling.MeasuringProgramAssembler;
 import org.n52.series.db.assembler.sampling.SamplingAssembler;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 import org.springframework.stereotype.Component;
 
 @Component

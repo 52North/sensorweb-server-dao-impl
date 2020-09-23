@@ -34,6 +34,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.io.request.IoParameters;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.RelatedFeatureEntity;
 

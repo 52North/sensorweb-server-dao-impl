@@ -53,6 +53,8 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.janmayen.i18n.LocaleHelper;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -61,8 +63,6 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
 public class QuantityDataRepository

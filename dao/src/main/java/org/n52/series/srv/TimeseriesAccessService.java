@@ -38,14 +38,14 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.core.DatasetAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.dataset.ObservationType;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 import org.n52.series.spi.srv.DataService;
 import org.springframework.stereotype.Component;
 

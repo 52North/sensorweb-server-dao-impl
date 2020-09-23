@@ -33,6 +33,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;

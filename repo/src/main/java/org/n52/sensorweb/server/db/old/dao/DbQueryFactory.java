@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.dao;
+package org.n52.sensorweb.server.db.old.dao;
 
 import org.n52.io.request.IoParameters;
 

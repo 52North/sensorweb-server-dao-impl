@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.query;
+package org.n52.sensorweb.server.db.query;
 
 import java.util.Collection;
 import java.util.Date;
@@ -38,10 +38,10 @@ import javax.persistence.criteria.Predicate;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.n52.io.request.IoParameters;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
+import org.n52.sensorweb.server.db.old.dao.QueryUtils;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DefaultDbQueryFactory;
-import org.n52.series.db.old.dao.QueryUtils;
 
 public abstract class QuerySpecifications {
 

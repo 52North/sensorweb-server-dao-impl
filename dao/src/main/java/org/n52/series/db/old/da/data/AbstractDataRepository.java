@@ -45,6 +45,8 @@ import org.n52.io.response.DetectionLimitOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.assembler.value.ValueConnector;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -54,8 +56,6 @@ import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.da.SessionAwareAssembler;
 import org.n52.series.db.old.dao.DataDao;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
 
 public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends AbstractValue< ? >, T>
         extends

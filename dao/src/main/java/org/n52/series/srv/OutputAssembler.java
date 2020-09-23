@@ -31,7 +31,7 @@ package org.n52.series.srv;
 import java.util.Collection;
 import java.util.List;
 
-import org.n52.series.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.spi.search.SearchResult;
 
 public interface OutputAssembler<T> {

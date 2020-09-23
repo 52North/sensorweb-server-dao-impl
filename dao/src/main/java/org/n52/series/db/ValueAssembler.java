@@ -35,10 +35,10 @@ import java.util.Map;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.ReferenceValueOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.assembler.value.ValueConnector;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue< ? >, T> {
 

@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db;
+package org.n52.sensorweb.server.db;
 
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;

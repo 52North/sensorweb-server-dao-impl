@@ -26,10 +26,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories.sampling;
+package org.n52.sensorweb.server.db.repositories.sampling;
 
+import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.sampling.SamplingEntity;
-import org.n52.series.db.repositories.ParameterServiceRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 

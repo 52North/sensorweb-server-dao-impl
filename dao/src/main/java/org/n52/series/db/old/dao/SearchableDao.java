@@ -30,6 +30,8 @@ package org.n52.series.db.old.dao;
 
 import java.util.List;
 
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+
 public interface SearchableDao<T> {
 
     List<T> find(DbQuery query);

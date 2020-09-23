@@ -33,13 +33,13 @@ import javax.persistence.PersistenceContext;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.n52.io.request.IoParameters;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
+import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.db.beans.dataset.ValueType;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DefaultDbQueryFactory;
-import org.n52.series.db.query.DatasetQuerySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class TestBase {

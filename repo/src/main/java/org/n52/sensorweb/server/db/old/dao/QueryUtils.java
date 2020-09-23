@@ -27,7 +27,7 @@
  * for more details.
  */
 
-package org.n52.series.db.old.dao;
+package org.n52.sensorweb.server.db.old.dao;
 
 import java.util.Collection;
 import java.util.Set;

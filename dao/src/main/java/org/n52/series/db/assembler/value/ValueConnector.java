@@ -31,10 +31,10 @@ package org.n52.series.db.assembler.value;
 import java.util.List;
 import java.util.Optional;
 
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.UnitEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public interface ValueConnector {
 

@@ -35,12 +35,12 @@ import java.util.Set;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.repositories.core.DataRepository;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.repositories.core.DataRepository;
-import org.n52.series.db.repositories.core.DatasetRepository;
 
 public abstract class ProfileValueAssembler<V, T>
         extends AbstractValueAssembler<ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {

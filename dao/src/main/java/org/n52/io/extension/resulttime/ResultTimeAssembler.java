@@ -44,10 +44,10 @@ import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.request.IoParameters;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.repositories.core.DatasetRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

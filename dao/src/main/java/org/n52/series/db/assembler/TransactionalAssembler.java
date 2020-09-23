@@ -28,8 +28,8 @@
  */
 package org.n52.series.db.assembler;
 
+import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.repositories.ParameterDataRepository;
 
 public interface TransactionalAssembler<E extends DescribableEntity> {
 

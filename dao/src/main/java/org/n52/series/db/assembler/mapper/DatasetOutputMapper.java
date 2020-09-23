@@ -32,6 +32,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -39,7 +40,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public class DatasetOutputMapper
         extends ParameterOutputSearchResultMapper

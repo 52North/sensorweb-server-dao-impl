@@ -26,16 +26,16 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.repositories.core;
+package org.n52.sensorweb.server.db.repositories.core;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.n52.series.db.DatasetTypesMetadata;
+import org.n52.sensorweb.server.db.DatasetTypesMetadata;
+import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
-import org.n52.series.db.repositories.ParameterServiceRepository;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
 import org.springframework.data.jpa.domain.Specification;

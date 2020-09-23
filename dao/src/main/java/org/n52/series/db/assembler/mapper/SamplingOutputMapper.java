@@ -33,11 +33,11 @@ import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplerOutput;
 import org.n52.io.response.sampling.SamplingOutput;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
-import org.n52.series.db.old.dao.DbQuery;
 
 public class SamplingOutputMapper extends ParameterOutputSearchResultMapper implements TimeOutputCreator {
 

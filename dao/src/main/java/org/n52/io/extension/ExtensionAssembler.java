@@ -29,9 +29,9 @@
 package org.n52.io.extension;
 
 import org.n52.io.request.IoParameters;
-import org.n52.series.db.old.dao.DbQuery;
-import org.n52.series.db.old.dao.DbQueryFactory;
-import org.n52.series.db.repositories.core.DatasetRepository;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 
 public abstract class ExtensionAssembler {
 
