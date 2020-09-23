@@ -32,6 +32,8 @@ package org.hibernate.criterion;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -300,6 +302,26 @@ public final class MoreRestrictions {
     private static Collector<Criterion, ?, Criterion> toCriterion(Function<Criterion[], Criterion> finisher) {
         return collectingAndThen(collectingAndThen(toSet(), (Set<Criterion> s) -> s.stream().toArray(Criterion[]::new)),
                 finisher);
+    }
+
+    @SafeVarargs
+    @SuppressWarnings(value = "varargs")
+    public static Optional<? extends Criterion> and(Optional<? extends Criterion>... criteria) {
+        Conjunction conjunction = Arrays.stream(criteria).filter(Optional::isPresent).map(optional -> optional.get())
+                .collect(HibernateCollectors.toConjunction());
+        return Optional.of(conjunction).filter(MoreRestrictions::hasConditions);
+    }
+
+    @SafeVarargs
+    @SuppressWarnings(value = "varargs")
+    public static Optional<? extends Criterion> or(Optional<? extends Criterion>... criteria) {
+        Disjunction disjunction = Arrays.stream(criteria).filter(Optional::isPresent).map(optional -> optional.get())
+                .collect(HibernateCollectors.toDisjunction());
+        return Optional.of(disjunction).filter(MoreRestrictions::hasConditions);
+    }
+
+    public static boolean hasConditions(Junction j) {
+        return j.conditions().iterator().hasNext();
     }
 
 }
