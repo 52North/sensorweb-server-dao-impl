@@ -253,4 +253,9 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {
         return getDatasetRepository().getDatasetTypesMetadata(createFilterPredicate(dbQuery));
     }
+
+    @Override
+    protected ParameterOutputSearchResultMapper getMapper(DbQuery query) {
+        return new DatasetOutputMapper(query);
+    }
 }
