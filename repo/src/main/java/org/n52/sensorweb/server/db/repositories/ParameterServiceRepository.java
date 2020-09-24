@@ -50,13 +50,14 @@ public interface ParameterServiceRepository<T extends DescribableEntity> extends
     }
 
     default Example<T> createExample(T entity, ExampleMatcher matcher) {
-        return Example.<T>of(entity, matcher);
+        return Example.<T> of(entity, matcher);
     }
 
     default ExampleMatcher createMatcher() {
-        return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
-                .withMatcher(DescribableEntity.PROPERTY_IDENTIFIER, GenericPropertyMatchers.ignoreCase())
-                .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
+        return ExampleMatcher.matching()
+                .withIgnorePaths(DescribableEntity.PROPERTY_ID, DescribableEntity.STA_IDENTIFIER)
+                .withMatcher(DescribableEntity.PROPERTY_IDENTIFIER, GenericPropertyMatchers.exact())
+                .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.exact());
     }
 
     default <T extends DescribableEntity> T createIdentifierServiceExample(T entity) {

@@ -80,9 +80,6 @@ public class ProcedureAssemblerTest extends TestBase {
     @Autowired
     private AutowireCapableBeanFactory beanFactory;
 
-    @Autowired
-    private ServiceEntityFactory serviceEntityFactory;
-
     private ProcedureAssembler assembler;
 
     @Override
