@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,6 +55,8 @@ import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.DatasetOutputMapper;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.assembler.value.AbstractNumericalValueAssembler;
 import org.n52.series.db.assembler.value.AbstractValueAssembler;
 import org.n52.series.db.beans.DataEntity;
@@ -182,24 +185,35 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     public DatasetEntity getOrInsertInstance(DatasetEntity dataset) {
         IoParameters parameters = IoParameters.createDefaults();
         DatasetQuerySpecifications dsQS = DatasetQuerySpecifications.of(dbQueryFactory.createFrom(parameters), null);
-        Specification<DatasetEntity> specification = dsQS.matchCategory(dataset.getCategory().getId().toString());
+        List<Specification<DatasetEntity>> specifications = new LinkedList<>();
+        if (dataset.getCategory() != null && dataset.getCategory().getId() != null) {
+            specifications.add(dsQS.matchFeatures(dataset.getCategory().getId().toString()));
+        }
         if (dataset.getFeature() != null && dataset.getFeature().getId() != null) {
-            specification.and(dsQS.matchFeatures(dataset.getFeature().getId().toString()));
+            specifications.add(dsQS.matchFeatures(dataset.getFeature().getId().toString()));
         }
         if (dataset.getProcedure() != null && dataset.getProcedure().getId() != null) {
-            specification.and(dsQS.matchProcedures(dataset.getProcedure().getId().toString()));
+            specifications.add(dsQS.matchProcedures(dataset.getProcedure().getId().toString()));
         }
         if (dataset.getOffering() != null && dataset.getOffering().getId() != null) {
-            specification.and(dsQS.matchOfferings(dataset.getOffering().getId().toString()));
+            specifications.add(dsQS.matchOfferings(dataset.getOffering().getId().toString()));
         }
         if (dataset.getPhenomenon() != null && dataset.getPhenomenon().getId() != null) {
-            specification.and(dsQS.matchPhenomena(dataset.getPhenomenon().getId().toString()));
+            specifications.add(dsQS.matchPhenomena(dataset.getPhenomenon().getId().toString()));
         }
         if (dataset.getPlatform() != null && dataset.getPlatform().getId() != null) {
-            specification.and(dsQS.matchPlatforms(dataset.getPlatform().getId().toString()));
+            specifications.add(dsQS.matchPlatforms(dataset.getPlatform().getId().toString()));
         }
         if (dataset.getService() != null && dataset.getService().getId() != null) {
-            specification.and(dsQS.matchServices(dataset.getService().getId().toString()));
+            specifications.add(dsQS.matchServices(dataset.getService().getId().toString()));
+        }
+        Specification<DatasetEntity> specification = null;
+        for (Specification<DatasetEntity> spec : specifications) {
+            if (specification != null && spec != null) {
+                specification = specification.and(spec);
+            } else {
+                specification = spec;
+            }
         }
         Optional<DatasetEntity> instance = getParameterRepository().findOne(specification);
         return !instance.isPresent() ? getParameterRepository().saveAndFlush(dataset)
