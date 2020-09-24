@@ -72,8 +72,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class ServiceAssembler
         implements OutputAssembler<ServiceOutput>, InsertAssembler<ServiceEntity>, ClearAssembler<ServiceEntity> {
 
