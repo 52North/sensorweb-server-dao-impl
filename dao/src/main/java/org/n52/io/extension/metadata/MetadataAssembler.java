@@ -44,8 +44,8 @@ import org.n52.io.response.ParameterOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.parameter.JsonParameterEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
-import org.n52.series.db.beans.parameter.ParameterJsonEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,10 +89,10 @@ public class MetadataAssembler extends ExtensionAssembler {
     private DatabaseMetadataOutput toOutput(ParameterEntity<?> entity) {
         DatabaseMetadataOutput<Object> databaseMetadataOutput =
                 DatabaseMetadataOutput.create().setLastUpdatedAt(entity.getLastUpdate());
-        if (entity instanceof ParameterJsonEntity) {
+        if (entity instanceof JsonParameterEntity) {
             try {
                 databaseMetadataOutput
-                        .setValue(new ObjectMapper().readTree(((ParameterJsonEntity) entity).getValue()));
+                        .setValue(new ObjectMapper().readTree(((JsonParameterEntity) entity).getValue()));
             } catch (IOException e) {
                 LOGGER.error("Could not parse to json ({}): {}", entity.getName(), entity.getValue(), e);
             }

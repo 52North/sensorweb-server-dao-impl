@@ -32,7 +32,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.n52.series.db.beans.parameter.ParameterJsonEntity;
+import org.n52.series.db.beans.parameter.dataset.DatasetJsonParameterEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,7 +42,7 @@ public class MetadataJsonEntitiyTest {
 
     @Test
     public void givenMetadataJsonEntity_whenSerialize_ValueAsJsonNode() throws JsonProcessingException, IOException {
-        ParameterJsonEntity entity = new ParameterJsonEntity();
+        DatasetJsonParameterEntity entity = new DatasetJsonParameterEntity();
         entity.setId(1L);
         entity.setName("some_metadata");
         entity.setValue("{\"key\":\"value\",\"object\":{\"key1\":\"string\",\"key2\":42}}");
