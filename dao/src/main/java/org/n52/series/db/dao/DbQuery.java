@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
@@ -57,6 +58,8 @@ import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.IdEntity;
+import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.opengis.referencing.FactoryException;
@@ -234,9 +237,9 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addFilters(Criteria criteria, String datasetProperty) {
+    public Criteria addFilters(Criteria criteria, String datasetProperty, Session session) {
         addLimitAndOffsetFilter(criteria);
-        addDetachedFilters(datasetProperty, criteria);
+        addDetachedFilters(datasetProperty, criteria, session);
         return criteria;
     }
 
@@ -276,7 +279,7 @@ public class DbQuery {
         return criteria;
     }
 
-    public Criteria addDetachedFilters(String datasetName, Criteria criteria) {
+    public Criteria addDetachedFilters(String datasetName, Criteria criteria, Session session) {
         Set<String> categories = parameters.getCategories();
         Set<String> procedures = parameters.getProcedures();
         Set<String> phenomena = parameters.getPhenomena();
@@ -313,15 +316,10 @@ public class DbQuery {
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         // FIXME check for simple or full db models
-        if (isIncludeHierarchy()) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
-        } else {
-            addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
-            addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
-            addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
-        }
+
+        addProcedureRestriction(procedures, filter, session);
+        addOfferingRestriction(offerings, filter, session);
+        addFeatureRestriction(features, filter);
         addFilterRestriction(categories, DatasetEntity.PROPERTY_CATEGORY, filter);
         addFilterRestriction(platforms, DatasetEntity.PROPERTY_PLATFORM, filter);
         if (samplingSupported) {
@@ -345,6 +343,32 @@ public class DbQuery {
         String filterProperty = QueryUtils.createAssociation(datasetName, PROPERTY_ID);
         criteria.add(Subqueries.propertyIn(filterProperty, filter));
         return criteria;
+    }
+
+    private void addProcedureRestriction(Set<String> procedures, DetachedCriteria filter, Session session) {
+        if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(ProcedureEntity.PROPERTY_PARENTS,
+                ProcedureEntity.class, session)) {
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+        } else {
+            addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
+        }
+    }
+
+    private void addOfferingRestriction(Set<String> offerings, DetachedCriteria filter, Session session) {
+        if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(OfferingEntity.PROPERTY_PARENTS,
+                OfferingEntity.class, session)) {
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+        } else {
+            addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
+        }
+    }
+
+    private void addFeatureRestriction(Set<String> features, DetachedCriteria filter) {
+        if (isIncludeHierarchy()) {
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+        } else {
+            addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
+        }
     }
 
     private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
