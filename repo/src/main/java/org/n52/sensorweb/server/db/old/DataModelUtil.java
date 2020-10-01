@@ -51,6 +51,10 @@ public final class DataModelUtil {
         return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
     }
 
+    public static boolean isPropertyNameSupported(String property, Class<?> clazz, Criteria criteria) {
+        return isPropertyNameSupported(property, clazz, extractSessionFactory(criteria).getCurrentSession());
+    }
+
     private static boolean hasProperty(String property, EntityType<?> entityType) {
         return entityType.getAttributes().stream().map(a -> a.getName()).collect(Collectors.toSet())
                 .contains(property);
