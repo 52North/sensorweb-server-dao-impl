@@ -89,7 +89,7 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
         if (query.getParameters().getSpatialFilter() != null) {
             addSpatialFilter(query, datasetCriteria);
         }
-        return query.addFilters(datasetCriteria, getDatasetProperty());
+        return query.addFilters(datasetCriteria, getDatasetProperty(), session);
     }
 
     private void addMonitoringProgramFilter(DbQuery query, Criteria criteria) {

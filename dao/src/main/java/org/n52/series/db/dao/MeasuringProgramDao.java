@@ -90,7 +90,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         if (query.getParameters().getSpatialFilter() != null) {
             addSpatialFilter(query, datasetCriteria);
         }
-        return query.addFilters(datasetCriteria, getDatasetProperty());
+        return query.addFilters(datasetCriteria, getDatasetProperty(), session);
     }
 
     public Criteria addTimespanTo(Criteria criteria, IoParameters parameters) {
