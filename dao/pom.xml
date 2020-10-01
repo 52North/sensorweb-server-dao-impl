@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
         <artifactId>dao-impl-parent</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
     </parent>
     <artifactId>dao-impl-dao</artifactId>
     <packaging>jar</packaging>
@@ -116,6 +116,16 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>tech.units</groupId>
+            <artifactId>indriya</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>si.uom</groupId>
+            <artifactId>si-quantity</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

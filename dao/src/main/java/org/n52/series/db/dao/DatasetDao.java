@@ -125,7 +125,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getAllInstances(DbQuery q) throws DataAccessException {
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
-        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty(), session);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(toSQLString(criteria));
         }
