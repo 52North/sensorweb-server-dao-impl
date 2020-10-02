@@ -149,12 +149,18 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
     Map<String, ValueConnector> getConnectors();
 
     default boolean hasConnector(DatasetEntity entity) {
-        String connectorName = entity.getService().getConnector();
+        String connectorName = null;
+        if (entity.hasService())  {
+            connectorName = entity.getService().getConnector();
+        }
         return getConnectors().containsKey(connectorName);
     }
 
     default ValueConnector getConnector(DatasetEntity entity) {
-        String connectorName = entity.getService().getConnector();
+        String connectorName = null;
+        if (entity.hasService())  {
+            connectorName = entity.getService().getConnector();
+        }
         return getConnectors().get(connectorName);
     }
 
