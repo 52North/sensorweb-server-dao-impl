@@ -35,6 +35,7 @@ import javax.persistence.metamodel.EntityType;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.engine.spi.NamedQueryDefinition;
 import org.hibernate.engine.spi.NamedSQLQueryDefinition;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -48,7 +49,12 @@ import org.hibernate.persister.entity.OuterJoinLoadable;
 public final class DataModelUtil {
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
-        return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
+        Transaction transaction = session.beginTransaction();
+        try {
+            return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
+        } finally {
+            transaction.rollback();
+        }
     }
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Criteria criteria) {
