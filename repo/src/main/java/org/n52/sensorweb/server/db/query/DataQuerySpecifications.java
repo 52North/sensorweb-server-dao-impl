@@ -112,7 +112,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * @return a boolean expression
      */
     public Specification<DataEntity> matchParents() {
-        return (root, query, builder) -> builder.notEqual(root.get(DataEntity.PROPERTY_PARENT), null);
+        return (root, query, builder) -> builder.isNull(root.get(DataEntity.PROPERTY_PARENT));
     }
 
     /**

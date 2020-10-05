@@ -29,16 +29,13 @@
 package org.n52.sensorweb.server.db.repositories.core;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.n52.sensorweb.server.db.DatasetTypesMetadata;
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -60,13 +57,6 @@ public interface DatasetRepository extends ParameterServiceRepository<DatasetEnt
     default ExampleMatcher createMatcher() {
          return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
                  .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
-     }
-
-    default List<DatasetTypesMetadata> getDatasetTypesMetadata(Specification<DatasetEntity> spec) {
-        return findAll(spec).stream()
-                .map(d -> new DatasetTypesMetadata().setId(d.getId()).setDatasetType(d.getDatasetType())
-                        .setObservationType(d.getObservationType()).setValueType(d.getValueType()))
-                .collect(Collectors.toList());
     }
 
 }

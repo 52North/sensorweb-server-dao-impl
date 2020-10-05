@@ -58,6 +58,7 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DataQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DataRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DataEntity;
@@ -79,8 +80,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *
      * @see #assertServiceAvailable(DescribableEntity)
      */
-    @Autowired(required = false)
-    protected ServiceEntity serviceEntity;
+    @Autowired
+    protected ServiceEntityFactory serviceEntityFactory;
 
     private final DataRepository<E> dataRepository;
 
@@ -110,11 +111,11 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     private ServiceEntity getServiceEntity(final DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null ? entity.getService() : serviceEntity;
+        return entity.getService() != null ? entity.getService() : serviceEntityFactory.getServiceEntity();
     }
 
     private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {
-        if ((serviceEntity == null) && (entity == null)) {
+        if ((serviceEntityFactory == null) && (entity == null)) {
             throw new IllegalStateException("No service instance available");
         }
     }
@@ -187,7 +188,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     @Override
     public V assembleDataValueWithMetadata(E data, DatasetEntity dataset, DbQuery query) {
-        V value = assembleDataValue(data, dataset, query);
+        V value = assembleDataValue((E) Hibernate.unproxy(data), dataset, query);
         return addMetadatasIfNeeded(data, value, dataset, query);
     }
 

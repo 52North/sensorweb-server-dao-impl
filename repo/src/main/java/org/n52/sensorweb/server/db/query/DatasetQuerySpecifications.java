@@ -41,6 +41,7 @@ import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.QueryUtils;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -738,6 +739,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
                 return builder.isNull(root.get(DatasetEntity.PROPERTY_ID));
             }
             return builder.equal(root.get(DatasetEntity.PROPERTY_ID), Long.parseLong(id));
+        };
+    }
+
+    public Specification<DatasetEntity> matchIds(final Collection<String> ids) {
+        return (root, query, builder) -> {
+            if (ids != null && !ids.isEmpty()) {
+                return root.get(DatasetEntity.PROPERTY_ID).in(QueryUtils.parseToIds(ids));
+            }
+            return null;
         };
     }
 

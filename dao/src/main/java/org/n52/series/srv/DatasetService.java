@@ -38,7 +38,7 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.sensorweb.server.db.DatasetTypesMetadata;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.DataRepositoryTypeFactory;
@@ -46,6 +46,7 @@ import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.core.DatasetAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.spi.srv.DataService;
+import org.n52.series.spi.srv.DatasetTypesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,7 +54,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DatasetService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
         implements
-        DataService<Data<V>> {
+        DataService<Data<V>>, DatasetTypesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetService.class);
 
@@ -65,8 +66,6 @@ public class DatasetService<V extends AbstractValue<?>> extends AccessService<Da
         super(repository, queryFactory);
         this.dataFactory = dataFactory;
     }
-
-
 
     @Override
     public DataCollection<Data<V>> getData(IoParameters parameters) {
@@ -93,11 +92,17 @@ public class DatasetService<V extends AbstractValue<?>> extends AccessService<Da
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
         ValueAssembler< ?, V, ?> assembler =
                 (ValueAssembler<?, V, ?>) dataFactory
-                        .create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);
+                        .create(metadata.getObservationType(), metadata.getValueType(), entityType);
         return assembler.getData(metadata.getId(), dbQuery);
     }
 
     private DatasetAssembler<V> getRepository() {
         return (DatasetAssembler<V>) repository;
+    }
+
+    @Override
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(IoParameters map) {
+        DbQuery dbQuery = dbQueryFactory.createFrom(map);
+        return getRepository().getDatasetTypesMetadata(dbQuery);
     }
 }

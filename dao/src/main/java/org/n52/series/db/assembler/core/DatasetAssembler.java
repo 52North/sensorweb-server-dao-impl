@@ -31,17 +31,20 @@ package org.n52.series.db.assembler.core;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.io.response.dataset.ReferenceValueOutput;
-import org.n52.sensorweb.server.db.DatasetTypesMetadata;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
@@ -55,6 +58,7 @@ import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -216,7 +220,22 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {
-        return getDatasetRepository().getDatasetTypesMetadata(createFilterPredicate(dbQuery));
+        return findAll(dbQuery)
+                .map(d -> new DatasetTypesMetadata().setId(d.getId()).setDatasetType(d.getDatasetType().name())
+                        .setObservationType(d.getObservationType().name()).setValueType(d.getValueType().name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DatasetEntity> findAll(DbQuery query) {
+        if (query.getParameters().containsParameter(Parameters.DATASETS)) {
+            DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
+            Specification<DatasetEntity> predicate =
+                    dsFilterSpec.matchFilters().and(dsFilterSpec.matchIds(query.getParameters().getDatasets()));
+            final Iterable<DatasetEntity> entities = getParameterRepository().findAll(predicate);
+            return StreamUtils.createStreamFromIterator(entities.iterator());
+        }
+        return super.findAll(query);
     }
 
     @Override

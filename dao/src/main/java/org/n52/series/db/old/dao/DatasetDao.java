@@ -39,7 +39,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.hibernate.transform.ResultTransformer;
-import org.n52.sensorweb.server.db.DatasetTypesMetadata;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.QueryUtils;
 import org.n52.series.db.beans.DatasetEntity;
@@ -47,9 +47,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.IdEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.dataset.DatasetType;
-import org.n52.series.db.beans.dataset.ObservationType;
-import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
@@ -235,9 +232,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
             DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
             if (tuple != null) {
                 datasetTypesMetadata.setId(tuple[0].toString());
-                datasetTypesMetadata.setDatasetType(DatasetType.valueOf(tuple[1].toString()));
-                datasetTypesMetadata.setObservationType(ObservationType.valueOf(tuple[2].toString()));
-                datasetTypesMetadata.setValueType(ValueType.valueOf(tuple[3].toString()));
+                datasetTypesMetadata.setDatasetType(tuple[1].toString());
+                datasetTypesMetadata.setObservationType(tuple[2].toString());
+                datasetTypesMetadata.setValueType(tuple[3].toString());
             }
             return datasetTypesMetadata;
         }
