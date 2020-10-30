@@ -48,6 +48,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -254,6 +255,19 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
         // XXX explicit cast here
         return stationRepository.getCondensedInstance(featurePkid, query, session);
+    }
+
+    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
+            throws DataAccessException {
+        DatasetParameters metadata = new DatasetParameters();
+        ServiceEntity service = getServiceEntity(dataset);
+        metadata.setService(getCondensedService(service, parameters));
+        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
+        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
+        return metadata;
     }
 
 }

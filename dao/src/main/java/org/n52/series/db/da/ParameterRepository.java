@@ -31,6 +31,7 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
@@ -42,13 +43,13 @@ import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ParameterRepository<E extends DescribableEntity, O extends ParameterOutput>
-        extends
-        SessionAwareRepository
-        implements
-        SearchableRepository,
-        OutputAssembler<O> {
+        extends SessionAwareRepository implements SearchableRepository, OutputAssembler<O> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParameterRepository.class);
 
     protected abstract O prepareEmptyParameterOutput();
 
@@ -81,8 +82,12 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     @Override
     public List<O> getAllCondensed(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
-        List<O> results = createCondensed(allInstances, query, session);
-        return results;
+        long start = System.currentTimeMillis();
+        try {
+            return createCondensed(allInstances, query, session);
+        } finally {
+            LOGGER.debug("Processing allCondensed takes: " + (System.currentTimeMillis() - start));
+        }
     }
 
     protected List<O> createCondensed(Collection<E> allInstances, DbQuery query, Session session) {
@@ -122,30 +127,46 @@ public abstract class ParameterRepository<E extends DescribableEntity, O extends
     @Override
     public List<O> getAllExpanded(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
-        return createExpanded(allInstances, query, session);
+        long start = System.currentTimeMillis();
+        try {
+            return createExpanded(allInstances, query, session);
+        } finally {
+            LOGGER.debug("Processing allExpanded takes: " + (System.currentTimeMillis() - start));
+        }
     }
 
     protected abstract O createExpanded(E instance, DbQuery query, Session session);
 
     protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session)
             throws DataAccessException {
-        List<O> results = new ArrayList<>();
-        for (E entity : allInstances) {
-            O instance = createExpanded(entity, query, session);
-            if (instance != null) {
-                /*
-                 * there are cases where entities does not match a filter which could not be added to a db
-                 * criteria, e.g. spatial filters on mobile platforms (last location is calculated after db
-                 * query has been finished already)
-                 */
-                results.add(instance);
-            }
-        }
-        return results;
+        // List<O> results = new ArrayList<>();
+        LOGGER.debug("Entities: " + allInstances.size());
+        List<O> result =
+                allInstances.parallelStream().map(e -> createExpanded(e, query, session)).collect(Collectors.toList());
+        LOGGER.debug("Ouput: " + result.size());
+        return result;
+        // for (E entity : allInstances) {
+        // O instance = createExpanded(entity, query, session);
+        // if (instance != null) {
+        // /*
+        // * there are cases where entities does not match a filter which could not be added to a db
+        // * criteria, e.g. spatial filters on mobile platforms (last location is calculated after db
+        // * query has been finished already)
+        // */
+        // results.add(instance);
+        // }
+        // }
+        // return results;
     }
 
     protected List<E> getAllInstances(DbQuery parameters, Session session) {
-        return createDao(session).getAllInstances(parameters);
+        long start = System.currentTimeMillis();
+        try {
+            return createDao(session).getAllInstances(parameters);
+        } finally {
+            LOGGER.debug("Querying allInstances takes: " + (System.currentTimeMillis() - start));
+        }
+
     }
 
     @Override

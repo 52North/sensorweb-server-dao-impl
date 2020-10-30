@@ -31,18 +31,14 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.spi.search.SearchResult;
@@ -177,12 +173,12 @@ public class StationRepository extends SessionAwareRepository
             throws DataAccessException {
         StationOutput result = createCondensed(feature, query);
 
-        Class<DatasetEntity> clazz = DatasetEntity.class;
-        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+//        Class<DatasetEntity> clazz = DatasetEntity.class;
+//        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+//        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
-        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+//        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+//        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
 
         return result;
     }

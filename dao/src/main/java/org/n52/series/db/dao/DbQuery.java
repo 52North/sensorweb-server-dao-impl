@@ -154,6 +154,10 @@ public class DbQuery {
                          .toInterval();
     }
 
+    public Interval getLastValueMatches() {
+        return parameters.getLastValueMatches() != null ? parameters.getLastValueMatches().toInterval() : null;
+    }
+
     public Integer getLevel() {
         return parameters.getLevel();
     }
