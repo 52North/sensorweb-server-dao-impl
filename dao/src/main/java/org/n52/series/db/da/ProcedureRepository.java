@@ -29,10 +29,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
-import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ProcedureOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.ProcedureDao;
@@ -64,21 +61,22 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     @Override
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
-        ProcedureOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-
-        if (entity.hasParents()) {
-            result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session),
-                    query.getParameters(), result::setParents);
-        }
-        if (entity.hasChildren()) {
-            result.setValue(HierarchicalParameterOutput.CHILDREN,
-                    createCondensed(entity.getChildren(), query, session), query.getParameters(), result::setChildren);
-        }
-        return result;
+        // ProcedureOutput result = createCondensed(entity, query, session);
+        // ServiceOutput service = (query.getHrefBase() != null)
+        // ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+        // : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        // result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        //
+        // if (entity.hasParents()) {
+        // result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query,
+        // session),
+        // query.getParameters(), result::setParents);
+        // }
+        // if (entity.hasChildren()) {
+        // result.setValue(HierarchicalParameterOutput.CHILDREN,
+        // createCondensed(entity.getChildren(), query, session), query.getParameters(), result::setChildren);
+        // }
+        return getMapperFactory().getProcedureMapper().createExpanded(entity, query, session);
     }
 
 }

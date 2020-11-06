@@ -79,38 +79,38 @@ public class QuantityDataRepository
 
     @Override
     public QuantityValue getFirstValue(DatasetEntity entity, Session session, DbQuery query) {
-        QuantityValue value = super.getFirstValue(entity, session, query);
-        if (value == null && entity.getFirstQuantityValue() != null) {
-            value = createEmptyValue();
+        if (entity.getFirstQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
             value.setValue(entity.getFirstQuantityValue());
             value.setTimestamp(createTimeOutput(entity.getFirstValueAt(), null, query.getParameters()));
             Locale locale = LocaleHelper.decode(query.getLocale());
             NumberFormat formatter = NumberFormat.getInstance(locale);
             value.setValueFormatter(formatter::format);
+            return value;
         }
-        return value;
+        return super.getFirstValue(entity, session, query);
     }
 
     @Override
     public QuantityValue getLastValue(DatasetEntity entity, Session session, DbQuery query) {
-        QuantityValue value = super.getLastValue(entity, session, query);
-        if (value == null && entity.getLastQuantityValue() != null) {
-            value = createEmptyValue();
+        if (entity.getLastQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
             value.setValue(entity.getLastQuantityValue());
             value.setTimestamp(createTimeOutput(entity.getLastValueAt(), null, query.getParameters()));
             Locale locale = LocaleHelper.decode(query.getLocale());
             NumberFormat formatter = NumberFormat.getInstance(locale);
             value.setValueFormatter(formatter::format);
+            return value;
         }
-        return value;
+        return super.getLastValue(entity, session, query);
     }
 
     @Override
     public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(DatasetEntity dataset, DbQuery query,
             Session session) {
-        List<DatasetEntity> referenceValues = dataset.getReferenceValues().stream().filter(Objects::nonNull)
-                .filter(rv -> rv.isPublished())
-                .filter(rv -> rv.getValueType() == ValueType.quantity).collect(toList());
+        List<DatasetEntity> referenceValues =
+                dataset.getReferenceValues().stream().filter(Objects::nonNull).filter(rv -> rv.isPublished())
+                        .filter(rv -> rv.getValueType() == ValueType.quantity).collect(toList());
 
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (DatasetEntity referenceDatasetEntity : referenceValues) {

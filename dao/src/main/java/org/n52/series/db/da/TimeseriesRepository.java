@@ -205,8 +205,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId().toString());
 
                 QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
-                refenceValueOutput.setLastValue(
-                        repository.assembleDataValue(lastValue, referenceSeriesEntity, query));
+                refenceValueOutput.setLastValue(repository.assembleDataValue(lastValue, referenceSeriesEntity, query));
                 outputs.add(refenceValueOutput);
             }
         }

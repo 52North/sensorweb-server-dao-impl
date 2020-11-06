@@ -86,17 +86,15 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     public Collection<SearchResult> searchFor(IoParameters parameters) {
         /*
-         * final ServiceSearchResult result = new
-         * ServiceSearchResult(serviceInfo.getServiceId(),
+         * final ServiceSearchResult result = new ServiceSearchResult(serviceInfo.getServiceId(),
          * serviceInfo.getServiceDescription()); String queryString =
          * DbQuery.createFrom(parameters).getSearchTerm(); return
          * serviceInfo.getServiceDescription().contains(queryString) ?
          * Collections.<SearchResult>singletonList(result)ServiceRepository :
-         * Collections.<SearchResult>emptyList(); Session session =
-         * getSession(); try { ServiceDao serviceDao = createDao(session);
-         * DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
-         * serviceDao.find(query); return convertToSearchResults(found, query);
-         * } finally { returnSession(session); }
+         * Collections.<SearchResult>emptyList(); Session session = getSession(); try { ServiceDao serviceDao
+         * = createDao(session); DbQuery query = getDbQuery(parameters); List<ServiceEntity> found =
+         * serviceDao.find(query); return convertToSearchResults(found, query); } finally {
+         * returnSession(session); }
          */
         // TODO implement search
         throw new UnsupportedOperationException("not supported");
@@ -121,97 +119,97 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     @Override
     protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
         return getMapperFactory().getServiceMapper().createExpanded(entity, query, session);
-//        ServiceOutput result = getCondensedService(entity, query);
-//        IoParameters parameters = query.getParameters();
-//
-//        ParameterCount quantities = countParameters(result, query);
-//        boolean supportsFirstLatest = entity.getSupportsFirstLast();
-//
-//        String serviceUrl = entity.getUrl();
-//        String type = getServiceType(entity);
-//
-//        result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
-//        result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
-//
-//        // if (parameters.shallBehaveBackwardsCompatible()) {
-//        // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
-//        // result::setVersion);
-//        // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
-//        // result::setQuantities);
-//        // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-//        // supportsFirstLatest,
-//        // parameters,
-//        // result::setSupportsFirstLatest);
-//        // } else {
-//        Map<String, Object> features = new HashMap<>();
-//        features.put(ServiceOutput.QUANTITIES, quantities);
-//        features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
-//        features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
-//
-//        String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
-//
-//        String hrefBase = query.getHrefBase();
-//        result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
-//        result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-//        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-//        // }
-//        return result;
+        // ServiceOutput result = getCondensedService(entity, query);
+        // IoParameters parameters = query.getParameters();
+        //
+        // ParameterCount quantities = countParameters(result, query);
+        // boolean supportsFirstLatest = entity.getSupportsFirstLast();
+        //
+        // String serviceUrl = entity.getUrl();
+        // String type = getServiceType(entity);
+        //
+        // result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
+        // result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
+        //
+        // // if (parameters.shallBehaveBackwardsCompatible()) {
+        // // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
+        // // result::setVersion);
+        // // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
+        // // result::setQuantities);
+        // // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
+        // // supportsFirstLatest,
+        // // parameters,
+        // // result::setSupportsFirstLatest);
+        // // } else {
+        // Map<String, Object> features = new HashMap<>();
+        // features.put(ServiceOutput.QUANTITIES, quantities);
+        // features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
+        // features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
+        //
+        // String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
+        //
+        // String hrefBase = query.getHrefBase();
+        // result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
+        // result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
+        // result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+        // // }
+        // return result;
     }
-//
-//    private String getServiceType(ServiceEntity entity) {
-//        return entity.getType() != null ? entity.getType() : SERVICE_TYPE;
-//    }
-//
-//    private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
-//        Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
-//        for (String valueType : ioFactoryCreator.getKnownTypes()) {
-//            try {
-//                IoHandlerFactory<?, ?> factory = ioFactoryCreator.create(valueType);
-//                mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
-//            } catch (DatasetFactoryException e) {
-//                LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
-//            }
-//        }
-//        return mimeTypesByDatasetTypes;
-//    }
-//
-//    private ParameterCount countParameters(ServiceOutput service, DbQuery query) {
-//        try {
-//            IoParameters parameters = query.getParameters();
-//            ParameterCount quantities = new ServiceOutput.ParameterCount();
-//            DbQuery serviceQuery = getDbQuery(parameters.extendWith(Parameters.SERVICES, service.getId())
-//                    .removeAllOf("offset").removeAllOf("limit"));
-//            quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
-//            quantities.setProceduresSize(counter.countProcedures(serviceQuery));
-//            quantities.setCategoriesSize(counter.countCategories(serviceQuery));
-//            quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
-//            quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-//
-//            // if (parameters.shallBehaveBackwardsCompatible()) {
-//            // quantities.setTimeseriesSize(counter.countTimeseries());
-//            // quantities.setStationsSize(counter.countStations());
-//            // } else {
-//            quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
-//            quantities.setDatasets(createDatasetCount(counter, serviceQuery));
-//
-//            // TODO
-//            quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
-//            quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
-//            // }
-//            return quantities;
-//        } catch (DataAccessException e) {
-//            throw new InternalServerException("Could not count parameter entities.", e);
-//        }
-//    }
-//
-//    private DatasetCount createDatasetCount(EntityCounter counter, DbQuery query) {
-//        DatasetCount datasetCount = new DatasetCount();
-//        datasetCount.setTotalAmount(counter.countDatasets(query));
-//        datasetCount.setAmountTimeseries(counter.countTimeseries(query));
-//        datasetCount.setAmountIndividualObservations(counter.countIndividualObservations(query));
-//        datasetCount.setAmountProfiles(counter.countProfiles(query));
-//        datasetCount.setAmountTrajectories(counter.countTrajectories(query));
-//        return datasetCount;
-//    }
+    //
+    // private String getServiceType(ServiceEntity entity) {
+    // return entity.getType() != null ? entity.getType() : SERVICE_TYPE;
+    // }
+    //
+    // private Map<String, Set<String>> getSupportedDatasets(ServiceOutput service) {
+    // Map<String, Set<String>> mimeTypesByDatasetTypes = new HashMap<>();
+    // for (String valueType : ioFactoryCreator.getKnownTypes()) {
+    // try {
+    // IoHandlerFactory<?, ?> factory = ioFactoryCreator.create(valueType);
+    // mimeTypesByDatasetTypes.put(valueType, factory.getSupportedMimeTypes());
+    // } catch (DatasetFactoryException e) {
+    // LOGGER.error("IO Factory for type '{}' couldn't be created.", valueType);
+    // }
+    // }
+    // return mimeTypesByDatasetTypes;
+    // }
+    //
+    // private ParameterCount countParameters(ServiceOutput service, DbQuery query) {
+    // try {
+    // IoParameters parameters = query.getParameters();
+    // ParameterCount quantities = new ServiceOutput.ParameterCount();
+    // DbQuery serviceQuery = getDbQuery(parameters.extendWith(Parameters.SERVICES, service.getId())
+    // .removeAllOf("offset").removeAllOf("limit"));
+    // quantities.setOfferingsSize(counter.countOfferings(serviceQuery));
+    // quantities.setProceduresSize(counter.countProcedures(serviceQuery));
+    // quantities.setCategoriesSize(counter.countCategories(serviceQuery));
+    // quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
+    // quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
+    //
+    // // if (parameters.shallBehaveBackwardsCompatible()) {
+    // // quantities.setTimeseriesSize(counter.countTimeseries());
+    // // quantities.setStationsSize(counter.countStations());
+    // // } else {
+    // quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+    // quantities.setDatasets(createDatasetCount(counter, serviceQuery));
+    //
+    // // TODO
+    // quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
+    // quantities.setMeasuringProgramsSize(counter.countMeasuringPrograms(serviceQuery));
+    // // }
+    // return quantities;
+    // } catch (DataAccessException e) {
+    // throw new InternalServerException("Could not count parameter entities.", e);
+    // }
+    // }
+    //
+    // private DatasetCount createDatasetCount(EntityCounter counter, DbQuery query) {
+    // DatasetCount datasetCount = new DatasetCount();
+    // datasetCount.setTotalAmount(counter.countDatasets(query));
+    // datasetCount.setAmountTimeseries(counter.countTimeseries(query));
+    // datasetCount.setAmountIndividualObservations(counter.countIndividualObservations(query));
+    // datasetCount.setAmountProfiles(counter.countProfiles(query));
+    // datasetCount.setAmountTrajectories(counter.countTrajectories(query));
+    // return datasetCount;
+    // }
 
 }

@@ -36,10 +36,8 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>,
-                                                      V extends AbstractValue< ? >,
-                                                      T>
-    extends AbstractDataRepository<DatasetEntity, E, V, T> {
+public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
+        extends AbstractDataRepository<DatasetEntity, E, V, T> {
 
     protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);

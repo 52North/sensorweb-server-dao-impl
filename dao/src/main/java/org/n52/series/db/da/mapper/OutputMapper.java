@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.slf4j.Logger;
 
 public interface OutputMapper<T extends ParameterOutput, S extends DescribableEntity> {
 
@@ -42,18 +43,30 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
     }
 
     default T condensed(T result, DescribableEntity entity, DbQuery query) {
-        String id = Long.toString(entity.getId());
-        String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getIdentifier();
-        String hrefBase = query.getHrefBase();
+        try {
+            String id = Long.toString(entity.getId());
+            String label = entity.getLabelFrom(query.getLocale());
+            String domainId = entity.getIdentifier();
+            String hrefBase = query.getHrefBase();
 
-        result.setId(id);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
-        result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
-        return result;
+            result.setId(id);
+            result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
+            result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
+            result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
     T createExpanded(S entity, DbQuery query, Session session);
+
+    Logger getLogger();
+
+    default void log(DescribableEntity entity, Exception e) {
+        getLogger().error("Error while processing {} with id {}! Exception: {}", entity.getClass().getSimpleName(),
+                entity.getId(), e);
+    }
 
 }

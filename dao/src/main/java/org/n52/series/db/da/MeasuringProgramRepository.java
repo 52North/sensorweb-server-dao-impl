@@ -136,20 +136,22 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
 
     private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram, DbQuery query) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedFeature(d.getFeature(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+                .map(d -> getCondensedFeature(d.getFeature(), query)).collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedPhenomenon(d.getPhenomenon(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(d -> getCondensedPhenomenon(d.getPhenomenon(), query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedCategory(d.getCategory(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(d -> getCondensedCategory(d.getCategory(), query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private ProducerOutput getCondensedProducer(String producer, IoParameters parameters) {
@@ -170,8 +172,7 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
                     if (observedArea == null) {
                         observedArea = featureGeometry;
                     } else {
-                        observedArea.getEnvelopeInternal()
-                                .expandToInclude(featureGeometry.getEnvelopeInternal());
+                        observedArea.getEnvelopeInternal().expandToInclude(featureGeometry.getEnvelopeInternal());
                     }
                 }
             }

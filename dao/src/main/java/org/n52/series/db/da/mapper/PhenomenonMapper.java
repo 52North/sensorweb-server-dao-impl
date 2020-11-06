@@ -45,12 +45,15 @@ public class PhenomenonMapper extends AbstractOuputMapper<PhenomenonOutput, Phen
     }
 
     @Override
-    public PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query,
-            Session session) {
-        PhenomenonOutput result = createCondensed(entity, query);
-        addService(result, entity, query);
-        return result;
+    public PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
+        try {
+            PhenomenonOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
-
 
 }

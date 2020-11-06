@@ -49,12 +49,10 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<Dataset
     }
 
     @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               DatasetEntity dataset,
-                                               DbQuery query) {
+    protected ProfileValue<String> createValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             CategoryDataEntity categoryEntity = (CategoryDataEntity) dataEntity;
             CategoryValue valueItem = categoryRepository.createValue(categoryEntity.getValue(), categoryEntity, query);
             addParameters(categoryEntity, valueItem, query);

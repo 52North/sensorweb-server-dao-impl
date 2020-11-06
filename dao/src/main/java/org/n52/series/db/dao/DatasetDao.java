@@ -40,6 +40,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.hibernate.transform.ResultTransformer;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -54,6 +55,8 @@ import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nProcedureEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
+import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -209,9 +212,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
         criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
         criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        if (DataModelUtil.isEntitySupported(SamplingEntity.class, criteria)) {
+            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_SAMPLING_PROFILE,
+                    SamplingProfileDatasetEntity.PROPERTY_SAMPLINGS), FetchMode.JOIN);
+        }
         if (expanded) {
             criteria.setFetchMode(FIRST_OBSERVATION_ALIAS, FetchMode.JOIN);
             criteria.setFetchMode(LAST_OBSERVATION_ALIAS, FetchMode.JOIN);
+            criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
             criteria.setFetchMode(getFetchPath(FIRST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
             criteria.setFetchMode(getFetchPath(LAST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
             criteria.setFetchMode("referenceValues", FetchMode.JOIN);

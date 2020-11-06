@@ -55,17 +55,27 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
 
     @Override
     public FeatureOutput createCondensed(FeatureEntity entity, DbQuery query) {
-        FeatureOutput result = createCondensed(new FeatureOutput(), entity, query);
-        result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
-                result::setGeometry);
-        return result;
+        try {
+            FeatureOutput result = createCondensed(new FeatureOutput(), entity, query);
+            result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
+                    result::setGeometry);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
     public FeatureOutput createCondensed(AbstractFeatureEntity<?> entity, DbQuery query) {
-        FeatureOutput result = condensed(new FeatureOutput(), entity, query);
-        result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
-                result::setGeometry);
-        return result;
+        try {
+            FeatureOutput result = condensed(new FeatureOutput(), entity, query);
+            result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
+                    result::setGeometry);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
     @Override
@@ -75,25 +85,32 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
 
     public FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, boolean isParent, boolean isChild,
             Integer level, Session session) {
-        FeatureOutput result = createCondensed(entity, query);
-        addService(result, entity, query);
-        if (!isParent && !isChild) {
-            Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets(), query);
-            result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result::setDatasets);
-        }
-        if (!isParent && !isChild && entity.hasParents()) {
-            List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false, session);
-            result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), result::setParents);
-        }
-        if (level != null && level > 0) {
-            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
-                List<FeatureOutput> children =
-                        getMemberList(entity.getChildren(), query, level - 1, false, true, session);
-                result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
-                        result::setChildren);
+        try {
+            FeatureOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+            if (!isParent && !isChild) {
+                Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets(), query);
+                result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result::setDatasets);
             }
+            if (!isParent && !isChild && entity.hasParents()) {
+                List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false, session);
+                result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(),
+                        result::setParents);
+            }
+            if (level != null && level > 0) {
+                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                    List<FeatureOutput> children =
+                            getMemberList(entity.getChildren(), query, level - 1, false, true, session);
+                    result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                            result::setChildren);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            getLogger().error("Error while processing {} with id {}! Exception: {}", entity.getClass().getSimpleName(),
+                    entity.getId(), e);
         }
-        return result;
+        return null;
     }
 
     private List<FeatureOutput> getMemberList(Set<FeatureEntity> entities, DbQuery query, Integer level,

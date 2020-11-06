@@ -123,12 +123,9 @@ public class EntityCounter {
         try {
             IoParameters parameters = query.getParameters();
             if (parameters.getValueTypes().isEmpty()) {
-                parameters = parameters.extendWith(
-                        "valueTypes",
-                        dataRepositoryFactory.getKnownTypes().toArray(new String[0])
-                );
-                return getCount(new DatasetDao<>(session, DatasetEntity.class),
-                                dbQueryFactory.createFrom(parameters));
+                parameters = parameters.extendWith("valueTypes",
+                        dataRepositoryFactory.getKnownTypes().toArray(new String[0]));
+                return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
             }
             return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
         } finally {
@@ -163,7 +160,6 @@ public class EntityCounter {
             sessionStore.returnSession(session);
         }
     }
-
 
     @Deprecated
     public Long countTimeseries() throws DataAccessException {
@@ -203,7 +199,7 @@ public class EntityCounter {
         }
     }
 
-    public Long getCount(AbstractDao< ? > dao, DbQuery query) throws DataAccessException {
+    public Long getCount(AbstractDao<?> dao, DbQuery query) throws DataAccessException {
         return dao.getCount(query);
     }
 
@@ -211,7 +207,7 @@ public class EntityCounter {
         IoParameters parameters = IoParameters.createDefaults();
         // parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES,
         // "stationary", "insitu")
-        //     .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
+        // .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
         return dbQueryFactory.createFrom(parameters);
     }
 

@@ -81,6 +81,10 @@ public class MapperFactory {
         return new CategoryMapper(this);
     }
 
+    protected DatasetMapper getDatasetMapper() {
+        return new DatasetMapper(this);
+    }
+
     protected ServiceEntity getServiceEntity() {
         return serviceEntity;
     }

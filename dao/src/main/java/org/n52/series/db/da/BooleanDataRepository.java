@@ -61,13 +61,9 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue assembleDataValue(BooleanDataEntity observation,
-                                            DatasetEntity series,
-                                             DbQuery query) {
+    public BooleanValue assembleDataValue(BooleanDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Boolean observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Boolean observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         BooleanValue value = prepareValue(observation, query);
         value.setValue(observationValue);

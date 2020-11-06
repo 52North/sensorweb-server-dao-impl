@@ -28,8 +28,13 @@
  */
 package org.n52.series.db.da.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.hibernate.Session;
 import org.n52.io.response.PlatformOutput;
+import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.dao.DbQuery;
 
@@ -41,16 +46,25 @@ public class PlatformMapper extends AbstractOuputMapper<PlatformOutput, Platform
 
     @Override
     public PlatformOutput createCondensed(PlatformEntity entity, DbQuery query) {
-        // TODO Auto-generated method stub
-        return null;
+        return createCondensed(new PlatformOutput(), entity, query);
     }
 
     @Override
-    public PlatformOutput createExpanded(PlatformEntity entity, DbQuery query,
-            Session session) {
-        PlatformOutput result = createCondensed(entity, query);
-        addService(result, entity, query);
-        return result;
+    public PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
+        try {
+            PlatformOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+
+            List<DatasetOutput<AbstractValue<?>>> datasets = entity.getDatasets().stream()
+                    .map(d -> getMapperFactory().getDatasetMapper().createCondensed(d, query))
+                    .collect(Collectors.toList());
+
+            result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
 }

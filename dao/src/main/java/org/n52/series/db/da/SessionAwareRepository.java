@@ -96,9 +96,7 @@ public abstract class SessionAwareRepository {
     private HibernateSessionStore sessionStore;
 
     public DbQueryFactory getDbQueryFactory() {
-        return dbQueryFactory != null
-            ? dbQueryFactory
-            : new DefaultDbQueryFactory();
+        return dbQueryFactory != null ? dbQueryFactory : new DefaultDbQueryFactory();
     }
 
     public void setDbQueryFactory(DbQueryFactory dbQueryFactory) {
@@ -141,9 +139,7 @@ public abstract class SessionAwareRepository {
 
     private GeometryFactory createGeometryFactory(String srsId) {
         PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
-        return srsId == null
-            ? new GeometryFactory(pm)
-            : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
+        return srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
     protected Long parseId(String id) throws BadRequestException {
@@ -167,32 +163,32 @@ public abstract class SessionAwareRepository {
         }
     }
 
-//    protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
-//                                                                  DbQuery parameters)
-//            throws DataAccessException {
-//        Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
-//        for (DatasetEntity timeseries : series) {
-//            if (!timeseries.getProcedure()
-//                           .isReference()) {
-//                String timeseriesId = Long.toString(timeseries.getId());
-//                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
-//            }
-//        }
-//        return timeseriesOutputs;
-//    }
-//
-//    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
-//            throws DataAccessException {
-//        DatasetParameters metadata = new DatasetParameters();
-//        ServiceEntity service = getServiceEntity(dataset);
-//        metadata.setService(getCondensedService(service, parameters));
-//        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
-//        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
-//        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
-//        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
-//        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
-//        return metadata;
-//    }
+    // protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
+    // DbQuery parameters)
+    // throws DataAccessException {
+    // Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
+    // for (DatasetEntity timeseries : series) {
+    // if (!timeseries.getProcedure()
+    // .isReference()) {
+    // String timeseriesId = Long.toString(timeseries.getId());
+    // timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
+    // }
+    // }
+    // return timeseriesOutputs;
+    // }
+    //
+    // protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
+    // throws DataAccessException {
+    // DatasetParameters metadata = new DatasetParameters();
+    // ServiceEntity service = getServiceEntity(dataset);
+    // metadata.setService(getCondensedService(service, parameters));
+    // metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+    // metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+    // metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+    // metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
+    // metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
+    // return metadata;
+    // }
 
     protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session)
             throws DataAccessException {
@@ -269,14 +265,10 @@ public abstract class SessionAwareRepository {
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null
-            ? entity.getService()
-            : serviceEntity;
+        return entity.getService() != null ? entity.getService() : serviceEntity;
     }
 
-    protected <T extends ParameterOutput> T createCondensed(T result,
-                                                            DescribableEntity entity,
-                                                            DbQuery query) {
+    protected <T extends ParameterOutput> T createCondensed(T result, DescribableEntity entity, DbQuery query) {
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
         String domainId = entity.getIdentifier();
@@ -290,9 +282,7 @@ public abstract class SessionAwareRepository {
     }
 
     protected Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
+        return featureEntity.isSetGeometry() ? getGeometry(featureEntity.getGeometryEntity(), query) : null;
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
@@ -307,7 +297,6 @@ public abstract class SessionAwareRepository {
         }
         return null;
     }
-
 
     protected TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
         if (date != null) {

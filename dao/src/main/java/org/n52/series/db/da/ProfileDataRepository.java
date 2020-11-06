@@ -50,8 +50,7 @@ import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
 public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
-        extends
-        AbstractDataRepository<P, ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
+        extends AbstractDataRepository<P, ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {
 
     private static final String PARAMETER_NAME = "name";
 
@@ -142,14 +141,11 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         return verticalMetadata.getOrientation() != null && verticalMetadata.getOrientation() > 0 ? "height" : "depth";
     }
 
-    protected abstract ProfileValue<V> createValue(ProfileDataEntity observation,
-                                                   DatasetEntity dataset,
-                                                   DbQuery query);
+    protected abstract ProfileValue<V> createValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query);
 
-    protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity,
-                                                                            ProfileValue<T> profile,
-                                                                            ProfileDataEntity observation,
-                                                                            DbQuery query) {
+    protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity, ProfileValue<T> profile,
+            ProfileDataEntity observation, DbQuery query) {
         ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
@@ -164,11 +160,8 @@ public abstract class ProfileDataRepository<P extends DatasetEntity, V, T>
         return dataItem;
     }
 
-    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
-                                                                            ProfileValue<T> profile,
-                                                                            Set<Map<String, Object>> parameters,
-                                                                            DatasetEntity dataset,
-                                                                            DbQuery query) {
+    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity, ProfileValue<T> profile,
+            Set<Map<String, Object>> parameters, DatasetEntity dataset, DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         dataItem.setDetectionLimit(getDetectionLimit(dataEntity));

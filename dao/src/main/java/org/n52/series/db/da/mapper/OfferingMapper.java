@@ -41,16 +41,19 @@ public class OfferingMapper extends AbstractOuputMapper<OfferingOutput, Offering
 
     @Override
     public OfferingOutput createCondensed(OfferingEntity entity, DbQuery query) {
-        // TODO Auto-generated method stub
-        return null;
+        return createCondensed(new OfferingOutput(), entity, query);
     }
 
     @Override
-    public OfferingOutput createExpanded(OfferingEntity entity, DbQuery query,
-            Session session) {
-        OfferingOutput result = createCondensed(entity, query);
-        addService(result, entity, query);
-        return result;
+    public OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
+        try {
+            OfferingOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
 }

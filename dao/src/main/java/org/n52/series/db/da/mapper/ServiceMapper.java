@@ -67,41 +67,35 @@ public class ServiceMapper extends AbstractOuputMapper<ServiceOutput, ServiceEnt
 
     @Override
     public ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
-        ServiceOutput result = getCondensedService(entity, query);
-        IoParameters parameters = query.getParameters();
+        try {
+            ServiceOutput result = getCondensedService(entity, query);
+            IoParameters parameters = query.getParameters();
 
-        ParameterCount quantities = countParameters(result, query);
-        boolean supportsFirstLatest = entity.getSupportsFirstLast();
+            ParameterCount quantities = countParameters(result, query);
+            boolean supportsFirstLatest = entity.getSupportsFirstLast();
 
-        String serviceUrl = entity.getUrl();
-        String type = getServiceType(entity);
+            String serviceUrl = entity.getUrl();
+            String type = getServiceType(entity);
 
-        result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
-        result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
+            result.setValue(ServiceOutput.SERVICE_URL, serviceUrl, parameters, result::setServiceUrl);
+            result.setValue(ServiceOutput.TYPE, type, parameters, result::setType);
 
-        // if (parameters.shallBehaveBackwardsCompatible()) {
-        // result.setValue(ServiceOutput.VERSION, "1.0.0", parameters,
-        // result::setVersion);
-        // result.setValue(ServiceOutput.QUANTITIES, quantities, parameters,
-        // result::setQuantities);
-        // result.setValue(ServiceOutput.SUPPORTS_FIRST_LATEST,
-        // supportsFirstLatest,
-        // parameters,
-        // result::setSupportsFirstLatest);
-        // } else {
-        Map<String, Object> features = new HashMap<>();
-        features.put(ServiceOutput.QUANTITIES, quantities);
-        features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
-        features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
+            Map<String, Object> features = new HashMap<>();
+            features.put(ServiceOutput.QUANTITIES, quantities);
+            features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
+            features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(result));
 
-        String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
+            String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
 
-        String hrefBase = query.getHrefBase();
-        result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
-        result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-        // }
-        return result;
+            String hrefBase = query.getHrefBase();
+            result.setValue(ServiceOutput.VERSION, version, parameters, result::setVersion);
+            result.setValue(ServiceOutput.FEATURES, features, parameters, result::setFeatures);
+            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
     private String getServiceType(ServiceEntity entity) {

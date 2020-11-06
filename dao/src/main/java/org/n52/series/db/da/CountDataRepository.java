@@ -40,10 +40,8 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-
 @DataRepositoryComponent(value = "count", datasetEntityType = DatasetEntity.class)
-public class CountDataRepository
-        extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
+public class CountDataRepository extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
 
     @Override
     protected CountValue createEmptyValue() {
@@ -71,9 +69,7 @@ public class CountDataRepository
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Integer observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Integer observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         CountValue value = prepareValue(observation, query);
         value.setValue(observationValue);

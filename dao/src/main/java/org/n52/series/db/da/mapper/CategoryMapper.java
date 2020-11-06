@@ -45,12 +45,15 @@ public class CategoryMapper extends AbstractOuputMapper<CategoryOutput, Category
     }
 
     @Override
-    public CategoryOutput createExpanded(CategoryEntity entity, DbQuery query,
-            Session session) {
-        CategoryOutput result = createCondensed(entity, query);
-        addService(result, entity, query);
-        return result;
+    public CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
+        try {
+            CategoryOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
-
 
 }

@@ -29,9 +29,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
@@ -64,12 +62,7 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
 
     @Override
     protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        CategoryOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+        return getMapperFactory().getCategoryMapper().createExpanded(entity, query, session);
     }
 
 }

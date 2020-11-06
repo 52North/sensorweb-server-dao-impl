@@ -80,7 +80,7 @@ public class StationRepository extends SessionAwareRepository
         }
     }
 
-    private List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
+    private List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
@@ -173,12 +173,13 @@ public class StationRepository extends SessionAwareRepository
             throws DataAccessException {
         StationOutput result = createCondensed(feature, query);
 
-//        Class<DatasetEntity> clazz = DatasetEntity.class;
-//        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-//        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        // Class<DatasetEntity> clazz = DatasetEntity.class;
+        // DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        // List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
-//        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-//        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+        // Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+        // result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result
+        // ::setTimeseries);
 
         return result;
     }
@@ -197,14 +198,11 @@ public class StationRepository extends SessionAwareRepository
     }
 
     private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
+        return featureEntity.isSetGeometry() ? getGeometry(featureEntity.getGeometryEntity(), query) : null;
     }
 
     private DbQuery addPointLocationOnlyRestriction(DbQuery query) {
-        return dbQueryFactory.createFrom(query.getParameters()
-                                              .extendWith("geometryTypes", "Point"));
+        return dbQueryFactory.createFrom(query.getParameters().extendWith("geometryTypes", "Point"));
     }
 
 }

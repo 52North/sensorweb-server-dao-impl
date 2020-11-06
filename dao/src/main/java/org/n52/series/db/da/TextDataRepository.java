@@ -64,28 +64,20 @@ public class TextDataRepository extends AbstractDataRepository<DatasetEntity, Te
     @Override
     public TextValue assembleDataValue(TextDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        String observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        String observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         TextValue value = createValue(observation, series, query, observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
-    private TextValue createValue(TextDataEntity observation,
-                                  DatasetEntity series,
-                                  DbQuery query,
-                                  String observationValue) {
+    private TextValue createValue(TextDataEntity observation, DatasetEntity series, DbQuery query,
+            String observationValue) {
         ServiceEntity service = getServiceEntity(series);
-        String textValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        String textValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
         return createValue(textValue, observation, query);
     }
 
-    TextValue createValue(String observationValue,
-                          TextDataEntity observation,
-                          DbQuery query) {
+    TextValue createValue(String observationValue, TextDataEntity observation, DbQuery query) {
         TextValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return value;

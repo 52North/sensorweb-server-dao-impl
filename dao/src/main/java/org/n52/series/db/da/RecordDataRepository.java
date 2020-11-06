@@ -72,9 +72,7 @@ public class RecordDataRepository
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Map<String, Object> observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Map<String, Object> observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         RecordValue value = prepareValue(observation, query);
         value.setValue(observationValue);

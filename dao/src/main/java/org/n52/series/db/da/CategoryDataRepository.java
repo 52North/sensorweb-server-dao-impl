@@ -63,32 +63,22 @@ public class CategoryDataRepository
     }
 
     @Override
-    public CategoryValue assembleDataValue(CategoryDataEntity observation,
-            DatasetEntity series,
-                                              DbQuery query) {
+    public CategoryValue assembleDataValue(CategoryDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        String observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        String observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         CategoryValue value = createValue(observation, series, query, observationValue);
         return addMetadatasIfNeeded(observation, value, series, query);
     }
 
-    private CategoryValue createValue(CategoryDataEntity observation,
-            DatasetEntity series,
-                                      DbQuery query,
-                                      String observationValue) {
+    private CategoryValue createValue(CategoryDataEntity observation, DatasetEntity series, DbQuery query,
+            String observationValue) {
         ServiceEntity service = getServiceEntity(series);
-        String textValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        String textValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
         return createValue(textValue, observation, query);
     }
 
-    CategoryValue createValue(String observationValue,
-                              CategoryDataEntity observation,
-                              DbQuery query) {
+    CategoryValue createValue(String observationValue, CategoryDataEntity observation, DbQuery query) {
         CategoryValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         return value;
