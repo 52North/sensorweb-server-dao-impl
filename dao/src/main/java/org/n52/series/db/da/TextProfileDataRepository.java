@@ -51,12 +51,10 @@ public class TextProfileDataRepository extends ProfileDataRepository<DatasetEnti
     }
 
     @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               DatasetEntity dataset,
-                                               DbQuery query) {
+    protected ProfileValue<String> createValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             TextDataEntity textEntity = (TextDataEntity) dataEntity;
             TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
             addParameters(textEntity, valueItem, query);

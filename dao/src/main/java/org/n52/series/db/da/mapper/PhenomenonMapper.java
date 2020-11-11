@@ -26,43 +26,34 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.da;
+package org.n52.series.db.da.mapper;
 
 import org.hibernate.Session;
-import org.n52.io.response.CategoryOutput;
-import org.n52.series.db.beans.CategoryEntity;
-import org.n52.series.db.dao.AbstractDao;
-import org.n52.series.db.dao.CategoryDao;
+import org.n52.io.response.PhenomenonOutput;
+import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.dao.DbQuery;
-import org.n52.series.db.dao.SearchableDao;
-import org.n52.series.spi.search.CategorySearchResult;
-import org.n52.series.spi.search.SearchResult;
 
-public class CategoryRepository extends ParameterRepository<CategoryEntity, CategoryOutput> {
+public class PhenomenonMapper extends AbstractOuputMapper<PhenomenonOutput, PhenomenonEntity> {
 
-    @Override
-    protected CategoryOutput prepareEmptyParameterOutput() {
-        return new CategoryOutput();
+    public PhenomenonMapper(MapperFactory mapperFactory) {
+        super(mapperFactory);
     }
 
     @Override
-    protected SearchResult createEmptySearchResult(String id, String label, String baseUrl) {
-        return new CategorySearchResult().setId(id).setLabel(label).setBaseUrl(baseUrl);
+    public PhenomenonOutput createCondensed(PhenomenonEntity entity, DbQuery query) {
+        return createCondensed(new PhenomenonOutput(), entity, query);
     }
 
     @Override
-    protected AbstractDao<CategoryEntity> createDao(Session session) {
-        return new CategoryDao(session);
-    }
-
-    @Override
-    protected SearchableDao<CategoryEntity> createSearchableDao(Session session) {
-        return new CategoryDao(session);
-    }
-
-    @Override
-    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getCategoryMapper().createExpanded(entity, query, session);
+    public PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
+        try {
+            PhenomenonOutput result = createCondensed(entity, query);
+            addService(result, entity, query);
+            return result;
+        } catch (Exception e) {
+            log(entity, e);
+        }
+        return null;
     }
 
 }

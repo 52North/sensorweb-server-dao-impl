@@ -62,6 +62,8 @@ import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -73,6 +75,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareRepository
         implements OutputAssembler<DatasetOutput<V>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetRepository.class);
 
     @Autowired
     private DataRepositoryTypeFactory dataRepositoryFactory;
@@ -111,7 +115,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     @Override
     public List<DatasetOutput<V>> getAllCondensed(DbQuery query, Session session) {
         List<DatasetOutput<V>> results = new ArrayList<>();
-//        FilterResolver filterResolver = query.getFilterResolver();
+        // FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters().isMatchDomainIds()) {
             // String valueType = query.getHandleAsValueTypeFallback();
             Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
@@ -119,36 +123,38 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
             return results;
         }
 
-//        if (filterResolver.shallIncludeAllDatasetTypes()) {
-            addCondensedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
-//        } else {
-//            for (String valueType : query.getValueTypes()) {
-//                addCondensedResults(getDatasetDao(valueType, session), query, results, session);
-//            }
-//        }
+        // if (filterResolver.shallIncludeAllDatasetTypes()) {
+        addCondensedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
+        // } else {
+        // for (String valueType : query.getValueTypes()) {
+        // addCondensedResults(getDatasetDao(valueType, session), query, results, session);
+        // }
+        // }
         return results;
     }
 
     private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
+        long start = System.currentTimeMillis();
         for (DatasetEntity series : dao.getAllInstances(query)) {
             if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
-                results.add(createCondensed(series, query, session));
+                results.add(createCondensed(series, query));
             }
         }
+        LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     private DatasetDao<? extends DatasetEntity> getDatasetDao(Class<? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
     }
 
-//    private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
-//        // if (! ("all".equalsIgnoreCase(valueType) ||
-//        // dataRepositoryFactory.isKnown(valueType))) {
-//        // throw new BadQueryParameterException("invalid type: " + valueType);
-//        // }
-//        return createDataAccessRepository(DatasetEntity.class, session);
-//    }
+    // private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
+    // // if (! ("all".equalsIgnoreCase(valueType) ||
+    // // dataRepositoryFactory.isKnown(valueType))) {
+    // // throw new BadQueryParameterException("invalid type: " + valueType);
+    // // }
+    // return createDataAccessRepository(DatasetEntity.class, session);
+    // }
 
     private DatasetDao<? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
             throws DataAccessException {
@@ -180,30 +186,36 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     @Override
     public List<DatasetOutput<V>> getAllExpanded(DbQuery query, Session session) {
         List<DatasetOutput<V>> results = new ArrayList<>();
-//        FilterResolver filterResolver = query.getFilterResolver();
+        // FilterResolver filterResolver = query.getFilterResolver();
         if (query.getParameters().isMatchDomainIds()) {
             // String valueType = query.getHandleAsValueTypeFallback();
             addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
             return results;
         }
 
-//        if (filterResolver.shallIncludeAllDatasetTypes()) {
-            addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
-//        } else {
-//            for (String valueType : query.getValueTypes()) {
-//                addExpandedResults(getDatasetDao(valueType, session), query, results, session);
-//            }
-//        }
+        // if (filterResolver.shallIncludeAllDatasetTypes()) {
+        addExpandedResults(getDatasetDao(DatasetEntity.class, session), query, results, session);
+        // } else {
+        // for (String valueType : query.getValueTypes()) {
+        // addExpandedResults(getDatasetDao(valueType, session), query, results, session);
+        // }
+        // }
         return results;
     }
 
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
-        for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
-                results.add(createExpanded(series, query, session));
+        long start = System.currentTimeMillis();
+        for (DatasetEntity dataset : dao.getAllInstances(query)) {
+            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
+                try {
+                    results.add(createExpanded(dataset, query, session));
+                } catch (Exception e) {
+                    LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
+                }
             }
         }
+        LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     @Override
@@ -253,7 +265,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         return results;
     }
 
-    protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query, Session session) {
+    protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query) {
         IoParameters parameters = query.getParameters();
         if (dataset.getService() == null) {
             dataset.setService(getServiceEntity());
@@ -292,8 +304,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         result.setValue(DatasetOutput.SMAPLING_TIME_END,
                 createTimeOutput(dataset.getLastValueAt(), dataset.getOriginTimezone(), parameters), parameters,
                 result::setSamplingTimeEnd);
-        result.setValue(DatasetOutput.FEATURE,
-                getCondensedFeature(dataset.getFeature(), query), parameters,
+        result.setValue(DatasetOutput.FEATURE, getCondensedFeature(dataset.getFeature(), query), parameters,
                 result::setFeature);
 
         return result;
@@ -305,23 +316,22 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     private String getCollectionName(DatasetEntity dataset) {
         switch (dataset.getDatasetType()) {
-        case individualObservation:
-            return IndividualObservationOutput.COLLECTION_PATH;
-        case trajectory:
-            return TrajectoryOutput.COLLECTION_PATH;
-        case profile:
-            return ProfileOutput.COLLECTION_PATH;
-        case timeseries:
-            return TimeseriesMetadataOutput.COLLECTION_PATH;
-        default:
-            return DatasetOutput.COLLECTION_PATH;
+            case individualObservation:
+                return IndividualObservationOutput.COLLECTION_PATH;
+            case trajectory:
+                return TrajectoryOutput.COLLECTION_PATH;
+            case profile:
+                return ProfileOutput.COLLECTION_PATH;
+            case timeseries:
+                return TimeseriesMetadataOutput.COLLECTION_PATH;
+            default:
+                return DatasetOutput.COLLECTION_PATH;
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters params = query.getParameters();
-        DatasetOutput<V> result = createCondensed(dataset, query, session);
+        DatasetOutput<V> result = createCondensed(dataset, query);
 
         DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
         datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
@@ -414,7 +424,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         String stationLabel = feature.getLabelFrom(locale);
 
         StringBuilder sb = new StringBuilder();
-        return sb.append(phenomenonLabel).append(" ").append(procedureLabel).append(", ").append(stationLabel)
+        return sb.append(phenomenonLabel).append(", ").append(procedureLabel).append(", ").append(stationLabel)
                 .append(", ").append(offeringLabel).toString();
     }
 

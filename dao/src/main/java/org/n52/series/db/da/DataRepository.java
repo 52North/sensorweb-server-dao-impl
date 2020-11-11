@@ -40,15 +40,15 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue< ? >, T> {
+public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>, V extends AbstractValue<?>, T> {
 
     /**
      * Assembles observation values as {@link Data} output.
      *
      * @param id
-     *        the dataset id
+     *            the dataset id
      * @param query
-     *        the query
+     *            the query
      * @return the assembled data
      */
     Data<V> getData(String id, DbQuery query);
@@ -57,10 +57,11 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      * Assembles a list of reference values.
      *
      * @param datasetEntity
-     *        the dataset
+     *            the dataset
      * @param query
-     *        the query
-     * @param session hibernate session
+     *            the query
+     * @param session
+     *            hibernate session
      * @return a list of reference values
      */
     default List<ReferenceValueOutput<V>> getReferenceValues(S datasetEntity, DbQuery query, Session session) {
@@ -72,11 +73,11 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      * for a given query.
      *
      * @param dataEntity
-     *        the single data entity to assemble
+     *            the single data entity to assemble
      * @param datasetEntity
-     *        the dataset the data entity belongs to
+     *            the dataset the data entity belongs to
      * @param query
-     *        the query
+     *            the query
      * @return the assembled output
      */
     V assembleDataValueWithMetadata(E dataEntity, S datasetEntity, DbQuery query);
@@ -85,11 +86,11 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      * Assembles an output for a data entity for a given query.
      *
      * @param dataEntity
-     *        the single data entity to assemble
+     *            the single data entity to assemble
      * @param datasetEntity
-     *        the dataset the data entity belongs to
+     *            the dataset the data entity belongs to
      * @param query
-     *        the query
+     *            the query
      * @return the assembled output
      */
     V assembleDataValue(E dataEntity, S datasetEntity, DbQuery query);
@@ -109,22 +110,22 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
 
     /**
      * @param entity
-     *        the dataset entity
+     *            the dataset entity
      * @param session
-     *        the sesssion
+     *            the sesssion
      * @param query
-     *        the query
+     *            the query
      * @return the first value for the given dataset
      */
     V getFirstValue(S entity, Session session, DbQuery query);
 
     /**
      * @param entity
-     *        the dataset entity
+     *            the dataset entity
      * @param session
-     *        the session
+     *            the session
      * @param query
-     *        the query
+     *            the query
      * @return the last value for the given dataset
      */
     V getLastValue(S entity, Session session, DbQuery query);
@@ -135,9 +136,9 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      * Finds the closest value before a given timespan.
      *
      * @param dataset
-     *        the dataset
+     *            the dataset
      * @param query
-     *        the query containing the timespan
+     *            the query containing the timespan
      * @return the closest value before a given timespan
      */
     E getClosestValueBeforeStart(S dataset, DbQuery query);
@@ -146,9 +147,9 @@ public interface DataRepository<S extends DatasetEntity, E extends DataEntity<T>
      * Finds the closest value after a given timespan.
      *
      * @param dataset
-     *        the dataset
+     *            the dataset
      * @param query
-     *        the query containing the timespan
+     *            the query containing the timespan
      * @return the closest value after a given timespan
      */
     E getClosestValueAfterEnd(S dataset, DbQuery query);

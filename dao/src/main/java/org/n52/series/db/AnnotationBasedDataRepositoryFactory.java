@@ -70,7 +70,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
                                     ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(DataRepositoryComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
-        LOGGER.debug("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
+        LOGGER.trace("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
                 dataAssembleTypes.stream().map(it -> it.getClass().getSimpleName()).collect(joining(", ")));
         return dataAssembleTypes.stream().filter(DataRepository.class::isInstance).map(DataRepository.class::cast);
     }

@@ -30,10 +30,8 @@ package org.n52.series.db.da;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -41,31 +39,41 @@ import org.n52.io.response.AbstractOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.dao.DbQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class HierarchicalParameterRepository<E extends HierarchicalEntity<E>, O extends AbstractOutput>
-        extends ParameterRepository<E, O>
-        implements OutputAssembler<O> {
+        extends ParameterRepository<E, O> implements OutputAssembler<O> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HierarchicalParameterRepository.class);
 
     @Override
     protected List<O> createExpanded(Collection<E> entities, DbQuery query, Session session)
             throws DataAccessException {
-        Set<O> results = new HashSet<>();
         if (entities != null) {
-            for (E entity : entities) {
-                O result = createExpanded(entity, query, session);
-                results.add(result);
-            }
+            long start = System.currentTimeMillis();
+            LOGGER.debug("Expandend entities raw: " + entities.size());
+            List<O> result = entities.parallelStream().map(e -> createExpanded(e, query, session))
+                    .filter(Objects::nonNull).collect(Collectors.toList());
+            LOGGER.debug("Expandend entities processed: " + result.size());
+            LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
+            return result;
         }
-        return new ArrayList<>(results);
+        return new ArrayList<>();
     }
 
     @Override
     protected List<O> createCondensed(Collection<E> entities, DbQuery query, Session session) {
-        return entities == null
-                ? Collections.emptyList()
-                : entities.stream()
-                          .map(entity -> createCondensed(entity, query, session))
-                          .collect(Collectors.toList());
+        long start = System.currentTimeMillis();
+        if (entities != null) {
+            LOGGER.debug("Condensed entities raw: " + entities.size());
+            List<O> result = entities.parallelStream().map(entity -> createCondensed(entity, query, session))
+                    .filter(Objects::nonNull).collect(Collectors.toList());
+            LOGGER.debug("Condensed entities processed: " + result.size());
+            LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
+            return result;
+        }
+        return new ArrayList<>();
     }
 
 }

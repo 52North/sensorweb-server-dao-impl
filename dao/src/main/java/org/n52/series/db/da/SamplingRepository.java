@@ -113,10 +113,9 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     protected SamplingOutput createExpanded(SamplingEntity sampling, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         SamplingOutput result = createCondensed(sampling, query, session);
-        result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query),
-                parameters, result::setFeature);
-        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query),
-                parameters, result::setSamplingObservations);
+        result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query), parameters, result::setFeature);
+        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query), parameters,
+                result::setSamplingObservations);
         return result;
     }
 

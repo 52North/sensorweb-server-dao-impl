@@ -34,11 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.PlatformOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -56,7 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PlatformRepository extends ParameterRepository<PlatformEntity, PlatformOutput> {
 
     @Autowired
-    private DatasetRepository<AbstractValue< ? >> datasetRepository;
+    private DatasetRepository<AbstractValue<?>> datasetRepository;
 
     @Autowired
     private DataRepositoryTypeFactory factory;
@@ -83,24 +80,26 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
-        PlatformOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(PlatformOutput.SERVICE, service, query.getParameters(), result::setService);
+        // PlatformOutput result = createCondensed(entity, query, session);
+        // ServiceOutput service = (query.getHrefBase() != null)
+        // ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
+        // : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        // result.setValue(PlatformOutput.SERVICE, service, query.getParameters(), result::setService);
+        //
+        // DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS,
+        // result.getId())
+        // .removeAllOf(Parameters.FILTER_FIELDS));
+        // DbQuery datasetQuery =
+        // getDbQuery(platformQuery.getParameters().removeAllOf(Parameters.ODATA_FILTER)
+        // .removeAllOf(Parameters.FILTER_FIELDS));
+        //
+        // List<DatasetOutput<AbstractValue<?>>> datasets = datasetRepository.getAllCondensed(datasetQuery);
+        // // Set<Map<String, Object>> parameters =
+        // // entity.getMappedParameters(query.getLocale());
+        //
+        // result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
 
-        DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS, result.getId())
-                .removeAllOf(Parameters.FILTER_FIELDS));
-        DbQuery datasetQuery = getDbQuery(platformQuery.getParameters().removeAllOf(Parameters.ODATA_FILTER)
-                .removeAllOf(Parameters.FILTER_FIELDS));
-
-        List<DatasetOutput<AbstractValue<?>>> datasets = datasetRepository.getAllCondensed(datasetQuery);
-        // Set<Map<String, Object>> parameters =
-        // entity.getMappedParameters(query.getLocale());
-
-        result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
-
-        return result;
+        return getMapperFactory().getPlatformMapper().createExpanded(entity, query, session);
     }
 
     protected List<PlatformOutput> createCondensedHierarchyMembers(Set<PlatformEntity> members, DbQuery parameters,
