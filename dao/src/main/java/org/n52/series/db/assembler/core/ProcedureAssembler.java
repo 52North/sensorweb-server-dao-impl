@@ -32,7 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
-import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.ProcedureOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
@@ -40,6 +39,8 @@ import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.query.ProcedureQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.ProcedureRepository;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -47,11 +48,12 @@ import org.n52.series.spi.search.ProcedureSearchResult;
 import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
 public class ProcedureAssembler
-        extends HierarchicalAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
+        extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
 
     @Inject
     private FormatAssembler formatAssembler;
@@ -103,4 +105,10 @@ public class ProcedureAssembler
                 entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
         return getParameterRepository().saveAndFlush(entity);
     }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<ProcedureEntity, ProcedureOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getProcedureMapper(query);
+    }
+
 }

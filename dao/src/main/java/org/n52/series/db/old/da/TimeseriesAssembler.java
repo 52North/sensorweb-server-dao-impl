@@ -51,6 +51,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
@@ -64,7 +65,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-//@Component
+// @Component
 public class TimeseriesAssembler extends SessionAwareAssembler implements OutputAssembler<TimeseriesMetadataOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesAssembler.class);
@@ -267,6 +268,18 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
 
         // XXX explicit cast here
         return stationRepository.getCondensedInstance(featurePkid, query, session);
+    }
+
+    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters) {
+        DatasetParameters metadata = new DatasetParameters();
+        ServiceEntity service = getServiceEntity(dataset);
+        metadata.setService(getCondensedService(service, parameters));
+        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
+        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
+        return metadata;
     }
 
 }

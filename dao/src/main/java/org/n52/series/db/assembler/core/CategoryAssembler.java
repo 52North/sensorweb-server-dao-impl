@@ -35,6 +35,7 @@ import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.CategoryRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.spi.search.CategorySearchResult;
@@ -74,5 +75,10 @@ public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, 
                 dsFilterSpec.matchCategory(id).and(dsFilterSpec.isPublic());
         CategoryQuerySpecifications filterSpec = CategoryQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<CategoryEntity, CategoryOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getCategoryMapper();
     }
 }

@@ -51,8 +51,7 @@ import org.n52.series.db.beans.ProcedureEntity;
 @ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDataEntity, CountValue, Integer> {
 
-    public CountValueAssembler(DataRepository<CountDataEntity> dataRepository,
-            DatasetRepository datasetRepository) {
+    public CountValueAssembler(DataRepository<CountDataEntity> dataRepository, DatasetRepository datasetRepository) {
         super(dataRepository, datasetRepository);
     }
 
@@ -114,8 +113,7 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
         return result;
     }
 
-    private Map<String, Data<CountValue>> assembleReferenceSeries(List<DatasetEntity> referenceValues,
-            DbQuery query) {
+    private Map<String, Data<CountValue>> assembleReferenceSeries(List<DatasetEntity> referenceValues, DbQuery query) {
         Map<String, Data<CountValue>> referenceSeries = new HashMap<>();
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {

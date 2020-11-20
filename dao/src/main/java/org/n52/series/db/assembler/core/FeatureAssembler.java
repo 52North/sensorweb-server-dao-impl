@@ -28,30 +28,20 @@
  */
 package org.n52.series.db.assembler.core;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.HierarchicalParameterOutput;
-import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.query.FeatureQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
-import org.n52.series.db.assembler.mapper.FeatureOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -60,6 +50,7 @@ import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
@@ -105,49 +96,51 @@ public class FeatureAssembler
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 
-    @Override
-    protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
-        return createExpanded(entity, query, false, false, query.getLevel());
-    }
-
-    protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query, boolean isParent,
-            boolean isChild, Integer level) {
-        FeatureOutput result = super.createExpanded(entity, query);
-        if (!isParent && !isChild && entity.hasParents()) {
-            List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false);
-            result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), result::setParents);
-        }
-        if (level != null && level > 0) {
-            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
-                List<FeatureOutput> children = getMemberList(entity.getChildren(), query, level - 1, false, true);
-                result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
-                        result::setChildren);
-            }
-        }
-        return result;
-    }
-
-    private List<FeatureOutput> getMemberList(Set<AbstractFeatureEntity> entities, DbQuery query, Integer level,
-            boolean isNotParent, boolean isNotChild) {
-        List<FeatureOutput> list = new LinkedList<>();
-        for (AbstractFeatureEntity e : entities) {
-            list.add(createExpanded(e, query, isNotParent, isNotChild, level));
-        }
-        return list;
-    }
-
-    private Map<String, DatasetParameters> createDatasetParameters(List<?> datasets) {
-        Map<String, DatasetParameters> map = new LinkedHashMap<>();
-        for (Object object : datasets) {
-            DatasetOutput<AbstractValue<?>> value = (DatasetOutput<AbstractValue<?>>) object;
-            map.put(value.getId(), value.getDatasetParameters());
-        }
-        return map;
-    }
+    // @Override
+    // protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
+    // return createExpanded(entity, query, false, false, query.getLevel());
+    // }
+    //
+    // protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query, boolean isParent,
+    // boolean isChild, Integer level) {
+    // FeatureOutput result = super.createExpanded(entity, query);
+    // if (!isParent && !isChild && entity.hasParents()) {
+    // List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false);
+    // result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(),
+    // result::setParents);
+    // }
+    // if (level != null && level > 0) {
+    // if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+    // List<FeatureOutput> children = getMemberList(entity.getChildren(), query, level - 1, false, true);
+    // result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+    // result::setChildren);
+    // }
+    // }
+    // return result;
+    // }
+    //
+    // private List<FeatureOutput> getMemberList(Set<AbstractFeatureEntity> entities, DbQuery query, Integer
+    // level,
+    // boolean isNotParent, boolean isNotChild) {
+    // List<FeatureOutput> list = new LinkedList<>();
+    // for (AbstractFeatureEntity e : entities) {
+    // list.add(createExpanded(e, query, isNotParent, isNotChild, level));
+    // }
+    // return list;
+    // }
+    //
+    // private Map<String, DatasetParameters> createDatasetParameters(List<?> datasets) {
+    // Map<String, DatasetParameters> map = new LinkedHashMap<>();
+    // for (Object object : datasets) {
+    // DatasetOutput<AbstractValue<?>> value = (DatasetOutput<AbstractValue<?>>) object;
+    // map.put(value.getId(), value.getDatasetParameters());
+    // }
+    // return map;
+    // }
 
     @Override
     public AbstractFeatureEntity getOrInsertInstance(AbstractFeatureEntity entity) {
-        AbstractFeatureEntity instance = getParameterRepository().getInstance(entity);
+        AbstractFeatureEntity<?> instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
             return instance;
         }
@@ -167,7 +160,7 @@ public class FeatureAssembler
     }
 
     @Override
-    protected ParameterOutputSearchResultMapper getMapper(DbQuery query) {
-        return new FeatureOutputMapper(query);
+    protected ParameterOutputSearchResultMapper<AbstractFeatureEntity, FeatureOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getFeatureMapper(query);
     }
 }

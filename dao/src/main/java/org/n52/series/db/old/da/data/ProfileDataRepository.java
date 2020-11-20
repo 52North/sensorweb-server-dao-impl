@@ -52,13 +52,11 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 
 public abstract class ProfileDataRepository<V, T>
-        extends
-        AbstractDataRepository<ProfileDataEntity, ProfileValue<V>, Set<DataEntity< ? >>> {
+        extends AbstractDataRepository<ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {
 
     private static final String PARAMETER_NAME = "name";
 
-    public ProfileDataRepository(HibernateSessionStore sessionStore,
-                                 DbQueryFactory dbQueryFactory) {
+    public ProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
@@ -97,7 +95,6 @@ public abstract class ProfileDataRepository<V, T>
         }
         return result;
     }
-
 
     @Override
     public ProfileValue<V> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
@@ -149,14 +146,11 @@ public abstract class ProfileDataRepository<V, T>
         return verticalMetadata.getOrientation() != null && verticalMetadata.getOrientation() > 0 ? "height" : "depth";
     }
 
-    protected abstract ProfileValue<V> createValue(ProfileDataEntity observation,
-                                                   DatasetEntity dataset,
-                                                   DbQuery query);
+    protected abstract ProfileValue<V> createValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query);
 
-    protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity,
-                                                                            ProfileValue<T> profile,
-                                                                            ProfileDataEntity observation,
-                                                                            DbQuery query) {
+    protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity, ProfileValue<T> profile,
+            ProfileDataEntity observation, DbQuery query) {
         ProfileDataItem<V> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         dataItem.setDetectionLimit(getDetectionLimit(dataEntity));
@@ -171,11 +165,8 @@ public abstract class ProfileDataRepository<V, T>
         return dataItem;
     }
 
-    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity,
-                                                                            ProfileValue<T> profile,
-                                                                            Set<Map<String, Object>> parameters,
-                                                                            DatasetEntity dataset,
-                                                                            DbQuery query) {
+    protected <E extends DataEntity<T>> ProfileDataItem<T> assembleDataItem(E dataEntity, ProfileValue<T> profile,
+            Set<Map<String, Object>> parameters, DatasetEntity dataset, DbQuery query) {
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         dataItem.setDetectionLimit(getDetectionLimit(dataEntity));

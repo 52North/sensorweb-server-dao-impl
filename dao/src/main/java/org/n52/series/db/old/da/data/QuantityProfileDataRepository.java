@@ -92,4 +92,16 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<BigDeci
         return value;
     }
 
+    @Override
+    public ProfileValue<BigDecimal> getFirstValue(DatasetEntity entity, DbQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProfileValue<BigDecimal> getLastValue(DatasetEntity entity, DbQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

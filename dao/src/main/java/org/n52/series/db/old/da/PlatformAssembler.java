@@ -41,6 +41,7 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
@@ -54,14 +55,13 @@ import org.n52.series.spi.search.SearchResult;
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
-//@Component
+// @Component
 public class PlatformAssembler extends ParameterAssembler<PlatformEntity, PlatformOutput> {
 
     private final DatasetAssembler<AbstractValue<?>> datasetAssembler;
 
-    public PlatformAssembler(DatasetAssembler<AbstractValue<?>> datasetAssembler,
-                             HibernateSessionStore sessionStore,
-                             DbQueryFactory dbQueryFactory) {
+    public PlatformAssembler(DatasetAssembler<AbstractValue<?>> datasetAssembler, HibernateSessionStore sessionStore,
+            DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.datasetAssembler = datasetAssembler;
     }
@@ -120,6 +120,11 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
 
     public PlatformOutput createCondensedPlatform(PlatformEntity platform, DbQuery query, Session session) {
         return getCondensedPlatform(platform, query);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<PlatformEntity, PlatformOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getPlatformMapper(query);
     }
 
 }

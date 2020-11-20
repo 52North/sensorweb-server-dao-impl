@@ -30,11 +30,10 @@
 package org.n52.series.db.old.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.OfferingOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.OfferingDao;
@@ -71,11 +70,11 @@ public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEn
 
     @Override
     protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
-        OfferingOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-            ? getCondensedExtendedService(getServiceEntity(entity), query)
-            : getCondensedService(getServiceEntity(entity), query);
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+        return getOutputMapper(query).createExpanded(entity);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<OfferingEntity, OfferingOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getOfferingMapper(query);
     }
 }

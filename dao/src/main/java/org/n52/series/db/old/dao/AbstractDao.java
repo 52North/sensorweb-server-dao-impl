@@ -72,6 +72,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
+    protected static final String TRANSLATIONS_ALIAS = "translations";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
     private static final Order DEFAULT_ORDER = Order.asc(IdEntity.PROPERTY_ID);
@@ -196,6 +197,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
         DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class).add(createPublishedDatasetFilter());
+        if (query.getLastValueMatches() != null) {
+            subquery.add(createLastValuesFilter(query));
+        }
         if (getDatasetProperty().equalsIgnoreCase(DatasetEntity.PROPERTY_FEATURE)) {
             DetachedCriteria featureCriteria = addSpatialFilter(query, subquery);
             return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
@@ -205,6 +209,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
 
         }
+    }
+
+    protected final Criterion createLastValuesFilter(DbQuery query) {
+        return Restrictions.between(DatasetEntity.PROPERTY_LAST_VALUE_AT,
+                query.getLastValueMatches().getStart().toDate(), query.getLastValueMatches().getEnd().toDate());
     }
 
     protected final Conjunction createPublishedDatasetFilter() {
@@ -377,6 +386,19 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return set.stream().map(s -> s.toString()).collect(Collectors.toList());
     }
 
+
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        return addFetchModes(criteria, q.isExpanded());
+    }
+
+    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
+        return criteria;
+    }
+
+    protected String getFetchPath(String... values) {
+        return String.join(".", values);
+    }
+
     /**
      * Translate the {@link Criteria criteria} to SQL.
      *
@@ -421,6 +443,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         DetachedCriteria subquery = DetachedCriteria.forClass(getEntityClass());
         subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
         query.addFilters(c, getDatasetProperty());
+        addFetchModes(c, query);
         return c.list();
     }
 }

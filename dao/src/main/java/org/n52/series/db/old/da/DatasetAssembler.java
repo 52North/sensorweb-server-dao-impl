@@ -130,11 +130,13 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
 
     private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
+        long start = System.currentTimeMillis();
         for (DatasetEntity series : dao.getAllInstances(query)) {
             if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
-                results.add(createCondensed(series, query, session));
+                results.add(createCondensed(series, query));
             }
         }
+        LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     @Override
@@ -161,11 +163,17 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
 
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
-        for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
-                results.add(createExpanded(series, query, session));
+        long start = System.currentTimeMillis();
+        for (DatasetEntity dataset : dao.getAllInstances(query)) {
+            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
+                try {
+                    results.add(createExpanded(dataset, query, session));
+                } catch (Exception e) {
+                    LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
+                }
             }
         }
+        LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     @Override
@@ -217,7 +225,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         return results;
     }
 
-    protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query, Session session) {
+    protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query) {
         IoParameters parameters = query.getParameters();
 
         if (dataset.getService() == null) {
@@ -282,10 +290,9 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters params = query.getParameters();
-        DatasetOutput<V> result = createCondensed(dataset, query, session);
+        DatasetOutput<V> result = createCondensed(dataset, query);
 
         DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
         datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
@@ -337,7 +344,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         String stationLabel = feature.getLabelFrom(locale);
 
         StringBuilder sb = new StringBuilder();
-        return sb.append(phenomenonLabel).append(" ").append(procedureLabel).append(", ").append(stationLabel)
+        return sb.append(phenomenonLabel).append(", ").append(procedureLabel).append(", ").append(stationLabel)
                 .append(", ").append(offeringLabel).toString();
     }
 

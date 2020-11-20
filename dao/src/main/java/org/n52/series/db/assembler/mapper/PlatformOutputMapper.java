@@ -26,35 +26,35 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.da.data;
+package org.n52.series.db.assembler.mapper;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.hibernate.Session;
+import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.HibernateSessionStore;
+import org.n52.series.db.beans.PlatformEntity;
 
-public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
-        extends AbstractDataRepository<E, V, T> {
+public class PlatformOutputMapper extends ParameterOutputSearchResultMapper<PlatformEntity, PlatformOutput> {
 
-    public AbstractNumericalDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
+    public PlatformOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
-    protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
-        return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);
+    @Override
+    public PlatformOutput addExpandedValues(PlatformEntity entity, PlatformOutput output) {
+        List<DatasetOutput<AbstractValue<?>>> datasets = entity.getDatasets().stream()
+                .map(d -> getDatasetOutput((DatasetEntity) d, query)).collect(Collectors.toList());
+
+        output.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), output::setDatasets);
+        return output;
     }
 
-    protected V getMin(DatasetEntity dataset, DbQuery query, Session session) {
-        return assembleDataValue(createDataDao(session).getMin(dataset), dataset, query);
+    @Override
+    public PlatformOutput getParameterOuput() {
+        return new PlatformOutput();
     }
-
-    protected BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
-        return createDataDao(session).getAvg(dataset);
-    }
-
 }

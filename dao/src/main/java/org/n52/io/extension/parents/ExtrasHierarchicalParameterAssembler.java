@@ -40,13 +40,12 @@ import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.PlatformOutput;
-import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.assembler.core.PlatformAssembler;
-import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
+import org.n52.series.db.assembler.mapper.OutputMapperFactory;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.slf4j.Logger;
@@ -60,29 +59,32 @@ public class ExtrasHierarchicalParameterAssembler extends ExtensionAssembler {
 
     private PlatformAssembler platformAssembler;
 
+    private OutputMapperFactory outputMapperFactory;
+
     public ExtrasHierarchicalParameterAssembler(PlatformAssembler platformAssembler,
-            DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
+            DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory,
+            OutputMapperFactory outputMapperFactory) {
         super(datasetRepository, dbQueryFactory);
         this.platformAssembler = platformAssembler;
+        this.outputMapperFactory = outputMapperFactory;
     }
 
     Map<String, Set<HierarchicalParameterOutput>> getExtras(String platformId, IoParameters parameters) {
-            DbQuery dbQuery = getDbQuery(parameters);
-            Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
+        DbQuery dbQuery = getDbQuery(parameters);
+        Map<String, Set<HierarchicalParameterOutput>> extras = new HashMap<>();
 
-            PlatformOutput platform = platformAssembler.getInstance(platformId, dbQuery);
-            for (DatasetOutput<?> dataset : platform.getDatasets()) {
-                String datasetId = dataset.getId();
-                DatasetEntity instance = getDatasetRepository().getOne(Long.parseLong(datasetId));
-                addProcedureParents(instance, dbQuery, extras);
-            }
+        PlatformOutput platform = platformAssembler.getInstance(platformId, dbQuery);
+        for (DatasetOutput<?> dataset : platform.getDatasets()) {
+            String datasetId = dataset.getId();
+            DatasetEntity instance = getDatasetRepository().getOne(Long.parseLong(datasetId));
+            addProcedureParents(instance, dbQuery, extras);
+        }
 
-            return extras;
+        return extras;
     }
 
-    private void addProcedureParents(DatasetEntity instance,
-                                     DbQuery dbQuery,
-                                     Map<String, Set<HierarchicalParameterOutput>> extras) {
+    private void addProcedureParents(DatasetEntity instance, DbQuery dbQuery,
+            Map<String, Set<HierarchicalParameterOutput>> extras) {
         if (!extras.containsKey(KEY_PROCEDURES)) {
             extras.put(KEY_PROCEDURES, new HashSet<>());
         }
@@ -90,18 +92,13 @@ public class ExtrasHierarchicalParameterAssembler extends ExtensionAssembler {
         extras.get(KEY_PROCEDURES).addAll(getProcedureParents(entity, dbQuery));
     }
 
-    private Set< ? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity,
-                                                                            DbQuery dbQuery) {
+    private Set<? extends HierarchicalParameterOutput> getProcedureParents(ProcedureEntity entity, DbQuery dbQuery) {
         return !entity.hasParents()
-            ? Collections.singleton(getMapper(dbQuery).createCondensed(entity, new ProcedureOutput()))
-            : new HashSet<>(entity.getParents()
-                                  .stream()
-                                  .map(e -> getMapper(dbQuery).createCondensed(e, new ProcedureOutput()))
-                                  .collect(Collectors.toSet()));
-    }
-
-    protected ParameterOutputSearchResultMapper getMapper(final DbQuery query) {
-        return new ParameterOutputSearchResultMapper(query);
+                ? Collections.singleton(
+                        outputMapperFactory.getProcedureMapper(dbQuery).createCondensed(entity))
+                : new HashSet<>(entity.getParents().stream().map(
+                        e -> outputMapperFactory.getProcedureMapper(dbQuery).createCondensed(e))
+                        .collect(Collectors.toSet()));
     }
 
 }

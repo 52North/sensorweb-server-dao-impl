@@ -35,12 +35,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
-import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ProcedureOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.ProcedureDao;
@@ -77,31 +75,18 @@ public class ProcedureAssembler extends HierarchicalParameterAssembler<Procedure
 
     @Override
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
-        ProcedureOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-            ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-            : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-
-        if (entity.hasParents()) {
-            result.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents(), query, session),
-                    query.getParameters(), result::setParents);
-        }
-        if (entity.hasChildren()) {
-            result.setValue(HierarchicalParameterOutput.CHILDREN,
-                    createCondensed(entity.getChildren(), query, session), query.getParameters(), result::setChildren);
-        }
-        return result;
+        return getOutputMapper(query).createExpanded(entity);
     }
 
-    protected List<ProcedureOutput> createCondensedHierarchyMembers(Set<ProcedureEntity> members,
-                                                                    DbQuery parameters,
-                                                                    Session session) {
-        return members == null
-            ? Collections.emptyList()
-            : members.stream()
-                     .map(e -> createCondensed(e, parameters, session))
-                     .collect(Collectors.toList());
+    protected List<ProcedureOutput> createCondensedHierarchyMembers(Set<ProcedureEntity> members, DbQuery parameters,
+            Session session) {
+        return members == null ? Collections.emptyList()
+                : members.stream().map(e -> createCondensed(e, parameters, session)).collect(Collectors.toList());
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<ProcedureEntity, ProcedureOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getProcedureMapper(query);
     }
 
 }

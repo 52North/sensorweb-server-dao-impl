@@ -32,26 +32,29 @@ package org.n52.series.db.old.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.srv.OutputAssembler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ParameterAssembler<E extends DescribableEntity, O extends ParameterOutput>
-        extends
-        SessionAwareAssembler
-        implements
-        SearchableAssembler,
-        OutputAssembler<O> {
+        extends SessionAwareAssembler implements SearchableAssembler, OutputAssembler<O> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParameterAssembler.class);
 
     public ParameterAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -87,31 +90,51 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
 
     private List<O> getAllCondensed(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
-        List<O> results = createCondensed(allInstances, query, session);
-        return results;
+        long start = System.currentTimeMillis();
+        try {
+            return createCondensed(allInstances, query, session);
+        } finally {
+            LOGGER.debug("Processing allCondensed takes: " + (System.currentTimeMillis() - start));
+        }
     }
 
     protected List<O> createCondensed(Collection<E> allInstances, DbQuery query, Session session) {
-        List<O> results = new ArrayList<>();
-        for (E entity : allInstances) {
-            results.add(createCondensed(entity, query, session));
-        }
-        return results;
+        List<O> result = allInstances.parallelStream().map(entity -> getOutputMapper(query).createCondensed(entity))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+        return result;
     }
 
     protected O createCondensed(E entity, DbQuery query, Session session) {
-        O result = prepareEmptyParameterOutput();
-        IoParameters parameters = query.getParameters();
+        try {
+            O result = prepareEmptyParameterOutput();
+            IoParameters parameters = query.getParameters();
 
-        Long id = entity.getId();
-        String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getIdentifier();
-        String hrefBase = query.getHrefBase();
+            Long id = entity.getId();
+            String label = entity.getLabelFrom(query.getLocale());
+            String domainId = entity.getIdentifier();
+            String hrefBase = query.getHrefBase();
 
-        result.setId(Long.toString(id));
-        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            result.setId(Long.toString(id));
+            result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
+            result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
+            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
+            return result;
+        } catch (Exception e) {
+            LOGGER.error("Error while processing {} with id {}! Exception: {}", entity.getClass().getSimpleName(),
+                    entity.getId(), e);
+        }
+        return null;
+    }
+
+    protected abstract ParameterOutputSearchResultMapper<E, O> getOutputMapper(DbQuery query);
+
+    protected abstract O createExpanded(E instance, DbQuery query, Session session);
+
+    protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session) {
+        LOGGER.debug("Entities: " + allInstances.size());
+        List<O> result = allInstances.parallelStream().map(e -> getOutputMapper(query).createExpanded(e))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+        LOGGER.debug("Ouput: " + result.size());
         return result;
     }
 
@@ -127,29 +150,24 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
 
     private List<O> getAllExpanded(DbQuery query, Session session) {
         List<E> allInstances = getAllInstances(query, session);
-        return createExpanded(allInstances, query, session);
-    }
-
-    protected abstract O createExpanded(E instance, DbQuery query, Session session);
-
-    protected List<O> createExpanded(Collection<E> allInstances, DbQuery query, Session session) {
-        List<O> results = new ArrayList<>();
-        for (E entity : allInstances) {
-            O instance = createExpanded(entity, query, session);
-            if (instance != null) {
-                /*
-                 * there are cases where entities does not match a filter which could not be added to a db
-                 * criteria, e.g. spatial filters on mobile platforms (last location is calculated after db
-                 * query has been finished already)
-                 */
-                results.add(instance);
-            }
+        long start = System.currentTimeMillis();
+        try {
+            List<O> result = allInstances.parallelStream().map(entity -> getOutputMapper(query).createExpanded(entity))
+                    .filter(Objects::nonNull).collect(Collectors.toList());
+            return result;
+        } finally {
+            LOGGER.debug("Processing allExpanded takes: " + (System.currentTimeMillis() - start));
         }
-        return results;
     }
 
     protected List<E> getAllInstances(DbQuery parameters, Session session) {
-        return createDao(session).getAllInstances(parameters);
+        long start = System.currentTimeMillis();
+        try {
+            return createDao(session).getAllInstances(parameters);
+        } finally {
+            LOGGER.debug("Querying allInstances takes: " + (System.currentTimeMillis() - start));
+        }
+
     }
 
     @Override
@@ -164,7 +182,7 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
 
     private O getInstance(String id, DbQuery query, Session session) {
         AbstractDao<E> dao = createDao(session);
-        return getEntity(parseId(id), dao, query).map(it -> createExpanded(it, query, session)).orElse(null);
+        return getEntity(parseId(id), dao, query).map(it -> getOutputMapper(query).createExpanded(it)).orElse(null);
     }
 
     protected E getInstance(Long id, DbQuery query, Session session) {

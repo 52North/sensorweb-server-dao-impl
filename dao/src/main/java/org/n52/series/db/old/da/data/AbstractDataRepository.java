@@ -57,10 +57,8 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.da.SessionAwareAssembler;
 import org.n52.series.db.old.dao.DataDao;
 
-public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends AbstractValue< ? >, T>
-        extends
-        SessionAwareAssembler implements
-        DataRepository<E, V, T> {
+public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
+        extends SessionAwareAssembler implements DataRepository<E, V, T> {
 
     public AbstractDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -70,19 +68,18 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
     public Data<V> getData(String datasetId, DbQuery dbQuery) {
         Session session = getSession();
         try {
-            return dbQuery.isExpanded()
-                ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
-                : assembleData(Long.parseLong(datasetId), dbQuery, session);
+            return dbQuery.isExpanded() ? assembleExpandedData(Long.parseLong(datasetId), dbQuery, session)
+                    : assembleData(Long.parseLong(datasetId), dbQuery, session);
         } finally {
             returnSession(session);
         }
     }
 
-    protected Data<V> assembleExpandedData(DatasetEntity dataset, DbQuery dbQuery, Session session)  {
+    protected Data<V> assembleExpandedData(DatasetEntity dataset, DbQuery dbQuery, Session session) {
         return assembleExpandedData(dataset.getId(), dbQuery, session);
     }
 
-    protected Data<V> assembleExpandedData(Long dataset, DbQuery dbQuery, Session session)  {
+    protected Data<V> assembleExpandedData(Long dataset, DbQuery dbQuery, Session session) {
         return assembleData(dataset, dbQuery, session);
     }
 
@@ -100,32 +97,18 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
 
     @Override
     public V getFirstValue(DatasetEntity entity, DbQuery query) {
-        E data = (E) entity.getFirstObservation();
-        return assembleDataValue(data, entity, query);
+        DataEntity<?> value = entity.getFirstObservation() != null ? entity.getFirstObservation()
+                : entity.isSetFirstValueAt() ? createDataDao(getSession()).getDataValueViaTimestart(entity, query)
+                        : null;
+        return value != null ? assembleDataValue(unproxy(value, getSession()), entity, query) : null;
     }
 
     @Override
     public V getLastValue(DatasetEntity entity, DbQuery query) {
-        E data = (E) entity.getLastObservation();
-        return assembleDataValue(data, entity, query);
+        DataEntity<?> value = entity.getLastObservation() != null ? entity.getLastObservation()
+                : entity.isSetLastValueAt() ? createDataDao(getSession()).getDataValueViaTimeend(entity, query) : null;
+        return value != null ? assembleDataValue(unproxy(value, getSession()), entity, query) : null;
     }
-
-
-    // private PlatformEntity getCondensedPlatform(DatasetEntity dataset, DbQuery query, Session session)
-    // throws DataAccessException {
-    // // platform has to be handled dynamically (see #309)
-    // return platformRepository.getEntity(getPlatformId(dataset), query, session);
-    // }
-
-//    @Override
-//    public GeometryEntity getLastKnownGeometry(DatasetEntity entity, Session session, DbQuery query) {
-//        // DataDao<E> dao = createDataDao(session);
-//        // return dao.getValueGeometryViaTimeend(entity, query);
-//        DataEntity<?> lastObservation = entity.getLastObservation();
-//        return lastObservation != null
-//                ? lastObservation.getGeometryEntity()
-//                : null;
-//    }
 
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
@@ -155,11 +138,11 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
         return emptyValue;
     }
 
-    protected boolean hasValidEntriesWithinRequestedTimespan(List< ? > observations) {
+    protected boolean hasValidEntriesWithinRequestedTimespan(List<?> observations) {
         return observations.size() > 0;
     }
 
-    protected boolean hasSingleValidReferenceValue(List< ? > observations) {
+    protected boolean hasSingleValidReferenceValue(List<?> observations) {
         return observations.size() == 1;
     }
 
@@ -181,34 +164,34 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
         return value;
     }
 
-    protected void addGeometry(DataEntity< ? > dataEntity, AbstractValue< ? > value, DbQuery query) {
+    protected void addGeometry(DataEntity<?> dataEntity, AbstractValue<?> value, DbQuery query) {
         if (dataEntity.isSetGeometryEntity()) {
             GeometryEntity geometry = dataEntity.getGeometryEntity();
             value.setGeometry(geometry.getGeometry());
         }
     }
 
-    protected void addValidTime(DataEntity< ? > observation, AbstractValue< ? > value, IoParameters parameters) {
+    protected void addValidTime(DataEntity<?> observation, AbstractValue<?> value, IoParameters parameters) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
-            TimeOutput validFrom = observation.isSetValidStartTime()
-                ? createTimeOutput(observation.getValidTimeStart(), parameters)
-                : null;
-                TimeOutput validUntil = observation.isSetValidEndTime()
-                ? createTimeOutput(observation.getValidTimeEnd(), parameters)
-                : null;
+            TimeOutput validFrom =
+                    observation.isSetValidStartTime() ? createTimeOutput(observation.getValidTimeStart(), parameters)
+                            : null;
+            TimeOutput validUntil =
+                    observation.isSetValidEndTime() ? createTimeOutput(observation.getValidTimeEnd(), parameters)
+                            : null;
             value.setValidTime(validFrom, validUntil);
         }
     }
 
-    protected void addResultTime(DataEntity< ? > observation, AbstractValue< ? > value) {
+    protected void addResultTime(DataEntity<?> observation, AbstractValue<?> value) {
         if (observation.getResultTime() != null) {
             value.setResultTime(new DateTime(observation.getResultTime()));
         }
     }
 
-    protected void addParameters(DataEntity< ? > observation, AbstractValue< ? > value, DbQuery query) {
+    protected void addParameters(DataEntity<?> observation, AbstractValue<?> value, DbQuery query) {
         if (observation.hasParameters()) {
-            for (ParameterEntity< ? > parameter : observation.getParameters()) {
+            for (ParameterEntity<?> parameter : observation.getParameters()) {
                 value.addParameter(parameter.toValueMap(query.getLocale()));
             }
         }
@@ -257,7 +240,7 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
     }
 
     protected BigDecimal format(BigDecimal value, DatasetEntity dataset) {
-       return format(value, dataset.getNumberOfDecimals());
+        return format(value, dataset.getNumberOfDecimals());
     }
 
     protected BigDecimal format(BigDecimal value, int scale) {

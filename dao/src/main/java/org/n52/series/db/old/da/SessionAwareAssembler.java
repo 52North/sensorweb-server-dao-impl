@@ -29,13 +29,7 @@
 package org.n52.series.db.old.da;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -53,19 +47,19 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.TagOutput;
-import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
 import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.TimeOutputCreator;
+import org.n52.series.db.assembler.mapper.OutputMapperFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
-import org.n52.series.db.beans.HibernateRelations;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.PlatformEntity;
@@ -87,6 +81,9 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     protected final DbQueryFactory dbQueryFactory;
 
+    @Autowired
+    protected OutputMapperFactory mapperFactory;
+
     private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
 
     private final HibernateSessionStore sessionStore;
@@ -94,9 +91,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
     @Autowired
     public SessionAwareAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         this.sessionStore = sessionStore;
-        this.dbQueryFactory = dbQueryFactory == null
-            ? new DefaultDbQueryFactory()
-            : dbQueryFactory;
+        this.dbQueryFactory = dbQueryFactory == null ? new DefaultDbQueryFactory() : dbQueryFactory;
     }
 
     protected DbQuery getDbQuery(IoParameters parameters) {
@@ -105,6 +100,10 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     protected CRSUtils getCrsUtils() {
         return crsUtils;
+    }
+
+    protected OutputMapperFactory getMapperFactory() {
+        return mapperFactory;
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
@@ -119,9 +118,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     private GeometryFactory createGeometryFactory(String srsId) {
         PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
-        return srsId == null
-            ? new GeometryFactory(pm)
-            : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
+        return srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
     protected Long parseId(String id) {
@@ -149,29 +146,32 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         }
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
-                                                                  DbQuery parameters) {
-        Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
-        for (DatasetEntity timeseries : series) {
-            if (!timeseries.getProcedure()
-                           .isReference()) {
-                String timeseriesId = Long.toString(timeseries.getId());
-                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
-            }
-        }
-        return timeseriesOutputs;
-    }
-
-    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters) {
-        DatasetParameters metadata = new DatasetParameters();
-        ServiceEntity service = getServiceEntity(dataset);
-        metadata.setService(getCondensedService(service, parameters));
-        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
-        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
-        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
-        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
-        return metadata;
-    }
+    // protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
+    // DbQuery parameters)
+    // throws DataAccessException {
+    // Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
+    // for (DatasetEntity timeseries : series) {
+    // if (!timeseries.getProcedure()
+    // .isReference()) {
+    // String timeseriesId = Long.toString(timeseries.getId());
+    // timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
+    // }
+    // }
+    // return timeseriesOutputs;
+    // }
+    //
+    // protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
+    // throws DataAccessException {
+    // DatasetParameters metadata = new DatasetParameters();
+    // ServiceEntity service = getServiceEntity(dataset);
+    // metadata.setService(getCondensedService(service, parameters));
+    // metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+    // metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+    // metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+    // metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
+    // metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
+    // return metadata;
+    // }
 
     protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session) {
         DatasetParameters metadata = new DatasetParameters();
@@ -189,31 +189,64 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
     }
 
     protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
-        return createCondensed(new PhenomenonOutput(), entity, parameters);
+        return getMapperFactory().getPhenomenonMapper(parameters).createCondensed(entity);
     }
 
     protected PhenomenonOutput getCondensedExtendedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
-        return createCondensed(new PhenomenonOutput(), entity, parameters);
+        return getCondensedPhenomenon(entity, parameters);
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
-        return createCondensed(new OfferingOutput(), entity, parameters);
-    }
-
-    protected ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
-        return createCondensed(new ProcedureOutput(), entity, parameters);
-    }
-
-    protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery query) {
-        return entity != null
-            ? createCondensed(new ServiceOutput(), entity, query)
-            : createCondensed(new ServiceOutput(), getServiceEntity(), query);
+        return getMapperFactory().getOfferingMapper(parameters).createCondensed(entity);
     }
 
     protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
-        return createCondensed(new OfferingOutput(), entity, parameters);
+        return getCondensedOffering(entity, parameters);
     }
 
+    protected ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
+        return getMapperFactory().getProcedureMapper(parameters).createCondensed(entity);
+    }
+
+    protected ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
+        return getCondensedProcedure(entity, parameters);
+    }
+
+    protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery parameters) {
+        return getMapperFactory().getServiceMapper(parameters).createCondensed(entity);
+    }
+
+    protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
+        return getCondensedService(entity, parameters);
+    }
+
+    protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
+        return getMapperFactory().getPlatformMapper(parameters).createCondensed(entity);
+    }
+
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
+        return getMapperFactory().getFeatureMapper(parameters).createCondensed((FeatureEntity) entity);
+    }
+
+    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
+        return getCondensedFeature(entity, parameters);
+    }
+
+    protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
+        return getMapperFactory().getCategoryMapper(parameters).createCondensed(entity);
+    }
+
+    protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
+        return getCondensedCategory(entity, parameters);
+    }
+
+    protected Collection<ParameterOutput> getCondensedTags(Set<TagEntity> tags, DbQuery parameters) {
+        return tags.parallelStream().map(t -> getCondensedTag(t, parameters)).collect(Collectors.toSet());
+    }
+
+    protected TagOutput getCondensedTag(TagEntity entity, DbQuery parameters) {
+        return getMapperFactory().getTagMapper(parameters).createCondensed(entity);
+    }
 
     protected ServiceEntity getServiceEntity() {
         return serviceEntityFactory.getServiceEntity();
@@ -221,18 +254,10 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null
-            ? entity.getService()
-            : getServiceEntity();
+        return entity.getService() != null ? entity.getService() : getServiceEntity();
     }
 
-    protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        return createCondensed(new ServiceOutput(), entity, parameters);
-    }
-
-    protected <T extends ParameterOutput> T createCondensed(T result,
-                                                            DescribableEntity entity,
-                                                            DbQuery query) {
+    protected <T extends ParameterOutput> T createCondensed(T result, DescribableEntity entity, DbQuery query) {
         String id = Long.toString(entity.getId());
         String label = entity.getLabelFrom(query.getLocale());
         String domainId = entity.getIdentifier();
@@ -245,58 +270,8 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         return result;
     }
 
-    protected ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
-        return createCondensed(new ProcedureOutput(), entity, parameters);
-    }
-
-    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        FeatureOutput result = createCondensed(new FeatureOutput(), entity, parameters);
-        result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity, parameters), parameters.getParameters(),
-                result::setGeometry);
-        return result;
-    }
-
     protected Geometry createGeometry(AbstractFeatureEntity<?> featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
-    }
-
-    protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
-        return createCondensed(new PlatformOutput(), entity, parameters);
-    }
-
-    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return createCondensed(new FeatureOutput(), entity, parameters);
-    }
-
-    protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
-        return createCondensed(new CategoryOutput(), entity, parameters);
-    }
-
-    protected Collection<ParameterOutput> getCondensedTags(Set<TagEntity> tags, DbQuery parameters) {
-        SortedSet<ParameterOutput> output = new TreeSet<>();
-        if (tags != null && !tags.isEmpty()) {
-           tags.forEach(t -> {
-               output.add(getCondensedTag(t, parameters));
-           });
-        }
-        return output;
-    }
-
-    protected TagOutput getCondensedTag(TagEntity tag, DbQuery parameters) {
-        return createCondensed(new TagOutput(), tag, parameters);
-    }
-
-    protected List<DatasetOutput<?>> getCondensedDataset(HibernateRelations.HasDatasets hasDatasets, DbQuery query,
-            Session session) {
-        return hasDatasets.hasDatasets() ? hasDatasets.getDatasets().stream()
-                .map(d -> createCondensed((DatasetOutput<?>) new DatasetOutput(), d, query))
-                .collect(Collectors.toList()) : new LinkedList<>();
-    }
-
-    protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
-        return createCondensed(new CategoryOutput(), entity, parameters);
+        return featureEntity.isSetGeometry() ? getGeometry(featureEntity.getGeometryEntity(), query) : null;
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
@@ -307,11 +282,9 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     @Override
     public void afterPropertiesSet() throws Exception {
-//        if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
-//            throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
-//        }
+        // if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
+        // throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
+        // }
     }
-
-
 
 }

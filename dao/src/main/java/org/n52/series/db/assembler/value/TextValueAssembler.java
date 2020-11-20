@@ -50,8 +50,7 @@ import org.n52.series.db.beans.TextDataEntity;
 @ValueAssemblerComponent(value = "text", datasetEntityType = DatasetEntity.class)
 public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, TextValue, String> {
 
-    public TextValueAssembler(DataRepository<TextDataEntity> dataRepository,
-            DatasetRepository datasetRepository) {
+    public TextValueAssembler(DataRepository<TextDataEntity> dataRepository, DatasetRepository datasetRepository) {
         super(dataRepository, datasetRepository);
     }
 
@@ -83,8 +82,7 @@ public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, T
         return result;
     }
 
-    private Map<String, Data<TextValue>> assembleReferenceSeries(List<DatasetEntity> referenceValues,
-            DbQuery query) {
+    private Map<String, Data<TextValue>> assembleReferenceSeries(List<DatasetEntity> referenceValues, DbQuery query) {
         Map<String, Data<TextValue>> referenceSeries = new HashMap<>();
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {

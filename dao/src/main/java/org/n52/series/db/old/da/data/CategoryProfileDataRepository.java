@@ -47,19 +47,17 @@ public class CategoryProfileDataRepository extends ProfileDataRepository<String,
 
     private final CategoryDataRepository categoryRepository;
 
-    public CategoryProfileDataRepository(HibernateSessionStore sessionStore,
-                                         DbQueryFactory dbQueryFactory) {
+    public CategoryProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.categoryRepository = new CategoryDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
-                                               DatasetEntity dataset,
-                                               DbQuery query) {
+    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             CategoryDataEntity categoryEntity = (CategoryDataEntity) dataEntity;
             CategoryValue valueItem = categoryRepository.createValue(categoryEntity.getValue(), categoryEntity, query);
             addParameters(categoryEntity, valueItem, query);

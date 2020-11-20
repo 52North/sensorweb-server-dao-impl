@@ -51,8 +51,7 @@ import org.n52.series.db.beans.RecordDataEntity;
 @ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
 public class RecordValueAssembler extends AbstractValueAssembler<RecordDataEntity, RecordValue, Map<String, Object>> {
 
-    public RecordValueAssembler(DataRepository<RecordDataEntity> dataRepository,
-            DatasetRepository datasetRepository) {
+    public RecordValueAssembler(DataRepository<RecordDataEntity> dataRepository, DatasetRepository datasetRepository) {
         super(dataRepository, datasetRepository);
     }
 

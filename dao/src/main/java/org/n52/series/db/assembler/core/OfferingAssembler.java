@@ -31,23 +31,24 @@ package org.n52.series.db.assembler.core;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import org.n52.io.response.OfferingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.query.OfferingQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.OfferingRepository;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.spi.search.OfferingSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
-public class OfferingAssembler extends HierarchicalAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
+public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
 
     public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);
@@ -92,6 +93,11 @@ public class OfferingAssembler extends HierarchicalAssembler<OfferingEntity, Off
             entity.setParents(parents);
         }
         return getParameterRepository().saveAndFlush(entity);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<OfferingEntity, OfferingOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getOfferingMapper(query);
     }
 
 }

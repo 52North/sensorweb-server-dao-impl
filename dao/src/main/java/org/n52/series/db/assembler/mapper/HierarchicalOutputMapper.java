@@ -26,7 +26,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.assembler.core;
+package org.n52.series.db.assembler.mapper;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,48 +34,49 @@ import java.util.Set;
 
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
-import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
-import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.beans.HierarchicalEntity;
-import org.n52.series.spi.search.SearchResult;
 
-public abstract class HierarchicalAssembler<E extends HierarchicalEntity<E>,
-                                            O extends HierarchicalParameterOutput<O>,
-                                            S extends SearchResult>
-        extends ParameterOutputAssembler<E, O, S> {
+public abstract class HierarchicalOutputMapper<E extends HierarchicalEntity<E>,
+                                               O extends HierarchicalParameterOutput<O>>
+        extends ParameterOutputSearchResultMapper<E, O> {
 
-    public HierarchicalAssembler(ParameterDataRepository<E> parameterRepository, DatasetRepository datasetRepository) {
-        super(parameterRepository, datasetRepository);
+    public HierarchicalOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
     @Override
-    protected O createExpanded(E entity, DbQuery query) {
-        return createExpanded(entity, query, false, false, query.getLevel());
+    public O addExpandedValues(E entity, O output) {
+        return addExpandedValues(entity, output, false, false, query.getLevel());
     }
 
-    protected O createExpanded(E entity, DbQuery query, boolean isParent, boolean isChild, Integer level) {
-        O result = super.createExpanded(entity, query);
+    protected O addExpandedValues(E entity, O output, boolean isParent, boolean isChild, Integer level) {
         if (!isParent && !isChild && entity.hasParents()) {
-            List<O> parents = getMemberList(entity.getParents(), query, level, true, false);
-            result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), result::setParents);
+            List<O> parents = getMemberList(entity.getParents(), level, true, false);
+            output.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), output::setParents);
         }
         if (level != null && level > 0) {
             if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
-                List<O> children = getMemberList(entity.getChildren(), query, level - 1, false, true);
-                result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
-                        result::setChildren);
+                List<O> children = getMemberList(entity.getChildren(), level - 1, false, true);
+                output.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                        output::setChildren);
             }
         }
-        return result;
+        return output;
     }
 
-    private List<O> getMemberList(Set<E> entities, DbQuery query, Integer level, boolean isNotParent,
-            boolean isNotChild) {
+    protected List<O> getMemberList(Set<E> entities, Integer level, boolean isNotParent, boolean isNotChild) {
         List<O> list = new LinkedList<>();
         for (E e : entities) {
-            list.add(createExpanded(e, query, isNotParent, isNotChild, level));
+            list.add(createExpanded(e, getParameterOuput(), isNotParent, isNotChild, level));
         }
         return list;
     }
+
+    private O createExpanded(E entity, O output, boolean isParent, boolean isChild, Integer level) {
+        createCondensed(entity, output);
+        super.addExpandedValues(entity, output);
+        addExpandedValues(entity, output, isParent, isChild, level);
+        return output;
+    }
+
 }

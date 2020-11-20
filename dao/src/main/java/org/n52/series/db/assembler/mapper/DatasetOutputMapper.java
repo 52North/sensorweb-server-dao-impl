@@ -29,11 +29,9 @@
 package org.n52.series.db.assembler.mapper;
 
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.ParameterOutput;
+import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -41,42 +39,40 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 
-public class DatasetOutputMapper
-        extends ParameterOutputSearchResultMapper
-        implements TimeOutputCreator {
+public class DatasetOutputMapper<V extends AbstractValue<?>>
+        extends ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> {
 
-    public DatasetOutputMapper(DbQuery query) {
-        super(query);
+    public DatasetOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
     @Override
-    public <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O output) {
-        return condensed((DatasetEntity) entity,
-                (DatasetOutput) super.createCondensed(entity, output));
+    public DatasetOutput<V> createCondensed(DatasetEntity entity, DatasetOutput<V> output) {
+        return condensed(entity, output);
     }
 
-    private <O extends ParameterOutput> O condensed(DatasetEntity entity, DatasetOutput<?> result) {
+    private DatasetOutput<V> condensed(DatasetEntity entity, DatasetOutput<V> output) {
         IoParameters parameters = query.getParameters();
-        result.setValue(DatasetOutput.UOM,  entity.getUnitI18nName(query.getLocale()), parameters, result::setUom);
-        result.setValue(DatasetOutput.DATASET_TYPE, entity.getDatasetType().name(), parameters,
-                result::setDatasetType);
-        result.setValue(DatasetOutput.OBSERVATION_TYPE, entity.getObservationType().name(), parameters,
-                result::setObservationType);
-        result.setValue(DatasetOutput.VALUE_TYPE, entity.getValueType().name(), parameters, result::setValueType);
-        result.setValue(DatasetOutput.MOBILE, entity.isMobile(), parameters, result::setMobile);
-        result.setValue(DatasetOutput.INSITU, entity.isInsitu(), parameters, result::setInsitu);
-        result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
+        output.setValue(DatasetOutput.UOM, entity.getUnitI18nName(query.getLocale()), parameters, output::setUom);
+        output.setValue(DatasetOutput.DATASET_TYPE, entity.getDatasetType().name(), parameters,
+                output::setDatasetType);
+        output.setValue(DatasetOutput.OBSERVATION_TYPE, entity.getObservationType().name(), parameters,
+                output::setObservationType);
+        output.setValue(DatasetOutput.VALUE_TYPE, entity.getValueType().name(), parameters, output::setValueType);
+        output.setValue(DatasetOutput.MOBILE, entity.isMobile(), parameters, output::setMobile);
+        output.setValue(DatasetOutput.INSITU, entity.isInsitu(), parameters, output::setInsitu);
+        output.setValue(DatasetOutput.ORIGIN_TIMEZONE,
                 entity.isSetOriginTimezone() ? entity.getOriginTimezone() : "UTC", parameters,
-                result::setOriginTimezone);
-        result.setValue(DatasetOutput.SMAPLING_TIME_START,
+                output::setOriginTimezone);
+        output.setValue(DatasetOutput.SMAPLING_TIME_START,
                 createTimeOutput(entity.getFirstValueAt(), entity.getOriginTimezone(), parameters), parameters,
-                result::setSamplingTimeStart);
-        result.setValue(DatasetOutput.SMAPLING_TIME_END,
+                output::setSamplingTimeStart);
+        output.setValue(DatasetOutput.SMAPLING_TIME_END,
                 createTimeOutput(entity.getLastValueAt(), entity.getOriginTimezone(), parameters), parameters,
-                result::setSamplingTimeEnd);
-        result.setValue(DatasetOutput.FEATURE, getCondensedFeature(entity.getFeature(), query), parameters,
-                result::setFeature);
-        return (O) result;
+                output::setSamplingTimeEnd);
+        output.setValue(DatasetOutput.FEATURE, getFeatureOutput(entity.getFeature(), query), parameters,
+                output::setFeature);
+        return output;
     }
 
     @Override
@@ -104,8 +100,9 @@ public class DatasetOutputMapper
         return label;
     }
 
-    private FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery query) {
-        return new FeatureOutputMapper(query).createCondensed(entity, new FeatureOutput());
+    @Override
+    public DatasetOutput<V> getParameterOuput() {
+        return new DatasetOutput<>();
     }
 
 }

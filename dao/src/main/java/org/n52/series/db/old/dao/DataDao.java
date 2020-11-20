@@ -196,7 +196,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                            .uniqueResult();
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
@@ -204,7 +203,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (T) criteria.uniqueResult();
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();

@@ -43,10 +43,10 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.repositories.core.DataRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.ValueAssemblerComponent;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.CategoryDataEntity;
 import org.n52.series.db.beans.DataEntity;
+import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.ProcedureEntity;
 
 @ValueAssemblerComponent(value = "category", datasetEntityType = DatasetEntity.class)
 public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataEntity, CategoryValue, String> {

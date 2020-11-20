@@ -28,31 +28,39 @@
  */
 package org.n52.series.db.assembler.mapper;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.ParameterOutput;
+import org.n52.io.response.CategoryOutput;
+import org.n52.io.response.FeatureOutput;
+import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.TimeOutput;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
+import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.TimeOutputCreator;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 
-public class MeasuringProgramOutputMapper extends ParameterOutputSearchResultMapper implements TimeOutputCreator {
+public class MeasuringProgramOutputMapper
+        extends ParameterOutputSearchResultMapper<MeasuringProgramEntity, MeasuringProgramOutput>
+        implements TimeOutputCreator {
 
-    public MeasuringProgramOutputMapper(DbQuery query) {
-        super(query);
+    public MeasuringProgramOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
     @Override
-    public <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O output) {
-        return condensed((MeasuringProgramEntity) entity,
-                (MeasuringProgramOutput) super.createCondensed(entity, output));
+    public MeasuringProgramOutput createCondensed(MeasuringProgramEntity entity, MeasuringProgramOutput output) {
+        return condensed(entity, super.createCondensed(entity, output));
     }
 
-    private <O extends ParameterOutput> O condensed(MeasuringProgramEntity entity, MeasuringProgramOutput output) {
+    private MeasuringProgramOutput condensed(MeasuringProgramEntity entity, MeasuringProgramOutput output) {
         MeasuringProgramOutput result = super.createCondensed(entity, output);
         IoParameters parameters = query.getParameters();
         result.setValue(MeasuringProgramOutput.ORDER_ID, entity.getIdentifier(), parameters, result::setOrderId);
@@ -65,7 +73,21 @@ public class MeasuringProgramOutputMapper extends ParameterOutputSearchResultMap
                 parameters, result::setProducer);
         result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(entity, query), parameters,
                 result::setObservedArea);
-        return (O) result;
+        return result;
+    }
+
+    @Override
+    public MeasuringProgramOutput addExpandedValues(MeasuringProgramEntity entity, MeasuringProgramOutput output) {
+        IoParameters parameters = query.getParameters();
+        output.setValue(MeasuringProgramOutput.DATASETS, getDatasets(entity, query), parameters, output::setDatasets);
+        output.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(entity, query), parameters,
+                output::setSamplings);
+        output.setValue(MeasuringProgramOutput.FEATURES, getFeatures(entity, query), parameters, output::setFeatures);
+        output.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(entity, query), parameters,
+                output::setPhenomena);
+        output.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(entity, query), parameters,
+                output::setCategories);
+        return output;
     }
 
     private TimeOutput getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram, IoParameters parameters) {
@@ -89,7 +111,7 @@ public class MeasuringProgramOutputMapper extends ParameterOutputSearchResultMap
         if (measuringProgram.hasDatasets()) {
             for (DatasetEntity dataset : measuringProgram.getDatasets()) {
                 if (dataset.isSetFeature() && dataset.getFeature().isSetGeometry()) {
-                    Geometry featureGeometry = createGeometry(dataset.getFeature(), query);
+                    Geometry featureGeometry = createGeometry(dataset.getFeature());
                     if (observedArea == null) {
                         observedArea = featureGeometry;
                     } else {
@@ -99,5 +121,37 @@ public class MeasuringProgramOutputMapper extends ParameterOutputSearchResultMap
             }
         }
         return observedArea;
+    }
+
+    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query) {
+        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
+                .map(d -> getDatasetOutput(d, query)).collect(Collectors.toList()) : new LinkedList<>();
+    }
+
+    private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {
+        return measuringProgram.getSamplings() != null ? measuringProgram.getSamplings().stream()
+                .map(s -> getSamplingOutput(s, query)).collect(Collectors.toList()) : new LinkedList<>();
+    }
+
+    private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram, DbQuery query) {
+        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
+                .map(d -> getFeatureOutput(d.getFeature(), query)).collect(Collectors.toList()) : new LinkedList<>();
+    }
+
+    private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram, DbQuery query) {
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(d -> getPhenomenonOutput(d.getPhenomenon(), query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
+    }
+
+    private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram, DbQuery query) {
+        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
+                .map(d -> getCategoryOutput(d.getCategory(), query)).collect(Collectors.toList()) : new LinkedList<>();
+    }
+
+    @Override
+    public MeasuringProgramOutput getParameterOuput() {
+        return new MeasuringProgramOutput();
     }
 }

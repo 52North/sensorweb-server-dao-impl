@@ -31,24 +31,25 @@ package org.n52.series.db.assembler.core;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.query.PhenomenonQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.PhenomenonRepository;
+import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.spi.search.PhenomenonSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
 public class PhenomenonAssembler
-        extends HierarchicalAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
+        extends ParameterOutputAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
 
     public PhenomenonAssembler(PhenomenonRepository phenomenonRepository, DatasetRepository datasetRepository) {
         super(phenomenonRepository, datasetRepository);
@@ -94,5 +95,10 @@ public class PhenomenonAssembler
             entity.setParents(parents);
         }
         return getParameterRepository().saveAndFlush(entity);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<PhenomenonEntity, PhenomenonOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getPhenomenonMapper(query);
     }
 }

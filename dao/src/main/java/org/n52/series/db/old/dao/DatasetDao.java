@@ -34,12 +34,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.hibernate.transform.ResultTransformer;
 import org.n52.io.response.dataset.DatasetTypesMetadata;
+import org.n52.sensorweb.server.db.old.DataModelUtil;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.QueryUtils;
 import org.n52.series.db.beans.DatasetEntity;
@@ -51,6 +53,8 @@ import org.n52.series.db.beans.i18n.I18nFeatureEntity;
 import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.n52.series.db.beans.i18n.I18nPhenomenonEntity;
 import org.n52.series.db.beans.i18n.I18nProcedureEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
+import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +67,10 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final String FEATURE_PATH_ALIAS = "dsFeature";
 
     private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
+
+    private static final String FIRST_OBSERVATION_ALIAS = "firstObservation";
+    private static final String LAST_OBSERVATION_ALIAS = "lastObservation";
+    private static final String PARAMETERS_ALIAS = "parameters";
 
     private final Class<T> entityType;
 
@@ -99,6 +107,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * to join tables and search for given pattern on any of the stored labels.
          */
         Criteria criteria = getDefaultCriteria(query);
+        addFetchModes(criteria, q);
         // default criteria performs join on procedure table
 
         criteria.add(Restrictions.or(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, searchTerm),
@@ -117,13 +126,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public T getInstance(Long key, DbQuery query) {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+        addFetchModes(criteria, true);
         return (T) criteria.add(Restrictions.eq(IdEntity.PROPERTY_ID, key))
                            .uniqueResult();
     }
 
     @Override
     protected T getInstance(String key, DbQuery query, Class<T> clazz) {
-        return super.getInstance(key, query, clazz, getDefaultCriteria(null, false, query, clazz));
+        return super.getInstance(key, query, clazz, addFetchModes(getDefaultCriteria(null, false, query, clazz), true));
     }
 
     @Override
@@ -132,16 +142,23 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty());
+        addFetchModes(criteria, q);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(toSQLString(criteria));
         }
-        return criteria.list();
+        long start = System.currentTimeMillis();
+        try {
+            return criteria.list();
+        } finally {
+            LOGGER.debug("Querying all instances takes {} ms", System.currentTimeMillis() - start);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
+        addFetchModes(criteria, query);
         String path = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, DescribableEntity.PROPERTY_ID);
         return criteria.add(Restrictions.eq(path, feature.getId()))
                        .list();
@@ -189,10 +206,54 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return criteria;
     }
 
+
+    @Override
+    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
+        criteria.setFetchMode(DatasetEntity.PROPERTY_FEATURE, FetchMode.JOIN);
+        criteria.setFetchMode(DatasetEntity.PROPERTY_UNIT, FetchMode.JOIN);
+        criteria.setFetchMode(DatasetEntity.PROPERTY_PHENOMENON, FetchMode.JOIN);
+        criteria.setFetchMode(DatasetEntity.PROPERTY_PROCEDURE, FetchMode.JOIN);
+        criteria.setFetchMode(DatasetEntity.PROPERTY_OFFERING, FetchMode.JOIN);
+        criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        if (DataModelUtil.isEntitySupported(SamplingEntity.class, criteria)) {
+            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_SAMPLING_PROFILE,
+                    SamplingProfileDatasetEntity.PROPERTY_SAMPLINGS), FetchMode.JOIN);
+        }
+        if (expanded) {
+            criteria.setFetchMode(FIRST_OBSERVATION_ALIAS, FetchMode.JOIN);
+            criteria.setFetchMode(LAST_OBSERVATION_ALIAS, FetchMode.JOIN);
+            criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(FIRST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(LAST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode("referenceValues", FetchMode.JOIN);
+            criteria.setFetchMode(DatasetEntity.PROPERTY_PLATFORM, FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PLATFORM, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode(DatasetEntity.PROPERTY_CATEGORY, FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        }
+        return criteria;
+    }
+
+    @Override
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        return addFetchModes(criteria, q.isExpanded());
+    }
+
+    @Override
+    protected String getFetchPath(String... values) {
+        return String.join(".", values);
+    }
+
     @Override
     protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
         // on dataset itself there is no explicit join neccessary
         Criteria filter = criteria.add(createPublishedDatasetFilter());
+        if (query.getLastValueMatches() != null) {
+            filter.add(createLastValuesFilter(query));
+        }
         query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
                                                      FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));

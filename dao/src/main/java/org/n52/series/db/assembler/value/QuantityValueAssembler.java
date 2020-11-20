@@ -51,9 +51,8 @@ import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 
 @ValueAssemblerComponent(value = "quantity", datasetEntityType = DatasetEntity.class)
-public class QuantityValueAssembler extends AbstractNumericalValueAssembler<QuantityDataEntity,
-                                                                            QuantityValue,
-                                                                            BigDecimal> {
+public class QuantityValueAssembler
+        extends AbstractNumericalValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> {
 
     public QuantityValueAssembler(DataRepository<QuantityDataEntity> dataRepository,
             DatasetRepository datasetRepository) {

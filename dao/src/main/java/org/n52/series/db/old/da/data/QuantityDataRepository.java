@@ -77,8 +77,36 @@ public class QuantityDataRepository
         return new QuantityValue();
     }
 
-    public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(DatasetEntity dataset, DbQuery query,
-            Session session) {
+    @Override
+    public QuantityValue getFirstValue(DatasetEntity entity, DbQuery query) {
+        if (entity.getFirstQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
+            value.setValue(entity.getFirstQuantityValue());
+            value.setTimestamp(createTimeOutput(entity.getFirstValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getFirstValue(entity, query);
+    }
+
+    @Override
+    public QuantityValue getLastValue(DatasetEntity entity, DbQuery query) {
+        if (entity.getLastQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
+            value.setValue(entity.getLastQuantityValue());
+            value.setTimestamp(createTimeOutput(entity.getLastValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getLastValue(entity, query);
+    }
+
+    @Override
+    public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(DatasetEntity dataset, DbQuery query) {
         List<DatasetEntity> referenceValues =
                 dataset.getReferenceValues().stream().filter(Objects::nonNull).filter(rv -> rv.isPublished())
                         .filter(rv -> rv.getValueType() == ValueType.quantity).collect(toList());

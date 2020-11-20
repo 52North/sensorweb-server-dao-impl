@@ -43,8 +43,7 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 
 //@ValueAssemblerComponent(value = "boolean", datasetEntityType = DatasetEntity.class)
-public class BooleanDataRepository
-        extends AbstractDataRepository<BooleanDataEntity, BooleanValue, Boolean> {
+public class BooleanDataRepository extends AbstractDataRepository<BooleanDataEntity, BooleanValue, Boolean> {
 
     public BooleanDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -69,13 +68,9 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue assembleDataValue(BooleanDataEntity observation,
-                                            DatasetEntity series,
-                                             DbQuery query) {
+    public BooleanValue assembleDataValue(BooleanDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Boolean observationValue = !service.isNoDataValue(observation)
-            ? observation.getValue()
-            : null;
+        Boolean observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         BooleanValue value = prepareValue(observation, query);
         value.setValue(observationValue);

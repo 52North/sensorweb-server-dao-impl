@@ -31,8 +31,24 @@ package org.n52.series.db.assembler.mapper;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DescribableEntity;
 
-public interface OutputMapper {
+public interface OutputMapper<E extends DescribableEntity, O extends ParameterOutput> {
 
-    <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O output);
+    default O createCondensed(E entity) {
+        return createCondensed(entity, getParameterOuput());
+    }
+
+    O createCondensed(E entity, O output);
+
+    default O createExpanded(E entity) {
+        return createExpanded(entity, getParameterOuput());
+    }
+
+    default O createExpanded(E entity, O output) {
+        return addExpandedValues(entity, output);
+    }
+
+    O addExpandedValues(E entity, O output);
+
+    O getParameterOuput();
 
 }

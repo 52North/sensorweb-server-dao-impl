@@ -46,6 +46,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -130,14 +131,16 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     @Override
     public V getFirstValue(DatasetEntity entity, DbQuery query) {
-        E data = (E)  Hibernate.unproxy(entity.getFirstObservation());
-        return assembleDataValueWithMetadata(data, entity, query);
+        DataEntity<?> value = entity.getFirstObservation() != null ? entity.getFirstObservation()
+                : entity.isSetFirstValueAt() ? getDataValueViaTimestart(entity, query) : null;
+        return value != null ? assembleDataValueWithMetadata(unproxy(value), entity, query) : null;
     }
 
     @Override
     public V getLastValue(DatasetEntity entity, DbQuery query) {
-        E data = (E) Hibernate.unproxy(entity.getLastObservation());
-        return assembleDataValueWithMetadata(data, entity, query);
+        DataEntity<?> value = entity.getLastObservation() != null ? entity.getLastObservation()
+                : entity.isSetLastValueAt() ? getDataValueViaTimeend(entity, query) : null;
+        return value != null ? assembleDataValueWithMetadata(unproxy(value), entity, query) : null;
     }
 
     private DatasetEntity getDataset(DbQuery dbQuery, String id) {
@@ -305,6 +308,24 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
         DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
         return (E) dataFilterSpec.matchClosestAfterEnd(dataset, getEntityManager()).orElse(null);
+    }
+
+    private E getDataValueViaTimestart(DatasetEntity entity, DbQuery query) {
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
+        return (E) dataFilterSpec.matchStart(entity, entityManager).orElse(null);
+    }
+
+    private E getDataValueViaTimeend(DatasetEntity entity, DbQuery query) {
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.of(query);
+        return (E) dataFilterSpec.matchEnd(entity, entityManager).orElse(null);
+    }
+
+    protected E unproxy(DataEntity<?> dataEntity) {
+        if (dataEntity instanceof HibernateProxy
+                && ((HibernateProxy) dataEntity).getHibernateLazyInitializer().getSession() == null) {
+            return unproxy(entityManager.find(DataEntity.class, dataEntity.getId()));
+        }
+        return (E) Hibernate.unproxy(dataEntity);
     }
 
     public Long getCount(DatasetEntity dataset, DbQuery query) {

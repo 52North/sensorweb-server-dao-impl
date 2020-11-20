@@ -170,6 +170,28 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         };
     }
 
+    public Optional<DataEntity> matchStart(DatasetEntity dataset, EntityManager entityManager) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
+                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
+                matcheEquals(getTimespanStart(), DataEntity.PROPERTY_SAMPLING_TIME_START).toPredicate(root, query,
+                        builder));
+        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
+    }
+
+    public Optional<DataEntity> matchEnd(DatasetEntity dataset, EntityManager entityManager) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
+        Root<DataEntity> root = query.from(DataEntity.class);
+        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
+                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
+                matcheEquals(getTimespanEnd(), DataEntity.PROPERTY_SAMPLING_TIME_END).toPredicate(root, query,
+                        builder));
+        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
+    }
+
     public Optional<DataEntity> matchClosestBeforeStart(DatasetEntity dataset, EntityManager entityManager) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
@@ -241,6 +263,12 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         query.select(builder.avg(root.get(DataEntity.PROPERTY_VALUE)));
         query.where(matchDatasets(dataset.getId()).toPredicate(root, query, builder));
         return BigDecimal.valueOf(entityManager.createQuery(query).getSingleResult());
+    }
+
+    private Specification<DataEntity> matcheEquals(Date date, String property) {
+        return (root, query, builder) -> {
+            return builder.equal(root.get(property), date);
+        };
     }
 
     private Specification<DataEntity> matcheBefore(Date date) {

@@ -28,29 +28,35 @@
  */
 package org.n52.series.db.assembler.mapper;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.hibernate.Hibernate;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.ParameterOutput;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplerOutput;
+import org.n52.io.response.sampling.SamplingObservationOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.TimeOutputCreator;
-import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 
-public class SamplingOutputMapper extends ParameterOutputSearchResultMapper implements TimeOutputCreator {
+public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<SamplingEntity, SamplingOutput>
+        implements TimeOutputCreator {
 
-    public SamplingOutputMapper(DbQuery query) {
-        super(query);
+    public SamplingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
     @Override
-    public <E extends DescribableEntity, O extends ParameterOutput> O createCondensed(E entity, O output) {
-        return condensed((SamplingEntity) entity, (SamplingOutput) super.createCondensed(entity, output));
+    public SamplingOutput createCondensed(SamplingEntity entity, SamplingOutput output) {
+        return condensed(entity, super.createCondensed(entity, output));
     }
 
-    private <O extends ParameterOutput> O condensed(SamplingEntity entity, SamplingOutput output) {
+    private SamplingOutput condensed(SamplingEntity entity, SamplingOutput output) {
         SamplingOutput result = super.createCondensed(entity, output);
         IoParameters parameters = query.getParameters();
         result.setValue(SamplingOutput.COMMENT, entity.isSetDescription() ? entity.getDescription() : "", parameters,
@@ -69,11 +75,21 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper impl
                 createTimeOutput(entity.getSamplingTimeStart(), parameters), parameters, result::setSamplingTimeStart);
         result.setValue(SamplingOutput.SAMPLING_TIME_END, createTimeOutput(entity.getSamplingTimeEnd(), parameters),
                 parameters, result::setSamplingTimeEnd);
-        return (O) result;
+        return result;
+    }
+
+    @Override
+    public SamplingOutput addExpandedValues(SamplingEntity entity, SamplingOutput output) {
+        IoParameters parameters = query.getParameters();
+        output.setValue(SamplingOutput.FEATURE, getFeature(entity, query), parameters, output::setFeature);
+        output.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity, query), parameters,
+                output::setSamplingObservations);
+        return output;
     }
 
     private MeasuringProgramOutput getCondensedMeasuringProgram(MeasuringProgramEntity entity, DbQuery query) {
-        return new MeasuringProgramOutputMapper(query).createCondensed(entity, new MeasuringProgramOutput());
+        return getOutputMapperFactory().getMeasuringProgramOutputMapper(query).createCondensed(entity,
+                new MeasuringProgramOutput());
     }
 
     private SamplerOutput getCondensedSampler(String sampler, IoParameters parameters) {
@@ -85,4 +101,37 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper impl
         return null;
     }
 
+    private FeatureOutput getFeature(SamplingEntity entity, DbQuery query) {
+        return entity.getObservations() != null ? entity.getObservations().stream().map(o -> {
+            return getFeatureOutput(o.getDataset().getFeature(), query);
+        }).findFirst().get() : null;
+    }
+
+    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
+        LinkedList<SamplingObservationOutput> result = new LinkedList<>();
+        if (sampling.hasObservations()) {
+            for (DataEntity<?> o : sampling.getObservations()) {
+                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
+                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), query));
+                }
+            }
+        }
+        return result;
+    }
+
+    private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
+        SamplingObservationOutput result = new SamplingObservationOutput();
+        result.setDataset(getDatasetOutput(o.getDataset(), query));
+        result.setCategory(getCategoryOutput(o.getDataset().getCategory(), query));
+        result.setOffering(getOfferingOutput(o.getDataset().getOffering(), query));
+        result.setPhenomenon(getPhenomenonOutput(o.getDataset().getPhenomenon(), query));
+        result.setPlatform(getPlatformOutput(o.getDataset().getPlatform(), query));
+        result.setProcedure(getProcedureOutput(o.getDataset().getProcedure(), query));
+        return result;
+    }
+
+    @Override
+    public SamplingOutput getParameterOuput() {
+        return new SamplingOutput();
+    }
 }

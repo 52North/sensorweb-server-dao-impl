@@ -28,8 +28,6 @@
  */
 package org.n52.series.db.assembler.core;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import org.n52.io.response.TagOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
@@ -37,11 +35,13 @@ import org.n52.sensorweb.server.db.query.TagQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.TagRepository;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.TagEntity;
 import org.n52.series.spi.search.TagSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
@@ -71,9 +71,13 @@ public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput,
     @Override
     protected Specification<TagEntity> createPublicPredicate(String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        final Specification<DatasetEntity> datasetPredicate =
-                dsFilterSpec.matchTag(id).and(dsFilterSpec.isPublic());
+        final Specification<DatasetEntity> datasetPredicate = dsFilterSpec.matchTag(id).and(dsFilterSpec.isPublic());
         TagQuerySpecifications filterSpec = TagQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<TagEntity, TagOutput> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getTagMapper(query);
     }
 }

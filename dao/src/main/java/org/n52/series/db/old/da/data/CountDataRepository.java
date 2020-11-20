@@ -41,13 +41,10 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 
-
 //@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
-public class CountDataRepository
-        extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
+public class CountDataRepository extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
 
-    public CountDataRepository(HibernateSessionStore sessionStore,
-                               DbQueryFactory dbQueryFactory) {
+    public CountDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
@@ -77,9 +74,7 @@ public class CountDataRepository
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Integer observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Integer observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         CountValue value = prepareValue(observation, query);
         value.setValue(observationValue);

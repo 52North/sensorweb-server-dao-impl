@@ -26,35 +26,21 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.series.db.old.da.data;
+package org.n52.series.db.assembler.mapper;
 
-import java.math.BigDecimal;
-
-import org.hibernate.Session;
-import org.n52.io.response.dataset.AbstractValue;
+import org.n52.io.response.OfferingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.beans.DataEntity;
-import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.old.HibernateSessionStore;
+import org.n52.series.db.beans.OfferingEntity;
 
-public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
-        extends AbstractDataRepository<E, V, T> {
+public class OfferingOutputMapper extends HierarchicalOutputMapper<OfferingEntity, OfferingOutput> {
 
-    public AbstractNumericalDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
-        super(sessionStore, dbQueryFactory);
+    public OfferingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
+        super(query, outputMapperFactory);
     }
 
-    protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
-        return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);
-    }
-
-    protected V getMin(DatasetEntity dataset, DbQuery query, Session session) {
-        return assembleDataValue(createDataDao(session).getMin(dataset), dataset, query);
-    }
-
-    protected BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
-        return createDataDao(session).getAvg(dataset);
+    @Override
+    public OfferingOutput getParameterOuput() {
+        return new OfferingOutput();
     }
 
 }

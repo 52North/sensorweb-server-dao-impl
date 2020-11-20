@@ -46,9 +46,9 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * Assembles observation values as {@link Data} output.
      *
      * @param id
-     *        the dataset id
+     *            the dataset id
      * @param query
-     *        the query
+     *            the query
      * @return the assembled data
      */
     Data<V> getData(String id, DbQuery query);
@@ -57,7 +57,7 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * Assembles a list of reference values.
      *
      * @param datasetEntity
-     *        the dataset
+     *            the dataset
      * @param query
      *        the query
      * @return a list of reference values
@@ -71,11 +71,11 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * for a given query.
      *
      * @param dataEntity
-     *        the single data entity to assemble
+     *            the single data entity to assemble
      * @param datasetEntity
-     *        the dataset the data entity belongs to
+     *            the dataset the data entity belongs to
      * @param query
-     *        the query
+     *            the query
      * @return the assembled output
      */
     V assembleDataValueWithMetadata(E dataEntity, DatasetEntity datasetEntity, DbQuery query);
@@ -84,11 +84,11 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * Assembles an output for a data entity for a given query.
      *
      * @param dataEntity
-     *        the single data entity to assemble
+     *            the single data entity to assemble
      * @param datasetEntity
-     *        the dataset the data entity belongs to
+     *            the dataset the data entity belongs to
      * @param query
-     *        the query
+     *            the query
      * @return the assembled output
      */
     V assembleDataValue(E dataEntity, DatasetEntity datasetEntity, DbQuery query);
@@ -108,18 +108,18 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
 
     /**
      * @param entity
-     *        the dataset entity
+     *            the dataset entity
      * @param query
-     *        the query
+     *            the query
      * @return the first value for the given dataset
      */
     V getFirstValue(DatasetEntity entity, DbQuery query);
 
     /**
      * @param entity
-     *        the dataset entity
+     *            the dataset entity
      * @param query
-     *        the query
+     *            the query
      * @return the last value for the given dataset
      */
     V getLastValue(DatasetEntity entity, DbQuery query);
@@ -128,9 +128,9 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * Finds the closest value before a given timespan.
      *
      * @param dataset
-     *        the dataset
+     *            the dataset
      * @param query
-     *        the query containing the timespan
+     *            the query containing the timespan
      * @return the closest value before a given timespan
      */
     E getClosestValueBeforeStart(DatasetEntity dataset, DbQuery query);
@@ -139,9 +139,9 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      * Finds the closest value after a given timespan.
      *
      * @param dataset
-     *        the dataset
+     *            the dataset
      * @param query
-     *        the query containing the timespan
+     *            the query containing the timespan
      * @return the closest value after a given timespan
      */
     E getClosestValueAfterEnd(DatasetEntity dataset, DbQuery query);

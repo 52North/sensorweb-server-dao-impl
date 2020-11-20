@@ -39,11 +39,13 @@ import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.io.response.TimeOutput;
+import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.old.HibernateSessionStore;
@@ -111,8 +113,8 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
         IoParameters parameters = query.getParameters();
         MeasuringProgramOutput result = createCondensed(measuringProgram, query, session);
 
-        result.setValue(MeasuringProgramOutput.DATASETS, getCondensedDataset(measuringProgram, query, session),
-                parameters, result::setDatasets);
+        result.setValue(MeasuringProgramOutput.DATASETS, getDatasets(measuringProgram, query, session), parameters,
+                result::setDatasets);
         result.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(measuringProgram, query), parameters,
                 result::setSamplings);
         result.setValue(MeasuringProgramOutput.FEATURES, getFeatures(measuringProgram, query), parameters,
@@ -124,6 +126,14 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
         return result;
     }
 
+    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
+            Session session) {
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(s -> createCondensed(new DatasetOutput<>(), s, query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
+    }
+
     private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {
         return measuringProgram.getSamplings() != null
                 ? measuringProgram.getSamplings().stream().map(s -> createCondensed(new SamplingOutput(), s, query))
@@ -133,20 +143,22 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
 
     private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram, DbQuery query) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedFeature(d.getFeature(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+                .map(d -> getCondensedFeature(d.getFeature(), query)).collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedPhenomenon(d.getPhenomenon(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(d -> getCondensedPhenomenon(d.getPhenomenon(), query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedCategory(d.getCategory(), query))
-                .collect(Collectors.toList()) : new LinkedList<>();
+        return measuringProgram.getDatasets() != null
+                ? measuringProgram.getDatasets().stream().map(d -> getCondensedCategory(d.getCategory(), query))
+                        .collect(Collectors.toList())
+                : new LinkedList<>();
     }
 
     private ProducerOutput getCondensedProducer(String producer, IoParameters parameters) {
@@ -167,13 +179,18 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
                     if (observedArea == null) {
                         observedArea = featureGeometry;
                     } else {
-                        observedArea.getEnvelopeInternal()
-                                .expandToInclude(featureGeometry.getEnvelopeInternal());
+                        observedArea.getEnvelopeInternal().expandToInclude(featureGeometry.getEnvelopeInternal());
                     }
                 }
             }
         }
         return observedArea;
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<MeasuringProgramEntity, MeasuringProgramOutput> getOutputMapper(
+            DbQuery query) {
+        return getMapperFactory().getMeasuringProgramOutputMapper(query);
     }
 
 }

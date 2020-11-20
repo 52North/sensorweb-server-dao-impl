@@ -28,33 +28,21 @@
  */
 package org.n52.series.db.assembler.sampling;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import org.hibernate.Hibernate;
-import org.n52.io.request.IoParameters;
-import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.sampling.SamplingObservationOutput;
 import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.sampling.SamplingRepository;
-import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
-import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.assembler.mapper.SamplingOutputMapper;
-import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.spi.search.SamplingSearchResult;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 @Profile("sampling")
 @Transactional
-public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, SamplingOutput, SamplingSearchResult>
-        implements ParameterDatasetOutputAssembler {
+public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, SamplingOutput, SamplingSearchResult> {
 
     public SamplingAssembler(SamplingRepository parameterRepository, DatasetRepository datasetRepository) {
         super(parameterRepository, datasetRepository);
@@ -83,60 +71,8 @@ public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, 
     }
 
     @Override
-    protected SamplingOutput createExpanded(SamplingEntity entity, DbQuery query) {
-        IoParameters parameters = query.getParameters();
-        SamplingOutput result = super.createExpanded(entity, query);
-        result.setValue(SamplingOutput.FEATURE, getFeature(entity, query), parameters, result::setFeature);
-        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity, query),
-                parameters, result::setSamplingObservations);
-        return result;
-    }
-
-    @Override
-    protected ParameterOutputSearchResultMapper getMapper(DbQuery query) {
-        return new SamplingOutputMapper(query);
-    }
-
-    private FeatureOutput getFeature(SamplingEntity entity, DbQuery query) {
-        return entity.getObservations() != null ? entity.getObservations().stream().map(o -> {
-            ParameterOutputSearchResultMapper defaultMapper = getDefaultMapper(query);
-            FeatureOutput output = defaultMapper.createCondensed(o.getDataset().getFeature(), new FeatureOutput());
-            output.setValue(FeatureOutput.GEOMETRY, defaultMapper.createGeometry(o.getDataset().getFeature(), query),
-                    query.getParameters(), output::setGeometry);
-            return output;
-        }).findFirst().get() : null;
-    }
-
-    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
-        LinkedList<SamplingObservationOutput> result = new LinkedList<>();
-        if (sampling.hasObservations()) {
-            for (DataEntity<?> o : sampling.getObservations()) {
-                if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
-                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), query));
-                }
-            }
-        }
-        return result;
-    }
-
-    private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
-        SamplingObservationOutput result = new SamplingObservationOutput();
-        // try {
-        // ValueAssembler<DataEntity<?>, ?, ?> factory =
-        // (ValueAssembler<DataEntity<?>, ?, ?>)
-        // getDataRepositoryFactory(o.getDataset());
-        // result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
-        result.setDataset(getDataset(o.getDataset(), query));
-        result.setCategory(getCategory(o.getDataset(), query));
-        result.setOffering(getOffering(o.getDataset(), query));
-        result.setPhenomenon(getPhenomenon(o.getDataset(), query));
-        result.setPlatform(getPlatform(o.getDataset(), query));
-        result.setProcedure(getProcedure(o.getDataset(), query));
-        // } catch (Exception e) {
-        // LOGGER.error("error while querying last observations for sampling",
-        // e);
-        // }
-        return result;
+    protected SamplingOutputMapper getMapper(DbQuery query) {
+        return getOutputMapperFactory().getSamplingOutputMapper(query);
     }
 
 }

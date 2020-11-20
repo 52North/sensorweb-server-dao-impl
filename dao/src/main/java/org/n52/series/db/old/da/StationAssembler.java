@@ -31,20 +31,16 @@ package org.n52.series.db.old.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.db.old.dao.DatasetDao;
 import org.n52.series.db.old.dao.FeatureDao;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.StationSearchResult;
@@ -56,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  * @deprecated sdffasn
  */
-//@Component
+// @Component
 @Deprecated
 public class StationAssembler extends SessionAwareAssembler
         implements OutputAssembler<StationOutput>, SearchableAssembler {
@@ -94,7 +90,7 @@ public class StationAssembler extends SessionAwareAssembler
         }
     }
 
-    private List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
+    private List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
         String locale = query.getLocale();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
@@ -181,11 +177,13 @@ public class StationAssembler extends SessionAwareAssembler
     private StationOutput createExpanded(FeatureEntity feature, DbQuery query, Session session) {
         StationOutput result = createCondensed(feature, query);
 
-        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session);
-        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query.withoutFieldsFilter());
+        // Class<DatasetEntity> clazz = DatasetEntity.class;
+        // DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        // List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
-        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+        // Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+        // result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result
+        // ::setTimeseries);
 
         return result;
     }
@@ -204,9 +202,7 @@ public class StationAssembler extends SessionAwareAssembler
     }
 
     private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
+        return featureEntity.isSetGeometry() ? getGeometry(featureEntity.getGeometryEntity(), query) : null;
     }
 
 }

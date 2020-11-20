@@ -30,11 +30,10 @@
 package org.n52.series.db.old.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
@@ -71,13 +70,13 @@ public class CategoryAssembler extends ParameterAssembler<CategoryEntity, Catego
     }
 
     @Override
-    protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        CategoryOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-            ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-            : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+    protected CategoryOutput createExpanded(CategoryEntity instance, DbQuery query, Session session) {
+        return getOutputMapper(query).createExpanded(instance);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<CategoryEntity, CategoryOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getCategoryMapper(query);
     }
 
 }

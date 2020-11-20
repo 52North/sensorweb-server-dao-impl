@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.assembler.core;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -51,9 +52,7 @@ import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.ValueAssembler;
-import org.n52.series.db.assembler.ParameterDatasetOutputAssembler;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
-import org.n52.series.db.assembler.mapper.DatasetOutputMapper;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.spi.search.DatasetSearchResult;
@@ -65,8 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional
 public class DatasetAssembler<V extends AbstractValue<?>>
-        extends ParameterOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult>
-        implements ParameterDatasetOutputAssembler {
+        extends ParameterOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -105,12 +103,23 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     @Override
+    public List<DatasetOutput<V>> getAllExpanded(final DbQuery query) {
+        return findAll(query).map(entity -> createExpanded(entity, query)).collect(Collectors.toList());
+    }
+
+    @Override
+    public DatasetOutput<V> getInstance(final String id, final DbQuery query) {
+        final Specification<DatasetEntity> publicEntity = createPublicPredicate(id, query);
+        final Optional<DatasetEntity> entity = getParameterRepository().findOne(publicEntity);
+        return entity.map(e -> createExpanded(e, query)).orElse(null);
+    }
+
     protected DatasetOutput<V> createExpanded(DatasetEntity entity, DbQuery query) {
         IoParameters params = query.getParameters();
-        DatasetOutput<V> result = (DatasetOutput<V>) getDataset(entity, query);
-
-        entity.setService(getServiceEntity(entity));
-        DatasetParameters datasetParams = createDatasetParameters(entity, query.withoutFieldsFilter());
+        ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> mapper = getMapper(query);
+        DatasetOutput<V> result = mapper.createCondensed(entity);
+        mapper.addExpandedValues(entity, result);
+        DatasetParameters datasetParams = createDatasetParameters(entity, query.withoutFieldsFilter(), mapper);
 
         ValueAssembler<?, V, ?> assembler;
         try {
@@ -198,14 +207,22 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         return instance;
     }
 
-    private DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query) {
+    private DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query,
+            ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> mapper) {
         DatasetParameters metadata = new DatasetParameters();
-        metadata.setService(getService(dataset.getService(), query));
-        metadata.setOffering(getOffering(dataset, query));
-        metadata.setProcedure(getProcedure(dataset, query));
-        metadata.setPhenomenon(getPhenomenon(dataset, query));
-        metadata.setCategory(getCategory(dataset, query));
-        metadata.setPlatform(getPlatform(dataset, query));
+        metadata.setService(getOutputMapperFactory().getServiceMapper(query).createCondensed(dataset.getService()));
+        metadata.setOffering(getOutputMapperFactory().getOfferingMapper(query).createCondensed(dataset.getOffering()));
+        metadata.setProcedure(
+                getOutputMapperFactory().getProcedureMapper(query).createCondensed(dataset.getProcedure()));
+        metadata.setPhenomenon(
+                getOutputMapperFactory().getPhenomenonMapper(query).createCondensed(dataset.getPhenomenon()));
+        metadata.setCategory(getOutputMapperFactory().getCategoryMapper(query).createCondensed(dataset.getCategory()));
+        metadata.setPlatform(getOutputMapperFactory().getPlatformMapper(query).createCondensed(dataset.getPlatform()));
+        if (dataset.hasTagss()) {
+            metadata.setTags(dataset.getTags().parallelStream()
+                    .map(t -> getOutputMapperFactory().getTagMapper(query).createCondensed(t))
+                    .collect(Collectors.toList()));
+        }
         return metadata;
     }
 
@@ -217,13 +234,6 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         return ((firstValue == null) && (lastValue == null))
                 || ((firstValue != null) && lastValue.getTimestamp().equals(firstValue.getTimestamp()))
                 || ((lastValue != null) && firstValue.getTimestamp().equals(lastValue.getTimestamp()));
-    }
-
-    public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {
-        return findAll(dbQuery)
-                .map(d -> new DatasetTypesMetadata().setId(d.getId()).setDatasetType(d.getDatasetType().name())
-                        .setObservationType(d.getObservationType().name()).setValueType(d.getValueType().name()))
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -239,7 +249,61 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     @Override
-    protected ParameterOutputSearchResultMapper getMapper(DbQuery query) {
-        return new DatasetOutputMapper(query);
+    protected ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getDatasetMapper(query);
     }
+
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {
+        // Set<String> datasets = dbQuery.getParameters().getDatasets();
+
+        return Collections.emptyList();
+    }
+
+    // @SuppressWarnings("unchecked")
+    // public List<DatasetTypesMetadata> getDatasetTypesMetadata(Collection<String> datasets, DbQuery query) {
+    // Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
+    // if (query.isMatchDomainIds()) {
+    // criteria.add(Restrictions.in(DescribableEntity.PROPERTY_DOMAIN_ID, datasets));
+    // } else {
+    // criteria.add(Restrictions.in(DescribableEntity.PROPERTY_ID,
+    // datasets.stream().map(d -> Long.parseLong(d)).collect(Collectors.toSet())));
+    // }
+    // criteria.setProjection(Projections.projectionList()
+    // .add(Projections.groupProperty(DatasetEntity.PROPERTY_ID))
+    // .add(Projections.property(DatasetEntity.PROPERTY_DATASET_TYPE))
+    // .add(Projections.property(DatasetEntity.PROPERTY_OBSERVATION_TYPE))
+    // .add(Projections.property(DatasetEntity.PROPERTY_VALUE_TYPE)));
+    // criteria.setResultTransformer(transformer);
+    // return criteria.list();
+    // }
+    //
+    // /**
+    // * Offering time extrema {@link ResultTransformer}
+    // *
+    // * @author <a href="mailto:c.hollmann@52north.org">Carsten Hollmann</a>
+    // * @since 4.4.0
+    // *
+    // */
+    // private class DatasetTypesMetadataTransformer implements ResultTransformer {
+    // private static final long serialVersionUID = -373512929481519459L;
+    //
+    // @Override
+    // public DatasetTypesMetadata transformTuple(Object[] tuple, String[] aliases) {
+    // DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
+    // if (tuple != null) {
+    // datasetTypesMetadata.setId(tuple[0].toString());
+    // datasetTypesMetadata.setDatasetType(tuple[1].toString());
+    // datasetTypesMetadata.setObservationType(tuple[2].toString());
+    // datasetTypesMetadata.setValueType(tuple[3].toString());
+    // }
+    // return datasetTypesMetadata;
+    // }
+    //
+    // @Override
+    // @SuppressWarnings({ "rawtypes"})
+    // public List transformList(List collection) {
+    // return collection;
+    // }
+    // }
+
 }

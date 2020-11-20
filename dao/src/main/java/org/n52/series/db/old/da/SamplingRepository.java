@@ -47,6 +47,7 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.ValueAssembler;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
@@ -125,8 +126,8 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
         IoParameters parameters = query.getParameters();
         SamplingOutput result = createCondensed(sampling, query, session);
         result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query), parameters, result::setFeature);
-        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query),
-                parameters, result::setSamplingObservations);
+        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query), parameters,
+                result::setSamplingObservations);
         return result;
     }
 
@@ -186,6 +187,11 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
     private ValueAssembler<?, ?, ?> getDataRepositoryFactory(DatasetEntity dataset) throws DatasetFactoryException {
         return dataRepositoryFactory.create(dataset.getObservationType().name(), dataset.getValueType().name(),
                 DatasetEntity.class);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<SamplingEntity, SamplingOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getSamplingOutputMapper(query);
     }
 
 }

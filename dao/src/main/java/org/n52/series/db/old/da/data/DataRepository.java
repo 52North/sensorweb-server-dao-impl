@@ -33,9 +33,8 @@ import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ServiceEntity;
 
-public interface DataRepository<E extends DataEntity<T>, V extends AbstractValue< ? >, T>
-        extends
-        ValueAssembler<E, V, T> {
+public interface DataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
+        extends ValueAssembler<E, V, T> {
 
     default void setServiceEntity(ServiceEntity serviceEntity) {
         // void

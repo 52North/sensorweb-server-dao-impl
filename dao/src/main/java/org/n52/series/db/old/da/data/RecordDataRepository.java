@@ -43,11 +43,9 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
 
 //@ValueAssemblerComponent(value = "record", datasetEntityType = DatasetEntity.class)
-public class RecordDataRepository
-        extends AbstractDataRepository<RecordDataEntity, RecordValue, Map<String, Object>> {
+public class RecordDataRepository extends AbstractDataRepository<RecordDataEntity, RecordValue, Map<String, Object>> {
 
-    public RecordDataRepository(HibernateSessionStore sessionStore,
-                                DbQueryFactory dbQueryFactory) {
+    public RecordDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
     }
 
@@ -78,9 +76,7 @@ public class RecordDataRepository
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Map<String, Object> observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Map<String, Object> observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         RecordValue value = prepareValue(observation, query);
         value.setValue(observationValue);

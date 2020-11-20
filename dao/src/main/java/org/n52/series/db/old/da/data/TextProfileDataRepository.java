@@ -48,16 +48,14 @@ public class TextProfileDataRepository extends ProfileDataRepository<String, Str
 
     private final TextDataRepository textRepository;
 
-    public TextProfileDataRepository(HibernateSessionStore sessionStore,
-                                     DbQueryFactory dbQueryFactory) {
+    public TextProfileDataRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.textRepository = new TextDataRepository(sessionStore, dbQueryFactory);
     }
 
     @Override
-    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation,
-                                               DatasetEntity dataset,
-                                               DbQuery query) {
+    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity<?> dataEntity : observation.getValue()) {

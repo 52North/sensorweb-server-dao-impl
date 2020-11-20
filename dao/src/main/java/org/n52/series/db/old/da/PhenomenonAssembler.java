@@ -29,11 +29,10 @@
 package org.n52.series.db.old.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
@@ -71,12 +70,12 @@ public class PhenomenonAssembler extends HierarchicalParameterAssembler<Phenomen
 
     @Override
     protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
-        PhenomenonOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+        return getOutputMapper(query).createExpanded(entity);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<PhenomenonEntity, PhenomenonOutput> getOutputMapper(DbQuery query) {
+        return getMapperFactory().getPhenomenonMapper(query);
     }
 
 }
