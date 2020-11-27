@@ -52,6 +52,7 @@ This project includes:
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
   Jakarta Activation under EDL 1.0
+  Jakarta Activation API jar under EDL 1.0
   Jakarta XML Binding API under Eclipse Distribution License - v 1.0
   janino under New BSD License
   Java Annotation Indexer under Apache License, Version 2.0
@@ -83,8 +84,8 @@ This project includes:
   odata-commons-core under The Apache Software License, Version 2.0
   odata-server-api under The Apache Software License, Version 2.0
   odata-server-core under The Apache Software License, Version 2.0
-  Old JAXB Core under CDDL+GPL License
-  Old JAXB Runtime under CDDL+GPL License
+  Old JAXB Core under Eclipse Distribution License - v 1.0
+  Old JAXB Runtime under Eclipse Distribution License - v 1.0
   org.apache.xmlgraphics:batik-anim under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-awt-util under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-bridge under The Apache Software License, Version 2.0
@@ -133,6 +134,7 @@ This project includes:
   Spring Web under Apache License, Version 2.0
   Spring Web MVC under Apache License, Version 2.0
   TXW2 Runtime under Eclipse Distribution License - v 1.0
+  Units of Measurement API under BSD 3-Clause
   Xalan Java under The Apache Software License, Version 2.0
   Xalan Java Serializer under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License

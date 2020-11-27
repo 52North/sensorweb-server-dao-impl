@@ -282,6 +282,10 @@
                         <groupId>si.uom</groupId>
                         <artifactId>si-quantity</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -397,12 +401,30 @@
                 <artifactId>indriya</artifactId>
                 <version>2.0.4</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.measure</groupId>
+                <artifactId>unit-api</artifactId>
+                <version>2.1.1</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>si.uom</groupId>
                 <artifactId>si-quantity</artifactId>
                 <version>2.0.1</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
