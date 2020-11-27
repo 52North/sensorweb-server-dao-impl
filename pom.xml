@@ -51,10 +51,10 @@
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <geotools.version>24.0</geotools.version>
+        <geotools.version>24.1</geotools.version>
         <geolatte.version>1.6.0</geolatte.version>
-        <hibernate.version>5.4.23.Final</hibernate.version>
-        <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
+        <hibernate.version>5.4.24.Final</hibernate.version>
+        <spring-boot.version>2.4.0</spring-boot.version>
         <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>8.0.2</arctic-sea.version>
@@ -326,6 +326,10 @@
                         <groupId>si.uom</groupId>
                         <artifactId>si-quantity</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -446,12 +450,30 @@
                 <artifactId>indriya</artifactId>
                 <version>2.0.4</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.measure</groupId>
+                <artifactId>unit-api</artifactId>
+                <version>2.1.1</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>si.uom</groupId>
                 <artifactId>si-quantity</artifactId>
                 <version>2.0.1</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.measure</groupId>
+                        <artifactId>unit-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.locationtech.jts</groupId>

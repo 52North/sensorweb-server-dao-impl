@@ -15,7 +15,7 @@
 
         <!-- optional properties file -->
         <postgis.version>2.5.0</postgis.version>
-        <javax-jaxb.version>2.3.0.1</javax-jaxb.version>
+        <javax-jaxb.version>3.0.0</javax-jaxb.version>
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
@@ -401,7 +401,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.34.v20201102</version>
+                    <version>9.4.35.v20201120</version>
                     <configuration>
                         <stopKey>C</stopKey>
                         <stopPort>34343</stopPort>
