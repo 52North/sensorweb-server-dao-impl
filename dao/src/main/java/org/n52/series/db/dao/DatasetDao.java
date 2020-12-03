@@ -194,6 +194,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     protected Criteria addDatasetFilters(DbQuery query, Criteria criteria) {
         // on dataset itself there is no explicit join neccessary
         Criteria filter = criteria.add(createPublishedDatasetFilter());
+        query.addDatasetTimespan(criteria);
         query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
                                                      FEATURE_PATH_ALIAS,
                                                      JoinType.LEFT_OUTER_JOIN));

@@ -189,6 +189,21 @@ public class DbQuery {
         return criteria;
     }
 
+    public Criteria addDatasetTimespan(Criteria criteria) {
+        IntervalWithTimeZone timespan = parameters.getTimespan();
+        if (timespan != null && timespan.isRequested()) {
+            Interval interval = timespan.toInterval();
+            Date start = interval.getStart().toDate();
+            Date end = interval.getEnd().toDate();
+            criteria.add(Restrictions.or(Restrictions.between(DatasetEntity.PROPERTY_FIRST_VALUE_AT, start, end),
+                    Restrictions.between(DatasetEntity.PROPERTY_LAST_VALUE_AT, start, end),
+                    Restrictions.and(Restrictions.le(DatasetEntity.PROPERTY_FIRST_VALUE_AT, start),
+                            Restrictions.ge(DatasetEntity.PROPERTY_LAST_VALUE_AT, end))));
+
+        }
+        return criteria;
+    }
+
     public Criteria addFilters(Criteria criteria, String datasetProperty) {
         addLimitAndOffsetFilter(criteria);
         addDetachedFilters(datasetProperty, criteria);
