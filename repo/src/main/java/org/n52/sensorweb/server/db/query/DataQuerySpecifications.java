@@ -64,18 +64,6 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     /**
-     * Matches data entities belonging to a given dataset and applying query via {@link #matchFilters()}
-     *
-     * @param dataset
-     *            the dataset
-     * @return a boolean expression
-     * @see #matchFilters()
-     */
-    public Specification<DataEntity> matchFilters(DatasetEntity dataset) {
-        return matchDatasets(dataset.getId().toString()).and(matchFilters());
-    }
-
-    /**
      * Aggregates following filters in an {@literal AND} expression:
      * <ul>
      * <li>{@link #matchDatasets()}</li>

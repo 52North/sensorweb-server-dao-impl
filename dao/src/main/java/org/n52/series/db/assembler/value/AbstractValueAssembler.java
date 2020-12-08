@@ -197,7 +197,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     protected Stream<E> findAll(DatasetEntity dataset, DbQuery query) {
         DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E> of(query);
-        Specification<E> predicate = dataFilterSpec.matchFilters(dataset);
+        Specification<E> predicate = dataFilterSpec.matchFilters();
         Iterable<E> entities = dataRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
     }
