@@ -45,7 +45,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 
-@ValueAssemblerComponent(value = "profil-quantity", datasetEntityType = DatasetEntity.class)
+@ValueAssemblerComponent(value = "quantity-profile", datasetEntityType = DatasetEntity.class)
 public class QuantityProfileValueAssembler extends ProfileValueAssembler<BigDecimal, BigDecimal> {
 
     public QuantityProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,

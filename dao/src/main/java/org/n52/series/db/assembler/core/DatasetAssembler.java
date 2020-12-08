@@ -26,17 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
+
 package org.n52.series.db.assembler.core;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
@@ -55,29 +46,43 @@ import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.math.BigInteger;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Component
 @Transactional
 public class DatasetAssembler<V extends AbstractValue<?>>
-        extends ParameterOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult> {
+    extends ParameterOutputAssembler<DatasetEntity, DatasetOutput<V>, DatasetSearchResult> {
 
+    private final DataRepositoryTypeFactory dataRepositoryFactory;
+    private final DbQueryFactory dbQueryFactory;
+    private final ServiceEntity service;
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final DataRepositoryTypeFactory dataRepositoryFactory;
-
-    private DbQueryFactory dbQueryFactory;
-
-    public DatasetAssembler(DatasetRepository parameterRepository, DatasetRepository datasetRepository,
-            DataRepositoryTypeFactory dataRepositoryFactory, DbQueryFactory dbQueryFactory) {
+    public DatasetAssembler(DatasetRepository parameterRepository,
+                            DatasetRepository datasetRepository,
+                            DataRepositoryTypeFactory dataRepositoryFactory,
+                            DbQueryFactory dbQueryFactory,
+                            ServiceEntity service) {
         super(parameterRepository, datasetRepository);
         this.dataRepositoryFactory = dataRepositoryFactory;
         this.dbQueryFactory = dbQueryFactory;
+        this.service = service;
     }
 
     @Override
@@ -114,6 +119,23 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         return entity.map(e -> createExpanded(e, query)).orElse(null);
     }
 
+    @Override
+    public Stream<DatasetEntity> findAll(DbQuery query) {
+        if (query.getParameters().containsParameter(Parameters.DATASETS)) {
+            DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
+            Specification<DatasetEntity> predicate =
+                dsFilterSpec.matchFilters().and(dsFilterSpec.matchIds(query.getParameters().getDatasets()));
+            final Iterable<DatasetEntity> entities = getParameterRepository().findAll(predicate);
+            return StreamUtils.createStreamFromIterator(entities.iterator());
+        }
+        return super.findAll(query);
+    }
+
+    @Override
+    protected ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> getMapper(DbQuery query) {
+        return getOutputMapperFactory().getDatasetMapper(query);
+    }
+
     protected DatasetOutput<V> createExpanded(DatasetEntity entity, DbQuery query) {
         IoParameters params = query.getParameters();
         ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> mapper = getMapper(query);
@@ -124,15 +146,16 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         ValueAssembler<?, V, ?> assembler;
         try {
             assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory.create(entity.getObservationType().name(),
-                    entity.getValueType().name(), DatasetEntity.class);
+                                                                               entity.getValueType().name(),
+                                                                               DatasetEntity.class);
             V firstValue = assembler.getFirstValue(entity, query);
             V lastValue = assembler.getLastValue(entity, query);
 
             List<ReferenceValueOutput<V>> refValues = assembler.getReferenceValues(entity, query);
             lastValue = isReferenceSeries(entity) && isCongruentValues(firstValue, lastValue)
-                    // ensure we have a valid interval
-                    ? firstValue
-                    : lastValue;
+                // ensure we have a valid interval
+                ? firstValue
+                : lastValue;
 
             result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
@@ -181,21 +204,21 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         }
         Optional<DatasetEntity> instance = getParameterRepository().findOne(specification);
         return !instance.isPresent() ? getParameterRepository().saveAndFlush(dataset)
-                : update(instance.get(), dataset);
+            : update(instance.get(), dataset);
     }
 
     private DatasetEntity update(DatasetEntity instance, DatasetEntity dataset) {
         boolean minChanged = false;
         boolean maxChanged = false;
         if (!instance.isSetFirstValueAt() || (instance.isSetFirstValueAt() && dataset.isSetFirstValueAt()
-                && instance.getFirstValueAt().after(dataset.getFirstValueAt()))) {
+            && instance.getFirstValueAt().after(dataset.getFirstValueAt()))) {
             minChanged = true;
             instance.setFirstValueAt(dataset.getFirstValueAt());
             instance.setFirstObservation(dataset.getFirstObservation());
             instance.setFirstQuantityValue(dataset.getFirstQuantityValue());
         }
         if (!instance.isSetLastValueAt() || (instance.isSetLastValueAt() && dataset.isSetLastValueAt()
-                && instance.getLastValueAt().before(dataset.getLastValueAt()))) {
+            && instance.getLastValueAt().before(dataset.getLastValueAt()))) {
             maxChanged = true;
             instance.setLastValueAt(dataset.getLastValueAt());
             instance.setLastObservation(dataset.getLastObservation());
@@ -208,20 +231,21 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     private DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query,
-            ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> mapper) {
+                                                      ParameterOutputSearchResultMapper<DatasetEntity,
+                                                          DatasetOutput<V>> mapper) {
         DatasetParameters metadata = new DatasetParameters();
-        metadata.setService(getOutputMapperFactory().getServiceMapper(query).createCondensed(dataset.getService()));
+        metadata.setService(getOutputMapperFactory().getServiceMapper(query).createCondensed(service));
         metadata.setOffering(getOutputMapperFactory().getOfferingMapper(query).createCondensed(dataset.getOffering()));
         metadata.setProcedure(
-                getOutputMapperFactory().getProcedureMapper(query).createCondensed(dataset.getProcedure()));
+            getOutputMapperFactory().getProcedureMapper(query).createCondensed(dataset.getProcedure()));
         metadata.setPhenomenon(
-                getOutputMapperFactory().getPhenomenonMapper(query).createCondensed(dataset.getPhenomenon()));
+            getOutputMapperFactory().getPhenomenonMapper(query).createCondensed(dataset.getPhenomenon()));
         metadata.setCategory(getOutputMapperFactory().getCategoryMapper(query).createCondensed(dataset.getCategory()));
         metadata.setPlatform(getOutputMapperFactory().getPlatformMapper(query).createCondensed(dataset.getPlatform()));
         if (dataset.hasTagss()) {
             metadata.setTags(dataset.getTags().parallelStream()
-                    .map(t -> getOutputMapperFactory().getTagMapper(query).createCondensed(t))
-                    .collect(Collectors.toList()));
+                                 .map(t -> getOutputMapperFactory().getTagMapper(query).createCondensed(t))
+                                 .collect(Collectors.toList()));
         }
         return metadata;
     }
@@ -232,78 +256,24 @@ public class DatasetAssembler<V extends AbstractValue<?>>
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
         return ((firstValue == null) && (lastValue == null))
-                || ((firstValue != null) && lastValue.getTimestamp().equals(firstValue.getTimestamp()))
-                || ((lastValue != null) && firstValue.getTimestamp().equals(lastValue.getTimestamp()));
-    }
-
-    @Override
-    public Stream<DatasetEntity> findAll(DbQuery query) {
-        if (query.getParameters().containsParameter(Parameters.DATASETS)) {
-            DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
-            Specification<DatasetEntity> predicate =
-                    dsFilterSpec.matchFilters().and(dsFilterSpec.matchIds(query.getParameters().getDatasets()));
-            final Iterable<DatasetEntity> entities = getParameterRepository().findAll(predicate);
-            return StreamUtils.createStreamFromIterator(entities.iterator());
-        }
-        return super.findAll(query);
-    }
-
-    @Override
-    protected ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> getMapper(DbQuery query) {
-        return getOutputMapperFactory().getDatasetMapper(query);
+            || ((firstValue != null) && lastValue.getTimestamp().equals(firstValue.getTimestamp()))
+            || ((lastValue != null) && firstValue.getTimestamp().equals(lastValue.getTimestamp()));
     }
 
     public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {
-        // Set<String> datasets = dbQuery.getParameters().getDatasets();
-
-        return Collections.emptyList();
+        Set<Object[]> metadataTypes =
+            getDatasetRepository().getMetadataTypes(dbQuery.getParameters()
+                                                        .getDatasets()
+                                                        .stream()
+                                                        .mapToLong(Long::parseLong)
+                                                        .boxed()
+                                                        .collect(Collectors.toSet()));
+        return metadataTypes.stream()
+            .map(o -> new DatasetTypesMetadata(o[0].toString(),
+                                               (String) o[1],
+                                               (String) o[2],
+                                               (String) o[3]))
+            .collect(Collectors.toList());
     }
-
-    // @SuppressWarnings("unchecked")
-    // public List<DatasetTypesMetadata> getDatasetTypesMetadata(Collection<String> datasets, DbQuery query) {
-    // Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
-    // if (query.isMatchDomainIds()) {
-    // criteria.add(Restrictions.in(DescribableEntity.PROPERTY_DOMAIN_ID, datasets));
-    // } else {
-    // criteria.add(Restrictions.in(DescribableEntity.PROPERTY_ID,
-    // datasets.stream().map(d -> Long.parseLong(d)).collect(Collectors.toSet())));
-    // }
-    // criteria.setProjection(Projections.projectionList()
-    // .add(Projections.groupProperty(DatasetEntity.PROPERTY_ID))
-    // .add(Projections.property(DatasetEntity.PROPERTY_DATASET_TYPE))
-    // .add(Projections.property(DatasetEntity.PROPERTY_OBSERVATION_TYPE))
-    // .add(Projections.property(DatasetEntity.PROPERTY_VALUE_TYPE)));
-    // criteria.setResultTransformer(transformer);
-    // return criteria.list();
-    // }
-    //
-    // /**
-    // * Offering time extrema {@link ResultTransformer}
-    // *
-    // * @author <a href="mailto:c.hollmann@52north.org">Carsten Hollmann</a>
-    // * @since 4.4.0
-    // *
-    // */
-    // private class DatasetTypesMetadataTransformer implements ResultTransformer {
-    // private static final long serialVersionUID = -373512929481519459L;
-    //
-    // @Override
-    // public DatasetTypesMetadata transformTuple(Object[] tuple, String[] aliases) {
-    // DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
-    // if (tuple != null) {
-    // datasetTypesMetadata.setId(tuple[0].toString());
-    // datasetTypesMetadata.setDatasetType(tuple[1].toString());
-    // datasetTypesMetadata.setObservationType(tuple[2].toString());
-    // datasetTypesMetadata.setValueType(tuple[3].toString());
-    // }
-    // return datasetTypesMetadata;
-    // }
-    //
-    // @Override
-    // @SuppressWarnings({ "rawtypes"})
-    // public List transformList(List collection) {
-    // return collection;
-    // }
-    // }
 
 }
