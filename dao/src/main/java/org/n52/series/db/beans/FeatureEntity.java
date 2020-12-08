@@ -38,6 +38,7 @@ public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
      * @since 2.0.0
      */
     private GeometryEntity geometryEntity;
+    private String classification;
 
     public GeometryEntity getGeometryEntity() {
         return geometryEntity;
@@ -54,6 +55,18 @@ public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
 
     public boolean isSetGeometry() {
         return geometryEntity != null;
+    }
+
+    public String getClassification() {
+        return classification;
+    }
+
+    public void setClassification(String classification) {
+        this.classification = classification;
+    }
+    
+    public boolean isSetClassification() {
+        return getClassification() != null && !getClassification().isEmpty();
     }
 
     @Override
