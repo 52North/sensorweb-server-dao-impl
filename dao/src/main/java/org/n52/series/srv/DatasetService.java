@@ -90,9 +90,8 @@ public class DatasetService<V extends AbstractValue<?>> extends AccessService<Da
     private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters) throws DatasetFactoryException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
-        ValueAssembler< ?, V, ?> assembler =
-                (ValueAssembler<?, V, ?>) dataFactory
-                        .create(metadata.getObservationType(), metadata.getValueType(), entityType);
+        ValueAssembler< ?, V, ?> assembler = dataFactory
+                    .create(metadata.getObservationType(), metadata.getValueType(), entityType);
         return assembler.getData(metadata.getId(), dbQuery);
     }
 
