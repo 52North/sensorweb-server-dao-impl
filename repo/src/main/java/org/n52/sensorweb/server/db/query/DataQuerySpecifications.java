@@ -64,23 +64,11 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     /**
-     * Matches data entities belonging to a given dataset and applying query via {@link #matchFilters()}
-     *
-     * @param dataset
-     *            the dataset
-     * @return a boolean expression
-     * @see #matchFilters()
-     */
-    public Specification<DataEntity> matchFilters(DatasetEntity dataset) {
-        return matchDatasets(dataset.getId().toString()).and(matchFilters());
-    }
-
-    /**
      * Aggregates following filters in an {@literal AND} expression:
      * <ul>
      * <li>{@link #matchDatasets()}</li>
      * <li>{@link #matchTimespan()}</li>
-     * <li>{@link #matchParents()}</li>
+     * <li>{@link #matchParentsIsNull()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
      *
@@ -88,7 +76,23 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      */
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DataEntity> matchFilters() {
-        return matchDatasets().and(matchTimespan()).and(matchParents()).and(matchesSpatially());
+        return matchDatasets().and(matchTimespan()).and(matchParentsIsNull()).and(matchesSpatially());
+    }
+
+    /**
+     * Aggregates following filters in an {@literal AND} expression:
+     * <ul>
+     * <li>{@link #matchDatasets()}</li>
+     * <li>{@link #matchTimespan()}</li>
+     * <li>{@link #matchParentsIsNull()}</li>
+     * <li>{@link #matchesSpatially()}</li>
+     * </ul>
+     *
+     * @return a boolean expression matching all filter criteria
+     */
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
+    public Specification<DataEntity> matchFiltersParentsNotNull() {
+        return matchDatasets().and(matchTimespan()).and(matchParentsIsNotNull()).and(matchesSpatially());
     }
 
     /**
@@ -107,12 +111,21 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     /**
-     * Matches entities so that .
+     * Matches entities so that parent is null.
      *
      * @return a boolean expression
      */
-    public Specification<DataEntity> matchParents() {
+    public Specification<DataEntity> matchParentsIsNull() {
         return (root, query, builder) -> builder.isNull(root.get(DataEntity.PROPERTY_PARENT));
+    }
+
+    /**
+     * Matches entities so that parent is not null.
+     *
+     * @return a boolean expression
+     */
+    public Specification<DataEntity> matchParentsIsNotNull() {
+        return (root, query, builder) -> builder.isNotNull(root.get(DataEntity.PROPERTY_PARENT));
     }
 
     /**

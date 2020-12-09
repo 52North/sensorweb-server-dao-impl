@@ -55,7 +55,7 @@ public class QuantityValueAssembler
         extends AbstractNumericalValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> {
 
     public QuantityValueAssembler(DataRepository<QuantityDataEntity> dataRepository,
-            DatasetRepository datasetRepository) {
+                                  DatasetRepository datasetRepository) {
         super(dataRepository, datasetRepository);
     }
 

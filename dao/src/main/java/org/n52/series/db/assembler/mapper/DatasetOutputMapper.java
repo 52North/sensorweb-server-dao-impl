@@ -52,7 +52,9 @@ public class DatasetOutputMapper<V extends AbstractValue<?>>
     }
 
     private DatasetOutput<V> condensed(DatasetEntity entity, DatasetOutput<V> output) {
+        super.createCondensed(entity, output);
         IoParameters parameters = query.getParameters();
+
         output.setValue(DatasetOutput.UOM, entity.getUnitI18nName(query.getLocale()), parameters, output::setUom);
         output.setValue(DatasetOutput.DATASET_TYPE, entity.getDatasetType().name(), parameters,
                 output::setDatasetType);

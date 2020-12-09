@@ -26,9 +26,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.sensorweb.server.db.repositories.core;
 
-import java.util.List;
+package org.n52.sensorweb.server.db.repositories.core;
 
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.DatasetEntity;
@@ -36,27 +35,36 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Transactional
 public interface DatasetRepository extends ParameterServiceRepository<DatasetEntity> {
 
-     default List<DatasetEntity> findByService(ServiceEntity service) {
-         DatasetEntity datasetEntity = new DatasetEntity();
-         datasetEntity.setService(service);
-         return findAll(createExample(datasetEntity, createMatcher()));
-     }
+    default List<DatasetEntity> findByService(ServiceEntity service) {
+        DatasetEntity datasetEntity = new DatasetEntity();
+        datasetEntity.setService(service);
+        return findAll(createExample(datasetEntity, createMatcher()));
+    }
 
-     default void deleteByService(ServiceEntity service) {
-         deleteAll(findByService(service));
-     }
+    default void deleteByService(ServiceEntity service) {
+        deleteAll(findByService(service));
+    }
 
-     void deleteByIdIn(Iterable<Long> ids);
+    void deleteByIdIn(Iterable<Long> ids);
 
     @Override
     default ExampleMatcher createMatcher() {
-         return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
-                 .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
+        return ExampleMatcher.matching().withIgnorePaths(DescribableEntity.PROPERTY_ID)
+            .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.ignoreCase());
     }
+
+    @Query(value = "SELECT dataset_id, dataset_type, observation_type, value_type " +
+        "FROM dataset WHERE dataset_id in (?1)",
+           nativeQuery = true)
+    Set<Object[]> getMetadataTypes(Set<Long> datasetId);
 
 }
