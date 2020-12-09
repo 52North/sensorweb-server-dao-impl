@@ -61,7 +61,11 @@ public class QuantityTrajectoryValueAssembler
 
     @Override
     public QuantityValue assembleDataValue(QuantityDataEntity dataEntity, DatasetEntity datasetEntity, DbQuery query) {
-        return assembler.assembleDataValue(dataEntity, datasetEntity, query);
+        QuantityValue quantityValue = assembler.assembleDataValue(dataEntity, datasetEntity, query);
+        if (dataEntity.isSetGeometryEntity()) {
+            quantityValue.setGeometry(dataEntity.getGeometryEntity().getGeometry());
+        }
+        return quantityValue;
     }
 
     @Override public boolean hasConnector(DatasetEntity entity) {
