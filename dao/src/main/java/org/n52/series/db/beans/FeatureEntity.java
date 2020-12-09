@@ -33,6 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
 
     public static final String PROPERTY_GEOMETRY_ENTITY = "geometryEntity";
+    public static final String PROPERTY_CLASSIFICATION = "classification";
 
     /**
      * @since 2.0.0
@@ -64,7 +65,7 @@ public class FeatureEntity extends HierarchicalEntity<FeatureEntity> {
     public void setClassification(String classification) {
         this.classification = classification;
     }
-    
+
     public boolean isSetClassification() {
         return getClassification() != null && !getClassification().isEmpty();
     }

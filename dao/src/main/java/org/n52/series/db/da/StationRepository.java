@@ -201,6 +201,10 @@ public class StationRepository extends SessionAwareRepository
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
         result.setValue(StationOutput.GEOMETRY, geometry, parameters, result::setGeometry);
+        if (entity.isSetClassification()) {
+            result.setValue(StationOutput.CLASSIFICATION, entity.getClassification(), parameters,
+                    result::setClassification);
+        }
         return result;
     }
 

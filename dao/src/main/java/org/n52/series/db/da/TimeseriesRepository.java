@@ -258,6 +258,9 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         result.setId(pkid.toString());
         result.setValue(TimeseriesMetadataOutput.LABEL, label, parameters, result::setLabel);
         result.setValue(TimeseriesMetadataOutput.UOM, uom, parameters, result::setUom);
+        if (station.isSetClassification()) {
+            result.setValue(TimeseriesMetadataOutput.STATION_CLASSIFICATION, uom, parameters, result::setUom);
+        }
         result.setValue(TimeseriesMetadataOutput.STATION, station, parameters, result::setStation);
 
         return result;

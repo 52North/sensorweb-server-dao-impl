@@ -291,6 +291,10 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
         result.setValue(DatasetOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
         result.setValue(DatasetOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
         result.setValue(DatasetOutput.PLATFORM_TYPE, platformtype, parameters, result::setPlatformType);
+        if (dataset.getFeature() != null && dataset.getFeature().isSetClassification()) {
+            result.setValue(DatasetOutput.STATION_CLASSIFICATION, dataset.getFeature().getClassification(), parameters,
+                    result::setStationClassification);
+        }
         return result;
     }
 
