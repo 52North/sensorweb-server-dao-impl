@@ -498,7 +498,7 @@ public class DbQuery {
 
     /**
      * @param includeHierarchy the includeHierarchy to set
-     * @return
+     * @return this
      */
     public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
         this.includeHierarchy = includeHierarchy;
