@@ -29,8 +29,11 @@
 package org.n52.series.db.da;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.n52.io.crs.CRSUtils;
@@ -46,6 +49,7 @@ import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
+import org.n52.series.db.beans.AggregationType;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -295,6 +299,17 @@ public abstract class SessionAwareRepository {
                                entity,
                                parameters,
                                urlHelper.getCategoriesHrefBaseUrl(parameters.getHrefBase()));
+    }
+
+    protected Set<String> getAggregationTypes(Set<AggregationType> aggregationTypes, String primaryData) {
+        Set<String> types = new LinkedHashSet<>();
+        if (aggregationTypes != null && !aggregationTypes.isEmpty()) {
+            types.addAll(aggregationTypes.stream().map(at -> at.getDomainId()).collect(Collectors.toSet()));
+        }
+        types.add(primaryData);
+        types.add("hour");
+        types.add("daily");
+        return types;
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {

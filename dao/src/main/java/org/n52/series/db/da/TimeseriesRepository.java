@@ -198,6 +198,12 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
         result.setValue(TimeseriesMetadataOutput.DATASET_PARAMETERS, timeseries, params, result::setDatasetParameters);
         result.setValue(TimeseriesMetadataOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
         result.setValue(TimeseriesMetadataOutput.LAST_VALUE, lastValue, params, result::setLastValue);
+        if (series.isSetPrimaryData()) {
+            result.setValue(TimeseriesMetadataOutput.PRIMARY_DATA, series.getPrimaryData(), params,
+                    result::setPrimaryData);
+        }
+        result.setValue(TimeseriesMetadataOutput.AGGREGATION_TYPES,
+                getAggregationTypes(series.getAggregationTypes(), series.getPrimaryData()), params, result::setAggregationTypes);
         return result;
     }
 

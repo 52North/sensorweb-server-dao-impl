@@ -116,6 +116,10 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
     }
+    
+    protected DataDao<E> createDataDao(Session session, Class<E> clazz) {
+        return new DataDao<>(session, clazz);
+    }
 
     @Override
     public List<ReferenceValueOutput<V>> createReferenceValueOutputs(S datasetEntity, DbQuery query) {

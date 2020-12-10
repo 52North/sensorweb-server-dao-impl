@@ -91,6 +91,10 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     private long observationCount = -1;
 
+    private String primaryData;
+
+    private Set<AggregationType> aggregationTypes;
+
     public DatasetEntity() {
         this((String) null);
     }
@@ -295,6 +299,42 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     public <D extends DatasetEntity<T>> List<D> getReferenceValues() {
         return null;
+    }
+
+    /**
+     * @return the primaryData
+     */
+    public String getPrimaryData() {
+        return primaryData;
+    }
+
+    /**
+     * @param primaryData the primaryData to set
+     */
+    public void setPrimaryData(String primaryData) {
+        this.primaryData = primaryData;
+    }
+
+    public boolean isSetPrimaryData() {
+        return getPrimaryData() != null && !getPrimaryData().isEmpty();
+    }
+
+    /**
+     * @return the aggregationTypes
+     */
+    public Set<AggregationType> getAggregationTypes() {
+        return aggregationTypes;
+    }
+
+    /**
+     * @param aggregationTypes the aggregationTypes to set
+     */
+    public void setAggregationTypes(Set<AggregationType> aggregationTypes) {
+        this.aggregationTypes = aggregationTypes;
+    }
+
+    public boolean isSetAggregationTypes() {
+        return getAggregationTypes() != null && !getAggregationTypes().isEmpty();
     }
 
     @Override

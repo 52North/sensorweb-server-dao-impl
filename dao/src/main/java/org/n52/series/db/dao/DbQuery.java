@@ -61,6 +61,7 @@ import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.FeatureEntity;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
@@ -391,6 +392,27 @@ public class DbQuery {
             // TODO intersect with linestring
             // XXX do sampling filter only on generated line strings stored in FOI table,
             // otherwise we would have to check each observation row
+        }
+        return null;
+    }
+
+    public Criteria addClasssificationFilter(Criteria criteria) {
+        Criterion filter  = createClassificationsFilter();
+        return filter != null ? criteria.add(filter) : criteria;
+    }
+
+    public DetachedCriteria addClasssificationFilter(DetachedCriteria criteria) {
+        Criterion filter  = createClassificationsFilter();
+        return filter != null ? criteria.add(filter) : criteria;
+    }
+
+    private Criterion createClassificationsFilter() {
+        if (parameters.containsParameter(Parameters.FILTER_CLASSIFICATIONS)) {
+            Disjunction disjunction = Restrictions.disjunction();
+            for (String classification : parameters.getClassifications()) {
+                disjunction.add(Restrictions.ilike(FeatureEntity.PROPERTY_CLASSIFICATION, "%" + classification + "%"));
+            }
+            return disjunction;
         }
         return null;
     }

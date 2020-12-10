@@ -38,12 +38,15 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.AggregationQuantityDataEntity;
+import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
@@ -147,7 +150,11 @@ public class QuantityDataRepository extends
     protected Data<QuantityValue> assembleData(QuantityDatasetEntity seriesEntity, DbQuery query, Session session)
             throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
+        DataDao<QuantityDataEntity> dao = createDataDao(session, QuantityDataEntity.class);
+        if (query.getParameters().containsParameter(Parameters.FILTER_AVERAGING_TIME)) {
+            dao = createDataDao(session, AggregationQuantityDataEntity.class);
+        }
+//        DataDao<QuantityDataEntity> dao = createDataDao(session, QuantityDataEntity.class);
         List<QuantityDataEntity> observations = dao.getAllInstancesFor(seriesEntity, query);
         for (QuantityDataEntity observation : observations) {
             if (observation != null) {

@@ -42,6 +42,7 @@ import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.ReferenceValueOutput;
+import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.ValueType;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
@@ -326,7 +327,12 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
             result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
             result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
             result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-
+            if (dataset.isSetPrimaryData()) {
+                result.setValue(TimeseriesMetadataOutput.PRIMARY_DATA, dataset.getPrimaryData(), params,
+                        result::setPrimaryData);
+            }
+            result.setValue(TimeseriesMetadataOutput.AGGREGATION_TYPES,
+                    getAggregationTypes(dataset.getAggregationTypes(), dataset.getPrimaryData()), params, result::setAggregationTypes);
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);

@@ -106,17 +106,16 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     @Override
     public T getInstance(Long key, DbQuery query) throws DataAccessException {
-        LOGGER.debug("get instance '{}': {}", key, query);
         return getInstance(Long.toString(key), query, getEntityClass());
     }
 
     protected T getInstance(String key, DbQuery query, Class<T> clazz) {
-        LOGGER.debug("get instance for '{}'. {}", key, query);
         Criteria criteria = getDefaultCriteria(query, clazz);
         return getInstance(key, query, clazz, criteria);
     }
 
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
+        LOGGER.trace("get instance for '{}'. {}", key, query);
         Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
                 : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_PKID, Long.parseLong(key)));
@@ -199,7 +198,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      * @return the detached criteria for chaining
      */
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
-        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
+        return query.addSpatialFilter(
+                query.addClasssificationFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE)));
     }
 
     protected Criteria addValueTypeFilter(String parameter, Criteria criteria, DbQuery query) {
