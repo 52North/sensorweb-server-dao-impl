@@ -104,8 +104,12 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
 
         CategoryDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
         CategoryDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
-        metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));
-        metadata.setValueAfterTimespan(assembleDataValue(nextValue, dataset, query));
+        if (previousValue != null) {
+            metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));
+        }
+        if (nextValue != null) {
+            metadata.setValueAfterTimespan(assembleDataValue(nextValue, dataset, query));
+        }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
         if ((referenceValues != null) && !referenceValues.isEmpty()) {

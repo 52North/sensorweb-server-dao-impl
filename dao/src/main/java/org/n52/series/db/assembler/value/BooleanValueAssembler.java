@@ -107,9 +107,12 @@ public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEnt
 
         BooleanDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
         BooleanDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
-        metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));
-        metadata.setValueAfterTimespan(assembleDataValue(nextValue, dataset, query));
-
+        if (previousValue != null) {
+            metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));
+        }
+        if (nextValue != null) {
+            metadata.setValueAfterTimespan(assembleDataValue(nextValue, dataset, query));
+        }
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
         if ((referenceValues != null) && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query));
