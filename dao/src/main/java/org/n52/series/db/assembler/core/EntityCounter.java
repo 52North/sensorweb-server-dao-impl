@@ -44,6 +44,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class EntityCounter {
 
+    private static final String TRAJECTORY = "trajectory";
+    private static final String PROFILE = "profile";
+
     @Inject
     private CategoryAssembler categoryAssembler;
 
@@ -138,17 +141,26 @@ public class EntityCounter {
     }
 
     public Long countTrajectories(DbQuery query) {
-        return countDataset(query, "trajectory");
+        return countDataset(query, TRAJECTORY, TRAJECTORY);
     }
 
     public Long countProfiles(DbQuery query) {
-        return countDataset(query, "profile");
+        return countDataset(query, PROFILE, PROFILE);
     }
 
     private Long countDataset(DbQuery query, String datasetType) {
         IoParameters parameters = query.getParameters();
         parameters = parameters.extendWith(Parameters.FILTER_DATASET_TYPES, datasetType);
         return datasetAssembler.count(dbQueryFactory.createFrom(parameters));
+    }
+
+    private Long countDataset(DbQuery query, String datasetType, String observationType) {
+        IoParameters parameters = query.getParameters();
+        parameters = parameters.extendWith(Parameters.FILTER_DATASET_TYPES, datasetType);
+        Long count = datasetAssembler.count(dbQueryFactory.createFrom(parameters));
+        parameters = query.getParameters();
+        parameters = parameters.extendWith(Parameters.FILTER_OBSERVATION_TYPES, observationType);
+        return count + datasetAssembler.count(dbQueryFactory.createFrom(parameters));
     }
 
 }
