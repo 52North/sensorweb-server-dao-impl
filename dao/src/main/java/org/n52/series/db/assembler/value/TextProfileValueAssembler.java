@@ -44,7 +44,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.TextDataEntity;
 
-@ValueAssemblerComponent(value = "text-quantity", datasetEntityType = DatasetEntity.class)
+@ValueAssemblerComponent(value = "text-profile", datasetEntityType = DatasetEntity.class)
 public class TextProfileValueAssembler extends ProfileValueAssembler<String, String> {
 
     public TextProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,

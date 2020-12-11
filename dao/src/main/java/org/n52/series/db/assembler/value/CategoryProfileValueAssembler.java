@@ -44,7 +44,7 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 
-@ValueAssemblerComponent(value = "category-quantity", datasetEntityType = DatasetEntity.class)
+@ValueAssemblerComponent(value = "category-profile", datasetEntityType = DatasetEntity.class)
 public class CategoryProfileValueAssembler extends ProfileValueAssembler<String, String> {
 
     public CategoryProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
