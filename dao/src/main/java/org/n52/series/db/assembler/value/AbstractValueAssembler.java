@@ -349,8 +349,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         return format(value, dataset.getNumberOfDecimals());
     }
 
-    protected BigDecimal format(BigDecimal value, int scale) {
-        if (value == null) {
+    protected BigDecimal format(BigDecimal value, Integer scale) {
+        if (value == null || scale == null) {
             return value;
         }
         return value.setScale(scale, RoundingMode.HALF_UP);
