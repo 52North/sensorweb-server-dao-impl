@@ -55,7 +55,7 @@ public class Application {
     public ServiceEntity serviceEntity() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(1L);
-        serviceEntity.setVersion("2.0");
+        serviceEntity.setVersion("3.0");
         serviceEntity.setName(name);
         serviceEntity.setNoDataValues(noDataValues);
         return serviceEntity;

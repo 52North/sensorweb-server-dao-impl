@@ -3,6 +3,7 @@
 ##
 
 server:
+  port: 8082
   servlet:
     context-path: /api
   tomcat:
@@ -18,7 +19,7 @@ spring:
   datasource:
     username: postgres
     password: postgres
-    url: jdbc:postgresql://localhost:5432/sos-v5
+    url: jdbc:postgresql://localhost:5432/sos
     #url: jdbc:h2:mem:testdb;MODE=PostgreSQL
     #data: classpath:/META-INF/data-${spring.datasource.platform}.sql
     initialization-mode: always
