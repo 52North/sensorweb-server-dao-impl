@@ -81,13 +81,17 @@ public class ServiceAssembler
 
     @Override
     public ParameterDataRepository<ServiceEntity> getParameterRepository() {
-        return serviceRepository.isPresent() ? serviceRepository.get() : null;
+        return isSetServiceRepository() ? serviceRepository.get() : null;
     }
 
     @Override
     public List<ServiceOutput> getAllCondensed(final DbQuery query) {
         return findAll(query).map(it -> getMapper(query).createCondensed(it, prepareEmptyOutput()))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isSetServiceRepository() {
+        return serviceRepository.isPresent();
     }
 
     private ServiceOutputMapper getMapper(DbQuery query) {
@@ -102,8 +106,11 @@ public class ServiceAssembler
 
     @Override
     public ServiceOutput getInstance(final String id, final DbQuery query) {
-        final Specification<ServiceEntity> publicEntity = createPublicPredicate(id, query);
-        final Optional<ServiceEntity> entity = getParameterRepository().findOne(publicEntity);
+        Optional<ServiceEntity> entity = Optional.empty();
+        if (isSetServiceRepository()) {
+            final Specification<ServiceEntity> publicEntity = createPublicPredicate(id, query);
+            entity = getParameterRepository().findOne(publicEntity);
+        }
         return entity.map(it -> getMapper(query).createExpanded(it, prepareEmptyOutput())).orElse(
                 getMapper(query).createExpanded(serviceEntityFactory.getServiceEntity(), prepareEmptyOutput()));
     }
@@ -116,7 +123,7 @@ public class ServiceAssembler
 
     @Override
     public boolean exists(final String id, final DbQuery query) {
-        return getParameterRepository().exists(createPublicPredicate(id, query))
+        return (getParameterRepository() != null && getParameterRepository().exists(createPublicPredicate(id, query)))
                 || serviceEntityFactory.getServiceEntity() != null;
     }
 
@@ -135,9 +142,12 @@ public class ServiceAssembler
     }
 
     private Stream<ServiceEntity> findAll(final DbQuery query) {
-        final Specification<ServiceEntity> predicate = createFilterPredicate(query);
-        Iterable<ServiceEntity> entities =
-                getParameterRepository() != null ? getParameterRepository().findAll(predicate) : null;
+        Iterable<ServiceEntity> entities = null;
+        if (isSetServiceRepository()) {
+            final Specification<ServiceEntity> predicate = createFilterPredicate(query);
+            entities =
+                    getParameterRepository() != null ? getParameterRepository().findAll(predicate) : null;
+        }
         if ((entities == null || !entities.iterator().hasNext()) && serviceEntityFactory.getServiceEntity() != null) {
             LinkedHashSet<ServiceEntity> set = new LinkedHashSet<>();
             set.add(serviceEntityFactory.getServiceEntity());

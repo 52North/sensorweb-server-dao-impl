@@ -42,11 +42,11 @@ import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.ParameterOutputAssembler;
 import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.spi.search.DatasetSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +69,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
     private final DbQueryFactory dbQueryFactory;
-    private final ServiceEntity service;
+    private final ServiceEntityFactory serviceFactory;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -78,11 +77,11 @@ public class DatasetAssembler<V extends AbstractValue<?>>
                             DatasetRepository datasetRepository,
                             DataRepositoryTypeFactory dataRepositoryFactory,
                             DbQueryFactory dbQueryFactory,
-                            ServiceEntity service) {
+                            ServiceEntityFactory serviceFactory) {
         super(parameterRepository, datasetRepository);
         this.dataRepositoryFactory = dataRepositoryFactory;
         this.dbQueryFactory = dbQueryFactory;
-        this.service = service;
+        this.serviceFactory = serviceFactory;
     }
 
     @Override
@@ -234,7 +233,8 @@ public class DatasetAssembler<V extends AbstractValue<?>>
                                                       ParameterOutputSearchResultMapper<DatasetEntity,
                                                           DatasetOutput<V>> mapper) {
         DatasetParameters metadata = new DatasetParameters();
-        metadata.setService(getOutputMapperFactory().getServiceMapper(query).createCondensed(service));
+        metadata.setService(getOutputMapperFactory().getServiceMapper(query)
+                .createCondensed(dataset.hasService() ? dataset.getService() : serviceFactory.getServiceEntity()));
         metadata.setOffering(getOutputMapperFactory().getOfferingMapper(query).createCondensed(dataset.getOffering()));
         metadata.setProcedure(
             getOutputMapperFactory().getProcedureMapper(query).createCondensed(dataset.getProcedure()));

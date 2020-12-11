@@ -28,8 +28,6 @@
  */
 package org.n52.series.db.assembler.mapper;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 
 import org.n52.io.handler.DefaultIoFactory;
@@ -38,6 +36,7 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.assembler.core.EntityCounter;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -48,7 +47,7 @@ import org.springframework.stereotype.Component;
 public class OutputMapperFactory {
 
     @Inject
-    private Optional<ServiceEntity> serviceEntity;
+    private ServiceEntityFactory serviceEntityFactory;
 
     @Inject
     private DbQueryFactory dbQueryFactory;
@@ -151,7 +150,7 @@ public class OutputMapperFactory {
     }
 
     protected ServiceEntity getServiceEntity() {
-        return serviceEntity.orElseGet(null);
+        return serviceEntityFactory.getServiceEntity();
     }
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
