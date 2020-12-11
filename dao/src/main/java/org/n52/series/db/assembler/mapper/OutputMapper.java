@@ -44,7 +44,7 @@ public interface OutputMapper<E extends DescribableEntity, O extends ParameterOu
     }
 
     default O createExpanded(E entity, O output) {
-        return addExpandedValues(entity, output);
+        return addExpandedValues(entity, createCondensed(entity, output));
     }
 
     O addExpandedValues(E entity, O output);

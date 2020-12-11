@@ -53,8 +53,8 @@
 
         <geotools.version>24.1</geotools.version>
         <geolatte.version>1.6.0</geolatte.version>
-        <hibernate.version>5.4.24.Final</hibernate.version>
-        <spring-boot.version>2.3.6.RELEASE</spring-boot.version>
+        <hibernate.version>5.4.25.Final</hibernate.version>
+        <spring-boot.version>2.4.0</spring-boot.version>
         <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>8.0.3</arctic-sea.version>
