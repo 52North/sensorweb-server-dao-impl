@@ -45,6 +45,7 @@ import org.n52.series.db.ValueAssembler;
 import org.n52.series.db.assembler.core.DatasetAssembler;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.n52.series.spi.srv.DataService;
 import org.springframework.stereotype.Component;
@@ -82,8 +83,8 @@ public class TimeseriesAccessService extends AccessService<TimeseriesMetadataOut
 
     private ValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> createRepository() {
         try {
-            return factory
-                    .create(ObservationType.timeseries.name(), QuantityValue.TYPE, DatasetEntity.class);
+            return factory.create(DatasetType.timeseries.name(), ObservationType.simple.name(), QuantityValue.TYPE,
+                    DatasetEntity.class);
         } catch (DatasetFactoryException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

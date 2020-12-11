@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.dataset.DatasetType;
 import org.n52.series.db.beans.dataset.ObservationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,22 +69,24 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     }
 
     @Override
-    public boolean isKnown(String observationType, String valueType) {
-        return hasCacheEntry(observationType, valueType) || getAllDataAssemblers().map(this::getDataType)
-                .filter(it -> it.equals(getType(observationType, valueType))).findFirst().isPresent();
+    public boolean isKnown(String datasetType, String observationType, String valueType) {
+        return hasCacheEntry(datasetType, observationType, valueType) || getAllDataAssemblers().map(this::getDataType)
+                .filter(it -> it.equals(getType(datasetType, observationType, valueType))).findFirst().isPresent();
     }
 
-    private String getType(String observationType, String valueType) {
-        return (observationType != null && !observationType.isEmpty()
-                && !observationType.equalsIgnoreCase(ObservationType.simple.name()))
-                        ? valueType + "-" + observationType
-                        : valueType;
+    private String getType(String datasetType, String observationType, String valueType) {
+        return ((datasetType != null && !datasetType.isEmpty()
+                && datasetType.equalsIgnoreCase(DatasetType.trajectory.name()))
+                || (observationType != null && !observationType.isEmpty()
+                        && !observationType.equalsIgnoreCase(ObservationType.simple.name())))
+                                ? valueType + "-" + observationType
+                                : valueType;
     }
 
     private Optional<ValueAssembler<? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> findDataAssembler(
-            String observationType, String valueType) {
-        return getAllDataAssemblers().filter(it -> getDataType(it).equals(getType(observationType, valueType)))
-                .findFirst();
+            String datasetType, String observationType, String valueType) {
+        return getAllDataAssemblers()
+                .filter(it -> getDataType(it).equals(getType(datasetType, observationType, valueType))).findFirst();
     }
 
     @Override
@@ -97,33 +100,35 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
 
     @Override
     @SuppressWarnings("unchecked")
-    public <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T> create(
+    public <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T> create(String datasetType,
             String observationType, String valueType, Class<?> entityType) {
         Optional<ValueAssembler<? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> assembler =
-                findDataAssembler(observationType, valueType);
+                findDataAssembler(datasetType, observationType, valueType);
         return assembler.isPresent()
-                ? addToCache(observationType, valueType,
+                ? addToCache(datasetType, observationType, valueType,
                         (ValueAssembler<DataEntity<T>, AbstractValue<?>, T>) assembler.get())
                 : null;
     }
 
     @SuppressWarnings("unchecked")
     private <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T> addToCache(
-            String observationType, String valueType, ValueAssembler<DataEntity<T>, AbstractValue<?>, T> assembler) {
-        cache.put(getType(observationType, valueType), assembler);
+            String datasetType, String observationType, String valueType,
+            ValueAssembler<DataEntity<T>, AbstractValue<?>, T> assembler) {
+        cache.put(getType(datasetType, observationType, valueType), assembler);
         return (ValueAssembler<E, V, T>) assembler;
     }
 
     @Override
-    public Class<? extends DatasetEntity> getDatasetEntityType(String observationType, String valueType) {
-        return findDataAssembler(observationType, valueType).map(Object::getClass)
+    public Class<? extends DatasetEntity> getDatasetEntityType(String datasetType, String observationType,
+            String valueType) {
+        return findDataAssembler(datasetType, observationType, valueType).map(Object::getClass)
                 .map(it -> it.getAnnotation(ValueAssemblerComponent.class))
                 .map(ValueAssemblerComponent::datasetEntityType).get();
     }
 
     @Override
-    public boolean hasCacheEntry(String observationType, String valueType) {
-        return cache.containsKey(getType(observationType, valueType));
+    public boolean hasCacheEntry(String datasetType, String observationType, String valueType) {
+        return cache.containsKey(getType(datasetType, observationType, valueType));
     }
 
     //

@@ -185,8 +185,8 @@ public class SamplingRepository extends ParameterAssembler<SamplingEntity, Sampl
     }
 
     private ValueAssembler<?, ?, ?> getDataRepositoryFactory(DatasetEntity dataset) throws DatasetFactoryException {
-        return dataRepositoryFactory.create(dataset.getObservationType().name(), dataset.getValueType().name(),
-                DatasetEntity.class);
+        return dataRepositoryFactory.create(dataset.getDatasetType().name(), dataset.getObservationType().name(),
+                dataset.getValueType().name(), DatasetEntity.class);
     }
 
     @Override

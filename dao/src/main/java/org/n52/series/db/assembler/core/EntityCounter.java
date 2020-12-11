@@ -141,7 +141,7 @@ public class EntityCounter {
     }
 
     public Long countTrajectories(DbQuery query) {
-        return countDataset(query, TRAJECTORY, TRAJECTORY);
+        return countDataset(query, TRAJECTORY);
     }
 
     public Long countProfiles(DbQuery query) {

@@ -132,7 +132,8 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
         for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
+            if (dataRepositoryFactory.isKnown(series.getDatasetType().name(), series.getObservationType().name(),
+                    series.getValueType().name())) {
                 results.add(createCondensed(series, query));
             }
         }
@@ -165,7 +166,8 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
         for (DatasetEntity dataset : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
+            if (dataRepositoryFactory.isKnown(dataset.getDatasetType().name(), dataset.getObservationType().name(),
+                    dataset.getValueType().name())) {
                 try {
                     results.add(createExpanded(dataset, query, session));
                 } catch (Exception e) {
@@ -299,8 +301,9 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
         dataset.setService(getServiceEntity(dataset));
 
         try {
-            ValueAssembler<?, V, ?> assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory
-                    .create(dataset.getObservationType().name(), dataset.getValueType().name(), DatasetEntity.class);
+            ValueAssembler<?, V, ?> assembler =
+                    (ValueAssembler<?, V, ?>) dataRepositoryFactory.create(dataset.getDatasetType().name(),
+                            dataset.getObservationType().name(), dataset.getValueType().name(), DatasetEntity.class);
             V firstValue = assembler.getFirstValue(dataset, query);
             V lastValue = assembler.getLastValue(dataset, query);
 

@@ -70,8 +70,8 @@ public class AggregationAssembler extends ExtensionAssembler {
             AggregationOutput<V> aggregation = new AggregationOutput<>();
             DbQuery query = getDbQuery(parameters);
             DatasetEntity entity = getDatasetRepository().getOne(Long.parseLong(id));
-            ValueAssembler<?, ?, ?> assembler = dataRepositoryFactory.create(entity.getObservationType().name(),
-                    entity.getValueType().name(), DatasetEntity.class);
+            ValueAssembler<?, ?, ?> assembler = dataRepositoryFactory.create(entity.getDatasetType().name(),
+                    entity.getObservationType().name(), entity.getValueType().name(), DatasetEntity.class);
             if (assembler instanceof AbstractValueAssembler) {
                 addCount(aggregation, (AbstractValueAssembler<?, ?, ?>) assembler, entity, query, entityManager);
                 if (checkNumerical(entity) && assembler instanceof AbstractNumericalValueAssembler) {

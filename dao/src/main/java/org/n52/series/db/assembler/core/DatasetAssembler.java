@@ -144,7 +144,8 @@ public class DatasetAssembler<V extends AbstractValue<?>>
 
         ValueAssembler<?, V, ?> assembler;
         try {
-            assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory.create(entity.getObservationType().name(),
+            assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory.create(entity.getDatasetType().name(),
+                                                                               entity.getObservationType().name(),
                                                                                entity.getValueType().name(),
                                                                                DatasetEntity.class);
             V firstValue = assembler.getFirstValue(entity, query);

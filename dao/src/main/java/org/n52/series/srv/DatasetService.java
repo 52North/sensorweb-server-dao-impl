@@ -53,16 +53,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DatasetService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
-        implements
-        DataService<Data<V>>, DatasetTypesService {
+        implements DataService<Data<V>>, DatasetTypesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetService.class);
 
     private final DataRepositoryTypeFactory dataFactory;
 
-    public DatasetService(DataRepositoryTypeFactory dataFactory,
-                                DatasetAssembler<V> repository,
-                                DbQueryFactory queryFactory) {
+    public DatasetService(DataRepositoryTypeFactory dataFactory, DatasetAssembler<V> repository,
+            DbQueryFactory queryFactory) {
         super(repository, queryFactory);
         this.dataFactory = dataFactory;
     }
@@ -90,8 +88,8 @@ public class DatasetService<V extends AbstractValue<?>> extends AccessService<Da
     private Data<V> getDataFor(DatasetTypesMetadata metadata, IoParameters parameters) throws DatasetFactoryException {
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
-        ValueAssembler< ?, V, ?> assembler = dataFactory
-                    .create(metadata.getObservationType(), metadata.getValueType(), entityType);
+        ValueAssembler<?, V, ?> assembler = dataFactory.create(metadata.getDatasetType(),
+                metadata.getObservationType(), metadata.getValueType(), entityType);
         return assembler.getData(metadata.getId(), dbQuery);
     }
 

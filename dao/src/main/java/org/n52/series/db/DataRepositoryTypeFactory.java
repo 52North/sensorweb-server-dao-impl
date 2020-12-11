@@ -37,14 +37,14 @@ import org.n52.series.db.beans.DatasetEntity;
 
 public interface DataRepositoryTypeFactory {
 
-    boolean isKnown(String observationType, String valueType);
+    boolean isKnown(String datasetType, String observationType, String valueType);
 
     Set<String> getKnownTypes();
 
-    <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T>
-    create(String observationType, String valueType, Class<?> entityType) throws DatasetFactoryException;
+    <E extends DataEntity<T>, V extends AbstractValue<?>, T> ValueAssembler<E, V, T> create(String datasetType,
+            String observationType, String valueType, Class<?> entityType) throws DatasetFactoryException;
 
-    Class<? extends DatasetEntity> getDatasetEntityType(String observationType, String valueType);
+    Class<? extends DatasetEntity> getDatasetEntityType(String datasetType, String observationType, String valueType);
 
-    boolean hasCacheEntry(String observationType, String valueType);
+    boolean hasCacheEntry(String datasetType, String observationType, String valueType);
 }
