@@ -86,7 +86,7 @@ public abstract class HierarchicalDao<T extends HierarchicalEntity<T>, I extends
             List<String> ids = toStringList(getChildrenIds(query, entities));
             if (ids != null && !ids.isEmpty()) {
                 if (query.isMatchDomainIds()) {
-                    ids.addAll(getAllInstances(query).stream().map(f -> f.getId().toString())
+                    ids.addAll(super.getAllInstances(query).stream().map(f -> f.getId().toString())
                             .collect(Collectors.toSet()));
                 } else {
                     ids.addAll(entities);
