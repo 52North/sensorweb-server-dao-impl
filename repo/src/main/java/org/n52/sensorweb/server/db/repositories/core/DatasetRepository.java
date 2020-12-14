@@ -63,7 +63,7 @@ public interface DatasetRepository extends ParameterServiceRepository<DatasetEnt
     }
 
     @Query(value = "SELECT dataset_id, dataset_type, observation_type, value_type " +
-        "FROM dataset WHERE dataset_id in (?1)",
+        "FROM {h-schema}dataset WHERE dataset_id in (?1)",
            nativeQuery = true)
     Set<Object[]> getMetadataTypes(Set<Long> datasetId);
 
