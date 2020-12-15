@@ -104,6 +104,9 @@ public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEnt
     @Override
     protected Data<BooleanValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<BooleanValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<BooleanValue> metadata = result.getMetadata();
 
         BooleanDataEntity previousValue = getClosestValueAfterEnd(dataset, query);

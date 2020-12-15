@@ -101,9 +101,12 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
     @Override
     protected Data<CategoryValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<CategoryValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<CategoryValue> metadata = result.getMetadata();
 
-        CategoryDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
+        CategoryDataEntity previousValue = getClosestValueBeforeStart(dataset, query);
         CategoryDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
         if (previousValue != null) {
             metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));

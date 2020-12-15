@@ -69,6 +69,9 @@ public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, T
     @Override
     protected Data<TextValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<TextValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<TextValue> metadata = result.getMetadata();
 
         TextDataEntity previousValue = getClosestValueAfterEnd(dataset, query);

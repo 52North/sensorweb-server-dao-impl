@@ -100,6 +100,9 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
     @Override
     protected Data<CountValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<CountValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<CountValue> metadata = result.getMetadata();
 
         CountDataEntity previousValue = getClosestValueAfterEnd(dataset, query);

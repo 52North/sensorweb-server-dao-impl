@@ -113,6 +113,9 @@ public class QuantityValueAssembler
     @Override
     protected Data<QuantityValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<QuantityValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
         QuantityDataEntity previousValue = getClosestValueAfterEnd(dataset, query);

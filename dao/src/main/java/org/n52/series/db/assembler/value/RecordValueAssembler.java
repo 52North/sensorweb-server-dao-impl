@@ -100,6 +100,9 @@ public class RecordValueAssembler extends AbstractValueAssembler<RecordDataEntit
     @Override
     protected Data<RecordValue> assembleExpandedDataValues(DatasetEntity dataset, DbQuery query) {
         Data<RecordValue> result = assembleDataValues(dataset, query);
+        if (!result.hasMetadata()) {
+            result.setMetadata(new DatasetMetadata<>());
+        }
         DatasetMetadata<RecordValue> metadata = result.getMetadata();
 
         RecordDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
