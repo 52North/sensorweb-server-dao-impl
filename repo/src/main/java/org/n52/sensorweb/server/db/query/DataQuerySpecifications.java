@@ -211,7 +211,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         Root<DataEntity> root = query.from(DataEntity.class);
         query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
                 matchDatasets(dataset.getId()).toPredicate(root, query, builder),
-                matcheBefore(getTimespanStart()).toPredicate(root, query, builder));
+                matchBefore(getTimespanStart()).toPredicate(root, query, builder));
         return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
     }
 
@@ -219,9 +219,9 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
         Root<DataEntity> root = query.from(DataEntity.class);
-        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
+        query.select(root).orderBy(builder.asc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
                 matchDatasets(dataset.getId()).toPredicate(root, query, builder),
-                matcheAfter(getTimespanEnd()).toPredicate(root, query, builder));
+                matchAfter(getTimespanEnd()).toPredicate(root, query, builder));
 
         return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
     }
@@ -284,13 +284,13 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         };
     }
 
-    private Specification<DataEntity> matcheBefore(Date date) {
+    private Specification<DataEntity> matchBefore(Date date) {
         return (root, query, builder) -> {
             return builder.lessThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), date);
         };
     }
 
-    private Specification<DataEntity> matcheAfter(Date date) {
+    private Specification<DataEntity> matchAfter(Date date) {
         return (root, query, builder) -> {
             return builder.greaterThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), date);
         };
