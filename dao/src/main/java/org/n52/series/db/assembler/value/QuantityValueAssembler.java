@@ -118,13 +118,13 @@ public class QuantityValueAssembler
         }
         DatasetMetadata<QuantityValue> metadata = result.getMetadata();
 
-        QuantityDataEntity previousValue = getClosestValueAfterEnd(dataset, query);
-        QuantityDataEntity nextValue = getClosestValueAfterEnd(dataset, query);
+        DataEntity previousValue = getClosestValueBeforeStart(dataset, query);
+        DataEntity nextValue = getClosestValueAfterEnd(dataset, query);
         if (previousValue != null) {
-            metadata.setValueBeforeTimespan(assembleDataValue(previousValue, dataset, query));
+            metadata.setValueBeforeTimespan(assembleDataValue(unproxy(previousValue), dataset, query));
         }
         if (nextValue != null) {
-            metadata.setValueAfterTimespan(assembleDataValue(nextValue, dataset, query));
+            metadata.setValueAfterTimespan(assembleDataValue(unproxy(nextValue), dataset, query));
         }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
