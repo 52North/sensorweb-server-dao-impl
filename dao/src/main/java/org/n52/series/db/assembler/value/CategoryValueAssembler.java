@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
@@ -134,7 +135,7 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
     }
 
     private boolean haveToExpandReferenceData(Data<CategoryValue> referenceSeriesData) {
-        List<CategoryValue> values = referenceSeriesData.getValues();
+        Set<CategoryValue> values = referenceSeriesData.getValues();
         return values.size() <= 1;
     }
 

@@ -244,13 +244,14 @@ public class QuantityDataRepository
 
     private QuantityValue getFirstItem(Data<QuantityValue> referenceSeriesData) {
         return referenceSeriesData.getValues() != null && !referenceSeriesData.getValues().isEmpty()
-                && referenceSeriesData.getValues().size() > 0 ? referenceSeriesData.getValues().get(0) : null;
+                && referenceSeriesData.getValues().size() > 0 ? referenceSeriesData.getValues().iterator().next()
+                        : null;
     }
 
     private QuantityValue getLastItem(Data<QuantityValue> referenceSeriesData) {
         return referenceSeriesData.getValues() != null && !referenceSeriesData.getValues().isEmpty()
                 && referenceSeriesData.getValues().size() > 0
-                        ? referenceSeriesData.getValues().get(referenceSeriesData.getValues().size() - 1)
+                        ? referenceSeriesData.getValues().stream().reduce((prev, next) -> next).orElse(null)
                         : null;
     }
 

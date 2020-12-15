@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
@@ -146,7 +147,7 @@ public class QuantityValueAssembler
     }
 
     private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
-        List<QuantityValue> values = referenceSeriesData.getValues();
+        Set<QuantityValue> values = referenceSeriesData.getValues();
         return values.size() <= 1;
     }
 

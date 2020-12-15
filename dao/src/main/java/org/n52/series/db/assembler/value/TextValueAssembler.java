@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
@@ -101,7 +102,7 @@ public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, T
     }
 
     private boolean haveToExpandReferenceData(Data<TextValue> referenceSeriesData) {
-        List<TextValue> values = referenceSeriesData.getValues();
+        Set<TextValue> values = referenceSeriesData.getValues();
         return values.size() <= 1;
     }
 

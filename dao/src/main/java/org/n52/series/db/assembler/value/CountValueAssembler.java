@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
@@ -132,7 +133,7 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
     }
 
     private boolean haveToExpandReferenceData(Data<CountValue> referenceSeriesData) {
-        List<CountValue> values = referenceSeriesData.getValues();
+        Set<CountValue> values = referenceSeriesData.getValues();
         return values.size() <= 1;
     }
 
