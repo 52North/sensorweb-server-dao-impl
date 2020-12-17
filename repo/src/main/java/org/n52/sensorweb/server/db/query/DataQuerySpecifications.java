@@ -104,8 +104,8 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         return (root, query, builder) -> {
             Date requestedStart = getTimespanStart();
             Date requestedEnd = getTimespanEnd();
-            return builder.and(builder.greaterThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), requestedStart),
-                    builder.lessThan(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), requestedEnd));
+            return builder.and(builder.greaterThanOrEqualTo(root.get(DataEntity.PROPERTY_SAMPLING_TIME_START), requestedStart),
+                    builder.lessThanOrEqualTo(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), requestedEnd));
         };
 
     }
