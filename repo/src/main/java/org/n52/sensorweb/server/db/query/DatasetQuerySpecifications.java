@@ -100,7 +100,8 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
     public Specification<DatasetEntity> matchFilters() {
         return isPublic().and(matchFeatures()).and(matchCategory()).and(matchPhenomena()).and(matchProcedures())
                 .and(matchOfferings()).and(matchPlatforms()).and(matchTag()).and(matchDatasetTypes())
-                .and(matchObservationTypes()).and(matchValueTypes()).and(matchesSpatially());
+                .and(matchObservationTypes()).and(matchValueTypes()).and(matchesSpatially()).and(matchMobile())
+                .and(matchInsitu());
     }
 
     /**
@@ -182,6 +183,30 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
 
     public Specification<DatasetEntity> isNotDeleted() {
         return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.PROPERTY_DELETED));
+    }
+
+    public Specification<DatasetEntity> matchInsitu() {
+        String insitu = dbQuery.getParameters().getInsitu();
+        if (insitu != null && !insitu.isEmpty()) {
+            if (Boolean.parseBoolean(insitu)) {
+                return (root, query, builder) -> builder.isTrue(root.get(DatasetEntity.PROPERTY_INSITU));
+            } else {
+                return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.PROPERTY_INSITU));
+            }
+        }
+        return null;
+    }
+
+    public Specification<DatasetEntity> matchMobile() {
+        String mobile = dbQuery.getParameters().getMobile();
+        if (mobile != null && !mobile.isEmpty()) {
+            if (Boolean.parseBoolean(mobile)) {
+                return (root, query, builder) -> builder.isTrue(root.get(DatasetEntity.PROPERTY_MOBILE));
+            } else {
+                return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.PROPERTY_MOBILE));
+            }
+        }
+        return null;
     }
 
     /**
