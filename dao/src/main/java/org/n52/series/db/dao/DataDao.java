@@ -54,6 +54,7 @@ import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
 import org.n52.series.db.beans.ProfileDatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.AbstractQuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.beans.RecordDataEntity;
 import org.n52.series.db.beans.RecordDatasetEntity;
@@ -128,6 +129,10 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
      */
     @SuppressWarnings("unchecked")
     public List<T> getAllInstancesFor(DatasetEntity series, DbQuery query) throws DataAccessException {
+        return getAllInstancesForCriteria(series, query).list();
+    }
+
+    protected Criteria getAllInstancesForCriteria(DatasetEntity series, DbQuery query) throws DataAccessException {
         final Long pkid = series.getPkid();
         LOGGER.debug("get all instances for series '{}': {}", pkid, query);
         final SimpleExpression equalsPkid = Restrictions.eq(DataEntity.PROPERTY_SERIES_PKID, pkid);
@@ -140,7 +145,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             // force joining of parameters for expanded query to avoid x separate queries
             criteria.setFetchMode("parameters", FetchMode.JOIN);
         }
-        return criteria.list();
+        return criteria;
     }
 
     @Override
@@ -154,7 +159,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return "";
     }
 
-    private Criteria getDefaultCriteria(DbQuery query, DatasetEntity series) {
+    protected Criteria getDefaultCriteria(DbQuery query, DatasetEntity series) {
         Class<?> specific = entityType;
         if (series instanceof QuantityDatasetEntity) {
             specific = QuantityDataEntity.class;
@@ -177,7 +182,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return addRestrictions(session.createCriteria(entityType), query);
     }
 
-    private Criteria addRestrictions(Criteria criteria, DbQuery query) {
+    protected Criteria addRestrictions(Criteria criteria, DbQuery query) {
         criteria.addOrder(Order.asc(DataEntity.PROPERTY_TIMEEND))
                 .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

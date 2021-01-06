@@ -37,6 +37,8 @@ public class DefaultDataRepositoryFactory extends ConfigTypedFactory<DataReposit
 
     private static final String DEFAULT_CONFIG_FILE = "dataset-repository-factory.properties";
 
+    private DataRepository< ? , ? > repo;
+
     public DefaultDataRepositoryFactory() {
         super(DEFAULT_CONFIG_FILE);
     }

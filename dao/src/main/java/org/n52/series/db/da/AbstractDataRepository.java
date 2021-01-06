@@ -63,7 +63,8 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
             // remove spatial filter on metadata
             S series = seriesDao.getInstance(id, getDbQuery(parameters.removeAllOf(Parameters.BBOX)
                                                                       .removeAllOf(Parameters.NEAR)
-                                                                      .removeAllOf(Parameters.ODATA_FILTER)));
+                                                                      .removeAllOf(Parameters.ODATA_FILTER)
+                                                                      .removeAllOf(Parameters.TIMESPAN)));
             if (series.getService() == null) {
                 series.setService(getServiceEntity());
             }
@@ -116,7 +117,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity< ? >,
     protected DataDao<E> createDataDao(Session session) {
         return new DataDao<>(session);
     }
-    
+
     protected DataDao<E> createDataDao(Session session, Class<E> clazz) {
         return new DataDao<>(session, clazz);
     }

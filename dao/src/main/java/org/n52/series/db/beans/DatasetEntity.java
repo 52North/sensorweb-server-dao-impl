@@ -93,7 +93,7 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
 
     private String primaryData;
 
-    private Set<AggregationType> aggregationTypes;
+    private Set<AggregationTypeEntity> aggregationTypes;
 
     public DatasetEntity() {
         this((String) null);
@@ -322,14 +322,14 @@ public class DatasetEntity<T extends DataEntity< ? >> extends DescribableEntity 
     /**
      * @return the aggregationTypes
      */
-    public Set<AggregationType> getAggregationTypes() {
+    public Set<AggregationTypeEntity> getAggregationTypes() {
         return aggregationTypes;
     }
 
     /**
      * @param aggregationTypes the aggregationTypes to set
      */
-    public void setAggregationTypes(Set<AggregationType> aggregationTypes) {
+    public void setAggregationTypes(Set<AggregationTypeEntity> aggregationTypes) {
         this.aggregationTypes = aggregationTypes;
     }
 

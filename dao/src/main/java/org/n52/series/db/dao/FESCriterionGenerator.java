@@ -60,7 +60,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
-import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.AbstractQuantityDataEntity;
 import org.n52.series.db.beans.TextDataEntity;
 import org.n52.shetland.ogc.filter.BinaryLogicFilter;
 import org.n52.shetland.ogc.filter.ComparisonFilter;
@@ -1171,7 +1171,7 @@ public abstract class FESCriterionGenerator {
         Optional<DetachedCriteria> quantity = parseDouble(filter.getValue())
                 // we can't apply PropertyIsLike to numeric values
                 .filter(v -> filter.getOperator() != ComparisonOperator.PropertyIsLike)
-                .map(dv -> DetachedCriteria.forClass(QuantityDataEntity.class)
+                .map(dv -> DetachedCriteria.forClass(AbstractQuantityDataEntity.class)
                 .add(createComparison(filter, dv)));
 
         Optional<DetachedCriteria> text = Optional.of(DetachedCriteria.forClass(TextDataEntity.class)

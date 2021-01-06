@@ -35,7 +35,7 @@ import java.util.List;
 
 import org.n52.io.response.dataset.quantity.QuantityValue;
 
-public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
+public class QuantityDatasetEntity extends DatasetEntity<AbstractQuantityDataEntity> {
 
     private int numberOfDecimals;
 
@@ -63,8 +63,8 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
     }
 
     @Override
-    public QuantityDataEntity getFirstValue() {
-        final QuantityDataEntity firstValue = super.getFirstValue();
+    public AbstractQuantityDataEntity getFirstValue() {
+        final AbstractQuantityDataEntity firstValue = super.getFirstValue();
         if (firstValue != null) {
             Date when = firstValue.getTimeend();
             BigDecimal value = firstValue.getValue();
@@ -77,8 +77,8 @@ public class QuantityDatasetEntity extends DatasetEntity<QuantityDataEntity> {
     }
 
     @Override
-    public QuantityDataEntity getLastValue() {
-        final QuantityDataEntity lastValue = super.getLastValue();
+    public AbstractQuantityDataEntity getLastValue() {
+        final AbstractQuantityDataEntity lastValue = super.getLastValue();
         if (lastValue != null) {
             Date when = lastValue.getTimeend();
             BigDecimal value = lastValue.getValue();

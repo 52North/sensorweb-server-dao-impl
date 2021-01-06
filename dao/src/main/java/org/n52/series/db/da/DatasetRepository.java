@@ -332,7 +332,8 @@ public class DatasetRepository<T extends Data> extends SessionAwareRepository
                         result::setPrimaryData);
             }
             result.setValue(TimeseriesMetadataOutput.AGGREGATION_TYPES,
-                    getAggregationTypes(dataset.getAggregationTypes(), dataset.getPrimaryData()), params, result::setAggregationTypes);
+                    AveragingTimeUtil.getAggregationTypes(dataset.getAggregationTypes(), dataset.getPrimaryData()),
+                    params, result::setAggregationTypes);
             return result;
         } catch (DatasetFactoryException ex) {
             throwNewCreateFactoryException(ex);

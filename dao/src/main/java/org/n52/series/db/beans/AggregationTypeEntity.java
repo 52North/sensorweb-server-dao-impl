@@ -28,7 +28,7 @@
  */
 package org.n52.series.db.beans;
 
-public class AggregationType extends DescribableEntity {
+public class AggregationTypeEntity extends DescribableEntity {
 
     @Override
     public String toString() {

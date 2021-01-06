@@ -46,7 +46,7 @@ import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.AbstractQuantityDataEntity;
 import org.n52.series.db.beans.QuantityDatasetEntity;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -203,7 +203,8 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                     result::setPrimaryData);
         }
         result.setValue(TimeseriesMetadataOutput.AGGREGATION_TYPES,
-                getAggregationTypes(series.getAggregationTypes(), series.getPrimaryData()), params, result::setAggregationTypes);
+                AveragingTimeUtil.getAggregationTypes(series.getAggregationTypes(), series.getPrimaryData()), params,
+                result::setAggregationTypes);
         return result;
     }
 
@@ -232,7 +233,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getPkid()
                                                                             .toString());
 
-                QuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
+                AbstractQuantityDataEntity lastValue = referenceSeriesEntity.getLastValue();
                 refenceValueOutput.setLastValue(repository.createSeriesValueFor(lastValue,
                                                                                 referenceSeriesEntity,
                                                                                 query));

@@ -31,9 +31,9 @@ package org.n52.series.db.beans;
 /**
  *
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
- * @deprecated use {@link QuantityDataEntity} instead.
+ * @deprecated use {@link AbstractQuantityDataEntity} instead.
  */
 @Deprecated
-public class ObservationEntity extends QuantityDataEntity {
+public class ObservationEntity extends AbstractQuantityDataEntity {
 
 }
