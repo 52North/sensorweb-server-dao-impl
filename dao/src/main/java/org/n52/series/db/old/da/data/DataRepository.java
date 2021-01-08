@@ -29,7 +29,7 @@
 package org.n52.series.db.old.da.data;
 
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.series.db.ValueAssembler;
+import org.n52.sensorweb.server.db.ValueAssembler;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.ServiceEntity;
 

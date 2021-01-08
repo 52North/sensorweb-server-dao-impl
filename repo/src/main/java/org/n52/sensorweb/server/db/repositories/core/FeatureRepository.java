@@ -28,11 +28,19 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
+
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.AbstractFeatureEntity;
+import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface FeatureRepository extends ParameterServiceRepository<AbstractFeatureEntity> {
 
+    @Override
+    default List<AbstractFeatureEntity> findByService(ServiceEntity service) {
+        return findAll(createExample(new FeatureEntity(), createMatcher()));
+    }
 }

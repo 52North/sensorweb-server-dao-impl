@@ -31,9 +31,9 @@ package org.n52.series.db.old.da;
 
 import org.hibernate.Session;
 import org.n52.io.response.CategoryOutput;
+import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;

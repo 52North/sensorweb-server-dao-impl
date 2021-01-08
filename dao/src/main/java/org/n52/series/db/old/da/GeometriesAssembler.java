@@ -46,13 +46,13 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.sensorweb.server.db.old.DataModelUtil;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.srv.OutputAssembler;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.FeatureDao;
 import org.n52.series.db.old.dao.SamplingGeometryDao;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -66,9 +66,9 @@ public class GeometriesAssembler extends SessionAwareAssembler implements Output
 
     private static final String NAMED_QUERY_PARAMETER_FEATURE_ID = "featureid";
 
-    private final org.n52.series.db.assembler.core.PlatformAssembler platformRepository;
+    private final org.n52.sensorweb.server.db.assembler.core.PlatformAssembler platformRepository;
 
-    public GeometriesAssembler(org.n52.series.db.assembler.core.PlatformAssembler platformRepository,
+    public GeometriesAssembler(org.n52.sensorweb.server.db.assembler.core.PlatformAssembler platformRepository,
             HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
         this.platformRepository = platformRepository;

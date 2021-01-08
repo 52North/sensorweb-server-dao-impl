@@ -15,5 +15,5 @@
         <property name="noDataValues" value="-9999.0,99999,NO_DATA" />
     </bean>
 
-    <bean id="serviceEntityFactory" class="org.n52.series.db.ServiceEntityFactory" init-method="init"/>
+    <bean id="serviceEntityFactory" class="org.n52.sensorweb.server.db.factory.ServiceEntityFactory" init-method="init"/>
 </beans>

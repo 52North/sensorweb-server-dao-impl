@@ -38,9 +38,9 @@ import org.hibernate.Session;
 import org.n52.io.response.AbstractOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.sensorweb.server.srv.OutputAssembler;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.old.HibernateSessionStore;
-import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -28,10 +28,12 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.PhenomenonEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -42,4 +44,9 @@ public interface PhenomenonRepository extends ParameterServiceRepository<Phenome
     void deleteByStaIdentifier(String identifier);
 
     boolean existsByStaIdentifier(String id);
+
+    @Override
+    default List<PhenomenonEntity> findByService(ServiceEntity service) {
+        return findAll(createExample(new PhenomenonEntity(), createMatcher()));
+    }
 }

@@ -39,15 +39,15 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
+import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.assembler.mapper.ParameterOutputSearchResultMapper;
+import org.n52.sensorweb.server.srv.OutputAssembler;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.AbstractDao;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.SearchResult;
-import org.n52.series.srv.OutputAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -28,10 +28,13 @@
  */
 package org.n52.sensorweb.server.db.query;
 
+import java.util.Collection;
+
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.QueryUtils;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
@@ -65,6 +68,17 @@ public final class ServiceQuerySpecifications extends ParameterQuerySpecificatio
             sq.select(dataset.get(DatasetEntity.PROPERTY_SERVICE).get(DescribableEntity.PROPERTY_ID))
                     .where(filter.toPredicate(dataset, query, builder));
             return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
+        };
+    }
+
+    @Override
+    public <T extends DescribableEntity> Specification<T> matchServices(final Collection<String> ids) {
+        if ((ids == null) || ids.isEmpty()) {
+            return null;
+        }
+        return (root, query, builder) -> {
+            return dbQuery.isMatchDomainIds() ? root.get(DescribableEntity.PROPERTY_IDENTIFIER).in(ids)
+                    : root.get(DescribableEntity.PROPERTY_ID).in(QueryUtils.parseToIds(ids));
         };
     }
 

@@ -28,8 +28,11 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
+
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,4 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface OfferingRepository extends ParameterServiceRepository<OfferingEntity> {
 
+    @Override
+    default List<OfferingEntity> findByService(ServiceEntity service) {
+        return findAll(createExample(new OfferingEntity(), createMatcher()));
+    }
 }

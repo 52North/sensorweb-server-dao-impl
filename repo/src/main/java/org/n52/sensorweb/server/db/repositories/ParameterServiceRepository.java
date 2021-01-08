@@ -28,10 +28,12 @@
  */
 package org.n52.sensorweb.server.db.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
@@ -70,4 +72,16 @@ public interface ParameterServiceRepository<T extends DescribableEntity> extends
             return entity;
         }
     }
+
+    List<T> findByService(ServiceEntity service);
+
+    default List<T> findByService(T entity, ServiceEntity service) {
+        entity.setService(service);
+        return findAll(createExample(entity, createMatcher()));
+    }
+
+    default void deleteByService(ServiceEntity service) {
+        deleteAll(findByService(service));
+    }
+
 }

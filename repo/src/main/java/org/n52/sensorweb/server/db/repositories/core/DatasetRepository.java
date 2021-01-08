@@ -44,13 +44,7 @@ import java.util.Set;
 public interface DatasetRepository extends ParameterServiceRepository<DatasetEntity> {
 
     default List<DatasetEntity> findByService(ServiceEntity service) {
-        DatasetEntity datasetEntity = new DatasetEntity();
-        datasetEntity.setService(service);
-        return findAll(createExample(datasetEntity, createMatcher()));
-    }
-
-    default void deleteByService(ServiceEntity service) {
-        deleteAll(findByService(service));
+        return findAll(createExample(new DatasetEntity(), createMatcher()));
     }
 
     void deleteByIdIn(Iterable<Long> ids);

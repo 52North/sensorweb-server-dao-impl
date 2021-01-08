@@ -14,7 +14,7 @@
         <property name="databaseSrid" value="${database.srid:EPSG:4326}" />
     </bean>
 
-    <bean id="dataRepositoryFactory" class="org.n52.series.db.AnnotationBasedDataRepositoryFactory" />
+    <bean id="dataRepositoryFactory" class="org.n52.sensorweb.server.db.AnnotationBasedDataRepositoryFactory" />
     <bean class="org.n52.series.db.da.QuantityDataRepository" />
     <bean class="org.n52.series.db.da.TextDataRepository" />
     <bean class="org.n52.series.db.da.CountDataRepository" />

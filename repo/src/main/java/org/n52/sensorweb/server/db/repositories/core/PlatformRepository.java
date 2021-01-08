@@ -28,11 +28,18 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
+
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface PlatformRepository extends ParameterServiceRepository<PlatformEntity> {
 
+    @Override
+    default List<PlatformEntity> findByService(ServiceEntity service) {
+        return findAll(createExample(new PlatformEntity(), createMatcher()));
+    }
 }

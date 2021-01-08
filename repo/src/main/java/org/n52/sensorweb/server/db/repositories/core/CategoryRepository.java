@@ -28,11 +28,18 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
+
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.CategoryEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface CategoryRepository extends ParameterServiceRepository<CategoryEntity> {
 
+    @Override
+    default List<CategoryEntity> findByService(ServiceEntity service) {
+        return findAll(createExample(new CategoryEntity(), createMatcher()));
+    }
 }
