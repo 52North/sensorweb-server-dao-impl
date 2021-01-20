@@ -5,6 +5,9 @@
     version="2.1">
     <persistence-unit name="default-unit">
         <description>Default Mappings</description>
+
+        <mapping-file>/hbm/proxy/core/ServiceResource.hbm.xml</mapping-file>
+
         <mapping-file>/hbm/transactional/core/CategoryResource.hbm.xml</mapping-file>
         <mapping-file>/hbm/transactional/core/CodespaceResource.hbm.xml</mapping-file>
         <mapping-file>/hbm/transactional/core/FeatureResource.hbm.xml</mapping-file>
