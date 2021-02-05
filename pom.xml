@@ -49,7 +49,7 @@
         <env>dev</env>
 
         <geotools.version>24.2</geotools.version>
-        <geolatte.version>1.6.0</geolatte.version>
+        <geolatte.version>1.6.1</geolatte.version>
         <hibernate.version>5.4.27.Final</hibernate.version>
         <spring-boot.version>2.4.2</spring-boot.version>
         <series-api.version>3.4.1-SNAPSHOT</series-api.version>
