@@ -248,10 +248,20 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         if (query.getLastValueMatches() != null) {
             filter.add(createLastValuesFilter(query));
         }
-        query.addSpatialFilter(filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
-                                                     FEATURE_PATH_ALIAS,
-                                                     JoinType.LEFT_OUTER_JOIN));
+        if (requiresFeatureJoin(query)) {
+            Criteria featureCriteria = filter.createCriteria(DatasetEntity.PROPERTY_FEATURE,
+                    FEATURE_PATH_ALIAS,
+                    JoinType.LEFT_OUTER_JOIN);
+            if (query.getParameters().getSpatialFilter() != null) {
+                query.addSpatialFilter(featureCriteria);
+            }
+        }
         return criteria;
+    }
+
+    private boolean requiresFeatureJoin(DbQuery query) {
+        return query.getParameters().getSpatialFilter() != null
+                || query.getParameters().getFeatures() != null && !query.getParameters().getFeatures().isEmpty();
     }
 
     @SuppressWarnings("unchecked")
