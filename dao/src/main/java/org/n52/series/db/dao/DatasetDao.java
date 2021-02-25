@@ -264,7 +264,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
                     datasets.stream().map(d -> Long.parseLong(d)).collect(Collectors.toSet())));
         }
         criteria.setProjection(Projections.projectionList()
-                .add(Projections.groupProperty(DatasetEntity.PROPERTY_ID))
+                .add(Projections.property(DatasetEntity.PROPERTY_ID))
                 .add(Projections.property(DatasetEntity.PROPERTY_DATASET_TYPE))
                 .add(Projections.property(DatasetEntity.PROPERTY_OBSERVATION_TYPE))
                 .add(Projections.property(DatasetEntity.PROPERTY_VALUE_TYPE)));
