@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2015-2021 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -192,7 +192,7 @@ public class EntityCounter {
         Session session = sessionStore.getSession();
         try {
             IoParameters parameters = query.getParameters();
-            parameters = parameters.extendWith("datasetTypes", datasetType);
+            parameters = parameters.replaceWith("datasetTypes", datasetType);
             return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
         } finally {
             sessionStore.returnSession(session);
