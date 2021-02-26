@@ -150,16 +150,14 @@ public class EntityCounter {
 
     private Long countDataset(DbQuery query, String datasetType) {
         IoParameters parameters = query.getParameters();
-        parameters = parameters.extendWith(Parameters.FILTER_DATASET_TYPES, datasetType);
+        parameters = parameters.replaceWith(Parameters.FILTER_DATASET_TYPES, datasetType);
         return datasetAssembler.count(dbQueryFactory.createFrom(parameters));
     }
 
     private Long countDataset(DbQuery query, String datasetType, String observationType) {
-        IoParameters parameters = query.getParameters();
-        parameters = parameters.extendWith(Parameters.FILTER_DATASET_TYPES, datasetType);
+        IoParameters parameters = query.getParameters().replaceWith(Parameters.FILTER_DATASET_TYPES, datasetType);
         Long count = datasetAssembler.count(dbQueryFactory.createFrom(parameters));
-        parameters = query.getParameters();
-        parameters = parameters.extendWith(Parameters.FILTER_OBSERVATION_TYPES, observationType);
+        parameters = query.getParameters().replaceWith(Parameters.FILTER_OBSERVATION_TYPES, observationType);
         return count + datasetAssembler.count(dbQueryFactory.createFrom(parameters));
     }
 
