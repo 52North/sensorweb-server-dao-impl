@@ -192,7 +192,7 @@ public class EntityCounter {
         Session session = sessionStore.getSession();
         try {
             IoParameters parameters = query.getParameters();
-            parameters = parameters.extendWith("datasetTypes", datasetType);
+            parameters = parameters.replaceWith("datasetTypes", datasetType);
             return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
         } finally {
             sessionStore.returnSession(session);
