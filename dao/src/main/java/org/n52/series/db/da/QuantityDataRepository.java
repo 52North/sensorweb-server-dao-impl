@@ -81,7 +81,7 @@ public class QuantityDataRepository
     public QuantityValue getFirstValue(DatasetEntity entity, Session session, DbQuery query) {
         if (entity.getFirstQuantityValue() != null) {
             QuantityValue value = createEmptyValue();
-            value.setValue(entity.getFirstQuantityValue());
+            value.setValue(format(entity.getFirstQuantityValue(), entity));
             value.setTimestamp(createTimeOutput(entity.getFirstValueAt(), null, query.getParameters()));
             Locale locale = LocaleHelper.decode(query.getLocale());
             NumberFormat formatter = NumberFormat.getInstance(locale);
@@ -95,7 +95,7 @@ public class QuantityDataRepository
     public QuantityValue getLastValue(DatasetEntity entity, Session session, DbQuery query) {
         if (entity.getLastQuantityValue() != null) {
             QuantityValue value = createEmptyValue();
-            value.setValue(entity.getLastQuantityValue());
+            value.setValue(format(entity.getLastQuantityValue(), entity));
             value.setTimestamp(createTimeOutput(entity.getLastValueAt(), null, query.getParameters()));
             Locale locale = LocaleHelper.decode(query.getLocale());
             NumberFormat formatter = NumberFormat.getInstance(locale);
