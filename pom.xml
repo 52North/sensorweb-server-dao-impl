@@ -53,7 +53,7 @@
         <hibernate.version>5.4.16.Final</hibernate.version>
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
         <series-api.version>3.3.3</series-api.version>
-        <series-hibernate.version>3.0.5</series-hibernate.version>
+        <series-hibernate.version>3.0.6-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>7.6.1</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>

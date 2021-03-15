@@ -103,9 +103,9 @@ public class FeatureDao extends HierarchicalDao<FeatureEntity, I18nFeatureEntity
     }
 
     @Override
-    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
-        super.addFetchModes(criteria, expanded);
-        if (expanded) {
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        super.addFetchModes(criteria, q);
+        if (q.isExpanded()) {
             criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_PARENTS, FetchMode.JOIN);
             criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_CHILDREN, FetchMode.JOIN);
             criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_DATASETS, FetchMode.JOIN);

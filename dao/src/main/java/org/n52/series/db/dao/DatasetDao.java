@@ -120,14 +120,15 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     @SuppressWarnings("unchecked")
     public T getInstance(Long key, DbQuery query) {
         Criteria criteria = getDefaultCriteria(getDefaultAlias(), false, query);
-        addFetchModes(criteria, true);
+        addFetchModes(criteria, query, true);
         return (T) criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, key))
                            .uniqueResult();
     }
 
     @Override
     protected T getInstance(String key, DbQuery query, Class<T> clazz) {
-        return super.getInstance(key, query, clazz, addFetchModes(getDefaultCriteria(null, false, query, clazz), true));
+        return super.getInstance(key, query, clazz,
+                addFetchModes(getDefaultCriteria(null, false, query, clazz), query, true));
     }
 
     @Override
@@ -200,9 +201,12 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return criteria;
     }
 
-
     @Override
-    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        return addFetchModes(criteria, q, q.isExpanded());
+    }
+
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
         criteria.setFetchMode(DatasetEntity.PROPERTY_FEATURE, FetchMode.JOIN);
         criteria.setFetchMode(DatasetEntity.PROPERTY_UNIT, FetchMode.JOIN);
         criteria.setFetchMode(DatasetEntity.PROPERTY_PHENOMENON, FetchMode.JOIN);
@@ -214,14 +218,14 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
         if (DataModelUtil.isEntitySupported(SamplingEntity.class, criteria)) {
             criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_SAMPLING_PROFILE,
-                    SamplingProfileDatasetEntity.PROPERTY_SAMPLINGS), FetchMode.JOIN);
+                    SamplingProfileDatasetEntity.PROPERTY_SAMPLING_IDS), FetchMode.JOIN);
         }
-        if (expanded) {
+        if (q.isExpanded() || instance) {
             criteria.setFetchMode(FIRST_OBSERVATION_ALIAS, FetchMode.JOIN);
             criteria.setFetchMode(LAST_OBSERVATION_ALIAS, FetchMode.JOIN);
-            criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
             criteria.setFetchMode(getFetchPath(FIRST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
             criteria.setFetchMode(getFetchPath(LAST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
             criteria.setFetchMode("referenceValues", FetchMode.JOIN);
             criteria.setFetchMode(DatasetEntity.PROPERTY_PLATFORM, FetchMode.JOIN);
             criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PLATFORM, TRANSLATIONS_ALIAS), FetchMode.JOIN);
@@ -229,11 +233,6 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
             criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
         }
         return criteria;
-    }
-
-    @Override
-    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
-        return addFetchModes(criteria, q.isExpanded());
     }
 
     @Override
