@@ -56,7 +56,7 @@
         <spring-boot.version>2.4.3</spring-boot.version>
         <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>8.1.0</arctic-sea.version>
+        <arctic-sea.version>8.2.0</arctic-sea.version>
         <version.jts>1.18.1</version.jts>
 
         <java.compiler.source>1.8</java.compiler.source>
