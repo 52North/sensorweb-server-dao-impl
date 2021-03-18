@@ -215,6 +215,11 @@
                 <artifactId>jts-core</artifactId>
                 <version>${version.jts}</version>
             </dependency>
+            <dependency>
+                <groupId>org.geolatte</groupId>
+                <artifactId>geolatte-geom</artifactId>
+                <version>1.8.0</version>
+            </dependency>
             
             <dependency>
                 <groupId>javax.inject</groupId>
@@ -485,11 +490,6 @@
                         <artifactId>unit-api</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.locationtech.jts</groupId>
-                <artifactId>jts-core</artifactId>
-                <version>1.18.0</version>
             </dependency>
             <dependency>
                 <groupId>javax</groupId>
