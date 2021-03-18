@@ -57,7 +57,7 @@
         <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>8.1.0</arctic-sea.version>
-        <version.jts>1.16.1</version.jts>
+        <version.jts>1.18.1</version.jts>
 
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
