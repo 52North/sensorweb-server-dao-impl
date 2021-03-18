@@ -54,8 +54,8 @@
         <geolatte.version>1.8.0</geolatte.version>
         <hibernate.version>5.4.29.Final</hibernate.version>
         <spring-boot.version>2.4.3</spring-boot.version>
-        <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
+        <series-api.version>3.5.0-PR.2</series-api.version>
         <arctic-sea.version>8.2.0</arctic-sea.version>
         <version.jts>1.18.1</version.jts>
 
