@@ -67,7 +67,7 @@ public class ProcedureDao extends HierarchicalDao<ProcedureEntity, I18nProcedure
 
     @Override
     public Set<Long> getChildrenIds(DbQuery query) {
-        Set<String> procedures = query.getParameters().getFeatures();
+        Set<String> procedures = query.getParameters().getProcedures();
         if (procedures != null && !procedures.isEmpty()) {
            return getChildrenIds(query, procedures, query.getLevel());
         }
