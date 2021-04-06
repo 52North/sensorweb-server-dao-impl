@@ -91,7 +91,7 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
     }
 
     @Override
-    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
+    protected Criteria addFetchModes(Criteria criteria, DbQuery query) {
         criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
         return criteria;
     }

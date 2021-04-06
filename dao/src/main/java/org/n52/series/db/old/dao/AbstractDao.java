@@ -388,10 +388,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
 
     protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
-        return addFetchModes(criteria, q.isExpanded());
-    }
-
-    protected Criteria addFetchModes(Criteria criteria, boolean expanded) {
         return criteria;
     }
 
