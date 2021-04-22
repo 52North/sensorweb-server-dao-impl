@@ -53,7 +53,7 @@
         <hibernate.version>5.4.27.Final</hibernate.version>
         <spring-boot.version>2.4.5</spring-boot.version>
         <series-api.version>3.4.1-SNAPSHOT</series-api.version>
-        <series-hibernate.version>3.0.6-SNAPSHOT</series-hibernate.version>
+        <series-hibernate.version>3.0.6</series-hibernate.version>
         <arctic-sea.version>8.2.0</arctic-sea.version>
 
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -132,6 +132,10 @@
                   <exclusion>
                     <groupId>javax.activation</groupId>
                     <artifactId>activation</artifactId>
+                  </exclusion>
+                  <exclusion>
+                    <groupId>com.neovisionaries</groupId>
+                    <artifactId>nv-i18n</artifactId>
                   </exclusion>
                 </exclusions>
             </dependency>
