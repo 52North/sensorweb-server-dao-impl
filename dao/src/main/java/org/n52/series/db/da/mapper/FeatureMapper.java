@@ -69,8 +69,10 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
     public FeatureOutput createCondensed(AbstractFeatureEntity<?> entity, DbQuery query) {
         try {
             FeatureOutput result = condensed(new FeatureOutput(), entity, query);
-            result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
-                    result::setGeometry);
+            if (query.getParameters().isSelected(StationOutput.GEOMETRY)) {
+                result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
+                        result::setGeometry);
+            }
             return result;
         } catch (Exception e) {
             log(entity, e);

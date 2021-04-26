@@ -272,40 +272,61 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         }
         DatasetOutput<V> result = new DatasetOutput();
 
-        Long id = dataset.getId();
-        String hrefBase = query.getHrefBase();
-        String domainId = dataset.getIdentifier();
-        String uom = dataset.getUnitI18nName(query.getLocale());
-        String label = createDatasetLabel(dataset, query.getLocale());
-
-        result.setId(id.toString());
-        result.setValue(DatasetOutput.UOM, uom, parameters, result::setUom);
-        result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-        result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().name(), parameters,
-                result::setDatasetType);
-        result.setValue(DatasetOutput.OBSERVATION_TYPE, dataset.getObservationType().name(), parameters,
-                result::setObservationType);
-        result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
-        result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
-        result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
-        if (dataset.hasSamplingProfile()) {
+        result.setId(dataset.getId().toString());
+        if (parameters.isSelected(ParameterOutput.LABEL)) {
+            result.setValue(ParameterOutput.LABEL, createDatasetLabel(dataset, query.getLocale()), parameters,
+                    result::setLabel);
+        }
+        if (parameters.isSelected(ParameterOutput.DOMAIN_ID)) {
+            result.setValue(ParameterOutput.DOMAIN_ID, dataset.getIdentifier(), parameters, result::setDomainId);
+        }
+        if (parameters.isSelected(ParameterOutput.HREF)) {
+            result.setValue(ParameterOutput.HREF, createHref(query.getHrefBase(), dataset), parameters,
+                    result::setHref);
+        }
+        if (parameters.isSelected(DatasetOutput.UOM)) {
+            result.setValue(DatasetOutput.UOM, dataset.getUnitI18nName(query.getLocale()), parameters, result::setUom);
+        }
+        if (parameters.isSelected(DatasetOutput.DATASET_TYPE)) {
+            result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().name(), parameters,
+                    result::setDatasetType);
+        }
+        if (parameters.isSelected(DatasetOutput.OBSERVATION_TYPE)) {
+            result.setValue(DatasetOutput.OBSERVATION_TYPE, dataset.getObservationType().name(), parameters,
+                    result::setObservationType);
+        }
+        if (parameters.isSelected(DatasetOutput.VALUE_TYPE)) {
+            result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
+        }
+        if (parameters.isSelected(DatasetOutput.MOBILE)) {
+            result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
+        }
+        if (parameters.isSelected(DatasetOutput.INSITU)) {
+            result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
+        }
+        if (parameters.isSelected(DatasetOutput.HAS_SAMPLINGS) && dataset.hasSamplingProfile()) {
             result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
                     result::setHasSamplings);
         }
-        result.setValue(ParameterOutput.HREF, createHref(hrefBase, dataset), parameters, result::setHref);
-        result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
-                dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,
-                result::setOriginTimezone);
-
-        result.setValue(DatasetOutput.SMAPLING_TIME_START,
-                createTimeOutput(dataset.getFirstValueAt(), dataset.getOriginTimezone(), parameters), parameters,
-                result::setSamplingTimeStart);
-        result.setValue(DatasetOutput.SMAPLING_TIME_END,
-                createTimeOutput(dataset.getLastValueAt(), dataset.getOriginTimezone(), parameters), parameters,
-                result::setSamplingTimeEnd);
-        result.setValue(DatasetOutput.FEATURE, getCondensedFeature(dataset.getFeature(), query), parameters,
-                result::setFeature);
+        if (parameters.isSelected(DatasetOutput.ORIGIN_TIMEZONE)) {
+            result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
+                    dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,
+                    result::setOriginTimezone);
+        }
+        if (parameters.isSelected(DatasetOutput.SMAPLING_TIME_START)) {
+            result.setValue(DatasetOutput.SMAPLING_TIME_START,
+                    createTimeOutput(dataset.getFirstValueAt(), dataset.getOriginTimezone(), parameters), parameters,
+                    result::setSamplingTimeStart);
+        }
+        if (parameters.isSelected(DatasetOutput.SMAPLING_TIME_END)) {
+            result.setValue(DatasetOutput.SMAPLING_TIME_END,
+                    createTimeOutput(dataset.getLastValueAt(), dataset.getOriginTimezone(), parameters), parameters,
+                    result::setSamplingTimeEnd);
+        }
+        if (parameters.isSelected(DatasetOutput.FEATURE)) {
+            result.setValue(DatasetOutput.FEATURE, getCondensedFeature(dataset.getFeature(), query), parameters,
+                    result::setFeature);
+        }
 
         return result;
     }
@@ -332,29 +353,25 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
         IoParameters params = query.getParameters();
         DatasetOutput<V> result = createCondensed(dataset, query);
-
-        DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
-        datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
-        if (dataset.getService() == null) {
-            dataset.setService(getServiceEntity());
-        }
-
         DataRepository<DatasetEntity, ?, V, ?> dataRepository = getDataRepositoryFactory(dataset);
-        V firstValue = dataRepository.getFirstValue(dataset, session, query);
-        V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) ? firstValue
-                : dataRepository.getLastValue(dataset, session, query);
-
-        List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query, session);
-        lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
-                // first == last to have a valid interval
-                ? firstValue
-                : lastValue;
-
-        result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
-        result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
-        result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
-        result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-
+        V firstValue = null;
+        if (params.isSelected(DatasetOutput.FIRST_VALUE)) {
+            firstValue = dataRepository.getFirstValue(dataset, session, query);
+            result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
+        }
+        if (params.isSelected(DatasetOutput.LAST_VALUE)) {
+            V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) && firstValue != null ? firstValue
+                    : dataRepository.getLastValue(dataset, session, query);
+            lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
+                    // first == last to have a valid interval
+                    ? firstValue
+                    : lastValue;
+            result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
+        }
+        if (params.isSelected(DatasetOutput.REFERENCE_VALUES)) {
+            List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query, session);
+            result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
+        }
         if (query.getParameters().containsParameter(Parameters.AGGREGATION)
                 && dataRepository instanceof AbstractDataRepository) {
             Set<String> aggParams = query.getParameters().getAggregation();
@@ -370,6 +387,14 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
             }
         }
 
+        if (params.isSelected(DatasetOutput.DATASET_PARAMETERS)) {
+            DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
+            datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
+            if (dataset.getService() == null) {
+                dataset.setService(getServiceEntity());
+            }
+            result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
+        }
         return result;
     }
 

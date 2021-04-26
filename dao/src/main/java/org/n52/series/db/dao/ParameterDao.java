@@ -58,7 +58,9 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         addFetchModes(criteria, query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
+        if (query.getParameters().getLocale() != null || !query.getParameters().getLocale().isEmpty()) {
+            criteria = i18n(getI18NEntityClass(), criteria, query);
+        }
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
         criteria = query.addFilters(criteria, getDatasetProperty(), session);
         long start = System.currentTimeMillis();
@@ -80,7 +82,9 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         addFetchModes(criteria, query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
+        if (query.getParameters().getLocale() != null && !query.getParameters().getLocale().isEmpty()) {
+            criteria = i18n(getI18NEntityClass(), criteria, query);
+        }
         criteria = query.addFilters(criteria, getDatasetProperty(), session);
         long start = System.currentTimeMillis();
         try {
@@ -92,7 +96,9 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
 
     @Override
     protected Criteria addFetchModes(Criteria criteria, DbQuery query) {
-        criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
+        if (query.getParameters().getLocale() != null && !query.getParameters().getLocale().isEmpty()) {
+            criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
+        }
         return criteria;
     }
 

@@ -195,8 +195,14 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public Set<String> getValueTypes() {
-        return parameters.getValueTypes();
+    public boolean isSetDatasetTypeFilter() {
+        return !parameters.getDatasetTypes()
+                          .isEmpty();
+    }
+
+    public boolean isSetObservationTypeFilter() {
+        return !parameters.getObservationTypes()
+                          .isEmpty();
     }
 
     public boolean isSetValueTypeFilter() {

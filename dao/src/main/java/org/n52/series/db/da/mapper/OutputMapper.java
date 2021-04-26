@@ -29,6 +29,7 @@
 package org.n52.series.db.da.mapper;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -44,15 +45,20 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
 
     default T condensed(T result, DescribableEntity entity, DbQuery query) {
         try {
+            IoParameters parameters = query.getParameters();
             String id = Long.toString(entity.getId());
-            String label = entity.getLabelFrom(query.getLocale());
-            String domainId = entity.getIdentifier();
-            String hrefBase = query.getHrefBase();
-
             result.setId(id);
-            result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
-            result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
-            result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
+            if (parameters.isSelected(ParameterOutput.LABEL)) {
+                result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocale()), parameters,
+                        result::setLabel);
+            }
+            if (parameters.isSelected(ParameterOutput.DOMAIN_ID)) {
+                result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), parameters, result::setDomainId);
+            }
+            if (parameters.isSelected(ParameterOutput.HREF)) {
+                result.setValue(ParameterOutput.HREF, query.getHrefBase(), parameters,
+                        result::setHref);
+            }
             return result;
         } catch (Exception e) {
             log(entity, e);
