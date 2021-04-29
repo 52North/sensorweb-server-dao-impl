@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
@@ -65,7 +67,9 @@ public class QuantityProfileDataRepository extends ProfileDataRepository<Dataset
         ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
         for (DataEntity<?> dataEntity : observation.getValue()) {
-            QuantityDataEntity quantity = (QuantityDataEntity) dataEntity;
+            QuantityDataEntity quantity =
+                    (QuantityDataEntity) (dataEntity instanceof HibernateProxy ? Hibernate.unproxy(dataEntity)
+                            : dataEntity);
             QuantityValue valueItem = quantityRepository.createValue(quantity.getValue(), quantity, query);
             addParameters(quantity, valueItem, query);
             if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {
