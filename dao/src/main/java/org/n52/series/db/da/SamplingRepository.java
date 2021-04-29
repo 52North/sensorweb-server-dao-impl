@@ -28,6 +28,8 @@
  */
 package org.n52.series.db.da;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -43,6 +45,7 @@ import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.SamplerOutput;
 import org.n52.io.response.sampling.SamplingObservationOutput;
 import org.n52.io.response.sampling.SamplingOutput;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -54,10 +57,14 @@ import org.n52.series.db.dao.SamplingDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.SamplingSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SamplingRepository extends ParameterRepository<SamplingEntity, SamplingOutput>
         implements OutputAssembler<SamplingOutput> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SamplingRepository.class);
 
     @Autowired
     private DataRepositoryTypeFactory dataRepositoryFactory;
@@ -83,39 +90,81 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
     }
 
     @Override
+    protected List<SamplingOutput> createCondensed(Collection<SamplingEntity> samplings,
+            DbQuery query, Session session) throws DataAccessException {
+        long start = System.currentTimeMillis();
+        List<SamplingOutput> results = new LinkedList<>();
+        for (SamplingEntity sampling : samplings) {
+            results.add(createCondensed(sampling, query, session));
+        }
+        LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
+        return results;
+    }
+
+    @Override
     protected SamplingOutput createCondensed(SamplingEntity sampling, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         SamplingOutput result = createCondensed(prepareEmptyParameterOutput(), sampling, query);
 
-        result.setValue(SamplingOutput.DOMAIN_ID, sampling.getIdentifier(), parameters, result::setDomainId);
-        result.setValue(SamplingOutput.COMMENT, sampling.isSetDescription() ? sampling.getDescription() : "",
-                parameters, result::setComment);
-        result.setValue(SamplingOutput.MONITORING_PROGRAM,
-                getCondensedMeasuringProgram(sampling.getMeasuringProgram(), query), parameters,
-                result::setMeasuringProgram);
-        result.setValue(SamplingOutput.SAMPLER, getCondensedSampler(sampling.getSampler(), parameters), parameters,
-                result::setSampler);
-        result.setValue(SamplingOutput.SAMPLING_METHOD, sampling.getSamplingMethod(), parameters,
-                result::setSamplingMethod);
-        result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
-                sampling.isSetEnvironmentalConditions() ? sampling.getEnvironmentalConditions() : "", parameters,
-                result::setEnvironmentalConditions);
-        result.setValue(SamplingOutput.SAMPLING_TIME_START,
-                createTimeOutput(sampling.getSamplingTimeStart(), parameters), parameters,
-                result::setSamplingTimeStart);
-        result.setValue(SamplingOutput.SAMPLING_TIME_END, createTimeOutput(sampling.getSamplingTimeEnd(), parameters),
-                parameters, result::setSamplingTimeEnd);
+        if (parameters.isSelected(SamplingOutput.COMMENT)) {
+            result.setValue(SamplingOutput.COMMENT, sampling.isSetDescription() ? sampling.getDescription() : "",
+                    parameters, result::setComment);
+        }
+        if (parameters.isSelected(SamplingOutput.MONITORING_PROGRAM)) {
+            result.setValue(SamplingOutput.MONITORING_PROGRAM,
+                    getCondensedMeasuringProgram(sampling.getMeasuringProgram(), query), parameters,
+                    result::setMeasuringProgram);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLER)) {
+            result.setValue(SamplingOutput.SAMPLER, getCondensedSampler(sampling.getSampler(), parameters), parameters,
+                    result::setSampler);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLING_METHOD)) {
+            result.setValue(SamplingOutput.SAMPLING_METHOD, sampling.getSamplingMethod(), parameters,
+                    result::setSamplingMethod);
+        }
+        if (parameters.isSelected(SamplingOutput.ENVIRONMENTAL_CONDITIONS)) {
+            result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
+                    sampling.isSetEnvironmentalConditions() ? sampling.getEnvironmentalConditions() : "", parameters,
+                    result::setEnvironmentalConditions);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLING_TIME_START)) {
+            result.setValue(SamplingOutput.SAMPLING_TIME_START,
+                    createTimeOutput(sampling.getSamplingTimeStart(), parameters), parameters,
+                    result::setSamplingTimeStart);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLING_TIME_END)) {
+            result.setValue(SamplingOutput.SAMPLING_TIME_END,
+                    createTimeOutput(sampling.getSamplingTimeEnd(), parameters), parameters,
+                    result::setSamplingTimeEnd);
+        }
 
         return result;
+    }
+
+    @Override
+    protected List<SamplingOutput> createExpanded(Collection<SamplingEntity> samplings,
+            DbQuery query, Session session) throws DataAccessException {
+//        long start = System.currentTimeMillis();
+//        List<SamplingOutput> results = new LinkedList<>();
+//        for (SamplingEntity sampling : samplings) {
+//            results.add(createExpanded(sampling, query, session));
+//        }
+//        LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
+        return createCondensed(samplings, query, session);
     }
 
     @Override
     protected SamplingOutput createExpanded(SamplingEntity sampling, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         SamplingOutput result = createCondensed(sampling, query, session);
-        result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query), parameters, result::setFeature);
-        result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query), parameters,
-                result::setSamplingObservations);
+        if (parameters.isSelected(SamplingOutput.FEATURE)) {
+            result.setValue(SamplingOutput.FEATURE, getFeature(sampling, query), parameters, result::setFeature);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLING_OBSERVATIONS)) {
+            result.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(sampling, query), parameters,
+                    result::setSamplingObservations);
+        }
         return result;
     }
 
@@ -158,7 +207,7 @@ public class SamplingRepository extends ParameterRepository<SamplingEntity, Samp
         DataRepository factory = getDataRepositoryFactory(o.getDataset());
         result.setValue(factory.assembleDataValue(o, o.getDataset(), query));
 
-        String uom = o.getDataset().getUnitI18nName(query.getLocale());
+        String uom = o.getDataset().getUnitI18nName(query.getLocaleForLabel());
         result.setUom(uom != null && !uom.isEmpty() ? OptionalOutput.of(uom) : null);
         result.setDataset(createCondensed(new DatasetOutput(), o.getDataset(), query));
         result.setCategory(getCondensedCategory(o.getDataset().getCategory(), query));

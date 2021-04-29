@@ -28,6 +28,7 @@
  */
 package org.n52.series.db.da;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
 import org.n52.io.response.sampling.ProducerOutput;
 import org.n52.io.response.sampling.SamplingOutput;
+import org.n52.series.db.DataAccessException;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -50,9 +52,13 @@ import org.n52.series.db.dao.MeasuringProgramDao;
 import org.n52.series.db.dao.SearchableDao;
 import org.n52.series.spi.search.MeasuringProgramSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MeasuringProgramRepository extends ParameterRepository<MeasuringProgramEntity, MeasuringProgramOutput>
         implements OutputAssembler<MeasuringProgramOutput> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeasuringProgramRepository.class);
 
     @Override
     protected MeasuringProgramOutput prepareEmptyParameterOutput() {
@@ -75,22 +81,43 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
     }
 
     @Override
+    protected List<MeasuringProgramOutput> createCondensed(Collection<MeasuringProgramEntity> measuringPrograms,
+            DbQuery query, Session session) {
+        long start = System.currentTimeMillis();
+        List<MeasuringProgramOutput> results = new LinkedList<>();
+        for (MeasuringProgramEntity measuringProgram : measuringPrograms) {
+            results.add(createCondensed(measuringProgram, query, session));
+        }
+        LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
+        return results;
+    }
+
+    @Override
     protected MeasuringProgramOutput createCondensed(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
         IoParameters parameters = query.getParameters();
         MeasuringProgramOutput result = createCondensed(prepareEmptyParameterOutput(), measuringProgram, query);
-
-        result.setValue(MeasuringProgramOutput.ORDER_ID, measuringProgram.getIdentifier(), parameters,
-                result::setOrderId);
-        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_START,
-                createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters), parameters,
-                result::setMeasuringProgramTimeStart);
-        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END,
-                getMeasuringtimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
-        result.setValue(MeasuringProgramOutput.PRODUCER,
-                getCondensedProducer(measuringProgram.getProducer(), parameters), parameters, result::setProducer);
-        result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram, query), parameters,
-                result::setObservedArea);
+        if (parameters.isSelected(MeasuringProgramOutput.ORDER_ID)) {
+            result.setValue(MeasuringProgramOutput.ORDER_ID, measuringProgram.getIdentifier(), parameters,
+                    result::setOrderId);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_START)) {
+            result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_START,
+                    createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters), parameters,
+                    result::setMeasuringProgramTimeStart);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END)) {
+            result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END,
+                    getMeasuringtimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.PRODUCER)) {
+            result.setValue(MeasuringProgramOutput.PRODUCER,
+                    getCondensedProducer(measuringProgram.getProducer(), parameters), parameters, result::setProducer);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.OBSERVED_AREA)) {
+            result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram, query), parameters,
+                    result::setObservedArea);
+        }
         return result;
     }
 
@@ -102,21 +129,42 @@ public class MeasuringProgramRepository extends ParameterRepository<MeasuringPro
     }
 
     @Override
+    protected List<MeasuringProgramOutput> createExpanded(Collection<MeasuringProgramEntity> measuringPrograms,
+            DbQuery query, Session session) throws DataAccessException {
+        long start = System.currentTimeMillis();
+        List<MeasuringProgramOutput> results = new LinkedList<>();
+        for (MeasuringProgramEntity measuringProgram : measuringPrograms) {
+            results.add(createExpanded(measuringProgram, query, session));
+        }
+        LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
+        return results;
+    }
+
+    @Override
     protected MeasuringProgramOutput createExpanded(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
         IoParameters parameters = query.getParameters();
         MeasuringProgramOutput result = createCondensed(measuringProgram, query, session);
-
-        result.setValue(MeasuringProgramOutput.DATASETS, getDatasets(measuringProgram, query, session), parameters,
-                result::setDatasets);
-        result.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(measuringProgram, query), parameters,
-                result::setSamplings);
-        result.setValue(MeasuringProgramOutput.FEATURES, getFeatures(measuringProgram, query), parameters,
-                result::setFeatures);
-        result.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(measuringProgram, query), parameters,
-                result::setPhenomena);
-        result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
-                result::setCategories);
+        if (parameters.isSelected(MeasuringProgramOutput.DATASETS)) {
+            result.setValue(MeasuringProgramOutput.DATASETS, getDatasets(measuringProgram, query, session), parameters,
+                    result::setDatasets);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.SAMPLINGS)) {
+            result.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(measuringProgram, query), parameters,
+                    result::setSamplings);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.FEATURES)) {
+            result.setValue(MeasuringProgramOutput.FEATURES, getFeatures(measuringProgram, query), parameters,
+                    result::setFeatures);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.PHENOMENA)) {
+            result.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(measuringProgram, query), parameters,
+                    result::setPhenomena);
+        }
+        if (parameters.isSelected(MeasuringProgramOutput.CATEGORIES)) {
+            result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
+                    result::setCategories);
+        }
         return result;
     }
 

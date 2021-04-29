@@ -29,8 +29,6 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.dao.DbQuery;
@@ -70,15 +68,6 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
         return getMapperFactory().getFeatureMapper().createExpanded(entity, query, false, false, query.getLevel(),
                 session);
-    }
-
-    private boolean hasFilterParameter(DbQuery query) {
-        IoParameters parameters = query.getParameters();
-        return parameters.containsParameter(Parameters.DATASETS) || parameters.containsParameter(Parameters.CATEGORIES)
-                || parameters.containsParameter(Parameters.OFFERINGS)
-                || parameters.containsParameter(Parameters.PHENOMENA)
-                || parameters.containsParameter(Parameters.PLATFORMS)
-                || parameters.containsParameter(Parameters.PROCEDURES);
     }
 
 }

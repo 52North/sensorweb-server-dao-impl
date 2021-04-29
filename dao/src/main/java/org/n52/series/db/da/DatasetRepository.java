@@ -31,33 +31,15 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.Session;
-import org.n52.io.HrefHelper;
 import org.n52.io.request.IoParameters;
-import org.n52.io.request.Parameters;
-import org.n52.io.response.OptionalOutput;
-import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.AbstractValue;
-import org.n52.io.response.dataset.AggregationOutput;
 import org.n52.io.response.dataset.DatasetOutput;
-import org.n52.io.response.dataset.DatasetParameters;
-import org.n52.io.response.dataset.IndividualObservationOutput;
-import org.n52.io.response.dataset.ProfileOutput;
-import org.n52.io.response.dataset.ReferenceValueOutput;
-import org.n52.io.response.dataset.TimeseriesMetadataOutput;
-import org.n52.io.response.dataset.TrajectoryOutput;
-import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.DatasetTypesMetadata;
-import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.OfferingEntity;
-import org.n52.series.db.beans.PhenomenonEntity;
-import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
@@ -136,41 +118,24 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
-        for (DatasetEntity series : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(series.getObservationType().name(), series.getValueType().name())) {
-                results.add(createCondensed(series, query));
+//        if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
+//            dao.getAllInstances(query).parallelStream()
+//                    .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+//                            dataset.getValueType().name()))
+//                    .map(dataset -> createCondensed(dataset, query)).forEach(results::add);
+//        } else {
+            for (DatasetEntity dataset : dao.getAllInstances(query)) {
+                if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+                        dataset.getValueType().name())) {
+                    results.add(createCondensed(dataset, query));
+                }
             }
-        }
+//        }
         LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     private DatasetDao<? extends DatasetEntity> getDatasetDao(Class<? extends DatasetEntity> clazz, Session session) {
         return new DatasetDao<>(session, clazz);
-    }
-
-    // private DatasetDao<? extends DatasetEntity> getDatasetDao(String valueType, Session session) {
-    // // if (! ("all".equalsIgnoreCase(valueType) ||
-    // // dataRepositoryFactory.isKnown(valueType))) {
-    // // throw new BadQueryParameterException("invalid type: " + valueType);
-    // // }
-    // return createDataAccessRepository(DatasetEntity.class, session);
-    // }
-
-    private DatasetDao<? extends DatasetEntity> getSeriesDao(String datasetId, DbQuery query, Session session)
-            throws DataAccessException {
-        // String handleAsFallback = query.getHandleAsValueTypeFallback();
-        // final String valueType = ValueType.extractType(datasetId,
-        // handleAsFallback);
-        Class<? extends DatasetEntity> datasetEntityType = DatasetEntity.class;
-        // if (!dataRepositoryFactory.isKnown(datasetEntityType)) {
-        // throw new ResourceNotFoundException("unknown type: " + valueType);
-        // }
-        return createDataAccessRepository(datasetEntityType, session);
-    }
-
-    private DatasetDao<? extends DatasetEntity> createDataAccessRepository(
-            Class<? extends DatasetEntity> datasetEntityType, Session session) {
-        return getDatasetDao(datasetEntityType, session);
     }
 
     @Override
@@ -206,15 +171,23 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
-        for (DatasetEntity dataset : dao.getAllInstances(query)) {
-            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
-                try {
-                    results.add(createExpanded(dataset, query, session));
-                } catch (Exception e) {
-                    LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
+//        if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
+//            dao.getAllInstances(query).parallelStream()
+//                    .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+//                            dataset.getValueType().name()))
+//                    .map(dataset -> createExpanded(dataset, query, session)).forEach(results::add);
+//        } else {
+            for (DatasetEntity dataset : dao.getAllInstances(query)) {
+                if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+                        dataset.getValueType().name())) {
+                    try {
+                        results.add(createExpanded(dataset, query, session));
+                    } catch (Exception e) {
+                        LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
+                    }
                 }
             }
-        }
+//        }
         LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
     }
 
@@ -254,7 +227,7 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     }
 
     public List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         String hrefBase = query.getHrefBase();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
@@ -265,192 +238,14 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         return results;
     }
 
+    @SuppressWarnings("unchecked")
     protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query) {
-        IoParameters parameters = query.getParameters();
-        if (dataset.getService() == null) {
-            dataset.setService(getServiceEntity());
-        }
-        DatasetOutput<V> result = new DatasetOutput();
-
-        result.setId(dataset.getId().toString());
-        if (parameters.isSelected(ParameterOutput.LABEL)) {
-            result.setValue(ParameterOutput.LABEL, createDatasetLabel(dataset, query.getLocale()), parameters,
-                    result::setLabel);
-        }
-        if (parameters.isSelected(ParameterOutput.DOMAIN_ID)) {
-            result.setValue(ParameterOutput.DOMAIN_ID, dataset.getIdentifier(), parameters, result::setDomainId);
-        }
-        if (parameters.isSelected(ParameterOutput.HREF)) {
-            result.setValue(ParameterOutput.HREF, createHref(query.getHrefBase(), dataset), parameters,
-                    result::setHref);
-        }
-        if (parameters.isSelected(DatasetOutput.UOM)) {
-            result.setValue(DatasetOutput.UOM, dataset.getUnitI18nName(query.getLocale()), parameters, result::setUom);
-        }
-        if (parameters.isSelected(DatasetOutput.DATASET_TYPE)) {
-            result.setValue(DatasetOutput.DATASET_TYPE, dataset.getDatasetType().name(), parameters,
-                    result::setDatasetType);
-        }
-        if (parameters.isSelected(DatasetOutput.OBSERVATION_TYPE)) {
-            result.setValue(DatasetOutput.OBSERVATION_TYPE, dataset.getObservationType().name(), parameters,
-                    result::setObservationType);
-        }
-        if (parameters.isSelected(DatasetOutput.VALUE_TYPE)) {
-            result.setValue(DatasetOutput.VALUE_TYPE, dataset.getValueType().name(), parameters, result::setValueType);
-        }
-        if (parameters.isSelected(DatasetOutput.MOBILE)) {
-            result.setValue(DatasetOutput.MOBILE, dataset.isMobile(), parameters, result::setMobile);
-        }
-        if (parameters.isSelected(DatasetOutput.INSITU)) {
-            result.setValue(DatasetOutput.INSITU, dataset.isInsitu(), parameters, result::setInsitu);
-        }
-        if (parameters.isSelected(DatasetOutput.HAS_SAMPLINGS) && dataset.hasSamplingProfile()) {
-            result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
-                    result::setHasSamplings);
-        }
-        if (parameters.isSelected(DatasetOutput.ORIGIN_TIMEZONE)) {
-            result.setValue(DatasetOutput.ORIGIN_TIMEZONE,
-                    dataset.isSetOriginTimezone() ? dataset.getOriginTimezone() : "UTC", parameters,
-                    result::setOriginTimezone);
-        }
-        if (parameters.isSelected(DatasetOutput.SMAPLING_TIME_START)) {
-            result.setValue(DatasetOutput.SMAPLING_TIME_START,
-                    createTimeOutput(dataset.getFirstValueAt(), dataset.getOriginTimezone(), parameters), parameters,
-                    result::setSamplingTimeStart);
-        }
-        if (parameters.isSelected(DatasetOutput.SMAPLING_TIME_END)) {
-            result.setValue(DatasetOutput.SMAPLING_TIME_END,
-                    createTimeOutput(dataset.getLastValueAt(), dataset.getOriginTimezone(), parameters), parameters,
-                    result::setSamplingTimeEnd);
-        }
-        if (parameters.isSelected(DatasetOutput.FEATURE)) {
-            result.setValue(DatasetOutput.FEATURE, getCondensedFeature(dataset.getFeature(), query), parameters,
-                    result::setFeature);
-        }
-
-        return result;
+        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createCondensed(dataset, query);
     }
 
-    private String createHref(String hrefBase, DatasetEntity dataset) {
-        return HrefHelper.constructHref(hrefBase, getCollectionName(dataset)) + "/" + dataset.getId();
-    }
-
-    private String getCollectionName(DatasetEntity dataset) {
-        switch (dataset.getDatasetType()) {
-            case individualObservation:
-                return IndividualObservationOutput.COLLECTION_PATH;
-            case trajectory:
-                return TrajectoryOutput.COLLECTION_PATH;
-            case profile:
-                return ProfileOutput.COLLECTION_PATH;
-            case timeseries:
-                return TimeseriesMetadataOutput.COLLECTION_PATH;
-            default:
-                return DatasetOutput.COLLECTION_PATH;
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
-        IoParameters params = query.getParameters();
-        DatasetOutput<V> result = createCondensed(dataset, query);
-        DataRepository<DatasetEntity, ?, V, ?> dataRepository = getDataRepositoryFactory(dataset);
-        V firstValue = null;
-        if (params.isSelected(DatasetOutput.FIRST_VALUE)) {
-            firstValue = dataRepository.getFirstValue(dataset, session, query);
-            result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
-        }
-        if (params.isSelected(DatasetOutput.LAST_VALUE)) {
-            V lastValue = dataset.getFirstValueAt().equals(dataset.getLastValueAt()) && firstValue != null ? firstValue
-                    : dataRepository.getLastValue(dataset, session, query);
-            lastValue = isReferenceSeries(dataset) && isCongruentValues(firstValue, lastValue)
-                    // first == last to have a valid interval
-                    ? firstValue
-                    : lastValue;
-            result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-        }
-        if (params.isSelected(DatasetOutput.REFERENCE_VALUES)) {
-            List<ReferenceValueOutput<V>> refValues = dataRepository.getReferenceValues(dataset, query, session);
-            result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
-        }
-        if (query.getParameters().containsParameter(Parameters.AGGREGATION)
-                && dataRepository instanceof AbstractDataRepository) {
-            Set<String> aggParams = query.getParameters().getAggregation();
-            AggregationOutput<V> aggregation = new AggregationOutput<>();
-            addCount(aggregation, aggParams, (AbstractDataRepository<DatasetEntity, ?, V, ?>) dataRepository, dataset,
-                    query, session);
-            if (checkNumerical(dataset) && dataRepository instanceof AbstractNumericalDataRepository) {
-                addAggregation(aggregation, aggParams, (AbstractNumericalDataRepository<?, V, ?>) dataRepository,
-                        dataset, query, session);
-            }
-            if (!aggregation.isEmpty()) {
-                result.setValue(DatasetOutput.AGGREGATION, aggregation, params, result::setAggregations);
-            }
-        }
-
-        if (params.isSelected(DatasetOutput.DATASET_PARAMETERS)) {
-            DatasetParameters datasetParams = createDatasetParameters(dataset, query.withoutFieldsFilter(), session);
-            datasetParams.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
-            if (dataset.getService() == null) {
-                dataset.setService(getServiceEntity());
-            }
-            result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
-        }
-        return result;
-    }
-
-    private void addCount(AggregationOutput<V> aggregation, Set<String> params,
-            AbstractDataRepository<DatasetEntity, ?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
-            Session session) {
-        if (params.isEmpty() || params.contains("count")) {
-            aggregation.setCount(OptionalOutput.of(dataRepository.getCount(dataset, query, session)));
-        }
-    }
-
-    private void addAggregation(AggregationOutput<V> aggregation, Set<String> params,
-            AbstractNumericalDataRepository<?, V, ?> dataRepository, DatasetEntity dataset, DbQuery query,
-            Session session) {
-        if (params.isEmpty() || params.contains("max")) {
-            aggregation.setMax(OptionalOutput.of(dataRepository.getMax(dataset, query, session)));
-        }
-        if (params.isEmpty() || params.contains("min")) {
-            aggregation.setMin(OptionalOutput.of(dataRepository.getMin(dataset, query, session)));
-        }
-        if (params.isEmpty() || params.contains("avg")) {
-            aggregation.setAvg(OptionalOutput.of(dataRepository.getAverage(dataset, query, session)));
-        }
-    }
-
-    private boolean checkNumerical(DatasetEntity dataset) {
-        return ValueType.quantity.equals(dataset.getValueType()) || ValueType.count.equals(dataset.getValueType());
-    }
-
-    private DataRepository<DatasetEntity, ?, V, ?> getDataRepositoryFactory(DatasetEntity dataset) {
-        return dataRepositoryFactory.create(dataset.getObservationType().name(), dataset.getValueType().name(),
-                DatasetEntity.class);
-    }
-
-    private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
-        return firstValue.getTimestamp().equals(lastValue.getTimestamp());
-    }
-
-    private boolean isReferenceSeries(DatasetEntity series) {
-        return series.getProcedure().isReference();
-    }
-
-    private String createDatasetLabel(DatasetEntity dataset, String locale) {
-        PhenomenonEntity phenomenon = dataset.getPhenomenon();
-        ProcedureEntity procedure = dataset.getProcedure();
-        OfferingEntity offering = dataset.getOffering();
-        AbstractFeatureEntity<?> feature = dataset.getFeature();
-
-        String procedureLabel = procedure.getLabelFrom(locale);
-        String phenomenonLabel = phenomenon.getLabelFrom(locale);
-        String offeringLabel = offering.getLabelFrom(locale);
-        String stationLabel = feature.getLabelFrom(locale);
-
-        StringBuilder sb = new StringBuilder();
-        return sb.append(phenomenonLabel).append(", ").append(procedureLabel).append(", ").append(stationLabel)
-                .append(", ").append(offeringLabel).toString();
+        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createExpanded(dataset, query, session);
     }
 
     public DataRepositoryTypeFactory getDataRepositoryTypeFactory() {

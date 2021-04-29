@@ -49,13 +49,11 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.TimeOutput;
-import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.HibernateSessionStore;
 import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
@@ -163,78 +161,21 @@ public abstract class SessionAwareRepository {
         }
     }
 
-    // protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
-    // DbQuery parameters)
-    // throws DataAccessException {
-    // Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
-    // for (DatasetEntity timeseries : series) {
-    // if (!timeseries.getProcedure()
-    // .isReference()) {
-    // String timeseriesId = Long.toString(timeseries.getId());
-    // timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
-    // }
-    // }
-    // return timeseriesOutputs;
-    // }
-    //
-    // protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
-    // throws DataAccessException {
-    // DatasetParameters metadata = new DatasetParameters();
-    // ServiceEntity service = getServiceEntity(dataset);
-    // metadata.setService(getCondensedService(service, parameters));
-    // metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
-    // metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
-    // metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
-    // metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
-    // metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
-    // return metadata;
-    // }
-
-    protected DatasetParameters createDatasetParameters(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
-        DatasetParameters metadata = new DatasetParameters();
-        ServiceEntity service = getServiceEntity(dataset);
-        metadata.setService(getCondensedExtendedService(service, query));
-        metadata.setOffering(getCondensedExtendedOffering(dataset.getOffering(), query));
-        metadata.setProcedure(getCondensedExtendedProcedure(dataset.getProcedure(), query));
-        metadata.setPhenomenon(getCondensedExtendedPhenomenon(dataset.getPhenomenon(), query));
-        metadata.setCategory(getCondensedExtendedCategory(dataset.getCategory(), query));
-        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
-        return metadata;
-    }
-
     protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
         return getMapperFactory().getPhenomenonMapper().createCondensed(entity, parameters);
-    }
-
-    protected PhenomenonOutput getCondensedExtendedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
-        return getCondensedPhenomenon(entity, parameters);
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
         return getMapperFactory().getOfferingMapper().createCondensed(entity, parameters);
     }
 
-    protected OfferingOutput getCondensedExtendedOffering(OfferingEntity entity, DbQuery parameters) {
-        return getCondensedOffering(entity, parameters);
-    }
-
     protected ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
         return getMapperFactory().getProcedureMapper().createCondensed(entity, parameters);
-    }
-
-    protected ProcedureOutput getCondensedExtendedProcedure(ProcedureEntity entity, DbQuery parameters) {
-        return getCondensedProcedure(entity, parameters);
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery query) {
         return getMapperFactory().getServiceMapper().createCondensed(entity, query);
     }
-
-    protected ServiceOutput getCondensedExtendedService(ServiceEntity entity, DbQuery parameters) {
-        return getCondensedService(entity, parameters);
-    }
-
 
     protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
         return getMapperFactory().getPlatformMapper().createCondensed(entity, parameters);
@@ -242,10 +183,6 @@ public abstract class SessionAwareRepository {
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
         return getMapperFactory().getFeatureMapper().createCondensed((FeatureEntity) entity, parameters);
-    }
-
-    protected FeatureOutput getCondensedExtendedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return getCondensedFeature(entity, parameters);
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
@@ -268,15 +205,19 @@ public abstract class SessionAwareRepository {
     }
 
     protected <T extends ParameterOutput> T createCondensed(T result, DescribableEntity entity, DbQuery query) {
-        String id = Long.toString(entity.getId());
-        String label = entity.getLabelFrom(query.getLocale());
-        String domainId = entity.getIdentifier();
-        String hrefBase = query.getHrefBase();
-
-        result.setId(id);
-        result.setValue(ParameterOutput.DOMAIN_ID, domainId, query.getParameters(), result::setDomainId);
-        result.setValue(ParameterOutput.LABEL, label, query.getParameters(), result::setLabel);
-        result.setValue(ParameterOutput.HREF_BASE, hrefBase, query.getParameters(), result::setHrefBase);
+        result.setId(Long.toString(entity.getId()));
+        if (query.getParameters().isSelected(ParameterOutput.DOMAIN_ID)) {
+            result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), query.getParameters(),
+                    result::setDomainId);
+        }
+        if (query.getParameters().isSelected(ParameterOutput.LABEL)) {
+            result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocaleForLabel()),
+                    query.getParameters(), result::setLabel);
+        }
+        if (query.getParameters().isSelected(ParameterOutput.HREF_BASE)) {
+            result.setValue(ParameterOutput.HREF_BASE, query.getHrefBase(), query.getParameters(),
+                    result::setHrefBase);
+        }
         return result;
     }
 
