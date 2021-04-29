@@ -119,7 +119,7 @@ public class QuantityDataRepository
             refenceValueOutput.setReferenceValueId(datasetId);
 
             ProcedureEntity procedure = referenceDatasetEntity.getProcedure();
-            String label = procedure.getNameI18n(query.getLocale());
+            String label = procedure.getNameI18n(query.getLocaleForLabel());
             refenceValueOutput.setLabel(label);
 
             QuantityValue lastValue = getLastValue(referenceDatasetEntity, session, query);

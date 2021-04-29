@@ -94,7 +94,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
             DatasetDao<DatasetEntity> seriesDao = createDao(session);
             DbQuery query = dbQueryFactory.createFrom(parameters);
             List<DatasetEntity> found = seriesDao.find(query);
-            return convertToResults(found, query.getLocale());
+            return convertToResults(found, query.getLocaleForLabel());
         } finally {
             returnSession(session);
         }
@@ -201,7 +201,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                     && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
-                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
+                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocaleForLabel()));
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId().toString());
 
                 QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
@@ -216,7 +216,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
             throws DataAccessException {
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         PhenomenonEntity phenomenon = entity.getPhenomenon();
         String phenomenonLabel = phenomenon.getLabelFrom(locale);
         ProcedureEntity procedure = entity.getProcedure();
