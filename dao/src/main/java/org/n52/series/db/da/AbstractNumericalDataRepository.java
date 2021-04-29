@@ -39,15 +39,15 @@ import org.n52.series.db.dao.DbQuery;
 public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
         extends AbstractDataRepository<DatasetEntity, E, V, T> {
 
-    protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
+    public V getMax(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);
     }
 
-    protected V getMin(DatasetEntity dataset, DbQuery query, Session session) {
+    public V getMin(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleDataValue(createDataDao(session).getMin(dataset), dataset, query);
     }
 
-    protected BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
+    public BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
         return createDataDao(session).getAvg(dataset);
     }
 
