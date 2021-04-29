@@ -126,6 +126,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         Criteria instanceCriteria = query.isMatchDomainIds()
                 ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
                 : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        addFetchModes(instanceCriteria, query, true);
         return clazz.cast(instanceCriteria.uniqueResult());
     }
 
@@ -373,7 +374,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
 
-    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
+    private Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        return addFetchModes(criteria, q, q.isExpanded());
+    }
+
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
         return criteria;
     }
 

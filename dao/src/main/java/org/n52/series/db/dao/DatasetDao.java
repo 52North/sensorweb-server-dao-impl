@@ -39,6 +39,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.hibernate.transform.ResultTransformer;
+import org.n52.io.request.IoParameters;
+import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DatasetTypesMetadata;
@@ -71,6 +73,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private static final String FIRST_OBSERVATION_ALIAS = "firstObservation";
     private static final String LAST_OBSERVATION_ALIAS = "lastObservation";
     private static final String PARAMETERS_ALIAS = "parameters";
+    private static final String REFERENCE_VALUES_ALIAS = "referenceValues";
 
     private final Class<T> entityType;
 
@@ -99,7 +102,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * to join tables and search for given pattern on any of the stored labels.
          */
         Criteria criteria = getDefaultCriteria(query);
-        addFetchModes(criteria, q);
+        addFetchModes(criteria, q, q.isExpanded());
         // default criteria performs join on procedure table
 
         criteria.add(Restrictions.or(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm),
@@ -134,7 +137,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = query.addFilters(getDefaultCriteria(query), getDatasetProperty(), session);
-        addFetchModes(criteria, q);
+        addFetchModes(criteria, q, query.isExpanded());
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(toSQLString(criteria));
         }
@@ -150,7 +153,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     public List<T> getInstancesWith(FeatureEntity feature, DbQuery query) {
         LOGGER.debug("get instance for feature '{}'", feature);
         Criteria criteria = getDefaultCriteria(query);
-        addFetchModes(criteria, query);
+        addFetchModes(criteria, query, query.isExpanded());
         String idColumn = QueryUtils.createAssociation(FEATURE_PATH_ALIAS, DescribableEntity.PROPERTY_ID);
         return criteria.add(Restrictions.eq(idColumn, feature.getId())).list();
     }
@@ -198,10 +201,6 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     @Override
-    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
-        return addFetchModes(criteria, q, q.isExpanded());
-    }
-
     protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
         boolean select = q.getParameters().isSelect();
         boolean parametersSelected = q.getParameters().isSelected(DatasetOutput.DATASET_PARAMETERS);
@@ -211,9 +210,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         }
         if (!select || parametersSelected || labelSelected) {
             criteria.setFetchMode(DatasetEntity.PROPERTY_UNIT, FetchMode.JOIN);
-            criteria.setFetchMode(DatasetEntity.PROPERTY_PHENOMENON, FetchMode.JOIN);
             criteria.setFetchMode(DatasetEntity.PROPERTY_PROCEDURE, FetchMode.JOIN);
             criteria.setFetchMode(DatasetEntity.PROPERTY_OFFERING, FetchMode.JOIN);
+        }
+        if (!select || parametersSelected || labelSelected || q.getParameters().isSelected(ParameterOutput.EXTRAS)) {
+            criteria.setFetchMode(DatasetEntity.PROPERTY_PHENOMENON, FetchMode.JOIN);
         }
         if (!select || labelSelected || q.getParameters().isSelected(DatasetOutput.FEATURE)) {
             criteria.setFetchMode(DatasetEntity.PROPERTY_FEATURE, FetchMode.JOIN);
@@ -221,7 +222,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         if (q.isExpanded() || instance) {
             checkAndAddFirstLastObservationFetchMode(criteria, q);
             if (!select || q.getParameters().getSelect().contains(DatasetOutput.REFERENCE_VALUES)) {
-                criteria.setFetchMode("referenceValues", FetchMode.JOIN);
+                criteria.setFetchMode(REFERENCE_VALUES_ALIAS, FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(REFERENCE_VALUES_ALIAS, DatasetEntity.PROPERTY_PROCEDURE),
+                        FetchMode.JOIN);
             }
             if (!select || parametersSelected) {
                 criteria.setFetchMode(DatasetEntity.PROPERTY_PLATFORM, FetchMode.JOIN);
@@ -235,33 +238,68 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     private void checkAndAddFirstLastObservationFetchMode(Criteria criteria, DbQuery q) {
         if (!q.getParameters().isSelect() || q.getParameters().isSelected(DatasetOutput.FIRST_VALUE)
                 || q.getParameters().isSelected(DatasetOutput.LAST_VALUE)) {
-            // TODO check for profile
-            criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
-            criteria.setFetchMode(FIRST_OBSERVATION_ALIAS, FetchMode.JOIN);
-            criteria.setFetchMode(LAST_OBSERVATION_ALIAS, FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(FIRST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(LAST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            if (isProfile(q.getParameters())) {
+                criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
+            }
+            // required if first/last has detection limit!!!
+            // if (!isTimeseriesSimpleQuantityCount(q.getParameters())) {
+            if (q.getParameters().isSelected(DatasetOutput.FIRST_VALUE)) {
+                criteria.setFetchMode(FIRST_OBSERVATION_ALIAS, FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(FIRST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            }
+            if (q.getParameters().isSelected(DatasetOutput.LAST_VALUE)) {
+                criteria.setFetchMode(LAST_OBSERVATION_ALIAS, FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(LAST_OBSERVATION_ALIAS, PARAMETERS_ALIAS), FetchMode.JOIN);
+            }
+            // }
         }
     }
 
+    public boolean isTimeseriesSimpleQuantityCount(IoParameters params) {
+        return params.getDatasetTypes().size() == 1 && params.getDatasetTypes().contains(DatasetType.timeseries.name())
+                && params.getObservationTypes().size() == 1
+                && params.getObservationTypes().contains(ObservationType.simple.name())
+                && ((params.getValueTypes().size() == 1 && (params.getValueTypes().contains(ValueType.quantity.name())
+                        || params.getValueTypes().contains(ValueType.count.name())))
+                        || (params.getValueTypes().size() == 2
+                                && params.getValueTypes().contains(ValueType.quantity.name())
+                                && params.getValueTypes().contains(ValueType.count.name())));
+    }
+
+    private boolean isProfile(IoParameters params) {
+        return params.getDatasetTypes().isEmpty() || params.getDatasetTypes().contains(DatasetType.profile.name())
+                || params.getObservationTypes().isEmpty()
+                || params.getObservationTypes().contains(ObservationType.profile.name());
+    }
+
     private void checkAndAddTranslationFetchModes(Criteria criteria, DbQuery q, boolean instance) {
-        if (q.getLocale() != null || !q.getLocale().isEmpty()) {
-            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            if (q.isExpanded() || instance) {
+        if (!q.isDefaultLocal()) {
+            boolean select = q.getParameters().isSelect();
+            boolean parametersSelected = q.getParameters().isSelected(DatasetOutput.DATASET_PARAMETERS);
+            boolean labelSelected = q.getParameters().isSelected(DatasetOutput.LABEL);
+            if (!select || parametersSelected || labelSelected) {
+                criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_UNIT, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS),
+                        FetchMode.JOIN);
+            }
+            if (!select || parametersSelected || labelSelected
+                    || q.getParameters().isSelected(ParameterOutput.EXTRAS)) {
+                criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS),
+                        FetchMode.JOIN);
+            }
+            if (!select || labelSelected || q.getParameters().isSelected(DatasetOutput.FEATURE)) {
+                criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS),
+                        FetchMode.JOIN);
+            }
+            if ((q.isExpanded() || instance) && parametersSelected) {
                 criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_PLATFORM, TRANSLATIONS_ALIAS),
                         FetchMode.JOIN);
                 criteria.setFetchMode(getFetchPath(DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS),
                         FetchMode.JOIN);
             }
         }
-    }
-
-    @Override
-    protected String getFetchPath(String... values) {
-        return String.join(".", values);
     }
 
     @Override

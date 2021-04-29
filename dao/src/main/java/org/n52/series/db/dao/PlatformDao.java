@@ -29,8 +29,10 @@
 package org.n52.series.db.dao;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
+import org.n52.io.response.PlatformOutput;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PlatformEntity;
 import org.n52.series.db.beans.i18n.I18nPlatformEntity;
@@ -63,4 +65,37 @@ public class PlatformDao extends ParameterDao<PlatformEntity, I18nPlatformEntity
         return I18nPlatformEntity.class;
     }
 
+    @Override
+    protected Criteria addFetchModes(Criteria criteria, DbQuery query, boolean instance) {
+        super.addFetchModes(criteria, query, instance);
+        if ((query.isExpanded() || instance) && query.getParameters().isSelected(PlatformOutput.DATASETS)) {
+            criteria.setFetchMode(PlatformEntity.PROPERTY_DATASETS, FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PROCEDURE),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_OFFERING),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_FEATURE),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
+                    FetchMode.JOIN);
+            if (!query.isDefaultLocal()) {
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(PlatformEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_UNIT, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+
+            }
+        }
+        return criteria;
+    }
 }

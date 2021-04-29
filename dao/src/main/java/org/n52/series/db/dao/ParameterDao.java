@@ -57,7 +57,7 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
-        addFetchModes(criteria, query);
+        addFetchModes(criteria, query, q.isExpanded());
         if (query.getParameters().getLocale() != null || !query.getParameters().getLocale().isEmpty()) {
             criteria = i18n(getI18NEntityClass(), criteria, query);
         }
@@ -81,8 +81,8 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
-        addFetchModes(criteria, query);
-        if (query.getParameters().getLocale() != null && !query.getParameters().getLocale().isEmpty()) {
+        addFetchModes(criteria, query, query.isExpanded());
+        if (!query.isDefaultLocal()) {
             criteria = i18n(getI18NEntityClass(), criteria, query);
         }
         criteria = query.addFilters(criteria, getDatasetProperty(), session);
@@ -95,11 +95,13 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
     }
 
     @Override
-    protected Criteria addFetchModes(Criteria criteria, DbQuery query) {
-        if (query.getParameters().getLocale() != null && !query.getParameters().getLocale().isEmpty()) {
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        if (!q.isDefaultLocal()) {
             criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
         }
-        return criteria;
+        return super.addFetchModes(criteria, q, instance);
     }
+    
+    
 
 }

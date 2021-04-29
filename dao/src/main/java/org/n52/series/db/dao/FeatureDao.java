@@ -103,37 +103,51 @@ public class FeatureDao extends HierarchicalDao<FeatureEntity, I18nFeatureEntity
     }
 
     @Override
-    protected Criteria addFetchModes(Criteria criteria, DbQuery q) {
-        super.addFetchModes(criteria, q);
-        if (q.isExpanded()) {
-            criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_PARENTS, FetchMode.JOIN);
-            criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_CHILDREN, FetchMode.JOIN);
-            criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_DATASETS, FetchMode.JOIN);
-            criteria.setFetchMode(
-                    getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
-                    FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
-                    DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(
-                    getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PROCEDURE),
-                    FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
-                    DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(
-                    getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_OFFERING),
-                    FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
-                    DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(
-                    getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PLATFORM),
-                    FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
-                    DatasetEntity.PROPERTY_PLATFORM, TRANSLATIONS_ALIAS), FetchMode.JOIN);
-            criteria.setFetchMode(
-                    getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_CATEGORY),
-                    FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
-                    DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        super.addFetchModes(criteria, q, instance);
+        if (q.isExpanded() || instance) {
+            if (q.getParameters().isSelected(AbstractFeatureEntity.PROPERTY_PARENTS)) {
+                criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_PARENTS, FetchMode.JOIN);
+            }
+            if (q.getParameters().isSelected(AbstractFeatureEntity.PROPERTY_CHILDREN)) {
+                criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_CHILDREN, FetchMode.JOIN);
+            }
+            if (q.getParameters().isSelected(AbstractFeatureEntity.PROPERTY_DATASETS)) {
+                criteria.setFetchMode(AbstractFeatureEntity.PROPERTY_DATASETS, FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PROCEDURE),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_OFFERING),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PLATFORM),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_CATEGORY),
+                        FetchMode.JOIN);
+                criteria.setFetchMode(
+                        getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
+                        FetchMode.JOIN);
+                if (!q.isDefaultLocal()) {
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_PROCEDURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_OFFERING, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_PLATFORM, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                    criteria.setFetchMode(getFetchPath(AbstractFeatureEntity.PROPERTY_DATASETS,
+                            DatasetEntity.PROPERTY_UNIT, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+
+                }
+            }
         }
         return criteria;
     }
