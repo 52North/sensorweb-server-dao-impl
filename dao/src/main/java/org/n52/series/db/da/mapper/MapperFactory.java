@@ -32,6 +32,8 @@ import org.n52.io.handler.DefaultIoFactory;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.series.db.DataRepositoryTypeFactory;
+import org.n52.series.db.ServiceEntityFactory;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.da.EntityCounter;
@@ -41,8 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class MapperFactory {
 
-    @Autowired(required = false)
-    private ServiceEntity serviceEntity;
+    @Autowired
+    private ServiceEntityFactory serviceEntityFactory;
 
     @Autowired
     private DbQueryFactory dbQueryFactory;
@@ -52,6 +54,9 @@ public class MapperFactory {
 
     @Autowired
     private DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
+
+    @Autowired
+    private DataRepositoryTypeFactory dataRepositoryFactory;
 
     public FeatureMapper getFeatureMapper() {
         return new FeatureMapper(this);
@@ -81,12 +86,12 @@ public class MapperFactory {
         return new CategoryMapper(this);
     }
 
-    protected DatasetMapper getDatasetMapper() {
-        return new DatasetMapper(this);
+    public <V extends AbstractValue<?>> DatasetMapper<V> getDatasetMapper() {
+        return new DatasetMapper<>(this);
     }
 
     protected ServiceEntity getServiceEntity() {
-        return serviceEntity;
+        return serviceEntityFactory.getServiceEntity();
     }
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
@@ -104,6 +109,10 @@ public class MapperFactory {
 
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
+    }
+
+    protected DataRepositoryTypeFactory getDataRepositoryFactory() {
+        return dataRepositoryFactory;
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {

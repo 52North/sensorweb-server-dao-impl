@@ -57,8 +57,10 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
     public FeatureOutput createCondensed(FeatureEntity entity, DbQuery query) {
         try {
             FeatureOutput result = createCondensed(new FeatureOutput(), entity, query);
-            result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
-                    result::setGeometry);
+            if (query.getParameters().isSelected(FeatureOutput.GEOMETRY)) {
+                result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
+                        result::setGeometry);
+            }
             return result;
         } catch (Exception e) {
             log(entity, e);
@@ -91,18 +93,21 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
             FeatureOutput result = createCondensed(entity, query);
             addService(result, entity, query);
             if (!isParent && !isChild) {
-                Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets(), query);
+                Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets(),
+                        query.withSubSelectFilter(StationOutput.PROPERTIES));
                 result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result::setDatasets);
             }
             if (!isParent && !isChild && entity.hasParents()) {
-                List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false, session);
+                List<FeatureOutput> parents = getMemberList(entity.getParents(),
+                        query.withSubSelectFilter(HierarchicalParameterOutput.PARENTS), level, true, false, session);
                 result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(),
                         result::setParents);
             }
             if (level != null && level > 0) {
                 if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
-                    List<FeatureOutput> children =
-                            getMemberList(entity.getChildren(), query, level - 1, false, true, session);
+                    List<FeatureOutput> children = getMemberList(entity.getChildren(),
+                            query.withSubSelectFilter(HierarchicalParameterOutput.CHILDREN), level - 1, false, true,
+                            session);
                     result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
                             result::setChildren);
                 }

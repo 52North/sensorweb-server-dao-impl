@@ -50,12 +50,12 @@ public class ProcedureMapper extends AbstractOuputMapper<ProcedureOutput, Proced
         try {
             ProcedureOutput result = createCondensed(entity, query);
             addService(result, entity, query);
-            if (entity.hasParents()) {
+            if (entity.hasParents() && query.getParameters().isSelected(ProcedureOutput.PARENTS)) {
                 result.setValue(HierarchicalParameterOutput.PARENTS,
                         createCondensed(entity.getParents(), query, session), query.getParameters(),
                         result::setParents);
             }
-            if (entity.hasChildren()) {
+            if (entity.hasChildren() && query.getParameters().isSelected(ProcedureOutput.CHILDREN)) {
                 result.setValue(HierarchicalParameterOutput.CHILDREN,
                         createCondensed(entity.getChildren(), query, session), query.getParameters(),
                         result::setChildren);

@@ -49,7 +49,7 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
             String id = Long.toString(entity.getId());
             result.setId(id);
             if (parameters.isSelected(ParameterOutput.LABEL)) {
-                result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocale()), parameters,
+                result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocaleForLabel()), parameters,
                         result::setLabel);
             }
             if (parameters.isSelected(ParameterOutput.DOMAIN_ID)) {

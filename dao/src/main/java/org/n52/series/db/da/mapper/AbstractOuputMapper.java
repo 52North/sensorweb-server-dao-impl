@@ -46,6 +46,7 @@ import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
+import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.OfferingOutput;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.PhenomenonOutput;
@@ -55,9 +56,11 @@ import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
@@ -93,10 +96,10 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
     }
 
     protected T addService(AbstractOutput result, S entity, DbQuery query) {
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        if (query.getParameters().isSelected(AbstractOutput.SERVICE)) {
+            ServiceOutput service = getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+            result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
+        }
         return (T) result;
     }
 
@@ -121,27 +124,27 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
         return getMapperFactory().getServiceMapper().createCondensed(service, query);
     }
 
-    protected ServiceOutput getCondensedExtendedService(ServiceEntity serviceEntity, DbQuery query) {
-        return getMapperFactory().getServiceMapper().createCondensed(new ServiceOutput(), serviceEntity, query);
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
+        return getMapperFactory().getFeatureMapper().createCondensed((FeatureEntity) entity, parameters);
     }
 
-    protected ParameterOutput getCondensedOffering(OfferingEntity offering, DbQuery query) {
+    protected OfferingOutput getCondensedOffering(OfferingEntity offering, DbQuery query) {
         return getMapperFactory().getOfferingMapper().createCondensed(new OfferingOutput(), offering, query);
     }
 
-    protected ParameterOutput getCondensedProcedure(ProcedureEntity procedure, DbQuery query) {
+    protected ProcedureOutput getCondensedProcedure(ProcedureEntity procedure, DbQuery query) {
         return getMapperFactory().getProcedureMapper().createCondensed(new ProcedureOutput(), procedure, query);
     }
 
-    protected ParameterOutput getCondensedPhenomenon(PhenomenonEntity phenomenon, DbQuery query) {
+    protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity phenomenon, DbQuery query) {
         return getMapperFactory().getPhenomenonMapper().createCondensed(new PhenomenonOutput(), phenomenon, query);
     }
 
-    protected ParameterOutput getCondensedCategory(CategoryEntity category, DbQuery query) {
+    protected CategoryOutput getCondensedCategory(CategoryEntity category, DbQuery query) {
         return getMapperFactory().getCategoryMapper().createCondensed(new CategoryOutput(), category, query);
     }
 
-    protected ParameterOutput getCondensedPlatform(PlatformEntity platform, DbQuery query) {
+    protected PlatformOutput getCondensedPlatform(PlatformEntity platform, DbQuery query) {
         return getMapperFactory().getPlatformMapper().createCondensed(new PlatformOutput(), platform, query);
     }
 

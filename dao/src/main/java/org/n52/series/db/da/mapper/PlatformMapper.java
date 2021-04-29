@@ -54,12 +54,14 @@ public class PlatformMapper extends AbstractOuputMapper<PlatformOutput, Platform
         try {
             PlatformOutput result = createCondensed(entity, query);
             addService(result, entity, query);
-
-            List<DatasetOutput<AbstractValue<?>>> datasets = entity.getDatasets().stream()
-                    .map(d -> getMapperFactory().getDatasetMapper().createCondensed(d, query))
-                    .collect(Collectors.toList());
-
-            result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
+            if (query.getParameters().isSelected(PlatformOutput.DATASETS)) {
+                List<DatasetOutput<AbstractValue<?>>> datasets =
+                        entity.getDatasets().stream()
+                                .map(d -> getMapperFactory().getDatasetMapper().createCondensed(d,
+                                        query.withSubSelectFilter(PlatformOutput.DATASETS)))
+                                .collect(Collectors.toList());
+                result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);
+            }
             return result;
         } catch (Exception e) {
             log(entity, e);
