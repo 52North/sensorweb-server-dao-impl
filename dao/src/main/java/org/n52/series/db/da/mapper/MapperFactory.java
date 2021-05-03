@@ -88,6 +88,13 @@ public class MapperFactory {
 
     public <V extends AbstractValue<?>> DatasetMapper<V> getDatasetMapper() {
         return new DatasetMapper<>(this);
+
+    public SamplingMapper getSamplingMapper(IoParameters params) {
+        return new SamplingMapper(this, params);
+    }
+
+    public MeasuringProgramMapper getMeasuringProgramMapper(IoParameters params) {
+        return new MeasuringProgramMapper(this, params);
     }
 
     protected ServiceEntity getServiceEntity() {
