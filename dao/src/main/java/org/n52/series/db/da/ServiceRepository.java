@@ -118,12 +118,12 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
 
     @Override
     protected ServiceOutput createCondensed(ServiceEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getServiceMapper().createCondensed(entity, query);
+        return getMapperFactory().getServiceMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getServiceMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getServiceMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
 

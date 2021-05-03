@@ -162,31 +162,32 @@ public abstract class SessionAwareRepository {
     }
 
     protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity entity, DbQuery parameters) {
-        return getMapperFactory().getPhenomenonMapper().createCondensed(entity, parameters);
+        return getMapperFactory().getPhenomenonMapper(parameters.getParameters()).createCondensed(entity, parameters);
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity entity, DbQuery parameters) {
-        return getMapperFactory().getOfferingMapper().createCondensed(entity, parameters);
+        return getMapperFactory().getOfferingMapper(parameters.getParameters()).createCondensed(entity, parameters);
     }
 
     protected ProcedureOutput getCondensedProcedure(ProcedureEntity entity, DbQuery parameters) {
-        return getMapperFactory().getProcedureMapper().createCondensed(entity, parameters);
+        return getMapperFactory().getProcedureMapper(parameters.getParameters()).createCondensed(entity, parameters);
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity entity, DbQuery query) {
-        return getMapperFactory().getServiceMapper().createCondensed(entity, query);
+        return getMapperFactory().getServiceMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     protected PlatformOutput getCondensedPlatform(PlatformEntity entity, DbQuery parameters) {
-        return getMapperFactory().getPlatformMapper().createCondensed(entity, parameters);
+        return getMapperFactory().getPlatformMapper(parameters.getParameters()).createCondensed(entity, parameters);
     }
 
     protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return getMapperFactory().getFeatureMapper().createCondensed((FeatureEntity) entity, parameters);
+        return getMapperFactory().getFeatureMapper(parameters.getParameters()).createCondensed((FeatureEntity) entity,
+                parameters);
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity entity, DbQuery parameters) {
-        return getMapperFactory().getCategoryMapper().createCondensed(entity, parameters);
+        return getMapperFactory().getCategoryMapper(parameters.getParameters()).createCondensed(entity, parameters);
     }
 
     protected CategoryOutput getCondensedExtendedCategory(CategoryEntity entity, DbQuery parameters) {
@@ -199,9 +200,7 @@ public abstract class SessionAwareRepository {
 
     protected ServiceEntity getServiceEntity(DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null
-            ? entity.getService()
-            : getServiceEntity();
+        return entity.getService() != null ? entity.getService() : getServiceEntity();
     }
 
     protected <T extends ParameterOutput> T createCondensed(T result, DescribableEntity entity, DbQuery query) {

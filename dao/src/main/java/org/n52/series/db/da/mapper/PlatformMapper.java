@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -40,8 +41,19 @@ import org.n52.series.db.dao.DbQuery;
 
 public class PlatformMapper extends AbstractOuputMapper<PlatformOutput, PlatformEntity> {
 
-    public PlatformMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    private DatasetMapper<AbstractValue<?>> datasetMapper;
+//    private Map<Long, DatasetOutput> datasets = new LinkedHashMap<>();
+
+    public PlatformMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, false);
+    }
+
+    public PlatformMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
+        if (!subMapper) {
+            this.datasetMapper =
+                    getMapperFactory().getDatasetMapper(params.withSubSelectFilter(PlatformOutput.DATASETS), false);
+        }
     }
 
     @Override
@@ -57,7 +69,7 @@ public class PlatformMapper extends AbstractOuputMapper<PlatformOutput, Platform
             if (query.getParameters().isSelected(PlatformOutput.DATASETS)) {
                 List<DatasetOutput<AbstractValue<?>>> datasets =
                         entity.getDatasets().stream()
-                                .map(d -> getMapperFactory().getDatasetMapper().createCondensed(d,
+                                .map(d -> datasetMapper.createCondensed(d,
                                         query.withSubSelectFilter(PlatformOutput.DATASETS)))
                                 .collect(Collectors.toList());
                 result.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), result::setDatasets);

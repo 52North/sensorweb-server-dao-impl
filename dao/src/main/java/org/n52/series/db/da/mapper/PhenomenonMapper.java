@@ -29,14 +29,19 @@
 package org.n52.series.db.da.mapper;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public class PhenomenonMapper extends AbstractOuputMapper<PhenomenonOutput, PhenomenonEntity> {
 
-    public PhenomenonMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    public PhenomenonMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, false);
+    }
+
+    public PhenomenonMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
     }
 
     @Override

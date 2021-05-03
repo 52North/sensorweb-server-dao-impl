@@ -128,8 +128,8 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
 
     @Override
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-//      String nonNullAlias = alias != null ? alias : getDefaultAlias();
-//      Criteria criteria = session.createCriteria(clazz, nonNullAlias);
+        // String nonNullAlias = alias != null ? alias : getDefaultAlias();
+        // Criteria criteria = session.createCriteria(clazz, nonNullAlias);
         Criteria criteria = session.createCriteria(clazz);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return criteria;
@@ -141,28 +141,35 @@ public class SamplingDao extends AbstractDao<SamplingEntity> implements Searchab
         criteria.setFetchMode(SamplingEntity.PROPERTY_MEASURING_PROGRAM, FetchMode.JOIN);
         if (!q.isDefaultLocal()) {
             criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
-            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_MEASURING_PROGRAM, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_MEASURING_PROGRAM, TRANSLATIONS_ALIAS),
+                    FetchMode.JOIN);
         }
-//        if (q.isExpanded() || instance) {
-//            criteria.setFetchMode(SamplingEntity.PROPERTY_OBSERVATIONS, FetchMode.JOIN);
-//            criteria.setFetchMode(SamplingEntity.PROPERTY_DATASETS, FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_FEATURE),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PROCEDURE),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_OFFERING),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PLATFORM),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_CATEGORY),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
-//                    FetchMode.JOIN);
-//            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
-//                    FetchMode.JOIN);
-//        }
+        // if (q.isExpanded() || instance) {
+        // criteria.setFetchMode(SamplingEntity.PROPERTY_OBSERVATIONS, FetchMode.JOIN);
+        // criteria.setFetchMode(SamplingEntity.PROPERTY_DATASETS, FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_FEATURE),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_PROCEDURE),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_PHENOMENON),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_OFFERING),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_PLATFORM),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS,
+        // DatasetEntity.PROPERTY_CATEGORY),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
+        // FetchMode.JOIN);
+        // criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_UNIT),
+        // FetchMode.JOIN);
+        // }
         return criteria;
     }
 

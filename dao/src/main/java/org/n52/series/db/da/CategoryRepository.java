@@ -62,12 +62,12 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
 
     @Override
     protected CategoryOutput createCondensed(CategoryEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getCategoryMapper().createCondensed(entity, query);
+        return getMapperFactory().getCategoryMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getCategoryMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getCategoryMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
 }

@@ -29,7 +29,6 @@
 package org.n52.series.db.dao;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -68,8 +67,6 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-
 public class DbQuery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
@@ -88,9 +85,21 @@ public class DbQuery {
 
     private boolean includeHierarchy = true;
 
+    private String locale;
+
+    private String localeForLabel;
+
+    private boolean isDefaultLocale;
+
+    private String hrefBase;
+
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
             this.parameters = parameters;
+            this.locale = parameters.getLocale();
+            this.isDefaultLocale = parameters.isDefaultLocal();
+            this.localeForLabel = isDefaultLocal() ? null : getLocale();
+            this.hrefBase = parameters.getHrefBase();
         }
     }
 
@@ -142,19 +151,19 @@ public class DbQuery {
     }
 
     public String getHrefBase() {
-        return parameters.getHrefBase();
+        return hrefBase;
     }
 
     public String getLocale() {
-        return parameters.getLocale();
+        return locale;
     }
 
     public String getLocaleForLabel() {
-        return isDefaultLocal() ? null : getLocale();
+        return localeForLabel;
     }
 
     public boolean isDefaultLocal() {
-        return parameters.isDefaultLocal();
+        return isDefaultLocale;
     }
 
     public String getSearchTerm() {
@@ -484,15 +493,7 @@ public class DbQuery {
     }
 
     public DbQuery withSubSelectFilter(String selection) {
-        Set<String> subSelection = new LinkedHashSet<>();
-        String toCheck = selection + "/";
-        for (String selected : parameters.getSelect()) {
-            if (selected.startsWith(toCheck)) {
-                subSelection.add(selected.substring(selected.indexOf("/") + 1));
-            }
-        }
-        return subSelection.isEmpty() ? withoutSelectFilter()
-                : new DbQuery(parameters.replaceWith(Parameters.SELECT, Joiner.on(",").join(subSelection)));
+        return new DbQuery(parameters.withSubSelectFilter(selection));
     }
 
     public boolean expandWithNextValuesBeyondInterval() {

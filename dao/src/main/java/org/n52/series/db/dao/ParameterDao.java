@@ -101,7 +101,7 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         }
         return super.addFetchModes(criteria, q, instance);
     }
-    
-    
+
+
 
 }

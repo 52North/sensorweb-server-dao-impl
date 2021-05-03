@@ -29,6 +29,7 @@
 package org.n52.series.db.da.mapper;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -36,8 +37,12 @@ import org.n52.series.db.dao.DbQuery;
 
 public class ProcedureMapper extends AbstractOuputMapper<ProcedureOutput, ProcedureEntity> {
 
-    public ProcedureMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    public ProcedureMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, false);
+    }
+
+    public ProcedureMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
     }
 
     @Override

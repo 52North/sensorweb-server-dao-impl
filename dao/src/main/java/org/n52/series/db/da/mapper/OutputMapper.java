@@ -28,7 +28,12 @@
  */
 package org.n52.series.db.da.mapper;
 
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import org.hibernate.Session;
+import org.n52.io.HrefHelper;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.series.db.beans.DescribableEntity;
@@ -43,21 +48,15 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
         return condensed(result, entity, query);
     }
 
-    default T condensed(T result, DescribableEntity entity, DbQuery query) {
+    default T condensed(T result, S entity, DbQuery query) {
         try {
             IoParameters parameters = query.getParameters();
             String id = Long.toString(entity.getId());
             result.setId(id);
-            if (parameters.isSelected(ParameterOutput.LABEL)) {
-                result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocaleForLabel()), parameters,
-                        result::setLabel);
-            }
-            if (parameters.isSelected(ParameterOutput.DOMAIN_ID)) {
-                result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), parameters, result::setDomainId);
-            }
-            if (parameters.isSelected(ParameterOutput.HREF)) {
-                result.setValue(ParameterOutput.HREF, query.getHrefBase(), parameters,
-                        result::setHref);
+            if (!hasSelect()) {
+                addAll(result, entity, query, parameters);
+            } else {
+                addSelected(result, entity, query, parameters);
             }
             return result;
         } catch (Exception e) {
@@ -66,7 +65,81 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
         return null;
     }
 
+    boolean hasSelect();
+
+    Set<String> getSelection();
+
+    Map<String, Set<String>> getSubSelection();
+
+    default Set<String> getSubSelection(String sub) {
+        return getSubSelection().get(sub);
+    }
+
+    default boolean isSubSelected(String sub, String selection) {
+        return !hasSelect() || (getSubSelection().containsKey(sub) && checkSubSelected(sub, selection));
+    }
+
+    default boolean checkSubSelected(String sub, String selection) {
+        return getSubSelection().get(sub).stream().filter(s -> s.startsWith(selection.toLowerCase(Locale.ROOT)))
+                .findFirst().isPresent();
+    }
+
+    default boolean isSelected(String selection) {
+        return !hasSelect() || getSelection().contains(selection) || checkSelected(selection);
+    }
+
+    default boolean checkSelected(String selection) {
+        return getSelection().stream().filter(s -> s.startsWith(selection.toLowerCase(Locale.ROOT))).findFirst()
+                .isPresent();
+    }
+
     T createExpanded(S entity, DbQuery query, Session session);
+
+    default void addAll(T result, S entity, DbQuery query, IoParameters parameters) {
+        addLabel(result, entity, query, parameters);
+        addDomainId(result, entity, query, parameters);
+        addHref(result, entity, query, parameters);
+    }
+
+    default void addSelected(T result, S entity, DbQuery query, IoParameters parameters) {
+        for (String selected : getSelection()) {
+            switch (selected) {
+                case ParameterOutput.LABEL:
+                    addLabel(result, entity, query, parameters);
+                    break;
+                case ParameterOutput.DOMAIN_ID:
+                    addDomainId(result, entity, query, parameters);
+                    break;
+                case ParameterOutput.HREF:
+                    addHref(result, entity, query, parameters);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    default void addLabel(T result, S entity, DbQuery query, IoParameters parameters) {
+        result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocaleForLabel()), parameters,
+                result::setLabel);
+    }
+
+    default void addDomainId(T result, S entity, DbQuery query, IoParameters parameters) {
+        result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), parameters, result::setDomainId);
+    }
+
+    default void addHref(T result, S entity, DbQuery query, IoParameters parameters) {
+        result.setValue(ParameterOutput.HREF,
+                HrefHelper.constructHref(getHrefBase(), getCollectionName(result, entity)) + "/"
+                        + result.getId(),
+                parameters, result::setHref);
+    }
+
+    default String getCollectionName(T result, S entity) {
+        return result.getCollectionName();
+    }
+
+    String getHrefBase();
 
     Logger getLogger();
 

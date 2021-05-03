@@ -61,11 +61,11 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
 
     @Override
     protected OfferingOutput createCondensed(OfferingEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getOfferingMapper().createCondensed(entity, query);
+        return getMapperFactory().getOfferingMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getOfferingMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getOfferingMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 }

@@ -66,8 +66,8 @@ public class FeatureRepository extends HierarchicalParameterRepository<FeatureEn
 
     @Override
     protected FeatureOutput createExpanded(FeatureEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getFeatureMapper().createExpanded(entity, query, false, false, query.getLevel(),
-                session);
+        return getMapperFactory().getFeatureMapper(query.getParameters()).createExpanded(entity, query, false, false,
+                query.getLevel(), session);
     }
 
 }

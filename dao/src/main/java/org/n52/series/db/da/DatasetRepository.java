@@ -40,6 +40,7 @@ import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.da.mapper.DatasetMapper;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.search.DatasetSearchResult;
@@ -118,19 +119,19 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addCondensedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
-//        if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
-//            dao.getAllInstances(query).parallelStream()
-//                    .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
-//                            dataset.getValueType().name()))
-//                    .map(dataset -> createCondensed(dataset, query)).forEach(results::add);
-//        } else {
-            for (DatasetEntity dataset : dao.getAllInstances(query)) {
-                if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
-                        dataset.getValueType().name())) {
-                    results.add(createCondensed(dataset, query));
-                }
+        // if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
+        // dao.getAllInstances(query).parallelStream()
+        // .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+        // dataset.getValueType().name()))
+        // .map(dataset -> createCondensed(dataset, query)).forEach(results::add);
+        // } else {
+        DatasetMapper<V> datasetMapper = getMapperFactory().getDatasetMapper(query.getParameters());
+        for (DatasetEntity dataset : dao.getAllInstances(query)) {
+            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
+                results.add(datasetMapper.createCondensed(dataset, query));
             }
-//        }
+        }
+        // }
         LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
     }
 
@@ -171,23 +172,23 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
-//        if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
-//            dao.getAllInstances(query).parallelStream()
-//                    .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
-//                            dataset.getValueType().name()))
-//                    .map(dataset -> createExpanded(dataset, query, session)).forEach(results::add);
-//        } else {
-            for (DatasetEntity dataset : dao.getAllInstances(query)) {
-                if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
-                        dataset.getValueType().name())) {
-                    try {
-                        results.add(createExpanded(dataset, query, session));
-                    } catch (Exception e) {
-                        LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
-                    }
+        // if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
+        // dao.getAllInstances(query).parallelStream()
+        // .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+        // dataset.getValueType().name()))
+        // .map(dataset -> createExpanded(dataset, query, session)).forEach(results::add);
+        // } else {
+        DatasetMapper<V> datasetMapper = getMapperFactory().getDatasetMapper(query.getParameters());
+        for (DatasetEntity dataset : dao.getAllInstances(query)) {
+            if (dataRepositoryFactory.isKnown(dataset.getObservationType().name(), dataset.getValueType().name())) {
+                try {
+                    results.add(datasetMapper.createExpanded(dataset, query, session));
+                } catch (Exception e) {
+                    LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
                 }
             }
-//        }
+        }
+        // }
         LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
     }
 
@@ -203,8 +204,8 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
 
     @Override
     public DatasetOutput<V> getInstance(String id, DbQuery query, Session session) {
-        DatasetEntity instanceEntity = getInstanceEntity(id, query, session);
-        return createExpanded(instanceEntity, query, session);
+        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper(query.getParameters())
+                .createExpanded(getInstanceEntity(id, query, session), query, session);
     }
 
     DatasetEntity getInstanceEntity(String id, DbQuery query, Session session) {
@@ -238,15 +239,16 @@ public class DatasetRepository<V extends AbstractValue<?>> extends SessionAwareR
         return results;
     }
 
-    @SuppressWarnings("unchecked")
-    protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query) {
-        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createCondensed(dataset, query);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
-        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createExpanded(dataset, query, session);
-    }
+    // @SuppressWarnings("unchecked")
+    // protected DatasetOutput<V> createCondensed(DatasetEntity dataset, DbQuery query) {
+    // return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createCondensed(dataset, query);
+    // }
+    //
+    // @SuppressWarnings("unchecked")
+    // protected DatasetOutput<V> createExpanded(DatasetEntity dataset, DbQuery query, Session session) {
+    // return (DatasetOutput<V>) getMapperFactory().getDatasetMapper().createExpanded(dataset, query,
+    // session);
+    // }
 
     public DataRepositoryTypeFactory getDataRepositoryTypeFactory() {
         return dataRepositoryFactory;

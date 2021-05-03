@@ -202,7 +202,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     @Override
     protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
-        boolean select = q.getParameters().isSelect();
+        boolean select = q.getParameters().hasSelect();
         boolean parametersSelected = q.getParameters().isSelected(DatasetOutput.DATASET_PARAMETERS);
         boolean labelSelected = q.getParameters().isSelected(DatasetOutput.LABEL);
         if (!select || q.getParameters().isSelected(DatasetOutput.UOM)) {
@@ -236,7 +236,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     }
 
     private void checkAndAddFirstLastObservationFetchMode(Criteria criteria, DbQuery q) {
-        if (!q.getParameters().isSelect() || q.getParameters().isSelected(DatasetOutput.FIRST_VALUE)
+        if (!q.getParameters().hasSelect() || q.getParameters().isSelected(DatasetOutput.FIRST_VALUE)
                 || q.getParameters().isSelected(DatasetOutput.LAST_VALUE)) {
             if (isProfile(q.getParameters())) {
                 criteria.setFetchMode("verticalMetadata", FetchMode.JOIN);
@@ -274,7 +274,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     private void checkAndAddTranslationFetchModes(Criteria criteria, DbQuery q, boolean instance) {
         if (!q.isDefaultLocal()) {
-            boolean select = q.getParameters().isSelect();
+            boolean select = q.getParameters().hasSelect();
             boolean parametersSelected = q.getParameters().isSelected(DatasetOutput.DATASET_PARAMETERS);
             boolean labelSelected = q.getParameters().isSelected(DatasetOutput.LABEL);
             if (!select || parametersSelected || labelSelected) {

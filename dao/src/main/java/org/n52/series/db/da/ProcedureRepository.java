@@ -61,12 +61,12 @@ public class ProcedureRepository extends HierarchicalParameterRepository<Procedu
 
     @Override
     protected ProcedureOutput createCondensed(ProcedureEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getProcedureMapper().createCondensed(entity, query);
+        return getMapperFactory().getProcedureMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getProcedureMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getProcedureMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
 }

@@ -62,12 +62,12 @@ public class PhenomenonRepository extends HierarchicalParameterRepository<Phenom
 
     @Override
     protected PhenomenonOutput createCondensed(PhenomenonEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getPhenomenonMapper().createCondensed(entity, query);
+        return getMapperFactory().getPhenomenonMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getPhenomenonMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getPhenomenonMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
 }

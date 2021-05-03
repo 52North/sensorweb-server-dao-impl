@@ -58,36 +58,69 @@ public class MapperFactory {
     @Autowired
     private DataRepositoryTypeFactory dataRepositoryFactory;
 
-    public FeatureMapper getFeatureMapper() {
-        return new FeatureMapper(this);
+    public ServiceMapper getServiceMapper(IoParameters params) {
+        return getServiceMapper(params, false);
     }
 
-    public ServiceMapper getServiceMapper() {
-        return new ServiceMapper(this);
+    public ServiceMapper getServiceMapper(IoParameters params, boolean subMapper) {
+        return new ServiceMapper(this, params, subMapper);
     }
 
-    public PlatformMapper getPlatformMapper() {
-        return new PlatformMapper(this);
+    public FeatureMapper getFeatureMapper(IoParameters params) {
+        return getFeatureMapper(params, false);
     }
 
-    public ProcedureMapper getProcedureMapper() {
-        return new ProcedureMapper(this);
+    public FeatureMapper getFeatureMapper(IoParameters params, boolean subMapper) {
+        return new FeatureMapper(this, params, subMapper);
     }
 
-    public OfferingMapper getOfferingMapper() {
-        return new OfferingMapper(this);
+    public PlatformMapper getPlatformMapper(IoParameters params) {
+        return getPlatformMapper(params, false);
     }
 
-    public PhenomenonMapper getPhenomenonMapper() {
-        return new PhenomenonMapper(this);
+    public PlatformMapper getPlatformMapper(IoParameters params, boolean subMapper) {
+        return new PlatformMapper(this, params, subMapper);
     }
 
-    public CategoryMapper getCategoryMapper() {
-        return new CategoryMapper(this);
+    public ProcedureMapper getProcedureMapper(IoParameters params) {
+        return getProcedureMapper(params, false);
     }
 
-    public <V extends AbstractValue<?>> DatasetMapper<V> getDatasetMapper() {
-        return new DatasetMapper<>(this);
+    public ProcedureMapper getProcedureMapper(IoParameters params, boolean subMapper) {
+        return new ProcedureMapper(this, params, subMapper);
+    }
+
+    public OfferingMapper getOfferingMapper(IoParameters params) {
+        return getOfferingMapper(params, false);
+    }
+
+    public OfferingMapper getOfferingMapper(IoParameters params, boolean subMapper) {
+        return new OfferingMapper(this, params, subMapper);
+    }
+
+    public PhenomenonMapper getPhenomenonMapper(IoParameters params) {
+        return getPhenomenonMapper(params, false);
+    }
+
+    public PhenomenonMapper getPhenomenonMapper(IoParameters params, boolean subMapper) {
+        return new PhenomenonMapper(this, params, subMapper);
+    }
+
+    public CategoryMapper getCategoryMapper(IoParameters params) {
+        return getCategoryMapper(params, false);
+    }
+
+    public CategoryMapper getCategoryMapper(IoParameters params, boolean subMapper) {
+        return new CategoryMapper(this, params, subMapper);
+    }
+
+    public <V extends AbstractValue<?>> DatasetMapper<V> getDatasetMapper(IoParameters params) {
+        return getDatasetMapper(params, false);
+    }
+
+    public <V extends AbstractValue<?>> DatasetMapper<V> getDatasetMapper(IoParameters params, boolean subMapper) {
+        return new DatasetMapper<>(this, params, subMapper);
+    }
 
     public SamplingMapper getSamplingMapper(IoParameters params) {
         return new SamplingMapper(this, params);

@@ -55,8 +55,12 @@ public class ServiceMapper extends AbstractOuputMapper<ServiceOutput, ServiceEnt
 
     private static final String SERVICE_TYPE = "Restful series access layer.";
 
-    public ServiceMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    public ServiceMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, true);
+    }
+
+    public ServiceMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
     }
 
     @Override

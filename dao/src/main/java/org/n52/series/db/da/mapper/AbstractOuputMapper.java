@@ -32,7 +32,11 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -44,6 +48,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
 import org.n52.io.response.FeatureOutput;
@@ -78,17 +83,82 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOuputMapper.class);
     private static final String OFFSET_REGEX = "([+-](?:2[0-3]|[01][0-9]):[0-5][0-9])";
+
+    protected ServiceMapper serviceMapper;
+    protected FeatureMapper featureMapper;
+    protected OfferingMapper offeringMapper;
+    protected ProcedureMapper procedureMapper;
+    protected PhenomenonMapper phenomenonMapper;
+    protected CategoryMapper categoryMapper;
+    protected PlatformMapper platformMapper;
+
     private CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
-
     private MapperFactory mapperFactory;
+    private boolean hasSelecetion;
+    private Set<String> selection = new LinkedHashSet<>();
+    private Map<String, Set<String>> subSelection = new LinkedHashMap<>();
+    private GeometryFactory geometryFactory;
 
-    public AbstractOuputMapper(MapperFactory mapperFactory) {
+    private String hrefBase;
+
+    public AbstractOuputMapper(MapperFactory mapperFactory, IoParameters params) {
+        this(mapperFactory, params, false);
+    }
+
+    public AbstractOuputMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
         this.mapperFactory = mapperFactory;
+        this.hrefBase = params.getHrefBase();
+        if (!subMapper) {
+            if (params.containsParameter(Parameters.SELECT)) {
+                this.selection.addAll(params.getSelectOriginal());
+                this.hasSelecetion = !selection.isEmpty();
+            }
+        }
+    }
+
+    protected void initSubMapper(IoParameters params) {
+        this.serviceMapper = getMapperFactory().getServiceMapper(params.withSubSelectFilter("service"), true);
+        this.featureMapper = getMapperFactory().getFeatureMapper(params.withSubSelectFilter("feature"), true);
+        this.offeringMapper = getMapperFactory().getOfferingMapper(params.withSubSelectFilter("offering"), true);
+        this.procedureMapper = getMapperFactory().getProcedureMapper(params.withSubSelectFilter("procedure"), true);
+        this.phenomenonMapper = getMapperFactory().getPhenomenonMapper(params.withSubSelectFilter("phenomenon"), true);
+        this.categoryMapper = getMapperFactory().getCategoryMapper(params.withSubSelectFilter("category"), true);
+        this.platformMapper = getMapperFactory().getPlatformMapper(params.withSubSelectFilter("platform"), true);
+    }
+
+    protected void initSubSelect(IoParameters params, String... subs) {
+        if (hasSelecetion) {
+            for (String sub : subs) {
+                if (isSelected(sub)) {
+                    subSelection.put(sub, params.withSubSelectFilter(sub).getSelectOriginal());
+                }
+            }
+        }
     }
 
     @Override
     public Logger getLogger() {
         return LOGGER;
+    }
+
+    @Override
+    public String getHrefBase() {
+        return hrefBase;
+    }
+
+    @Override
+    public boolean hasSelect() {
+        return hasSelecetion;
+    }
+
+    @Override
+    public Set<String> getSelection() {
+        return selection;
+    }
+
+    @Override
+    public Map<String, Set<String>> getSubSelection() {
+        return subSelection;
     }
 
     protected MapperFactory getMapperFactory() {
@@ -121,31 +191,40 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
     }
 
     protected ServiceOutput getCondensedService(ServiceEntity service, DbQuery query) {
-        return getMapperFactory().getServiceMapper().createCondensed(service, query);
+        return serviceMapper.createCondensed(service, query);
     }
 
-    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> entity, DbQuery parameters) {
-        return getMapperFactory().getFeatureMapper().createCondensed((FeatureEntity) entity, parameters);
+    protected FeatureOutput getCondensedFeature(AbstractFeatureEntity<?> feature, DbQuery query) {
+        return featureMapper.createCondensed((FeatureEntity) feature, query);
     }
 
     protected OfferingOutput getCondensedOffering(OfferingEntity offering, DbQuery query) {
-        return getMapperFactory().getOfferingMapper().createCondensed(new OfferingOutput(), offering, query);
+        return offeringMapper.createCondensed(offering, query);
     }
 
     protected ProcedureOutput getCondensedProcedure(ProcedureEntity procedure, DbQuery query) {
-        return getMapperFactory().getProcedureMapper().createCondensed(new ProcedureOutput(), procedure, query);
+        return procedureMapper.createCondensed(procedure, query);
     }
 
     protected PhenomenonOutput getCondensedPhenomenon(PhenomenonEntity phenomenon, DbQuery query) {
-        return getMapperFactory().getPhenomenonMapper().createCondensed(new PhenomenonOutput(), phenomenon, query);
+        return phenomenonMapper.createCondensed(phenomenon, query);
     }
 
     protected CategoryOutput getCondensedCategory(CategoryEntity category, DbQuery query) {
-        return getMapperFactory().getCategoryMapper().createCondensed(new CategoryOutput(), category, query);
+        return categoryMapper.createCondensed(category, query);
     }
 
     protected PlatformOutput getCondensedPlatform(PlatformEntity platform, DbQuery query) {
-        return getMapperFactory().getPlatformMapper().createCondensed(new PlatformOutput(), platform, query);
+        return platformMapper.createCondensed(platform, query);
+    }
+
+    protected <V extends ParameterOutput> V createCondensedMinimal(V result, DescribableEntity entity, DbQuery query) {
+        result.setId(Long.toString(entity.getId()));
+        result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), query.getParameters(), result::setDomainId);
+        result.setValue(ParameterOutput.LABEL, entity.getLabelFrom(query.getLocaleForLabel()), query.getParameters(),
+                result::setLabel);
+        result.setValue(ParameterOutput.HREF_BASE, query.getHrefBase(), query.getParameters(), result::setHrefBase);
+        return result;
     }
 
     protected Geometry getGeometry(GeometryEntity geometryEntity, DbQuery query) {
@@ -163,8 +242,12 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
     }
 
     private GeometryFactory createGeometryFactory(String srsId) {
-        PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
-        return srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
+        if (geometryFactory == null) {
+            PrecisionModel pm = new PrecisionModel(PrecisionModel.FLOATING);
+            this.geometryFactory =
+                    srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
+        }
+        return geometryFactory;
     }
 
     protected List<T> createCondensed(Collection<S> entities, DbQuery query, Session session) {

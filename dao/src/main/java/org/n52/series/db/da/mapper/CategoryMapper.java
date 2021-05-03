@@ -29,14 +29,19 @@
 package org.n52.series.db.da.mapper;
 
 import org.hibernate.Session;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.CategoryOutput;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.DbQuery;
 
 public class CategoryMapper extends AbstractOuputMapper<CategoryOutput, CategoryEntity> {
 
-    public CategoryMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    public CategoryMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, false);
+    }
+
+    public CategoryMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
     }
 
     @Override

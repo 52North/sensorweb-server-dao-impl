@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.dataset.DatasetParameters;
@@ -49,8 +50,12 @@ import org.n52.series.db.dao.DbQuery;
 
 public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEntity> {
 
-    public FeatureMapper(MapperFactory mapperFactory) {
-        super(mapperFactory);
+    public FeatureMapper(MapperFactory mapperFactory, IoParameters params) {
+        super(mapperFactory, params, false);
+    }
+
+    public FeatureMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
+        super(mapperFactory, params, subMapper);
     }
 
     @Override
@@ -70,7 +75,7 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
 
     public FeatureOutput createCondensed(AbstractFeatureEntity<?> entity, DbQuery query) {
         try {
-            FeatureOutput result = condensed(new FeatureOutput(), entity, query);
+            FeatureOutput result = condensed(new FeatureOutput(), (FeatureEntity) entity, query);
             if (query.getParameters().isSelected(StationOutput.GEOMETRY)) {
                 result.setValue(StationOutput.GEOMETRY, createGeometry(entity, query), query.getParameters(),
                         result::setGeometry);

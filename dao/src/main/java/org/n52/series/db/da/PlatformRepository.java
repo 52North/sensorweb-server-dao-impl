@@ -80,12 +80,12 @@ public class PlatformRepository extends ParameterRepository<PlatformEntity, Plat
 
     @Override
     protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getPlatformMapper().createCondensed(entity, query);
+        return getMapperFactory().getPlatformMapper(query.getParameters()).createCondensed(entity, query);
     }
 
     @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
-        return getMapperFactory().getPlatformMapper().createExpanded(entity, query, session);
+        return getMapperFactory().getPlatformMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
     protected List<PlatformOutput> createCondensedHierarchyMembers(Set<PlatformEntity> members, DbQuery parameters,
