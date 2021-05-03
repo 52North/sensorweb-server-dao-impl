@@ -64,7 +64,6 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.appContext = appContext;
     }
 
-    @SuppressWarnings("unchecked")
     private Stream<DataRepository<? extends DatasetEntity,
                                     ? extends DataEntity<?>,
                                     ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
@@ -110,11 +109,13 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @SuppressWarnings("unchecked")
     public <S extends DatasetEntity,
             E extends DataEntity<T>,
-            V extends AbstractValue<?>, T>
-            DataRepository<S, E, V, T> create(
+            V extends AbstractValue<?>, T> DataRepository<S, E, V, T> create(
             String observationType, String valueType, Class<S> entityType) {
-        return (DataRepository<S, E, V, T>) addToCache(observationType, valueType,
-                findDataAssembler(observationType, valueType).orElseThrow(throwException(observationType, valueType)));
+        return hasCacheEntry(observationType, valueType)
+                ? (DataRepository<S, E, V, T>) cache.get(getType(observationType, valueType))
+                : (DataRepository<S, E, V, T>) addToCache(observationType, valueType,
+                        findDataAssembler(observationType, valueType)
+                                .orElseThrow(throwException(observationType, valueType)));
     }
 
     private <A extends DataRepository<? extends DatasetEntity,
