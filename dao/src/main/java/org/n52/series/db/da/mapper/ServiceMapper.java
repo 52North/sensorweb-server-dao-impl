@@ -72,7 +72,7 @@ public class ServiceMapper extends AbstractOuputMapper<ServiceOutput, ServiceEnt
     @Override
     public ServiceOutput createExpanded(ServiceEntity entity, DbQuery query, Session session) {
         try {
-            ServiceOutput result = getCondensedService(entity, query);
+            ServiceOutput result = createCondensed(entity, query);
             IoParameters parameters = query.getParameters();
 
             ParameterCount quantities = countParameters(result, query);
