@@ -35,13 +35,14 @@ import java.util.Locale;
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
-import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
+import org.n52.janmayen.i18n.LocaleHelper;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.DataDao;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 
 //@ValueAssemblerComponent(value = "count", datasetEntityType = DatasetEntity.class)
 public class CountDataRepository extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
@@ -56,7 +57,7 @@ public class CountDataRepository extends AbstractNumericalDataRepository<CountDa
     }
 
     @Override
-    public CountValue getFirstValue(DatasetEntity entity, Session session, DbQuery query) {
+    public CountValue getFirstValue(DatasetEntity entity, DbQuery query) {
         if (entity.getFirstQuantityValue() != null) {
             CountValue value = createEmptyValue();
             value.setValue(entity.getFirstQuantityValue().intValue());
@@ -66,11 +67,11 @@ public class CountDataRepository extends AbstractNumericalDataRepository<CountDa
             value.setValueFormatter(formatter::format);
             return value;
         }
-        return super.getFirstValue(entity, session, query);
+        return super.getFirstValue(entity, query);
     }
 
     @Override
-    public CountValue getLastValue(DatasetEntity entity, Session session, DbQuery query) {
+    public CountValue getLastValue(DatasetEntity entity, DbQuery query) {
         if (entity.getLastQuantityValue() != null) {
             CountValue value = createEmptyValue();
             value.setValue(entity.getLastQuantityValue().intValue());
@@ -80,7 +81,7 @@ public class CountDataRepository extends AbstractNumericalDataRepository<CountDa
             value.setValueFormatter(formatter::format);
             return value;
         }
-        return super.getLastValue(entity, session, query);
+        return super.getLastValue(entity, query);
     }
 
     @Override
