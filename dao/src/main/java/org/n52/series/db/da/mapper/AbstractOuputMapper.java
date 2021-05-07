@@ -83,6 +83,7 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOuputMapper.class);
     private static final String OFFSET_REGEX = "([+-](?:2[0-3]|[01][0-9]):[0-5][0-9])";
+    private static final String EPSG_PREFIX = "EPSG:";
 
     protected ServiceMapper serviceMapper;
     protected FeatureMapper featureMapper;
@@ -108,10 +109,13 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
     public AbstractOuputMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
         this.mapperFactory = mapperFactory;
         this.hrefBase = params.getHrefBase();
+        if (subMapper) {
             if (params.containsParameter(Parameters.SELECT)) {
                 this.selection.addAll(params.getSelectOriginal());
                 this.hasSelecetion = !selection.isEmpty();
             }
+        } else {
+            initSubMapper(params);
         }
     }
 
@@ -231,6 +235,9 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
             return null;
         } else {
             String srid = query.getDatabaseSridCode();
+            if (geometryEntity.isSetGeometry() && geometryEntity.getGeometry().getSRID() > 0) {
+                srid = EPSG_PREFIX.concat(Integer.toString(geometryEntity.getGeometry().getSRID()));
+            }
             geometryEntity.setGeometryFactory(createGeometryFactory(srid));
             try {
                 return crsUtils.transformOuterToInner(geometryEntity.getGeometry(), srid);
