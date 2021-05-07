@@ -68,7 +68,6 @@ public class DatasetMapper<V extends AbstractValue<?>> extends AbstractOuputMapp
 
     public DatasetMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
         super(mapperFactory, params, subMapper);
-        initSubMapper(params);
         initSubSelect(params, DatasetOutput.DATASET_PARAMETERS);
     }
 
