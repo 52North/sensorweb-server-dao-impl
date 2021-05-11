@@ -109,12 +109,11 @@ public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends D
     public AbstractOuputMapper(MapperFactory mapperFactory, IoParameters params, boolean subMapper) {
         this.mapperFactory = mapperFactory;
         this.hrefBase = params.getHrefBase();
-        if (subMapper) {
+        if (!subMapper) {
             if (params.containsParameter(Parameters.SELECT)) {
                 this.selection.addAll(params.getSelectOriginal());
                 this.hasSelecetion = !selection.isEmpty();
             }
-        } else {
             initSubMapper(params);
         }
     }
