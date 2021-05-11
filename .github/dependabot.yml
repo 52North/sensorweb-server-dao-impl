@@ -1,0 +1,40 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-web-resources
+    versions:
+    - 3.5.0-PR.1
+    - 3.5.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-rest
+    versions:
+    - 3.5.0-PR.1
+    - 3.5.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-io
+    versions:
+    - 3.5.0-PR.1
+    - 3.5.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-spi
+    versions:
+    - 3.5.0-PR.1
+    - 3.5.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.db-model:db-model-types
+    versions:
+    - 4.0.0-PR.1
+    - 4.0.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.db-model:db-model-mappings
+    versions:
+    - 4.0.0-PR.1
+    - 4.0.0-PR.2
+  - dependency-name: org.n52.sensorweb-server.db-model:db-model-entities
+    versions:
+    - 4.0.0-PR.1
+    - 4.0.0-PR.2
+  - dependency-name: org.geolatte:geolatte-geom
+    versions:
+    - 1.6.1
