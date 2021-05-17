@@ -68,7 +68,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
 
     private static final String FEATURE_PATH_ALIAS = "dsFeature";
 
-    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
+//    private static final String PROCEDURE_PATH_ALIAS = "dsProcedure";
 
     private static final String FIRST_OBSERVATION_ALIAS = "firstObservation";
     private static final String LAST_OBSERVATION_ALIAS = "lastObservation";
@@ -197,7 +197,8 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         Criteria criteria = super.getDefaultCriteria(alias, query, clazz);
 
         if (ignoreReferenceSeries) {
-            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
+            query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_PROCEDURE, DbQuery.PROCEDURE_ALIAS)
+//            criteria.createCriteria(DatasetEntity.PROPERTY_PROCEDURE, PROCEDURE_PATH_ALIAS, JoinType.LEFT_OUTER_JOIN)
                     .add(Restrictions.eq(ProcedureEntity.PROPERTY_REFERENCE, Boolean.FALSE));
         }
 

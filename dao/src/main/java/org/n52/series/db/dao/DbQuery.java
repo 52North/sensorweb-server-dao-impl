@@ -29,6 +29,8 @@
 package org.n52.series.db.dao;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -69,6 +71,14 @@ import org.slf4j.LoggerFactory;
 
 public class DbQuery {
 
+    protected static final String FEATURE_ALIAS = "feature_";
+
+    protected static final String PROCEDURE_ALIAS = "procedure_";
+
+    protected static final String PHENOMENON_ALIAS = "phenomenon_";
+
+    protected static final String OFFERING_ALIAS = "offering_";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
     private static final String PROPERTY_ID = "id";
@@ -92,6 +102,9 @@ public class DbQuery {
     private boolean isDefaultLocale;
 
     private String hrefBase;
+
+    private Map<String, Criteria> subCriteria = new LinkedHashMap<>();
+
 
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
@@ -369,7 +382,7 @@ public class DbQuery {
     private void addProcedureRestriction(Set<String> procedures, DetachedCriteria filter, Session session) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(ProcedureEntity.PROPERTY_PARENTS,
                 ProcedureEntity.class, session)) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, PROCEDURE_ALIAS);
         } else {
             addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
         }
@@ -378,7 +391,7 @@ public class DbQuery {
     private void addOfferingRestriction(Set<String> offerings, DetachedCriteria filter, Session session) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(OfferingEntity.PROPERTY_PARENTS,
                 OfferingEntity.class, session)) {
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, OFFERING_ALIAS);
         } else {
             addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         }
@@ -386,7 +399,7 @@ public class DbQuery {
 
     private void addFeatureRestriction(Set<String> features, DetachedCriteria filter) {
         if (isIncludeHierarchy()) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, FEATURE_ALIAS);
         } else {
             addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         }
@@ -521,6 +534,13 @@ public class DbQuery {
     public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
         this.includeHierarchy = includeHierarchy;
         return this;
+    }
+
+    protected Criteria getDatasetSubCriteria(Criteria criteria, String key, String alias) {
+        if (!subCriteria.containsKey(key)) {
+            subCriteria.put(key, criteria.createCriteria(key, alias));
+         }
+         return subCriteria.get(key);
     }
 
 }

@@ -224,12 +224,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      */
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
         return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
-//        return query.addSpatialFilter(criteria);
+        // return query.addSpatialFilter(criteria);
     }
 
     protected Criteria addSpatialFilter(DbQuery query, Criteria criteria) {
-        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
-//        return query.addSpatialFilter(criteria);
+        return query.addSpatialFilter(
+                query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_FEATURE, query.FEATURE_ALIAS));
+        // return query.addSpatialFilter(criteria);
     }
 
     protected Criteria addDatasetTypesFilter(String parameter, Criteria criteria, DbQuery query) {
@@ -376,7 +377,6 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     protected List<String> toStringList(Collection<Long> set) {
         return set.stream().map(s -> s.toString()).collect(Collectors.toList());
     }
-
 
     private Criteria addFetchModes(Criteria criteria, DbQuery q) {
         return addFetchModes(criteria, q, q.isExpanded());
