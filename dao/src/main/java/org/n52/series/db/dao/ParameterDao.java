@@ -58,7 +58,7 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         addFetchModes(criteria, query, q.isExpanded());
-        if (query.getParameters().getLocale() != null || !query.getParameters().getLocale().isEmpty()) {
+        if (!q.isDefaultLocal()) {
             criteria = i18n(getI18NEntityClass(), criteria, query);
         }
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));

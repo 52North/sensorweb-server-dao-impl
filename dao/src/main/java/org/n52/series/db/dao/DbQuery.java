@@ -238,8 +238,14 @@ public class DbQuery {
     }
 
     public Criteria addLocaleTo(Criteria criteria, Class<?> clazz) {
+        return addLocaleTo(criteria, clazz, null);
+    }
+
+    public Criteria addLocaleTo(Criteria criteria, Class<?> clazz, String path) {
         if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, criteria)) {
-            Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
+            Criteria translations = criteria.createCriteria(
+                    path != null && !path.isEmpty() ? path + "." + PROPERTY_TRANSLATIONS : PROPERTY_TRANSLATIONS,
+                    JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
                     Restrictions.isNull(PROPERTY_LOCALE)));
         }

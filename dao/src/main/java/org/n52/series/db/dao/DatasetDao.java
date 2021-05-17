@@ -102,18 +102,24 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
          * to join tables and search for given pattern on any of the stored labels.
          */
         Criteria criteria = getDefaultCriteria(query);
-        addFetchModes(criteria, q, q.isExpanded());
+
         // default criteria performs join on procedure table
-
-        criteria.add(Restrictions.or(Restrictions.ilike(PhenomenonEntity.PROPERTY_NAME, searchTerm),
-                Restrictions.ilike(ProcedureEntity.PROPERTY_NAME, searchTerm),
-                Restrictions.ilike(OfferingEntity.PROPERTY_NAME, searchTerm),
-                Restrictions.ilike(FeatureEntity.PROPERTY_NAME, searchTerm)));
-
-        i18n(I18nOfferingEntity.class, criteria, query);
-        i18n(I18nPhenomenonEntity.class, criteria, query);
-        i18n(I18nProcedureEntity.class, criteria, query);
-        i18n(I18nFeatureEntity.class, criteria, query);
+        query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_FEATURE, DbQuery.FEATURE_ALIAS);
+        query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_PROCEDURE, DbQuery.PROCEDURE_ALIAS);
+        query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_PHENOMENON, DbQuery.PHENOMENON_ALIAS);
+        query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_OFFERING, DbQuery.OFFERING_ALIAS);
+        criteria.add(Restrictions.or(
+                Restrictions.ilike(DbQuery.PHENOMENON_ALIAS + "." + PhenomenonEntity.PROPERTY_NAME, searchTerm),
+                Restrictions.ilike(DbQuery.PROCEDURE_ALIAS + "." + ProcedureEntity.PROPERTY_NAME, searchTerm),
+                Restrictions.ilike(DbQuery.OFFERING_ALIAS + "." + OfferingEntity.PROPERTY_NAME, searchTerm),
+                Restrictions.ilike(DbQuery.FEATURE_ALIAS + "." + FeatureEntity.PROPERTY_NAME, searchTerm)));
+        if (!query.isDefaultLocal()) {
+            i18n(I18nOfferingEntity.class, criteria, query, DbQuery.OFFERING_ALIAS);
+            i18n(I18nPhenomenonEntity.class, criteria, query, DbQuery.PHENOMENON_ALIAS);
+            i18n(I18nProcedureEntity.class, criteria, query, DbQuery.PROCEDURE_ALIAS);
+            i18n(I18nFeatureEntity.class, criteria, query, DbQuery.FEATURE_ALIAS);
+        }
+        addFetchModes(criteria, q, q.isExpanded());
         return criteria.list();
     }
 

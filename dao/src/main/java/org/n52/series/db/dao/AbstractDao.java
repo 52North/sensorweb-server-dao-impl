@@ -123,9 +123,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
-        Criteria instanceCriteria = query.isMatchDomainIds()
-                ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        Criteria instanceCriteria =
+                query.isMatchDomainIds() ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
+                        : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
         addFetchModes(instanceCriteria, query, true);
         return clazz.cast(instanceCriteria.uniqueResult());
     }
@@ -146,7 +146,12 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
-        return hasTranslation(query, clazz) ? query.addLocaleTo(criteria, clazz) : criteria;
+        return i18n(clazz, criteria, query, null);
+    }
+
+    protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query, String path) {
+        return !query.isDefaultLocal() && hasTranslation(query, clazz) ? query.addLocaleTo(criteria, clazz, path)
+                : criteria;
     }
 
     private <I extends I18nEntity> boolean hasTranslation(DbQuery parameters, Class<I> clazz) {
@@ -332,21 +337,20 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return Subqueries.propertyIn(QueryUtils.createAssociation(property, DescribableEntity.PROPERTY_ID), c);
     }
 
-//    protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-//        query.getParameters()
-//                .getGeometryTypes()
-//                .stream()
-//                .filter(geometryType -> !geometryType.isEmpty())
-//                .map(this::getGeometryType)
-//                .filter(Objects::nonNull)
-//                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
-//                .forEach(criteria::add);
-//        return criteria;
-//    }
+    // protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
+    // query.getParameters()
+    // .getGeometryTypes()
+    // .stream()
+    // .filter(geometryType -> !geometryType.isEmpty())
+    // .map(this::getGeometryType)
+    // .filter(Objects::nonNull)
+    // .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+    // .forEach(criteria::add);
+    // return criteria;
+    // }
 
     private GeometryType getGeometryType(String geometryType) {
-        return Arrays.stream(GeometryType.values())
-                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+        return Arrays.stream(GeometryType.values()).filter(type -> type.name().equalsIgnoreCase(geometryType))
                 .findAny().orElse(null);
     }
 
@@ -415,7 +419,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     /**
      * Currently used in SOS cache operations.
      *
-     * @param query Query parameters
+     * @param query
+     *            Query parameters
      *
      * @return the result
      *
