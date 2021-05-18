@@ -47,6 +47,7 @@ This project includes:
   HyperSQL Database under HSQLDB License, a BSD open source license
   istack common utility code runtime under Eclipse Distribution License - v 1.0
   J2ObjC Annotations under The Apache Software License, Version 2.0
+  Jackson datatype: Joda under The Apache Software License, Version 2.0
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
