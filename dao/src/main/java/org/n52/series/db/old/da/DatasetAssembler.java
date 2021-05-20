@@ -50,6 +50,7 @@ import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.TimeseriesMetadataOutput;
 import org.n52.io.response.dataset.TrajectoryOutput;
 import org.n52.sensorweb.server.db.ValueAssembler;
+import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.factory.DataRepositoryTypeFactory;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
@@ -137,6 +138,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
                 results.add(createCondensed(series, query));
             }
         }
+        // }
         LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
     }
 
@@ -165,16 +167,25 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
     private void addExpandedResults(DatasetDao<? extends DatasetEntity> dao, DbQuery query,
             List<DatasetOutput<V>> results, Session session) {
         long start = System.currentTimeMillis();
+        // if (dao.isTimeseriesSimpleQuantityCount(query.getParameters())) {
+        // dao.getAllInstances(query).parallelStream()
+        // .filter(dataset -> dataRepositoryFactory.isKnown(dataset.getObservationType().name(),
+        // dataset.getValueType().name()))
+        // .map(dataset -> createExpanded(dataset, query, session)).forEach(results::add);
+        // } else {
+        ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<AbstractValue<?>>> datasetMapper =
+                getMapperFactory().getDatasetMapper(query);
         for (DatasetEntity dataset : dao.getAllInstances(query)) {
             if (dataRepositoryFactory.isKnown(dataset.getDatasetType().name(), dataset.getObservationType().name(),
                     dataset.getValueType().name())) {
                 try {
-                    results.add(createExpanded(dataset, query, session));
+                    results.add((DatasetOutput<V>) datasetMapper.createExpanded(dataset));
                 } catch (Exception e) {
                     LOGGER.error("Error while processing dataset {}! Exception: {}", dataset.getId(), e);
                 }
             }
         }
+        // }
         LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
     }
 
@@ -189,8 +200,8 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
     }
 
     private DatasetOutput<V> getInstance(String id, DbQuery query, Session session) {
-        DatasetEntity instanceEntity = getInstanceEntity(id, query, session);
-        return createExpanded(instanceEntity, query, session);
+        return (DatasetOutput<V>) getMapperFactory().getDatasetMapper(query)
+                .createExpanded(getInstanceEntity(id, query, session));
     }
 
     DatasetEntity getInstanceEntity(String id, DbQuery query, Session session) {
@@ -216,7 +227,7 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
     }
 
     public List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         String hrefBase = HrefHelper.constructHref(query.getHrefBase(), DatasetOutput.COLLECTION_PATH);
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {

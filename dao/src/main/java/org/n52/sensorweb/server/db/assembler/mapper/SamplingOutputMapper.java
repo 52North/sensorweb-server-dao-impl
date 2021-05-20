@@ -48,47 +48,116 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<Samp
         implements TimeOutputCreator {
 
     public SamplingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
     }
 
-    @Override
-    public SamplingOutput createCondensed(SamplingEntity entity, SamplingOutput output) {
-        return condensed(entity, super.createCondensed(entity, output));
-    }
-
-    private SamplingOutput condensed(SamplingEntity entity, SamplingOutput output) {
-        SamplingOutput result = super.createCondensed(entity, output);
-        IoParameters parameters = query.getParameters();
-        result.setValue(SamplingOutput.COMMENT, entity.isSetDescription() ? entity.getDescription() : "", parameters,
-                result::setComment);
-        result.setValue(SamplingOutput.MONITORING_PROGRAM,
-                getCondensedMeasuringProgram(entity.getMeasuringProgram(), query), parameters,
-                result::setMeasuringProgram);
-        result.setValue(SamplingOutput.SAMPLER, getCondensedSampler(entity.getSampler(), parameters), parameters,
-                result::setSampler);
-        result.setValue(SamplingOutput.SAMPLING_METHOD, entity.getSamplingMethod(), parameters,
-                result::setSamplingMethod);
-        result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
-                entity.isSetEnvironmentalConditions() ? entity.getEnvironmentalConditions() : "", parameters,
-                result::setEnvironmentalConditions);
-        result.setValue(SamplingOutput.SAMPLING_TIME_START,
-                createTimeOutput(entity.getSamplingTimeStart(), parameters), parameters, result::setSamplingTimeStart);
-        result.setValue(SamplingOutput.SAMPLING_TIME_END, createTimeOutput(entity.getSamplingTimeEnd(), parameters),
-                parameters, result::setSamplingTimeEnd);
-        return result;
+    public SamplingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override
     public SamplingOutput addExpandedValues(SamplingEntity entity, SamplingOutput output) {
         IoParameters parameters = query.getParameters();
+        if (parameters.isSelected(SamplingOutput.FEATURE)) {
         output.setValue(SamplingOutput.FEATURE, getFeature(entity, query), parameters, output::setFeature);
+        }
+        if (parameters.isSelected(SamplingOutput.SAMPLING_OBSERVATIONS)) {
         output.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity, query), parameters,
                 output::setSamplingObservations);
+        }
         return output;
     }
 
+    @Override
+    public void addAll(SamplingOutput result, SamplingEntity sampling, DbQuery query, IoParameters parameters) {
+        super.addAll(result, sampling, query, parameters);
+        addComment(result, sampling, query, parameters);
+        addMonitoringProgram(result, sampling, query, parameters);
+        addSampler(result, sampling, query, parameters);
+        addSamplingMethod(result, sampling, query, parameters);
+        addEnvironmentalConditions(result, sampling, query, parameters);
+        addSamplingTimeStart(result, sampling, query, parameters);
+        addSamplingTimeEnd(result, sampling, query, parameters);
+    }
+
+    @Override
+    public void addSelected(SamplingOutput result, SamplingEntity sampling, DbQuery query, IoParameters parameters) {
+        super.addSelected(result, sampling, query, parameters);
+        for (String selected : parameters.getSelectOriginal()) {
+            switch (selected) {
+                case SamplingOutput.COMMENT:
+                    addComment(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.MONITORING_PROGRAM:
+                    addMonitoringProgram(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.SAMPLER:
+                    addSampler(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.SAMPLING_METHOD:
+                    addSamplingMethod(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.ENVIRONMENTAL_CONDITIONS:
+                    addEnvironmentalConditions(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.SAMPLING_TIME_START:
+                    addSamplingTimeStart(result, sampling, query, parameters);
+                    break;
+                case SamplingOutput.SAMPLING_TIME_END:
+                    addSamplingTimeEnd(result, sampling, query, parameters);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void addComment(SamplingOutput result, SamplingEntity sampling, DbQuery query, IoParameters parameters) {
+        result.setValue(SamplingOutput.COMMENT, sampling.isSetDescription() ? sampling.getDescription() : "",
+                parameters, result::setComment);
+    }
+
+    private void addMonitoringProgram(SamplingOutput result, SamplingEntity sampling, DbQuery query,
+            IoParameters parameters) {
+        result.setValue(SamplingOutput.MONITORING_PROGRAM,
+                getCondensedMeasuringProgram(sampling.getMeasuringProgram(), query), parameters,
+                result::setMeasuringProgram);
+    }
+
+    private void addSampler(SamplingOutput result, SamplingEntity sampling, DbQuery query, IoParameters parameters) {
+        result.setValue(SamplingOutput.SAMPLER, getCondensedSampler(sampling.getSampler(), parameters), parameters,
+                result::setSampler);
+    }
+
+    private void addSamplingMethod(SamplingOutput result, SamplingEntity sampling, DbQuery query,
+            IoParameters parameters) {
+        result.setValue(SamplingOutput.SAMPLING_METHOD, sampling.getSamplingMethod(), parameters,
+                result::setSamplingMethod);
+    }
+
+    private void addEnvironmentalConditions(SamplingOutput result, SamplingEntity sampling, DbQuery query,
+            IoParameters parameters) {
+        result.setValue(SamplingOutput.ENVIRONMENTAL_CONDITIONS,
+                sampling.isSetEnvironmentalConditions() ? sampling.getEnvironmentalConditions() : "", parameters,
+                result::setEnvironmentalConditions);
+
+    }
+
+    private void addSamplingTimeStart(SamplingOutput result, SamplingEntity sampling, DbQuery query,
+            IoParameters parameters) {
+        result.setValue(SamplingOutput.SAMPLING_TIME_START,
+                createTimeOutput(sampling.getSamplingTimeStart(), parameters), parameters,
+                result::setSamplingTimeStart);
+    }
+
+    private void addSamplingTimeEnd(SamplingOutput result, SamplingEntity sampling, DbQuery query,
+            IoParameters parameters) {
+        result.setValue(SamplingOutput.SAMPLING_TIME_END, createTimeOutput(sampling.getSamplingTimeEnd(), parameters),
+                parameters, result::setSamplingTimeEnd);
+    }
+
     private MeasuringProgramOutput getCondensedMeasuringProgram(MeasuringProgramEntity entity, DbQuery query) {
-        return getOutputMapperFactory().getMeasuringProgramOutputMapper(query).createCondensed(entity,
+        return getOutputMapperFactory().getMeasuringProgramMapper(query).createCondensed(entity,
                 new MeasuringProgramOutput());
     }
 
@@ -103,7 +172,7 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<Samp
 
     private FeatureOutput getFeature(SamplingEntity entity, DbQuery query) {
         return entity.getObservations() != null ? entity.getObservations().stream().map(o -> {
-            return getFeatureOutput(o.getDataset().getFeature(), query);
+            return getFeatureOutput(o.getDataset().getFeature());
         }).findFirst().get() : null;
     }
 
@@ -122,11 +191,11 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<Samp
     private SamplingObservationOutput getLastObservation(DataEntity<?> o, DbQuery query) {
         SamplingObservationOutput result = new SamplingObservationOutput();
         result.setDataset(getDatasetOutput(o.getDataset(), query));
-        result.setCategory(getCategoryOutput(o.getDataset().getCategory(), query));
-        result.setOffering(getOfferingOutput(o.getDataset().getOffering(), query));
-        result.setPhenomenon(getPhenomenonOutput(o.getDataset().getPhenomenon(), query));
-        result.setPlatform(getPlatformOutput(o.getDataset().getPlatform(), query));
-        result.setProcedure(getProcedureOutput(o.getDataset().getProcedure(), query));
+        result.setCategory(getCategoryOutput(o.getDataset().getCategory()));
+        result.setOffering(getOfferingOutput(o.getDataset().getOffering()));
+        result.setPhenomenon(getPhenomenonOutput(o.getDataset().getPhenomenon()));
+        result.setPlatform(getPlatformOutput(o.getDataset().getPlatform()));
+        result.setProcedure(getProcedureOutput(o.getDataset().getProcedure()));
         return result;
     }
 

@@ -28,33 +28,27 @@
  */
 package org.n52.series.db.old.da;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.locationtech.jts.geom.Geometry;
-import org.n52.io.request.IoParameters;
-import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.FeatureOutput;
-import org.n52.io.response.PhenomenonOutput;
-import org.n52.io.response.TimeOutput;
-import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.sampling.MeasuringProgramOutput;
-import org.n52.io.response.sampling.ProducerOutput;
-import org.n52.io.response.sampling.SamplingOutput;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
 import org.n52.series.db.old.HibernateSessionStore;
 import org.n52.series.db.old.dao.MeasuringProgramDao;
 import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.MeasuringProgramSearchResult;
 import org.n52.series.spi.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProgramEntity, MeasuringProgramOutput> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeasuringProgramRepository.class);
 
     public MeasuringProgramRepository(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);
@@ -81,116 +75,45 @@ public class MeasuringProgramRepository extends ParameterAssembler<MeasuringProg
     }
 
     @Override
-    protected MeasuringProgramOutput createCondensed(MeasuringProgramEntity measuringProgram, DbQuery query,
-            Session session) {
-        IoParameters parameters = query.getParameters();
-        MeasuringProgramOutput result = createCondensed(prepareEmptyParameterOutput(), measuringProgram, query);
-
-        result.setValue(MeasuringProgramOutput.ORDER_ID, measuringProgram.getIdentifier(), parameters,
-                result::setOrderId);
-        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_START,
-                createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters), parameters,
-                result::setMeasuringProgramTimeStart);
-        result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END,
-                getMeasuringtimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
-        result.setValue(MeasuringProgramOutput.PRODUCER,
-                getCondensedProducer(measuringProgram.getProducer(), parameters), parameters, result::setProducer);
-        result.setValue(MeasuringProgramOutput.OBSERVED_AREA, getObservedArea(measuringProgram, query), parameters,
-                result::setObservedArea);
-        return result;
+    protected List<MeasuringProgramOutput> createCondensed(Collection<MeasuringProgramEntity> measuringPrograms,
+            DbQuery query, Session session) {
+        long start = System.currentTimeMillis();
+        List<MeasuringProgramOutput> results = new LinkedList<>();
+        for (MeasuringProgramEntity measuringProgram : measuringPrograms) {
+            results.add(createCondensed(measuringProgram, query, session));
+        }
+        LOGGER.debug("Processing all condensed instances takes {} ms", System.currentTimeMillis() - start);
+        return results;
     }
 
-    private TimeOutput getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram, IoParameters parameters) {
-        if (measuringProgram.isSetMeasuringTimeEnd()) {
-            return createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters);
+    @Override
+    protected MeasuringProgramOutput createCondensed(MeasuringProgramEntity measuringProgram, DbQuery query,
+            Session session) {
+        return getMapperFactory().getMeasuringProgramMapper(query).createCondensed(measuringProgram);
+    }
+
+    @Override
+    protected List<MeasuringProgramOutput> createExpanded(Collection<MeasuringProgramEntity> measuringPrograms,
+            DbQuery query, Session session) {
+        long start = System.currentTimeMillis();
+        List<MeasuringProgramOutput> results = new LinkedList<>();
+        for (MeasuringProgramEntity measuringProgram : measuringPrograms) {
+            results.add(createExpanded(measuringProgram, query, session));
         }
-        return null;
+        LOGGER.debug("Processing all expanded instances takes {} ms", System.currentTimeMillis() - start);
+        return results;
     }
 
     @Override
     protected MeasuringProgramOutput createExpanded(MeasuringProgramEntity measuringProgram, DbQuery query,
             Session session) {
-        IoParameters parameters = query.getParameters();
-        MeasuringProgramOutput result = createCondensed(measuringProgram, query, session);
-
-        result.setValue(MeasuringProgramOutput.DATASETS, getDatasets(measuringProgram, query, session), parameters,
-                result::setDatasets);
-        result.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(measuringProgram, query), parameters,
-                result::setSamplings);
-        result.setValue(MeasuringProgramOutput.FEATURES, getFeatures(measuringProgram, query), parameters,
-                result::setFeatures);
-        result.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(measuringProgram, query), parameters,
-                result::setPhenomena);
-        result.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(measuringProgram, query), parameters,
-                result::setCategories);
-        return result;
-    }
-
-    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query,
-            Session session) {
-        return measuringProgram.getDatasets() != null
-                ? measuringProgram.getDatasets().stream().map(s -> createCondensed(new DatasetOutput<>(), s, query))
-                        .collect(Collectors.toList())
-                : new LinkedList<>();
-    }
-
-    private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getSamplings() != null
-                ? measuringProgram.getSamplings().stream().map(s -> createCondensed(new SamplingOutput(), s, query))
-                        .collect(Collectors.toList())
-                : new LinkedList<>();
-    }
-
-    private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getCondensedFeature(d.getFeature(), query)).collect(Collectors.toList())
-                : new LinkedList<>();
-    }
-
-    private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null
-                ? measuringProgram.getDatasets().stream().map(d -> getCondensedPhenomenon(d.getPhenomenon(), query))
-                        .collect(Collectors.toList())
-                : new LinkedList<>();
-    }
-
-    private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        return measuringProgram.getDatasets() != null
-                ? measuringProgram.getDatasets().stream().map(d -> getCondensedCategory(d.getCategory(), query))
-                        .collect(Collectors.toList())
-                : new LinkedList<>();
-    }
-
-    private ProducerOutput getCondensedProducer(String producer, IoParameters parameters) {
-        if (producer != null) {
-            ProducerOutput result = new ProducerOutput();
-            result.setValue(ProducerOutput.LABEL, producer, parameters, result::setLabel);
-            return result;
-        }
-        return null;
-    }
-
-    private Geometry getObservedArea(MeasuringProgramEntity measuringProgram, DbQuery query) {
-        Geometry observedArea = null;
-        if (measuringProgram.hasDatasets()) {
-            for (DatasetEntity dataset : measuringProgram.getDatasets()) {
-                if (dataset.isSetFeature() && dataset.getFeature().isSetGeometry()) {
-                    Geometry featureGeometry = createGeometry(dataset.getFeature(), query);
-                    if (observedArea == null) {
-                        observedArea = featureGeometry;
-                    } else {
-                        observedArea.getEnvelopeInternal().expandToInclude(featureGeometry.getEnvelopeInternal());
-                    }
-                }
-            }
-        }
-        return observedArea;
+        return getMapperFactory().getMeasuringProgramMapper(query).createExpanded(measuringProgram);
     }
 
     @Override
     protected ParameterOutputSearchResultMapper<MeasuringProgramEntity, MeasuringProgramOutput> getOutputMapper(
             DbQuery query) {
-        return getMapperFactory().getMeasuringProgramOutputMapper(query);
+        return getMapperFactory().getMeasuringProgramMapper(query);
     }
 
 }

@@ -35,6 +35,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.sensorweb.server.db.assembler.core.EntityCounter;
+import org.n52.sensorweb.server.db.factory.DataRepositoryTypeFactory;
 import org.n52.sensorweb.server.db.factory.ServiceEntityFactory;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
@@ -58,20 +59,31 @@ public class OutputMapperFactory {
     @Inject
     private DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
-    public FeatureOutputMapper getFeatureMapper() {
-        return getFeatureMapper(null);
-    }
-
-    public FeatureOutputMapper getFeatureMapper(DbQuery query) {
-        return new FeatureOutputMapper(query, this);
-    }
+    @Inject
+    private DataRepositoryTypeFactory dataRepositoryFactory;
 
     public ServiceOutputMapper getServiceMapper() {
         return getServiceMapper(null);
     }
 
     public ServiceOutputMapper getServiceMapper(DbQuery query) {
-        return new ServiceOutputMapper(query, this, counter, ioFactoryCreator);
+        return getServiceMapper(query, false);
+    }
+
+    public ServiceOutputMapper getServiceMapper(DbQuery query, boolean subMapper) {
+        return new ServiceOutputMapper(query, this, counter, ioFactoryCreator, subMapper);
+    }
+
+    public FeatureOutputMapper getFeatureMapper() {
+        return getFeatureMapper(null);
+    }
+
+    public FeatureOutputMapper getFeatureMapper(DbQuery query) {
+        return getFeatureMapper(query, false);
+    }
+
+    public FeatureOutputMapper getFeatureMapper(DbQuery query, boolean subMapper) {
+        return new FeatureOutputMapper(query, this, subMapper);
     }
 
     public PlatformOutputMapper getPlatformMapper() {
@@ -79,7 +91,11 @@ public class OutputMapperFactory {
     }
 
     public PlatformOutputMapper getPlatformMapper(DbQuery query) {
-        return new PlatformOutputMapper(query, this);
+        return getPlatformMapper(query, false);
+    }
+
+    public PlatformOutputMapper getPlatformMapper(DbQuery query, boolean subMapper) {
+        return new PlatformOutputMapper(query, this, subMapper);
     }
 
     public ProcedureOutputMapper getProcedureMapper() {
@@ -87,7 +103,11 @@ public class OutputMapperFactory {
     }
 
     public ProcedureOutputMapper getProcedureMapper(DbQuery query) {
-        return new ProcedureOutputMapper(query, this);
+        return getProcedureMapper(query, false);
+    }
+
+    public ProcedureOutputMapper getProcedureMapper(DbQuery query, boolean subMapper) {
+        return new ProcedureOutputMapper(query, this, subMapper);
     }
 
     public OfferingOutputMapper getOfferingMapper() {
@@ -95,7 +115,11 @@ public class OutputMapperFactory {
     }
 
     public OfferingOutputMapper getOfferingMapper(DbQuery query) {
-        return new OfferingOutputMapper(query, this);
+        return getOfferingMapper(query, false);
+    }
+
+    public OfferingOutputMapper getOfferingMapper(DbQuery query, boolean subMapper) {
+        return new OfferingOutputMapper(query, this, subMapper);
     }
 
     public PhenomenonOutputMapper getPhenomenonMapper() {
@@ -103,7 +127,11 @@ public class OutputMapperFactory {
     }
 
     public PhenomenonOutputMapper getPhenomenonMapper(DbQuery query) {
-        return new PhenomenonOutputMapper(query, this);
+        return getPhenomenonMapper(query, false);
+    }
+
+    public PhenomenonOutputMapper getPhenomenonMapper(DbQuery query, boolean subMapper) {
+        return new PhenomenonOutputMapper(query, this, subMapper);
     }
 
     public CategoryOutputMapper getCategoryMapper() {
@@ -111,34 +139,47 @@ public class OutputMapperFactory {
     }
 
     public CategoryOutputMapper getCategoryMapper(DbQuery query) {
+        return getCategoryMapper(query, false);
+    }
+
+    public CategoryOutputMapper getCategoryMapper(DbQuery query, boolean subMapper) {
         return new CategoryOutputMapper(query, this);
     }
 
     public <V extends AbstractValue<?>> ParameterOutputSearchResultMapper<DatasetEntity,
-                                                                          DatasetOutput<V>> getDatasetMapper() {
-        return getDatasetMapper(null);
+    DatasetOutput<V>> getDatasetMapper(
+            DbQuery dbQuery) {
+        return getDatasetMapper(null, false);
     }
 
     public <V extends AbstractValue<?>> ParameterOutputSearchResultMapper<DatasetEntity,
-                                                                          DatasetOutput<V>> getDatasetMapper(
-            DbQuery query) {
-        return new DatasetOutputMapper(query, this);
+    DatasetOutput<V>> getDatasetMapper(
+            DbQuery query, boolean subMapper) {
+        return new DatasetOutputMapper(query, this, subMapper);
     }
 
-    public MeasuringProgramOutputMapper getMeasuringProgramOutputMapper() {
-        return getMeasuringProgramOutputMapper(null);
+    public MeasuringProgramOutputMapper getMeasuringProgramMapper() {
+        return getMeasuringProgramMapper(null);
     }
 
-    public MeasuringProgramOutputMapper getMeasuringProgramOutputMapper(DbQuery query) {
-        return new MeasuringProgramOutputMapper(query, this);
+    public MeasuringProgramOutputMapper getMeasuringProgramMapper(DbQuery query) {
+        return getMeasuringProgramMapper(query, false);
     }
 
-    public SamplingOutputMapper getSamplingOutputMapper() {
-        return getSamplingOutputMapper(null);
+    public MeasuringProgramOutputMapper getMeasuringProgramMapper(DbQuery query, boolean subMapper) {
+        return new MeasuringProgramOutputMapper(query, this, subMapper);
     }
 
-    public SamplingOutputMapper getSamplingOutputMapper(DbQuery query) {
-        return new SamplingOutputMapper(query, this);
+    public SamplingOutputMapper getSamplingMapper() {
+        return getSamplingMapper(null);
+    }
+
+    public SamplingOutputMapper getSamplingMapper(DbQuery query) {
+        return getSamplingMapper(query, false);
+    }
+
+    public SamplingOutputMapper getSamplingMapper(DbQuery query, boolean subMapper) {
+        return new SamplingOutputMapper(query, this, subMapper);
     }
 
     public TagOutputMapper getTagMapper() {
@@ -146,7 +187,11 @@ public class OutputMapperFactory {
     }
 
     public TagOutputMapper getTagMapper(DbQuery query) {
-        return new TagOutputMapper(query, this);
+        return getTagMapper(query, false);
+    }
+
+    public TagOutputMapper getTagMapper(DbQuery query, boolean subMapper) {
+        return new TagOutputMapper(query, this, subMapper);
     }
 
     protected ServiceEntity getServiceEntity() {
@@ -168,6 +213,10 @@ public class OutputMapperFactory {
 
     protected DbQuery getDbQuery(IoParameters parameters) {
         return dbQueryFactory.createFrom(parameters);
+    }
+
+    protected DataRepositoryTypeFactory getDataRepositoryFactory() {
+        return dataRepositoryFactory;
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {

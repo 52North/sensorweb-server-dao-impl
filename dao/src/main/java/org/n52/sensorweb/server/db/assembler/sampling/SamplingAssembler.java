@@ -72,7 +72,7 @@ public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, 
 
     @Override
     protected SamplingOutputMapper getMapper(DbQuery query) {
-        return getOutputMapperFactory().getSamplingOutputMapper(query);
+        return getOutputMapperFactory().getSamplingMapper(query);
     }
 
 }

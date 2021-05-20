@@ -35,7 +35,11 @@ import org.n52.series.db.beans.PhenomenonEntity;
 public class PhenomenonOutputMapper extends HierarchicalOutputMapper<PhenomenonEntity, PhenomenonOutput> {
 
     public PhenomenonOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
+    }
+
+    public PhenomenonOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override

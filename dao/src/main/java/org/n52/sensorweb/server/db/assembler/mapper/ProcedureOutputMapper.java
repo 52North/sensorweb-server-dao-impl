@@ -35,21 +35,12 @@ import org.n52.series.db.beans.ProcedureEntity;
 public class ProcedureOutputMapper extends HierarchicalOutputMapper<ProcedureEntity, ProcedureOutput> {
 
     public ProcedureOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
     }
 
-    // @Override
-    // public ProcedureOutput addExpandedValues(ProcedureEntity entity, ProcedureOutput output) {
-    // if (entity.hasParents()) {
-    // output.setValue(HierarchicalParameterOutput.PARENTS, createCondensed(entity.getParents()),
-    // query.getParameters(), output::setParents);
-    // }
-    // if (entity.hasChildren()) {
-    // output.setValue(HierarchicalParameterOutput.CHILDREN, createCondensed(entity.getChildren()),
-    // query.getParameters(), output::setChildren);
-    // }
-    // return output;
-    // }
+    public ProcedureOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
+    }
 
     @Override
     public ProcedureOutput getParameterOuput() {

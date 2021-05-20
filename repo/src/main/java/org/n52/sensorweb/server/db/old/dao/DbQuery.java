@@ -28,8 +28,11 @@
  */
 package org.n52.sensorweb.server.db.old.dao;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.geotools.geometry.jts.JTS;
@@ -69,6 +72,14 @@ import org.slf4j.LoggerFactory;
 
 public class DbQuery {
 
+    public static final String FEATURE_ALIAS = "feature_";
+
+    public static final String PROCEDURE_ALIAS = "procedure_";
+
+    public static final String PHENOMENON_ALIAS = "phenomenon_";
+
+    public static final String OFFERING_ALIAS = "offering_";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
     private static final String PROPERTY_ID = "id";
@@ -89,13 +100,24 @@ public class DbQuery {
 
     private boolean includeHierarchy = true;
 
-    public DbQuery(final IoParameters parameters) {
-        this(parameters, CRSUtils.DEFAULT_CRS);
-    }
+    private String locale;
 
-    public DbQuery(final IoParameters parameters, final String databaseSridCode) {
+    private String localeForLabel;
+
+    private boolean isDefaultLocale;
+
+    private String hrefBase;
+
+    private Map<String, Criteria> subCriteria = new LinkedHashMap<>();
+
+
+    public DbQuery(IoParameters parameters) {
         if (parameters != null) {
             this.parameters = parameters;
+            this.locale = parameters.getLocale();
+            this.isDefaultLocale = parameters.isDefaultLocal();
+            this.localeForLabel = isDefaultLocal() ? null : getLocale();
+            this.hrefBase = parameters.getHrefBase();
         }
         this.databaseSridCode = databaseSridCode == null ? CRSUtils.DEFAULT_CRS : databaseSridCode;
 
@@ -159,11 +181,19 @@ public class DbQuery {
     }
 
     public String getHrefBase() {
-        return parameters.getHrefBase();
+        return hrefBase;
     }
 
     public String getLocale() {
-        return parameters.getLocale();
+        return locale;
+    }
+
+    public String getLocaleForLabel() {
+        return localeForLabel;
+    }
+
+    public boolean isDefaultLocal() {
+        return isDefaultLocale;
     }
 
     public String getSearchTerm() {
@@ -218,27 +248,35 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public Set<String> getValueTypes() {
-        return parameters.getValueTypes();
+    public boolean isSetDatasetTypeFilter() {
+        return !parameters.getDatasetTypes().isEmpty();
+    }
+
+    public boolean isSetObservationTypeFilter() {
+        return !parameters.getObservationTypes().isEmpty();
     }
 
     public boolean isSetValueTypeFilter() {
         return !parameters.getValueTypes().isEmpty();
     }
 
-    // public String getHandleAsValueTypeFallback() {
-    // return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
-    // ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
-    // : ValueType.DEFAULT_VALUE_TYPE;
-    // }
+    public Collection<String> getValueTypes() {
+        return parameters.getValueTypes();
+    }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
         return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
     }
 
     public Criteria addLocaleTo(Criteria criteria, Class<?> clazz) {
-        if ((getLocale() != null) && DataModelUtil.isEntitySupported(clazz, criteria)) {
-            Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
+        return addLocaleTo(criteria, clazz, null);
+    }
+
+    public Criteria addLocaleTo(Criteria criteria, Class<?> clazz, String path) {
+        if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, criteria)) {
+            Criteria translations = criteria.createCriteria(
+                    path != null && !path.isEmpty() ? path + "." + PROPERTY_TRANSLATIONS : PROPERTY_TRANSLATIONS,
+                    JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
                     Restrictions.isNull(PROPERTY_LOCALE)));
         }
@@ -366,7 +404,7 @@ public class DbQuery {
     private void addProcedureRestriction(Set<String> procedures, DetachedCriteria filter, Criteria criteria) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(ProcedureEntity.PROPERTY_PARENTS,
                 ProcedureEntity.class, criteria)) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, PROCEDURE_ALIAS);
         } else {
             addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
         }
@@ -375,7 +413,7 @@ public class DbQuery {
     private void addOfferingRestriction(Set<String> offerings, DetachedCriteria filter, Criteria criteria) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(OfferingEntity.PROPERTY_PARENTS,
                 OfferingEntity.class, criteria)) {
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, OFFERING_ALIAS);
         } else {
             addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         }
@@ -383,16 +421,14 @@ public class DbQuery {
 
     private void addFeatureRestriction(Set<String> features, DetachedCriteria filter) {
         if (isIncludeHierarchy()) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, FEATURE_ALIAS);
         } else {
             addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         }
     }
 
-    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String entity,
-                                                              DetachedCriteria filter,
-                                                              String prefix) {
+    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values, String entity,
+            DetachedCriteria filter, String prefix) {
         if (hasValues(values)) {
             filter.createCriteria(entity, prefix + "e")
                     // join the parents to enable filtering via parent ids
@@ -493,6 +529,14 @@ public class DbQuery {
         return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
 
+    public DbQuery withoutSelectFilter() {
+        return new DbQuery(parameters.removeAllOf(Parameters.SELECT));
+    }
+
+    public DbQuery withSubSelectFilter(String selection) {
+        return new DbQuery(parameters.withSubSelectFilter(selection));
+    }
+
     public boolean expandWithNextValuesBeyondInterval() {
         return parameters.isExpandWithNextValuesBeyondInterval();
     }
@@ -512,6 +556,17 @@ public class DbQuery {
     public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
         this.includeHierarchy = includeHierarchy;
         return this;
+    }
+
+    public Criteria getDatasetSubCriteria(Criteria criteria, String key, String alias) {
+        if (!subCriteria.containsKey(key)) {
+            subCriteria.put(key, criteria.createCriteria(key, alias));
+         }
+         return subCriteria.get(key);
+    }
+
+    public Set<String> getSelectOriginal() {
+        return parameters.getSelectOriginal();
     }
 
 }

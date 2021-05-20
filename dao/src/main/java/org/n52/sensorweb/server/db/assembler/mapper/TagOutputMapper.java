@@ -35,12 +35,17 @@ import org.n52.series.db.beans.TagEntity;
 public class TagOutputMapper extends ParameterOutputSearchResultMapper<TagEntity, TagOutput> {
 
     public TagOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
     }
+
+    public TagOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
+    }
+
 
     @Override
     public TagOutput getParameterOuput() {
-        return null;
+        return new TagOutput();
     }
 
 }

@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.HierarchicalEntity;
@@ -40,22 +41,25 @@ public abstract class HierarchicalOutputMapper<E extends HierarchicalEntity<E>,
                                                O extends HierarchicalParameterOutput<O>>
         extends ParameterOutputSearchResultMapper<E, O> {
 
-    public HierarchicalOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+    public HierarchicalOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override
     public O addExpandedValues(E entity, O output) {
-        return addExpandedValues(entity, output, false, false, query.getLevel());
+        return addExpandedValues(entity, super.addExpandedValues(entity, output), false, false, query.getLevel());
     }
 
     protected O addExpandedValues(E entity, O output, boolean isParent, boolean isChild, Integer level) {
-        if (!isParent && !isChild && entity.hasParents()) {
+        IoParameters parameters = query.getParameters();
+        if (!isParent && !isChild && entity.hasParents()
+                && parameters.isSelected(HierarchicalParameterOutput.PARENTS)) {
             List<O> parents = getMemberList(entity.getParents(), level, true, false);
             output.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), output::setParents);
         }
         if (level != null && level > 0) {
-            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()
+                    && parameters.isSelected(HierarchicalParameterOutput.CHILDREN)) {
                 List<O> children = getMemberList(entity.getChildren(), level - 1, false, true);
                 output.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
                         output::setChildren);

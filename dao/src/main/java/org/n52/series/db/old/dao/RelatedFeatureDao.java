@@ -55,6 +55,7 @@ public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
             criteria.createCriteria(RelatedFeatureEntity.OFFERINGS)
                     .add(Restrictions.in(OfferingEntity.PROPERTY_IDENTIFIER, query.getParameters().getOfferings()));
         }
+        addFetchModes(criteria, query, query.isExpanded());
         return criteria.list();
     }
 

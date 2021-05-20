@@ -91,7 +91,7 @@ public class StationAssembler extends SessionAwareAssembler
     }
 
     private List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getId());
@@ -193,7 +193,7 @@ public class StationAssembler extends SessionAwareAssembler
         IoParameters parameters = query.getParameters();
 
         String id = Long.toString(entity.getId());
-        String label = entity.getLabelFrom(query.getLocale());
+        String label = entity.getLabelFrom(query.getLocaleForLabel());
         Geometry geometry = getGeometry(entity, query);
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);

@@ -35,7 +35,11 @@ import org.n52.series.db.beans.CategoryEntity;
 public class CategoryOutputMapper extends ParameterOutputSearchResultMapper<CategoryEntity, CategoryOutput> {
 
     public CategoryOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
+    }
+
+    public CategoryOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override

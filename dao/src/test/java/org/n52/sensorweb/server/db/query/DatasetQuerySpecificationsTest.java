@@ -30,13 +30,9 @@ package org.n52.sensorweb.server.db.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.n52.io.request.Parameters.FEATURE;
 import static org.n52.io.request.Parameters.FEATURES;
-import static org.n52.io.request.Parameters.OFFERING;
 import static org.n52.io.request.Parameters.OFFERINGS;
 import static org.n52.io.request.Parameters.PHENOMENA;
-import static org.n52.io.request.Parameters.PHENOMENON;
-import static org.n52.io.request.Parameters.PROCEDURE;
 import static org.n52.io.request.Parameters.PROCEDURES;
 import static org.n52.sensorweb.server.test.TestUtils.fromWkt;
 import static org.n52.sensorweb.server.test.TestUtils.getIdAsString;
@@ -181,30 +177,6 @@ public class DatasetQuerySpecificationsTest extends TestBase {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    @DisplayName("Filter datasets via single value offering filter (backwards compatible)")
-    public void given_multipleDatasets_when_queryingWithSingleValueOfferingFilter_then_returnedDatasetsAreFilteredProperly() {
-        final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        final DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
-
-        final String id1 = getIdAsString(d1.getOffering());
-        final String id2 = getIdAsString(d2.getOffering());
-
-        Assertions.assertAll("Single value filter matches one dataset", () -> {
-            final DbQuery query = defaultQuery.replaceWith(OFFERING, id1);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
-        });
-
-        Assertions.assertAll("Single value and list filter match in combination", () -> {
-            final DbQuery query = defaultQuery.replaceWith(OFFERING, id1)
-                                        .replaceWith(OFFERINGS, id2);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
-        });
-    }
-
-    @Test
     @DisplayName("Filter datasets via offering ids")
     public void given_multipleDatasets_when_queryingWithOfferingList_then_returnedDatasetsAreFilteredProperly() {
         final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
@@ -230,30 +202,6 @@ public class DatasetQuerySpecificationsTest extends TestBase {
             final DbQuery query = defaultQuery.replaceWith(OFFERINGS, notExistingId);
             final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
-        });
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    @DisplayName("Filter datasets via single value procedure filter (backwards compatible)")
-    public void given_multipleDatasets_when_queryingWithSingleValueProcedureFilter_then_returnedDatasetsAreFilteredProperly() {
-        final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        final DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
-
-        final String id1 = getIdAsString(d1.getProcedure());
-        final String id2 = getIdAsString(d2.getProcedure());
-
-        Assertions.assertAll("Single value filter matches one dataset", () -> {
-            final DbQuery query = defaultQuery.replaceWith(PROCEDURE, id1);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
-        });
-
-        Assertions.assertAll("Single value and list filter match in combination", () -> {
-            final DbQuery query = defaultQuery.replaceWith(PROCEDURE, id1)
-                                        .replaceWith(PROCEDURES, id2);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
 
@@ -287,30 +235,6 @@ public class DatasetQuerySpecificationsTest extends TestBase {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    @DisplayName("Filter datasets via single value phenomenon filter (backwards compatible)")
-    public void given_multipleDatasets_when_queryingWithSingleValuePhenomenonFilter_then_returnedDatasetsAreFilteredProperly() {
-        final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        final DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe1", "fe_format");
-
-        final String id1 = getIdAsString(d1.getPhenomenon());
-        final String id2 = getIdAsString(d2.getPhenomenon());
-
-        Assertions.assertAll("Single value filter matches one dataset", () -> {
-            final DbQuery query = defaultQuery.replaceWith(PHENOMENON, id1);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
-        });
-
-        Assertions.assertAll("Single value and list filter match in combination", () -> {
-            final DbQuery query = defaultQuery.replaceWith(PHENOMENON, id1)
-                                        .replaceWith(PHENOMENA, id2);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
-        });
-    }
-
-    @Test
     @DisplayName("Filter datasets via phenomenon ids")
     public void given_multipleDatasets_when_queryingWithPhenomenonList_then_returnedDatasetsAreFilteredProperly() {
         final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
@@ -336,30 +260,6 @@ public class DatasetQuerySpecificationsTest extends TestBase {
             final DbQuery query = defaultQuery.replaceWith(PHENOMENA, notExistingId);
             final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
-        });
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    @DisplayName("Filter datasets via single value feature filter (backwards compatible)")
-    public void given_multipleDatasets_when_queryingWithSingleValueFeatureFilter_then_returnedDatasetsAreFilteredProperly() {
-        final DatasetEntity d1 = quantityDataset("ph1", "of1", "pr1", "format1", "fe1", "fe_format");
-        final DatasetEntity d2 = quantityDataset("ph2", "of2", "pr2", "format2", "fe2", "fe_format");
-
-        final String id1 = getIdAsString(d1.getFeature());
-        final String id2 = getIdAsString(d2.getFeature());
-
-        Assertions.assertAll("Single value filter matches one dataset", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FEATURE, id1);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsOnly(d1);
-        });
-
-        Assertions.assertAll("Single value and list filter match in combination", () -> {
-            final DbQuery query = defaultQuery.replaceWith(FEATURE, id1)
-                                        .replaceWith(FEATURES, id2);
-            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-            assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
     }
 

@@ -91,11 +91,14 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
     }
 
     @Override
+    protected PlatformOutput createCondensed(PlatformEntity entity, DbQuery query, Session session) {
+        return getCondensedPlatform(entity, query);
+    }
+
+    @Override
     protected PlatformOutput createExpanded(PlatformEntity entity, DbQuery query, Session session) {
         PlatformOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
+        ServiceOutput service = getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
         result.setValue(PlatformOutput.SERVICE, service, query.getParameters(), result::setService);
 
         DbQuery platformQuery = getDbQuery(query.getParameters().extendWith(Parameters.PLATFORMS, result.getId())

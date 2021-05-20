@@ -69,6 +69,11 @@ public class PhenomenonAssembler extends HierarchicalParameterAssembler<Phenomen
     }
 
     @Override
+    protected PhenomenonOutput createCondensed(PhenomenonEntity entity, DbQuery query, Session session) {
+        return getMapperFactory().getPhenomenonMapper(query).createCondensed(entity);
+    }
+
+    @Override
     protected PhenomenonOutput createExpanded(PhenomenonEntity entity, DbQuery query, Session session) {
         return getOutputMapper(query).createExpanded(entity);
     }

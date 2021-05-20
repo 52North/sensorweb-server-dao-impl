@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.Interval;
@@ -41,9 +42,11 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.sensorweb.server.db.old.DataModelUtil;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nMeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +59,6 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         super(session);
     }
 
-
     @Override
     @SuppressWarnings("unchecked")
     public List<MeasuringProgramEntity> find(DbQuery q) {
@@ -68,6 +70,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
+        addFetchModes(criteria, query, query.isExpanded());
         return addFilters(criteria, query).list();
     }
 
@@ -81,6 +84,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
+        addFetchModes(criteria, query, query.isExpanded());
         return addFilters(criteria, query).list();
     }
 
@@ -105,6 +109,37 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
                     Restrictions.and(Restrictions.le(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_START, start),
                             Restrictions.or(Restrictions.ge(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_END, end),
                                     Restrictions.isNull(MeasuringProgramEntity.PROPERTY_MEASURING_TIME_END)))));
+        }
+        return criteria;
+    }
+
+    @Override
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        super.addFetchModes(criteria, q, instance);
+        criteria.setFetchMode(MeasuringProgramEntity.PROPERTY_DATASETS, FetchMode.JOIN);
+        criteria.setFetchMode(
+                getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_FEATURE),
+                FetchMode.JOIN);
+        if (!q.isDefaultLocal()) {
+            criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                    DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        }
+        if (q.isExpanded() || instance) {
+            // criteria.setFetchMode(MeasuringProgramEntity.PROPERTY_SAMPLINGS, FetchMode.JOIN);
+            criteria.setFetchMode(
+                    getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(
+                    getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_CATEGORY),
+                    FetchMode.JOIN);
+            if (!q.isDefaultLocal()) {
+                criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            }
         }
         return criteria;
     }

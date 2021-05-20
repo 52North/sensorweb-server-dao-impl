@@ -58,8 +58,8 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
     private final DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
     public ServiceOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, EntityCounter counter,
-            DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator) {
-        super(query, outputMapperFactory);
+            DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator, boolean subMappper) {
+        super(query, outputMapperFactory, subMappper);
         this.counter = counter;
         this.ioFactoryCreator = ioFactoryCreator;
     }
@@ -81,7 +81,7 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
         features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
         features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(output));
 
-        String version = (entity.getVersion() != null) ? entity.getVersion() : "2.0";
+        String version = (entity.getVersion() != null) ? entity.getVersion() : "3.0";
 
         String hrefBase = query.getHrefBase();
         output.setValue(ServiceOutput.VERSION, version, parameters, output::setVersion);
@@ -140,4 +140,5 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
     public ServiceOutput getParameterOuput() {
         return new ServiceOutput();
     }
+
 }

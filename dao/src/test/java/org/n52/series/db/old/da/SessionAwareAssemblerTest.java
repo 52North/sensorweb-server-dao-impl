@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
 import org.n52.series.db.beans.ProcedureEntity;
-import org.n52.series.db.old.da.SessionAwareAssembler;
 
 public class SessionAwareAssemblerTest {
 

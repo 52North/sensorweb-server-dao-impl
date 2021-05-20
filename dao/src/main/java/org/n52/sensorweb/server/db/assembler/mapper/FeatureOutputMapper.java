@@ -47,13 +47,19 @@ import org.n52.series.db.beans.FeatureEntity;
 public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<AbstractFeatureEntity, FeatureOutput> {
 
     public FeatureOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
+    }
+
+    public FeatureOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override
     public FeatureOutput createCondensed(AbstractFeatureEntity entity, FeatureOutput output) {
         FeatureOutput result = super.createCondensed(entity, output);
-        result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity), query.getParameters(), result::setGeometry);
+        if (query.getParameters().isSelected(FeatureOutput.GEOMETRY)) {
+            result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity), query.getParameters(), result::setGeometry);
+        }
         return result;
     }
 

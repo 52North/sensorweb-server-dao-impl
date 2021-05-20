@@ -107,7 +107,7 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
         try {
             DatasetDao<DatasetEntity> seriesDao = createDatasetDao(session);
             List<DatasetEntity> found = seriesDao.find(query);
-            return convertToResults(found, query.getLocale());
+            return convertToResults(found, query.getLocaleForLabel());
         } finally {
             returnSession(session);
         }
@@ -215,7 +215,7 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
                     && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
-                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
+                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocaleForLabel()));
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId().toString());
 
                 QuantityDataEntity lastValue = dataDao.getDataValueViaTimeend(series, query);
@@ -231,7 +231,7 @@ public class TimeseriesAssembler extends SessionAwareAssembler implements Output
     private TimeseriesMetadataOutput createCondensed(DatasetEntity entity, DbQuery query, Session session) {
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         AbstractFeatureEntity<?> feature = entity.getFeature();
         OfferingEntity offering = entity.getOffering();
         PhenomenonEntity phenomenon = entity.getPhenomenon();

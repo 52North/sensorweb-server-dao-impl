@@ -74,6 +74,11 @@ public class ProcedureAssembler extends HierarchicalParameterAssembler<Procedure
     }
 
     @Override
+    protected ProcedureOutput createCondensed(ProcedureEntity entity, DbQuery query, Session session) {
+        return getMapperFactory().getProcedureMapper(query).createCondensed(entity);
+    }
+
+    @Override
     protected ProcedureOutput createExpanded(ProcedureEntity entity, DbQuery query, Session session) {
         return getOutputMapper(query).createExpanded(entity);
     }

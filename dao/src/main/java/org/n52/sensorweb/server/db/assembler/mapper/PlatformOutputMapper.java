@@ -41,15 +41,21 @@ import org.n52.series.db.beans.PlatformEntity;
 public class PlatformOutputMapper extends ParameterOutputSearchResultMapper<PlatformEntity, PlatformOutput> {
 
     public PlatformOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
+    }
+
+    public PlatformOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override
     public PlatformOutput addExpandedValues(PlatformEntity entity, PlatformOutput output) {
         List<DatasetOutput<AbstractValue<?>>> datasets = entity.getDatasets().stream()
-                .map(d -> getDatasetOutput((DatasetEntity) d, query)).collect(Collectors.toList());
-
-        output.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), output::setDatasets);
+                .map(d -> getDatasetOutput((DatasetEntity) d, query))
+                .collect(Collectors.toList());
+        if (query.getParameters().isSelected(PlatformOutput.DATASETS)) {
+            output.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), output::setDatasets);
+        }
         return output;
     }
 

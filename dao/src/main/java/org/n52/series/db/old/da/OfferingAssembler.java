@@ -77,4 +77,9 @@ public class OfferingAssembler extends HierarchicalParameterAssembler<OfferingEn
     protected ParameterOutputSearchResultMapper<OfferingEntity, OfferingOutput> getOutputMapper(DbQuery query) {
         return getMapperFactory().getOfferingMapper(query);
     }
+
+    @Override
+    protected OfferingOutput createCondensed(OfferingEntity entity, DbQuery query, Session session) {
+        return getCondensedOffering(entity, query);
+    }
 }

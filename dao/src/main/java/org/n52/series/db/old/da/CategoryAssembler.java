@@ -79,4 +79,9 @@ public class CategoryAssembler extends ParameterAssembler<CategoryEntity, Catego
         return getMapperFactory().getCategoryMapper(query);
     }
 
+    @Override
+    protected CategoryOutput createCondensed(CategoryEntity entity, DbQuery query, Session session) {
+        return getCondensedCategory(entity, query);
+    }
+
 }

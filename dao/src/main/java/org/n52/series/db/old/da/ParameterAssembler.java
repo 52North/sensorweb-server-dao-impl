@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
@@ -104,27 +103,7 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
         return result;
     }
 
-    protected O createCondensed(E entity, DbQuery query, Session session) {
-        try {
-            O result = prepareEmptyParameterOutput();
-            IoParameters parameters = query.getParameters();
-
-            Long id = entity.getId();
-            String label = entity.getLabelFrom(query.getLocale());
-            String domainId = entity.getIdentifier();
-            String hrefBase = query.getHrefBase();
-
-            result.setId(Long.toString(id));
-            result.setValue(ParameterOutput.LABEL, label, parameters, result::setLabel);
-            result.setValue(ParameterOutput.DOMAIN_ID, domainId, parameters, result::setDomainId);
-            result.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, result::setHrefBase);
-            return result;
-        } catch (Exception e) {
-            LOGGER.error("Error while processing {} with id {}! Exception: {}", entity.getClass().getSimpleName(),
-                    entity.getId(), e);
-        }
-        return null;
-    }
+    protected abstract O createCondensed(E entity, DbQuery query, Session session);
 
     protected abstract ParameterOutputSearchResultMapper<E, O> getOutputMapper(DbQuery query);
 
@@ -208,7 +187,7 @@ public abstract class ParameterAssembler<E extends DescribableEntity, O extends 
     }
 
     protected List<SearchResult> convertToSearchResults(List<E> found, DbQuery query) {
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         String hrefBase = query.getHrefBase();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {

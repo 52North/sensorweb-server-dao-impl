@@ -35,7 +35,11 @@ import org.n52.series.db.beans.OfferingEntity;
 public class OfferingOutputMapper extends HierarchicalOutputMapper<OfferingEntity, OfferingOutput> {
 
     public OfferingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
-        super(query, outputMapperFactory);
+        this(query, outputMapperFactory, false);
+    }
+
+    public OfferingOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
+        super(query, outputMapperFactory, subMapper);
     }
 
     @Override

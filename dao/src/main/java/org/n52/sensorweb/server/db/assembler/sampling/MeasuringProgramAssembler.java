@@ -76,7 +76,7 @@ public class MeasuringProgramAssembler
 
     @Override
     protected MeasuringProgramOutputMapper getMapper(DbQuery query) {
-        return getOutputMapperFactory().getMeasuringProgramOutputMapper(query);
+        return getOutputMapperFactory().getMeasuringProgramMapper(query);
     }
 
 }
