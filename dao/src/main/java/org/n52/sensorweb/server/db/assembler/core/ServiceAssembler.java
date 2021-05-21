@@ -95,7 +95,7 @@ public class ServiceAssembler
     }
 
     private ServiceOutputMapper getMapper(DbQuery query) {
-        return outputMapperFactory.getServiceMapper();
+        return outputMapperFactory.getServiceMapper(query);
     }
 
     @Override
