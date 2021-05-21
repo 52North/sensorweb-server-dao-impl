@@ -62,7 +62,7 @@ public class DatasetOutputMapper<V extends AbstractValue<?>>
 
     public DatasetOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, boolean subMapper) {
         super(query, outputMapperFactory, subMapper);
-        initSubSelect(query, DatasetOutput.DATASET_PARAMETERS);
+        initSubSelect(getDbQuery(), DatasetOutput.DATASET_PARAMETERS);
     }
 
     @Override
@@ -137,13 +137,13 @@ public class DatasetOutputMapper<V extends AbstractValue<?>>
     @Override
     public DatasetOutput<V> addExpandedValues(DatasetEntity entity, DatasetOutput<V> output) {
         super.addExpandedValues(entity, output);
-        IoParameters params = query.getParameters();
+        IoParameters params = getDbQuery().getParameters();
         try {
             ValueAssembler<?, V, ?> dataRepository = getDataRepositoryFactory(entity);
             if (!hasSelect()) {
-                addAllExpanded(output, entity, query, params, dataRepository);
+                addAllExpanded(output, entity, getDbQuery(), params, dataRepository);
             } else {
-                addSelectedExpanded(output, entity, query, params, dataRepository);
+                addSelectedExpanded(output, entity, getDbQuery(), params, dataRepository);
             }
         } catch (DatasetFactoryException e) {
             getLogger().debug("Error adding expanded values!", e);

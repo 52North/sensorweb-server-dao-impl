@@ -84,8 +84,6 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
     private static final Logger LOGGER = LoggerFactory.getLogger(ParameterOutputSearchResultMapper.class);
     private static final String EPSG_PREFIX = "EPSG:";
 
-    protected final DbQuery query;
-    protected final OutputMapperFactory outputMapperFactory;
     protected ServiceOutputMapper serviceMapper;
     protected FeatureOutputMapper featureMapper;
     protected OfferingOutputMapper offeringMapper;
@@ -94,7 +92,9 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
     protected CategoryOutputMapper categoryMapper;
     protected PlatformOutputMapper platformMapper;
 
-    private CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+    private final DbQuery query;
+    private final OutputMapperFactory outputMapperFactory;
+    private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
     private boolean hasSelecetion;
     private Set<String> selection = new LinkedHashSet<>();
     private Map<String, Set<String>> subSelection = new LinkedHashMap<>();
@@ -104,17 +104,17 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
     public ParameterOutputSearchResultMapper(DbQuery query, OutputMapperFactory outputMapperFactory,
             boolean subMapper) {
         Objects.requireNonNull(outputMapperFactory);
-        this.query = query == null
-                ? outputMapperFactory.getDbQuery(IoParameters.createDefaults())
-                : query;
+        this.query = query == null ? outputMapperFactory.getDbQuery(IoParameters.createDefaults()) : query;
         this.outputMapperFactory = outputMapperFactory;
-        this.hrefBase = query != null && query.getParameters() != null ? query.getParameters().getHrefBase() : "";
+        this.hrefBase = getDbQuery() != null && getDbQuery().getParameters() != null
+                ? getDbQuery().getParameters().getHrefBase()
+                : "";
         if (!subMapper) {
-            if (query.getParameters().containsParameter(Parameters.SELECT)) {
-                this.selection.addAll(query.getParameters().getSelectOriginal());
+            if (getDbQuery().getParameters().containsParameter(Parameters.SELECT)) {
+                this.selection.addAll(getDbQuery().getParameters().getSelectOriginal());
                 this.hasSelecetion = !selection.isEmpty();
             }
-            initSubMapper(query);
+            initSubMapper(getDbQuery());
         }
     }
 
@@ -138,16 +138,15 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
         }
     }
 
-
     @Override
     public O createCondensed(E entity, O output) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         String id = Long.toString(entity.getId());
         output.setId(id);
         if (!hasSelect()) {
-            addAll(output, entity, query, parameters);
+            addAll(output, entity, getDbQuery(), parameters);
         } else {
-            addSelected(output, entity, query, parameters);
+            addSelected(output, entity, getDbQuery(), parameters);
         }
         return output;
     }
@@ -173,16 +172,16 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
 
     public <R extends SearchResult> R createSearchResult(final E entity, final R result) {
         result.setId(Long.toString(entity.getId()));
-        result.setLabel(entity.getLabelFrom(query.getLocaleForLabel()));
-        result.setBaseUrl(query.getHrefBase());
+        result.setLabel(entity.getLabelFrom(getDbQuery().getLocaleForLabel()));
+        result.setBaseUrl(getDbQuery().getHrefBase());
         return result;
     }
 
     protected O addService(E entity, O output) {
-        if (output instanceof AbstractOutput && query.getParameters().isSelected(AbstractOutput.SERVICE)) {
+        if (output instanceof AbstractOutput && getDbQuery().getParameters().isSelected(AbstractOutput.SERVICE)) {
             ServiceOutput serviceOutput = outputMapperFactory.getServiceMapper()
                     .createCondensed(outputMapperFactory.getServiceEntity(entity), new ServiceOutput());
-            ((AbstractOutput) output).setValue(AbstractOutput.SERVICE, serviceOutput, query.getParameters(),
+            ((AbstractOutput) output).setValue(AbstractOutput.SERVICE, serviceOutput, getDbQuery().getParameters(),
                     ((AbstractOutput) output)::setService);
         }
         return output;
@@ -194,7 +193,7 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
 
     public Geometry getGeometry(GeometryEntity geometryEntity) {
         if (geometryEntity != null) {
-            String srid = query.getDatabaseSridCode();
+            String srid = getDbQuery().getDatabaseSridCode();
             if (geometryEntity.isSetGeometry() && geometryEntity.getGeometry().getSRID() > 0) {
                 srid = EPSG_PREFIX.concat(Integer.toString(geometryEntity.getGeometry().getSRID()));
             }
@@ -221,6 +220,10 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
         return outputMapperFactory;
     }
 
+    protected DbQuery getDbQuery() {
+        return query;
+    }
+
     protected <V extends ParameterOutput> V createCondensedMinimal(V result, DescribableEntity entity, DbQuery query) {
         result.setId(Long.toString(entity.getId()));
         result.setValue(ParameterOutput.DOMAIN_ID, entity.getIdentifier(), query.getParameters(), result::setDomainId);
@@ -229,7 +232,6 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
         result.setValue(ParameterOutput.HREF_BASE, query.getHrefBase(), query.getParameters(), result::setHrefBase);
         return result;
     }
-
 
     protected DatasetOutput<AbstractValue<?>> getDatasetOutput(DatasetEntity datasetEntity, DbQuery query) {
         return createCondensedMinimal(new DatasetOutput<>(), datasetEntity, query);

@@ -61,25 +61,25 @@ public class MeasuringProgramOutputMapper
 
     @Override
     public MeasuringProgramOutput addExpandedValues(MeasuringProgramEntity entity, MeasuringProgramOutput output) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         if (parameters.isSelected(MeasuringProgramOutput.DATASETS)) {
-            output.setValue(MeasuringProgramOutput.DATASETS, getDatasets(entity, query), parameters,
+            output.setValue(MeasuringProgramOutput.DATASETS, getDatasets(entity), parameters,
                     output::setDatasets);
         }
         if (parameters.isSelected(MeasuringProgramOutput.SAMPLINGS)) {
-            output.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(entity, query), parameters,
+            output.setValue(MeasuringProgramOutput.SAMPLINGS, getSamplings(entity), parameters,
                     output::setSamplings);
         }
         if (parameters.isSelected(MeasuringProgramOutput.FEATURES)) {
-            output.setValue(MeasuringProgramOutput.FEATURES, getFeatures(entity, query), parameters,
+            output.setValue(MeasuringProgramOutput.FEATURES, getFeatures(entity), parameters,
                     output::setFeatures);
         }
         if (parameters.isSelected(MeasuringProgramOutput.PHENOMENA)) {
-            output.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(entity, query), parameters,
+            output.setValue(MeasuringProgramOutput.PHENOMENA, getPhenomena(entity), parameters,
                     output::setPhenomena);
         }
         if (parameters.isSelected(MeasuringProgramOutput.CATEGORIES)) {
-            output.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(entity, query), parameters,
+            output.setValue(MeasuringProgramOutput.CATEGORIES, getCategories(entity), parameters,
                     output::setCategories);
         }
         return output;
@@ -187,29 +187,29 @@ public class MeasuringProgramOutputMapper
         return observedArea;
     }
 
-    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram, DbQuery query) {
+    private List<DatasetOutput<?>> getDatasets(MeasuringProgramEntity measuringProgram) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
-                .map(d -> getDatasetOutput(d, query)).collect(Collectors.toList()) : new LinkedList<>();
+                .map(d -> getDatasetOutput(d, getDbQuery())).collect(Collectors.toList()) : new LinkedList<>();
     }
 
-    private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram, DbQuery query) {
+    private List<SamplingOutput> getSamplings(MeasuringProgramEntity measuringProgram) {
         return measuringProgram.getSamplings() != null ? measuringProgram.getSamplings().stream()
-                .map(s -> getSamplingOutput(s, query)).collect(Collectors.toList()) : new LinkedList<>();
+                .map(s -> getSamplingOutput(s, getDbQuery())).collect(Collectors.toList()) : new LinkedList<>();
     }
 
-    private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram, DbQuery query) {
+    private List<FeatureOutput> getFeatures(MeasuringProgramEntity measuringProgram) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
                 .map(d -> getFeatureOutput(d.getFeature())).collect(Collectors.toList()) : new LinkedList<>();
     }
 
-    private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram, DbQuery query) {
+    private List<PhenomenonOutput> getPhenomena(MeasuringProgramEntity measuringProgram) {
         return measuringProgram.getDatasets() != null
                 ? measuringProgram.getDatasets().stream().map(d -> getPhenomenonOutput(d.getPhenomenon()))
                         .collect(Collectors.toList())
                 : new LinkedList<>();
     }
 
-    private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram, DbQuery query) {
+    private List<CategoryOutput> getCategories(MeasuringProgramEntity measuringProgram) {
         return measuringProgram.getDatasets() != null ? measuringProgram.getDatasets().stream()
                 .map(d -> getCategoryOutput(d.getCategory())).collect(Collectors.toList()) : new LinkedList<>();
     }

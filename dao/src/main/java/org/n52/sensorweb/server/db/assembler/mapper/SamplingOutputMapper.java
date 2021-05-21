@@ -57,12 +57,12 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<Samp
 
     @Override
     public SamplingOutput addExpandedValues(SamplingEntity entity, SamplingOutput output) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         if (parameters.isSelected(SamplingOutput.FEATURE)) {
-        output.setValue(SamplingOutput.FEATURE, getFeature(entity, query), parameters, output::setFeature);
+        output.setValue(SamplingOutput.FEATURE, getFeature(entity), parameters, output::setFeature);
         }
         if (parameters.isSelected(SamplingOutput.SAMPLING_OBSERVATIONS)) {
-        output.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity, query), parameters,
+        output.setValue(SamplingOutput.SAMPLING_OBSERVATIONS, getSamplingObservations(entity), parameters,
                 output::setSamplingObservations);
         }
         return output;
@@ -170,18 +170,18 @@ public class SamplingOutputMapper extends ParameterOutputSearchResultMapper<Samp
         return null;
     }
 
-    private FeatureOutput getFeature(SamplingEntity entity, DbQuery query) {
+    private FeatureOutput getFeature(SamplingEntity entity) {
         return entity.getObservations() != null ? entity.getObservations().stream().map(o -> {
             return getFeatureOutput(o.getDataset().getFeature());
         }).findFirst().get() : null;
     }
 
-    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling, DbQuery query) {
+    private List<SamplingObservationOutput> getSamplingObservations(SamplingEntity sampling) {
         LinkedList<SamplingObservationOutput> result = new LinkedList<>();
         if (sampling.hasObservations()) {
             for (DataEntity<?> o : sampling.getObservations()) {
                 if (o.getSamplingTimeEnd().equals(sampling.getSamplingTimeEnd())) {
-                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), query));
+                    result.add(getLastObservation((DataEntity<?>) Hibernate.unproxy(o), getDbQuery()));
                 }
             }
         }

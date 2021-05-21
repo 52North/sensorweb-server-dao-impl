@@ -143,7 +143,7 @@ public class OutputMapperFactory {
     }
 
     public CategoryOutputMapper getCategoryMapper(DbQuery query, boolean subMapper) {
-        return new CategoryOutputMapper(query, this);
+        return new CategoryOutputMapper(query, this, subMapper);
     }
 
     public <V extends AbstractValue<?>> ParameterOutputSearchResultMapper<DatasetEntity,

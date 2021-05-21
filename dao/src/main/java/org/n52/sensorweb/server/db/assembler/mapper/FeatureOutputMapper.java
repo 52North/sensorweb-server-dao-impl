@@ -38,7 +38,6 @@ import java.util.Set;
 import org.n52.io.response.FeatureOutput;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.n52.io.response.dataset.DatasetParameters;
-import org.n52.io.response.dataset.StationOutput;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -57,33 +56,37 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
     @Override
     public FeatureOutput createCondensed(AbstractFeatureEntity entity, FeatureOutput output) {
         FeatureOutput result = super.createCondensed(entity, output);
-        if (query.getParameters().isSelected(FeatureOutput.GEOMETRY)) {
-            result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity), query.getParameters(), result::setGeometry);
+        if (getDbQuery().getParameters().isSelected(FeatureOutput.GEOMETRY)) {
+            result.setValue(FeatureOutput.GEOMETRY, createGeometry(entity), getDbQuery().getParameters(),
+                    result::setGeometry);
         }
         return result;
     }
 
     @Override
     public FeatureOutput addExpandedValues(AbstractFeatureEntity entity, FeatureOutput output) {
-        return addExpandedValues(entity, output, false, false, query.getLevel());
+        return addExpandedValues(entity, output, false, false, getDbQuery().getLevel());
     }
 
     protected FeatureOutput addExpandedValues(AbstractFeatureEntity entity, FeatureOutput output, boolean isParent,
             boolean isChild, Integer level) {
-        if (!isParent && !isChild) {
-            Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets(), query);
-            output.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), output::setDatasets);
+        if (!isParent && !isChild && getDbQuery().getParameters().isSelected(FeatureOutput.PROPERTIES)) {
+            Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets());
+            output.setValue(FeatureOutput.PROPERTIES, timeseriesList, getDbQuery().getParameters(),
+                    output::setDatasets);
         }
         if (entity instanceof FeatureEntity) {
-            if (!isParent && !isChild && entity.hasParents()) {
+            if (!isParent && !isChild && entity.hasParents()
+                    && getDbQuery().getParameters().isSelected(HierarchicalParameterOutput.PARENTS)) {
                 List<FeatureOutput> parents = getMemberList(entity.getParents(), level, true, false);
-                output.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(),
+                output.setValue(HierarchicalParameterOutput.PARENTS, parents, getDbQuery().getParameters(),
                         output::setParents);
             }
             if (level != null && level > 0) {
-                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()
+                        && getDbQuery().getParameters().isSelected(HierarchicalParameterOutput.CHILDREN)) {
                     List<FeatureOutput> children = getMemberList(entity.getChildren(), level - 1, false, true);
-                    output.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                    output.setValue(HierarchicalParameterOutput.CHILDREN, children, getDbQuery().getParameters(),
                             output::setChildren);
                 }
             }
@@ -108,13 +111,12 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
         return output;
     }
 
-    protected Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series,
-            DbQuery parameters) {
+    private Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series) {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
         for (DatasetEntity timeseries : series) {
             if (!timeseries.getProcedure().isReference()) {
                 String timeseriesId = Long.toString(timeseries.getId());
-                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, parameters));
+                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, getDbQuery()));
             }
         }
         return timeseriesOutputs;

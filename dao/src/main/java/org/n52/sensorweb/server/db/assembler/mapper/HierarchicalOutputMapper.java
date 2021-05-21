@@ -47,21 +47,23 @@ public abstract class HierarchicalOutputMapper<E extends HierarchicalEntity<E>,
 
     @Override
     public O addExpandedValues(E entity, O output) {
-        return addExpandedValues(entity, super.addExpandedValues(entity, output), false, false, query.getLevel());
+        return addExpandedValues(entity, super.addExpandedValues(entity, output), false, false,
+                getDbQuery().getLevel());
     }
 
     protected O addExpandedValues(E entity, O output, boolean isParent, boolean isChild, Integer level) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         if (!isParent && !isChild && entity.hasParents()
                 && parameters.isSelected(HierarchicalParameterOutput.PARENTS)) {
             List<O> parents = getMemberList(entity.getParents(), level, true, false);
-            output.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(), output::setParents);
+            output.setValue(HierarchicalParameterOutput.PARENTS, parents, getDbQuery().getParameters(),
+                    output::setParents);
         }
         if (level != null && level > 0) {
             if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()
                     && parameters.isSelected(HierarchicalParameterOutput.CHILDREN)) {
                 List<O> children = getMemberList(entity.getChildren(), level - 1, false, true);
-                output.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
+                output.setValue(HierarchicalParameterOutput.CHILDREN, children, getDbQuery().getParameters(),
                         output::setChildren);
             }
         }

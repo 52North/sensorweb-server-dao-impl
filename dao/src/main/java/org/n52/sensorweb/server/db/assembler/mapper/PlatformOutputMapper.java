@@ -51,10 +51,10 @@ public class PlatformOutputMapper extends ParameterOutputSearchResultMapper<Plat
     @Override
     public PlatformOutput addExpandedValues(PlatformEntity entity, PlatformOutput output) {
         List<DatasetOutput<AbstractValue<?>>> datasets = entity.getDatasets().stream()
-                .map(d -> getDatasetOutput((DatasetEntity) d, query))
+                .map(d -> getDatasetOutput((DatasetEntity) d, getDbQuery()))
                 .collect(Collectors.toList());
-        if (query.getParameters().isSelected(PlatformOutput.DATASETS)) {
-            output.setValue(PlatformOutput.DATASETS, datasets, query.getParameters(), output::setDatasets);
+        if (getDbQuery().getParameters().isSelected(PlatformOutput.DATASETS)) {
+            output.setValue(PlatformOutput.DATASETS, datasets, getDbQuery().getParameters(), output::setDatasets);
         }
         return output;
     }
