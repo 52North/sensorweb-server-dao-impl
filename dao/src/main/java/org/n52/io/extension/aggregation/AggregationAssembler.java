@@ -30,8 +30,8 @@ package org.n52.io.extension.aggregation;
 
 import javax.persistence.EntityManager;
 
+import org.hibernate.Hibernate;
 import org.n52.io.extension.ExtensionAssembler;
-import org.n52.io.extension.resulttime.ResultTimeAssembler;
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.OptionalOutput;
@@ -49,10 +49,12 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AggregationAssembler extends ExtensionAssembler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeAssembler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AggregationAssembler.class);
 
     private EntityManager entityManager;
 

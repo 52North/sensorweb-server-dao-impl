@@ -34,7 +34,9 @@ import java.util.Map;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.extension.MetadataExtension;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DatabaseMetadataExtension extends MetadataExtension<ParameterOutput> {
 
     private static final String EXTENSION_NAME = "databaseMetadata";

@@ -79,7 +79,7 @@ public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, 
 
     @Override
     protected ParameterOutputSearchResultMapper<CategoryEntity, CategoryOutput> getMapper(DbQuery query) {
-        return getOutputMapperFactory().getCategoryMapper();
+        return getOutputMapperFactory().getCategoryMapper(query);
     }
 
 }

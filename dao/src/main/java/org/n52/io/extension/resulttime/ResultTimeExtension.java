@@ -44,9 +44,11 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.extension.MetadataExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Component
 public class ResultTimeExtension extends MetadataExtension<DatasetOutput< ? >> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeExtension.class);

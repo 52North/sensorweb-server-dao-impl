@@ -48,9 +48,11 @@ import org.n52.series.db.beans.parameter.JsonParameterEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Component
 public class MetadataAssembler extends ExtensionAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataAssembler.class);
@@ -59,14 +61,14 @@ public class MetadataAssembler extends ExtensionAssembler {
         super(datasetRepository, dbQueryFactory);
     }
 
-    List<String> getFieldNames(String id) {
+    protected List<String> getFieldNames(String id) {
         DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(id));
         return dataset.hasParameters()
                 ? dataset.getParameters().stream().map(p -> p.getName()).collect(Collectors.toList())
                 : Collections.emptyList();
     }
 
-    Map<String, Object> getExtras(ParameterOutput output, IoParameters parameters) {
+    protected Map<String, Object> getExtras(ParameterOutput output, IoParameters parameters) {
         final Set<String> fields = parameters.getFields();
         DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(output.getId()));
         return !dataset.hasParameters() ? new LinkedHashMap<>()

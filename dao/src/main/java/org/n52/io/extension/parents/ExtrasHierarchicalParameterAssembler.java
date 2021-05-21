@@ -50,7 +50,9 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ExtrasHierarchicalParameterAssembler extends ExtensionAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtrasHierarchicalParameterAssembler.class);

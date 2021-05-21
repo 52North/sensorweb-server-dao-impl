@@ -179,7 +179,7 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
 
     protected O addService(E entity, O output) {
         if (output instanceof AbstractOutput && getDbQuery().getParameters().isSelected(AbstractOutput.SERVICE)) {
-            ServiceOutput serviceOutput = outputMapperFactory.getServiceMapper()
+            ServiceOutput serviceOutput = outputMapperFactory.getServiceMapper(getDbQuery())
                     .createCondensed(outputMapperFactory.getServiceEntity(entity), new ServiceOutput());
             ((AbstractOutput) output).setValue(AbstractOutput.SERVICE, serviceOutput, getDbQuery().getParameters(),
                     ((AbstractOutput) output)::setService);

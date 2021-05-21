@@ -50,7 +50,9 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ResultTimeAssembler extends ExtensionAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeAssembler.class);
@@ -63,8 +65,7 @@ public class ResultTimeAssembler extends ExtensionAssembler {
         this.entityManager = entityManager;
     }
 
-    @SuppressWarnings("unchecked")
-    Set<String> getExtras(String datasetId, IoParameters parameters) {
+    protected Set<String> getExtras(String datasetId, IoParameters parameters) {
         try {
             String alias = "datasets";
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();

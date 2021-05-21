@@ -53,61 +53,61 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackages = "org.n52.web.ctrl")
+@ComponentScan(basePackages = {"org.n52.web.ctrl", "org.n52.io.extension", "org.n52.io.response.extension"})
 public class ControllerConfig {
 
-    private <T extends ParameterController<ParameterOutput>> T withLicenseExtension(T controller) {
-        controller.addMetadataExtension(new LicenseExtension());
-        return controller;
-    }
-
+//    public <T extends ParameterController<ParameterOutput>> T withLicenseExtension(T controller) {
+//        controller.addMetadataExtension(new LicenseExtension());
+//        return controller;
+//    }
+//
     @Bean
     public DefaultIoFactory<DatasetOutput<AbstractValue< ? >>, AbstractValue< ? >> defaultIoFactory() {
         return new DefaultIoFactory<>();
     }
 
-    @Bean
-    public DatabaseMetadataExtension databaseMetadataExtension(DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
-        MetadataAssembler repository = new MetadataAssembler(datasetRepository, dbQueryFactory);
-        return new DatabaseMetadataExtension(repository);
-    }
-
-    @Bean
-    public ResultTimeExtension resultTimeExtension(DatasetController datasetController, EntityManager entityManager, DatasetRepository datasetRepository,
-            DbQueryFactory dbQueryFactory) {
-        ResultTimeAssembler repository = new ResultTimeAssembler(entityManager, datasetRepository,  dbQueryFactory);
-        ResultTimeService resultTimeService = new ResultTimeService(repository);
-        ResultTimeExtension extension = new ResultTimeExtension(resultTimeService);
-        datasetController.addMetadataExtension(extension);
-        return extension;
-    }
-
-    @Bean
-    public StatusIntervalsExtension<DatasetOutput< ? >> statusIntervalExtension(DatasetController datasetController) {
-        StatusIntervalsExtension<DatasetOutput< ? >> extension = new StatusIntervalsExtension<>();
-        datasetController.addMetadataExtension(extension);
-        return extension;
-    }
-
-    @Bean
-    public StatusIntervalsExtension<TimeseriesMetadataOutput> timeseriesStatusIntervalExtension(TimeseriesMetadataController timeseriesController) {
-        StatusIntervalsExtension<TimeseriesMetadataOutput> extension = new StatusIntervalsExtension<>();
-        timeseriesController.addMetadataExtension(extension);
-        return extension;
-    }
-
-    @Bean
-    public RenderingHintsExtension<DatasetOutput< ? >> renderingHintsExtension(DatasetController datasetController) {
-        RenderingHintsExtension<DatasetOutput< ? >> extension = new RenderingHintsExtension<>();
-        datasetController.addMetadataExtension(extension);
-        return extension;
-    }
-
-    @Bean
-    public RenderingHintsExtension<TimeseriesMetadataOutput> timeseriesRenderingHintsExtension(TimeseriesMetadataController timeseriesController) {
-        RenderingHintsExtension<TimeseriesMetadataOutput> extension = new RenderingHintsExtension<>();
-        timeseriesController.addMetadataExtension(extension);
-        return extension;
-    }
+//    @Bean
+//    public DatabaseMetadataExtension databaseMetadataExtension(DatasetRepository datasetRepository, DbQueryFactory dbQueryFactory) {
+//        MetadataAssembler repository = new MetadataAssembler(datasetRepository, dbQueryFactory);
+//        return new DatabaseMetadataExtension(repository);
+//    }
+//
+//    @Bean
+//    public ResultTimeExtension resultTimeExtension(DatasetController datasetController, EntityManager entityManager, DatasetRepository datasetRepository,
+//            DbQueryFactory dbQueryFactory) {
+//        ResultTimeAssembler repository = new ResultTimeAssembler(entityManager, datasetRepository,  dbQueryFactory);
+//        ResultTimeService resultTimeService = new ResultTimeService(repository);
+//        ResultTimeExtension extension = new ResultTimeExtension(resultTimeService);
+//        datasetController.addMetadataExtension(extension);
+//        return extension;
+//    }
+//
+//    @Bean
+//    public StatusIntervalsExtension<DatasetOutput< ? >> statusIntervalExtension(DatasetController datasetController) {
+//        StatusIntervalsExtension<DatasetOutput< ? >> extension = new StatusIntervalsExtension<>();
+//        datasetController.addMetadataExtension(extension);
+//        return extension;
+//    }
+//
+//    @Bean
+//    public StatusIntervalsExtension<TimeseriesMetadataOutput> timeseriesStatusIntervalExtension(TimeseriesMetadataController timeseriesController) {
+//        StatusIntervalsExtension<TimeseriesMetadataOutput> extension = new StatusIntervalsExtension<>();
+//        timeseriesController.addMetadataExtension(extension);
+//        return extension;
+//    }
+//
+//    @Bean
+//    public RenderingHintsExtension<DatasetOutput< ? >> renderingHintsExtension(DatasetController datasetController) {
+//        RenderingHintsExtension<DatasetOutput< ? >> extension = new RenderingHintsExtension<>();
+//        datasetController.addMetadataExtension(extension);
+//        return extension;
+//    }
+//
+//    @Bean
+//    public RenderingHintsExtension<TimeseriesMetadataOutput> timeseriesRenderingHintsExtension(TimeseriesMetadataController timeseriesController) {
+//        RenderingHintsExtension<TimeseriesMetadataOutput> extension = new RenderingHintsExtension<>();
+//        timeseriesController.addMetadataExtension(extension);
+//        return extension;
+//    }
 
 }

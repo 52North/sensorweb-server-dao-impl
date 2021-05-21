@@ -31,7 +31,6 @@ package org.n52.io.extension.aggregation;
 import java.util.Collections;
 import java.util.Map;
 
-import org.n52.io.extension.resulttime.ResultTimeExtension;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AggregationOutput;
@@ -39,12 +38,14 @@ import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.extension.MetadataExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AggregationExtension extends MetadataExtension<DatasetOutput< ? >> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResultTimeExtension.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AggregationExtension.class);
 
-    private static final String EXTENSION_NAME = "resultTimes";
+    private static final String EXTENSION_NAME = "aggregations";
 
     private final AggregationService service;
 
