@@ -66,7 +66,7 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
 
     @Override
     public ServiceOutput addExpandedValues(ServiceEntity entity, ServiceOutput output) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         ParameterCount quantities = countParameters(output);
         boolean supportsFirstLatest = entity.getSupportsFirstLast();
 
@@ -80,18 +80,15 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
         features.put(ServiceOutput.QUANTITIES, quantities);
         features.put(ServiceOutput.SUPPORTS_FIRST_LATEST, supportsFirstLatest);
         features.put(ServiceOutput.SUPPORTED_MIME_TYPES, getSupportedDatasets(output));
-
         String version = (entity.getVersion() != null) ? entity.getVersion() : "3.0";
-
-        String hrefBase = query.getHrefBase();
         output.setValue(ServiceOutput.VERSION, version, parameters, output::setVersion);
         output.setValue(ServiceOutput.FEATURES, features, parameters, output::setFeatures);
-        output.setValue(ParameterOutput.HREF_BASE, hrefBase, parameters, output::setHrefBase);
+        output.setValue(ParameterOutput.HREF_BASE, getHrefBase(), parameters, output::setHrefBase);
         return output;
     }
 
     private ParameterCount countParameters(ServiceOutput service) {
-        IoParameters parameters = query.getParameters();
+        IoParameters parameters = getDbQuery().getParameters();
         ParameterCount quantities = new ServiceOutput.ParameterCount();
         DbQuery serviceQuery = getOutputMapperFactory().getDbQuery(parameters
                 .extendWith(IoParameters.SERVICES, service.getId()).removeAllOf("offset").removeAllOf("limit"));
@@ -100,8 +97,8 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
         quantities.setCategoriesSize(counter.countCategories(serviceQuery));
         quantities.setPhenomenaSize(counter.countPhenomena(serviceQuery));
         quantities.setFeaturesSize(counter.countFeatures(serviceQuery));
-
         quantities.setPlatformsSize(counter.countPlatforms(serviceQuery));
+        quantities.setTagsSize(counter.countTags(serviceQuery));
         quantities.setDatasets(createDatasetCount(counter, serviceQuery));
 
         quantities.setSamplingsSize(counter.countSamplings(serviceQuery));
