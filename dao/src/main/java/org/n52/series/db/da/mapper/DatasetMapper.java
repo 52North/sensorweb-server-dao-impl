@@ -232,8 +232,10 @@ public class DatasetMapper<V extends AbstractValue<?>> extends AbstractOuputMapp
 
     private void addHasSamplings(DatasetOutput<V> result, DatasetEntity dataset, DbQuery query,
             IoParameters parameters) {
-        result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
-                result::setHasSamplings);
+        if (dataset.hasSamplingProfile()) {
+            result.setValue(DatasetOutput.HAS_SAMPLINGS, dataset.getSamplingProfile().hasSamplings(), parameters,
+                    result::setHasSamplings);
+        }
     }
 
     private void addOriginTimeZone(DatasetOutput<V> result, DatasetEntity dataset, DbQuery query,
