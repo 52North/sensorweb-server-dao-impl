@@ -30,7 +30,6 @@ package org.n52.io.extension.aggregation;
 
 import javax.persistence.EntityManager;
 
-import org.hibernate.Hibernate;
 import org.n52.io.extension.ExtensionAssembler;
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
