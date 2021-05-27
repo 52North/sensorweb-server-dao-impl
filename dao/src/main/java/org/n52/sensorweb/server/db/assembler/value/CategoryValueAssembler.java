@@ -59,7 +59,7 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
 
     @Override
     public CategoryValue assembleDataValue(CategoryDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final CategoryValue assembledValue = prepareValue(new CategoryValue(), data, query);
+        final CategoryValue assembledValue = prepareValue(new CategoryValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

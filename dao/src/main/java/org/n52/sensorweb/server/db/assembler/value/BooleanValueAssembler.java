@@ -61,7 +61,7 @@ public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEnt
 
     @Override
     public BooleanValue assembleDataValue(BooleanDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final BooleanValue assembledValue = prepareValue(new BooleanValue(), data, query);
+        final BooleanValue assembledValue = prepareValue(new BooleanValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

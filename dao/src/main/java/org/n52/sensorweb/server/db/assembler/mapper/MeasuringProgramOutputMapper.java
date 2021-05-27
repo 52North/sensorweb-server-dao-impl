@@ -139,7 +139,7 @@ public class MeasuringProgramOutputMapper
     private void addTimeEnd(MeasuringProgramOutput result, MeasuringProgramEntity measuringProgram, DbQuery query,
             IoParameters parameters) {
         result.setValue(MeasuringProgramOutput.MEASURING_PROGRAM_TIME_END,
-                getMeasuringtimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
+                getMeasuringTimeEnd(measuringProgram, parameters), parameters, result::setMeasuringProgramTimeEnd);
     }
 
     private void addProducer(MeasuringProgramOutput result, MeasuringProgramEntity measuringProgram, DbQuery query,
@@ -154,7 +154,7 @@ public class MeasuringProgramOutputMapper
                 result::setObservedArea);
     }
 
-    private TimeOutput getMeasuringtimeEnd(MeasuringProgramEntity measuringProgram, IoParameters parameters) {
+    private TimeOutput getMeasuringTimeEnd(MeasuringProgramEntity measuringProgram, IoParameters parameters) {
         if (measuringProgram.isSetMeasuringTimeEnd()) {
             return createTimeOutput(measuringProgram.getMeasuringTimeStart(), parameters);
         }

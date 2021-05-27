@@ -58,7 +58,7 @@ public class RecordValueAssembler extends AbstractValueAssembler<RecordDataEntit
 
     @Override
     public RecordValue assembleDataValue(RecordDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final RecordValue assembledValue = prepareValue(new RecordValue(), data, query);
+        final RecordValue assembledValue = prepareValue(new RecordValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

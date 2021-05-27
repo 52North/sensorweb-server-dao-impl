@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,19 +63,19 @@ public class MetadataAssembler extends ExtensionAssembler {
     }
 
     protected List<String> getFieldNames(String id) {
-        DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(id));
-        return dataset.hasParameters()
-                ? dataset.getParameters().stream().map(p -> p.getName()).collect(Collectors.toList())
+        Optional<DatasetEntity> dataset = getDatasetRepository().findById(Long.parseLong(id));
+        return dataset.isPresent() && dataset.get().hasParameters()
+                ? dataset.get().getParameters().stream().map(p -> p.getName()).collect(Collectors.toList())
                 : Collections.emptyList();
     }
 
     protected Map<String, Object> getExtras(ParameterOutput output, IoParameters parameters) {
         final Set<String> fields = parameters.getFields();
-        DatasetEntity dataset = getDatasetRepository().getOne(Long.parseLong(output.getId()));
-        return !dataset.hasParameters() ? new LinkedHashMap<>()
-                : fields == null ? convertToOutputs(dataset.getParameters())
-                        : convertToOutputs(dataset.getParameters().stream().filter(p -> fields.contains(p.getName()))
-                                .collect(Collectors.toList()));
+        Optional<DatasetEntity> dataset = getDatasetRepository().findById(Long.parseLong(output.getId()));
+        return !dataset.isPresent() || (dataset.isPresent() && !dataset.get().hasParameters()) ? new LinkedHashMap<>()
+                : fields == null ? convertToOutputs(dataset.get().getParameters())
+                        : convertToOutputs(dataset.get().getParameters().stream()
+                                .filter(p -> fields.contains(p.getName())).collect(Collectors.toList()));
     }
 
     private Map<String, Object> convertToOutputs(Collection<ParameterEntity<?>> allInstances) {

@@ -28,6 +28,8 @@
  */
 package org.n52.io.extension.aggregation;
 
+import java.util.Optional;
+
 import javax.persistence.EntityManager;
 
 import org.n52.io.extension.ExtensionAssembler;
@@ -70,14 +72,17 @@ public class AggregationAssembler extends ExtensionAssembler {
         try {
             AggregationOutput<V> aggregation = new AggregationOutput<>();
             DbQuery query = getDbQuery(parameters);
-            DatasetEntity entity = getDatasetRepository().getOne(Long.parseLong(id));
-            ValueAssembler<?, ?, ?> assembler = dataRepositoryFactory.create(entity.getDatasetType().name(),
-                    entity.getObservationType().name(), entity.getValueType().name(), DatasetEntity.class);
-            if (assembler instanceof AbstractValueAssembler) {
-                addCount(aggregation, (AbstractValueAssembler<?, ?, ?>) assembler, entity, query, entityManager);
-                if (checkNumerical(entity) && assembler instanceof AbstractNumericalValueAssembler) {
-                    addAggregation(aggregation, (AbstractNumericalValueAssembler<DataEntity<?>, V, ?>) assembler,
-                            entity, query, entityManager);
+            Optional<DatasetEntity> optional = getDatasetRepository().findById(Long.parseLong(id));
+            if (optional.isPresent()) {
+                DatasetEntity entity = optional.get();
+                ValueAssembler<?, ?, ?> assembler = dataRepositoryFactory.create(entity.getDatasetType().name(),
+                        entity.getObservationType().name(), entity.getValueType().name(), DatasetEntity.class);
+                if (assembler instanceof AbstractValueAssembler) {
+                    addCount(aggregation, (AbstractValueAssembler<?, ?, ?>) assembler, entity, query, entityManager);
+                    if (checkNumerical(entity) && assembler instanceof AbstractNumericalValueAssembler) {
+                        addAggregation(aggregation, (AbstractNumericalValueAssembler<DataEntity<?>, V, ?>) assembler,
+                                entity, query, entityManager);
+                    }
                 }
             }
             return aggregation;

@@ -58,7 +58,7 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
 
     @Override
     public CountValue assembleDataValue(CountDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final CountValue assembledValue = prepareValue(new CountValue(), data, query);
+        final CountValue assembledValue = prepareValue(new CountValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

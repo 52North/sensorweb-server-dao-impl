@@ -136,7 +136,6 @@ public class DatasetOutputMapper<V extends AbstractValue<?>>
 
     @Override
     public DatasetOutput<V> addExpandedValues(DatasetEntity entity, DatasetOutput<V> output) {
-        super.addExpandedValues(entity, output);
         IoParameters params = getDbQuery().getParameters();
         try {
             ValueAssembler<?, V, ?> dataRepository = getDataRepositoryFactory(entity);

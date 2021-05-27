@@ -47,7 +47,6 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-import org.joda.time.DateTime;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -144,8 +143,13 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     private DatasetEntity getDataset(DbQuery dbQuery, String id) {
-        return !dbQuery.isMatchDomainIds() ? datasetRepository.getOne(Long.parseLong(id))
+        return !dbQuery.isMatchDomainIds() ? getDataset(Long.parseLong(id))
                 : datasetRepository.getOneByIdentifier(id);
+    }
+
+    private DatasetEntity getDataset(long id) {
+        Optional<DatasetEntity> dataset = datasetRepository.findById(id);
+        return dataset.orElse(null);
     }
 
     /**
@@ -215,7 +219,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *            the query
      * @return the value with time
      */
-    protected <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DbQuery query) {
+    protected <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DatasetEntity dataset, DbQuery query) {
         if (observation == null) {
             return value;
         }
@@ -224,18 +228,18 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         final Date timeend = observation.getSamplingTimeEnd();
         final Date timestart = observation.getSamplingTimeStart();
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
-            value.setTimestart(createTimeOutput(timestart, parameters));
+            value.setTimestart(createTimeOutput(timestart, dataset.getOriginTimezone(), parameters));
         }
-        value.setTimestamp(createTimeOutput(timeend, parameters));
+        value.setTimestamp(createTimeOutput(timeend, dataset.getOriginTimezone(), parameters));
         return value;
     }
 
     protected V addMetadatasIfNeeded(final E observation, final V value, final DatasetEntity dataset,
             final DbQuery query) {
-        addResultTime(observation, value);
+        addResultTime(observation, value, dataset, query);
 
         if (query.isExpanded()) {
-            addValidTime(observation, value, query);
+            addValidTime(observation, value, dataset, query);
             addParameters(observation, value, query);
             addGeometry(observation, value, query);
         } else {
@@ -269,18 +273,20 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         return srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
-    protected void addValidTime(final DataEntity<?> observation, final AbstractValue<?> value, DbQuery query) {
+    protected void addValidTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset, DbQuery query) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
             final Date validFrom = observation.isSetValidStartTime() ? observation.getValidTimeStart() : null;
             final Date validUntil = observation.isSetValidEndTime() ? observation.getValidTimeEnd() : null;
-            value.setValidTime(createTimeOutput(validFrom, query.getParameters()),
-                    createTimeOutput(validUntil, query.getParameters()));
+            value.setValidTime(
+                    createTimeOutput(validFrom, dataset.getOriginTimezone(), query.getParameters()),
+                    createTimeOutput(validUntil, dataset.getOriginTimezone(), query.getParameters()));
         }
     }
 
-    protected void addResultTime(final DataEntity<?> observation, final AbstractValue<?> value) {
-        if (observation.getResultTime() != null) {
-            value.setResultTime(new DateTime(observation.getResultTime()));
+    protected void addResultTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset, DbQuery query) {
+        if (observation.hasResultTime()) {
+            value.setResultTime(createTimeOutput(observation.getResultTime(),
+                    dataset.getOriginTimezone(), query.getParameters()));
         }
     }
 

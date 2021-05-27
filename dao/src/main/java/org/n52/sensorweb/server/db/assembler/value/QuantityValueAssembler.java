@@ -62,7 +62,7 @@ public class QuantityValueAssembler
 
     @Override
     public QuantityValue assembleDataValue(QuantityDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final QuantityValue assembledValue = prepareValue(new QuantityValue(), data, query);
+        final QuantityValue assembledValue = prepareValue(new QuantityValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

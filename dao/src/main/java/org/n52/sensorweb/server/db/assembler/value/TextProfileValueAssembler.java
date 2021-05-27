@@ -53,15 +53,15 @@ public class TextProfileValueAssembler extends ProfileValueAssembler<String, Str
     }
 
     @Override
-    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,
+    public ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             DbQuery query) {
-        ProfileValue<String> profile = prepareValue(new ProfileValue<>(), observation, query);
-        return assembleDataValue(observation, datasetEntity, query, profile);
+        ProfileValue<String> profile = prepareValue(new ProfileValue<>(), observation, dataset, query);
+        return assembleDataValue(observation, dataset, query, profile);
     }
 
-    private ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,
+    private ProfileValue<String> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             DbQuery query, ProfileValue<String> profile) {
-        profile.setValue(getDataValue(observation, datasetEntity, profile, query));
+        profile.setValue(getDataValue(observation, dataset, profile, query));
         return profile;
     }
 
@@ -95,12 +95,12 @@ public class TextProfileValueAssembler extends ProfileValueAssembler<String, Str
         return super.assembleDataValues(dataset, query);
     }
 
-    private List<ProfileDataItem<String>> getDataValue(ProfileDataEntity observation, DatasetEntity datasetEntity,
+    private List<ProfileDataItem<String>> getDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             ProfileValue<String> profile, DbQuery query) {
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
         for (DataEntity<?> dataEntity : observation.getValue()) {
             TextDataEntity quantityEntity = (TextDataEntity) dataEntity;
-            TextValue valueItem = prepareValue(new TextValue(), dataEntity, query);
+            TextValue valueItem = prepareValue(new TextValue(), dataEntity, dataset, query);
 
             // XXX still needed?
             addParameters(quantityEntity, valueItem, query);
@@ -109,7 +109,7 @@ public class TextProfileValueAssembler extends ProfileValueAssembler<String, Str
                 dataItems.add(assembleDataItem(quantityEntity, profile, observation, query));
             } else {
                 dataItems.add(
-                        assembleDataItem(quantityEntity, profile, valueItem.getParameters(), datasetEntity, query));
+                        assembleDataItem(quantityEntity, profile, valueItem.getParameters(), dataset, query));
             }
         }
         return dataItems;

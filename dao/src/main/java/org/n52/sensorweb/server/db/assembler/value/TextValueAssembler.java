@@ -57,7 +57,7 @@ public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, T
 
     @Override
     public TextValue assembleDataValue(TextDataEntity data, DatasetEntity dataset, DbQuery query) {
-        final TextValue assembledValue = prepareValue(new TextValue(), data, query);
+        final TextValue assembledValue = prepareValue(new TextValue(), data, dataset, query);
         assembledValue.setValue(getDataValue(data, dataset));
         return assembledValue;
     }

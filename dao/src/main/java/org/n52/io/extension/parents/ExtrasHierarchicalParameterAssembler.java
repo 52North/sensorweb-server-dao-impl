@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,8 +79,10 @@ public class ExtrasHierarchicalParameterAssembler extends ExtensionAssembler {
         PlatformOutput platform = platformAssembler.getInstance(platformId, dbQuery);
         for (DatasetOutput<?> dataset : platform.getDatasets()) {
             String datasetId = dataset.getId();
-            DatasetEntity instance = getDatasetRepository().getOne(Long.parseLong(datasetId));
-            addProcedureParents(instance, dbQuery, extras);
+            Optional<DatasetEntity> instance = getDatasetRepository().findById(Long.parseLong(datasetId));
+            if (instance.isPresent()) {
+                addProcedureParents(instance.get(), dbQuery, extras);
+            }
         }
 
         return extras;

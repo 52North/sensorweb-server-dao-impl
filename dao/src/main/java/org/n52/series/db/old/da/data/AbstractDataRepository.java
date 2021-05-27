@@ -149,8 +149,7 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
     protected V addMetadatasIfNeeded(E observation, V value, DatasetEntity dataset, DbQuery query) {
         // TODO how to handle NULL values, e.g. for detection limit
         if (value != null) {
-            addResultTime(observation, value);
-
+            addResultTime(observation, value, query.getParameters());
             if (query.isExpanded()) {
                 addValidTime(observation, value, query.getParameters());
                 addParameters(observation, value, query);
@@ -174,18 +173,23 @@ public abstract class AbstractDataRepository<E extends DataEntity<T>, V extends 
     protected void addValidTime(DataEntity<?> observation, AbstractValue<?> value, IoParameters parameters) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
             TimeOutput validFrom =
-                    observation.isSetValidStartTime() ? createTimeOutput(observation.getValidTimeStart(), parameters)
+                    observation.isSetValidStartTime()
+                            ? createTimeOutput(observation.getValidTimeStart(),
+                                    observation.getDataset().getOriginTimezone(), parameters)
                             : null;
             TimeOutput validUntil =
-                    observation.isSetValidEndTime() ? createTimeOutput(observation.getValidTimeEnd(), parameters)
+                    observation.isSetValidEndTime()
+                            ? createTimeOutput(observation.getValidTimeEnd(),
+                                    observation.getDataset().getOriginTimezone(), parameters)
                             : null;
             value.setValidTime(validFrom, validUntil);
         }
     }
 
-    protected void addResultTime(DataEntity<?> observation, AbstractValue<?> value) {
-        if (observation.getResultTime() != null) {
-            value.setResultTime(new DateTime(observation.getResultTime()));
+    protected void addResultTime(DataEntity<?> observation, AbstractValue<?> value, IoParameters parameters) {
+        if (observation.hasResultTime()) {
+            value.setResultTime(createTimeOutput(observation.getResultTime(),
+                    observation.getDataset().getOriginTimezone(), parameters));
         }
     }
 
