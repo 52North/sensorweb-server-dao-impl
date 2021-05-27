@@ -41,14 +41,18 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
+import org.hibernate.query.criteria.internal.OrderImpl;
 import org.hibernate.query.criteria.internal.expression.LiteralExpression;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.QuantityDataEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -241,42 +245,78 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
     }
 
     public DataEntity min(DatasetEntity dataset, EntityManager entityManager) {
-        // Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
-        // addDatasetRestriction(c, dataset);
-        // DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
-        // filter.setProjection(Projections.min(DataEntity.PROPERTY_VALUE));
-        // filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
-        // c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
-        // return (T) c.setMaxResults(1).uniqueResult();
+        Class<?> clazz = getClass(dataset);
+        if (clazz != null) {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<DataEntity> query = (CriteriaQuery<DataEntity>) builder.createQuery(clazz);
 
-        // TODO: impl min query
+            Subquery sq = createSubQuery(query, dataset);
+            Root<DataEntity> min = sq.from(clazz);
+            sq.select(builder.min(min.get(DataEntity.PROPERTY_VALUE))).distinct(true)
+                    .where(matchDatasets(dataset.getId()).toPredicate(min, query, builder));
+
+            Root<DataEntity> root = (Root<DataEntity>) query.from(clazz);
+            query.select(root).orderBy(new OrderImpl(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), false));
+            query.where(builder.and(builder.equal(root.get(DataEntity.PROPERTY_VALUE), sq.getSelection()),
+                    matchDatasets(dataset.getId()).toPredicate(root, query, builder)));
+            return entityManager.createQuery(query).setMaxResults(1).getSingleResult();
+        }
         return null;
     }
 
     public DataEntity max(DatasetEntity dataset, EntityManager entityManager) {
-        // Criteria c = getDefaultCriteria(Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_END));
-        // addDatasetRestriction(c, dataset);
-        // DetachedCriteria filter = DetachedCriteria.forClass(getEntityClass());
-        // filter.setProjection(Projections.max(DataEntity.PROPERTY_VALUE));
-        // filter.add(Restrictions.eq(DataEntity.PROPERTY_DATASET_ID, dataset.getId()));
-        // c.add(Subqueries.propertyEq(DataEntity.PROPERTY_VALUE, filter));
-        // return (T) c.setMaxResults(1).uniqueResult();
+        Class<?> clazz = getClass(dataset);
+        if (clazz != null) {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<DataEntity> query = (CriteriaQuery<DataEntity>) builder.createQuery(clazz);
 
-        // TODO: impl max query
+            Subquery sq = createSubQuery(query, dataset);
+            Root<DataEntity> max = sq.from(clazz);
+            sq.select(builder.max(max.get(DataEntity.PROPERTY_VALUE))).distinct(true)
+                    .where(matchDatasets(dataset.getId()).toPredicate(max, query, builder));
+
+            Root<DataEntity> root = (Root<DataEntity>) query.from(clazz);
+            query.select(root).orderBy(new OrderImpl(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), false));
+            query.where(builder.and(builder.equal(root.get(DataEntity.PROPERTY_VALUE), sq.getSelection()),
+                    matchDatasets(dataset.getId()).toPredicate(root, query, builder)));
+            return entityManager.createQuery(query).setMaxResults(1).getSingleResult();
+        }
         return null;
     }
 
     public BigDecimal average(DatasetEntity dataset, EntityManager entityManager) {
-        // Criteria c = getDefaultCriteria();
-        // addDatasetRestriction(c, dataset);
-        // c.setProjection(Projections.avg(DataEntity.PROPERTY_VALUE));
-        // return BigDecimal.valueOf((Double) c.uniqueResult());
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Double> query = builder.createQuery(Double.class);
-        Root<DataEntity> root = query.from(DataEntity.class);
-        query.select(builder.avg(root.get(DataEntity.PROPERTY_VALUE)));
-        query.where(matchDatasets(dataset.getId()).toPredicate(root, query, builder));
-        return BigDecimal.valueOf(entityManager.createQuery(query).getSingleResult());
+        Class<?> clazz = getClass(dataset);
+        if (clazz != null) {
+            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Double> query = builder.createQuery(Double.class);
+            Root<DataEntity> root = (Root<DataEntity>) query.from(clazz);
+            query.select(builder.avg(root.get(DataEntity.PROPERTY_VALUE)));
+            query.where(matchDatasets(dataset.getId()).toPredicate(root, query, builder));
+            return BigDecimal.valueOf(entityManager.createQuery(query).getSingleResult());
+        }
+        return null;
+    }
+
+    private Subquery<?> createSubQuery(CriteriaQuery<?> query, DatasetEntity dataset) {
+        switch (dataset.getValueType()) {
+            case count:
+                return query.subquery(Integer.class);
+            case quantity:
+                return query.subquery(BigDecimal.class);
+            default:
+                return null;
+        }
+    }
+
+    private Class<?> getClass(DatasetEntity dataset) {
+        switch (dataset.getValueType()) {
+            case count:
+                return CountDataEntity.class;
+            case quantity:
+                return QuantityDataEntity.class;
+            default:
+                return null;
+        }
     }
 
     private Specification<DataEntity> matcheEquals(Date date, String property) {
