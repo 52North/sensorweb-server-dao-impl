@@ -93,19 +93,6 @@ public interface ValueAssembler<E extends DataEntity<T>, V extends AbstractValue
      */
     V assembleDataValue(E dataEntity, DatasetEntity datasetEntity, DbQuery query);
 
-    // /**
-    // * Assembles plain output containing date/time and the as-is value for a given query.
-    // *
-    // * @param value
-    // * the value
-    // * @param data
-    // * the data entity
-    // * @param query
-    // * the query
-    // * @return the assembled output
-    // */
-    // V assembleDataValue(T value, E data, DbQuery query);
-
     /**
      * @param entity
      *            the dataset entity

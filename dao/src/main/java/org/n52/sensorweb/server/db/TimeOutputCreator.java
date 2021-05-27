@@ -48,7 +48,6 @@ public interface TimeOutputCreator {
         return null;
     }
 
-
     default TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
         if (date != null) {
             DateTimeZone zone = getOriginTimeZone(originTimezone);
