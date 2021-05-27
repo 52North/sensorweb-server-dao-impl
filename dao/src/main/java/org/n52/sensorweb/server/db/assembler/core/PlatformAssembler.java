@@ -78,7 +78,7 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
     public Specification<PlatformEntity> createPublicPredicate(final String id, DbQuery query) {
         final DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
         final Specification<DatasetEntity> datasetPredicate =
-                dsFilterSpec.matchFeatures(id).and(dsFilterSpec.isPublic());
+                dsFilterSpec.matchPlatforms(id).and(dsFilterSpec.isPublic());
         PlatformQuerySpecifications filterSpec = PlatformQuerySpecifications.of(query);
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
