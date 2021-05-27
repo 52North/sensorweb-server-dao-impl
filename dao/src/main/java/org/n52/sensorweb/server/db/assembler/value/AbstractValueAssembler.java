@@ -143,8 +143,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     private DatasetEntity getDataset(DbQuery dbQuery, String id) {
-        return !dbQuery.isMatchDomainIds() ? getDataset(Long.parseLong(id))
-                : datasetRepository.getOneByIdentifier(id);
+        return !dbQuery.isMatchDomainIds() ? getDataset(Long.parseLong(id)) : datasetRepository.getOneByIdentifier(id);
     }
 
     private DatasetEntity getDataset(long id) {
@@ -219,7 +218,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *            the query
      * @return the value with time
      */
-    protected <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DatasetEntity dataset, DbQuery query) {
+    protected <O extends AbstractValue<?>> O prepareValue(O value, DataEntity<?> observation, DatasetEntity dataset,
+            DbQuery query) {
         if (observation == null) {
             return value;
         }
@@ -273,20 +273,21 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         return srsId == null ? new GeometryFactory(pm) : new GeometryFactory(pm, CRSUtils.getSrsIdFrom(srsId));
     }
 
-    protected void addValidTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset, DbQuery query) {
+    protected void addValidTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset,
+            DbQuery query) {
         if (observation.isSetValidStartTime() || observation.isSetValidEndTime()) {
             final Date validFrom = observation.isSetValidStartTime() ? observation.getValidTimeStart() : null;
             final Date validUntil = observation.isSetValidEndTime() ? observation.getValidTimeEnd() : null;
-            value.setValidTime(
-                    createTimeOutput(validFrom, dataset.getOriginTimezone(), query.getParameters()),
+            value.setValidTime(createTimeOutput(validFrom, dataset.getOriginTimezone(), query.getParameters()),
                     createTimeOutput(validUntil, dataset.getOriginTimezone(), query.getParameters()));
         }
     }
 
-    protected void addResultTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset, DbQuery query) {
+    protected void addResultTime(final DataEntity<?> observation, final AbstractValue<?> value, DatasetEntity dataset,
+            DbQuery query) {
         if (observation.hasResultTime()) {
-            value.setResultTime(createTimeOutput(observation.getResultTime(),
-                    dataset.getOriginTimezone(), query.getParameters()));
+            value.setResultTime(
+                    createTimeOutput(observation.getResultTime(), dataset.getOriginTimezone(), query.getParameters()));
         }
     }
 
