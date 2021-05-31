@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -61,13 +60,9 @@ public class BooleanDataRepository
     }
 
     @Override
-    public BooleanValue assembleDataValue(BooleanDataEntity observation,
-                                            DatasetEntity series,
-                                             DbQuery query) {
+    public BooleanValue assembleDataValue(BooleanDataEntity observation, DatasetEntity series, DbQuery query) {
         ServiceEntity service = getServiceEntity(series);
-        Boolean observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Boolean observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         BooleanValue value = prepareValue(observation, query);
         value.setValue(observationValue);

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -51,12 +50,10 @@ public class TextProfileDataRepository extends ProfileDataRepository<DatasetEnti
     }
 
     @Override
-    protected ProfileValue<String> createValue(ProfileDataEntity observation,
-                                               DatasetEntity dataset,
-                                               DbQuery query) {
+    protected ProfileValue<String> createValue(ProfileDataEntity observation, DatasetEntity dataset, DbQuery query) {
         ProfileValue<String> profile = createProfileValue(observation, query);
         List<ProfileDataItem<String>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
+        for (DataEntity<?> dataEntity : observation.getValue()) {
             TextDataEntity textEntity = (TextDataEntity) dataEntity;
             TextValue valueItem = textRepository.createValue(textEntity.getValue(), textEntity, query);
             addParameters(textEntity, valueItem, query);

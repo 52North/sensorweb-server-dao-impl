@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -36,20 +35,18 @@ import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.dao.DbQuery;
 
-public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>,
-                                                      V extends AbstractValue< ? >,
-                                                      T>
-    extends AbstractDataRepository<DatasetEntity, E, V, T> {
+public abstract class AbstractNumericalDataRepository<E extends DataEntity<T>, V extends AbstractValue<?>, T>
+        extends AbstractDataRepository<DatasetEntity, E, V, T> {
 
-    protected V getMax(DatasetEntity dataset, DbQuery query, Session session) {
+    public V getMax(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleDataValue(createDataDao(session).getMax(dataset), dataset, query);
     }
 
-    protected V getMin(DatasetEntity dataset, DbQuery query, Session session) {
+    public V getMin(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleDataValue(createDataDao(session).getMin(dataset), dataset, query);
     }
 
-    protected BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
+    public BigDecimal getAverage(DatasetEntity dataset, DbQuery query, Session session) {
         return createDataDao(session).getAvg(dataset);
     }
 

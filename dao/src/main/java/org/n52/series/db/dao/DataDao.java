@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -198,7 +197,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return criteria;
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
@@ -206,7 +204,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         return (T) criteria.uniqueResult();
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     public T getDataValueViaTimestart(DatasetEntity series, DbQuery query) {
         Date timestart = series.getFirstValueAt();

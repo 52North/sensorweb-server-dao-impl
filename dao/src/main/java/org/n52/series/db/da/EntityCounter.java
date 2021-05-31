@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -123,12 +122,9 @@ public class EntityCounter {
         try {
             IoParameters parameters = query.getParameters();
             if (parameters.getValueTypes().isEmpty()) {
-                parameters = parameters.extendWith(
-                        "valueTypes",
-                        dataRepositoryFactory.getKnownTypes().toArray(new String[0])
-                );
-                return getCount(new DatasetDao<>(session, DatasetEntity.class),
-                                dbQueryFactory.createFrom(parameters));
+                parameters = parameters.extendWith("valueTypes",
+                        dataRepositoryFactory.getKnownTypes().toArray(new String[0]));
+                return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
             }
             return getCount(new DatasetDao<>(session, DatasetEntity.class), query);
         } finally {
@@ -164,7 +160,6 @@ public class EntityCounter {
         }
     }
 
-
     @Deprecated
     public Long countTimeseries() throws DataAccessException {
         Session session = sessionStore.getSession();
@@ -196,14 +191,14 @@ public class EntityCounter {
         Session session = sessionStore.getSession();
         try {
             IoParameters parameters = query.getParameters();
-            parameters = parameters.extendWith("datasetTypes", datasetType);
+            parameters = parameters.replaceWith("datasetTypes", datasetType);
             return getCount(new DatasetDao<>(session, DatasetEntity.class), dbQueryFactory.createFrom(parameters));
         } finally {
             sessionStore.returnSession(session);
         }
     }
 
-    public Long getCount(AbstractDao< ? > dao, DbQuery query) throws DataAccessException {
+    public Long getCount(AbstractDao<?> dao, DbQuery query) throws DataAccessException {
         return dao.getCount(query);
     }
 
@@ -211,7 +206,7 @@ public class EntityCounter {
         IoParameters parameters = IoParameters.createDefaults();
         // parameters = parameters.extendWith(Parameters.FILTER_PLATFORM_TYPES,
         // "stationary", "insitu")
-        //     .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
+        // .extendWith(Parameters.FILTER_VALUE_TYPES, ValueType.DEFAULT_VALUE_TYPE);
         return dbQueryFactory.createFrom(parameters);
     }
 

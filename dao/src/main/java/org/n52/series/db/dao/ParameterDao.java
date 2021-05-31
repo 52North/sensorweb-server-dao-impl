@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -31,6 +30,7 @@ package org.n52.series.db.dao;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.series.db.DataAccessException;
@@ -56,9 +56,22 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("find instance: {}", query);
         Criteria criteria = getDefaultCriteria(query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
+        addFetchModes(criteria, query, q.isExpanded());
+        if (!q.isDefaultLocal()) {
+            criteria = i18n(getI18NEntityClass(), criteria, query);
+        }
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
-        return query.addFilters(criteria, getDatasetProperty(), session).list();
+        criteria = query.addFilters(criteria, getDatasetProperty(), session);
+        long start = System.currentTimeMillis();
+        try {
+            return criteria.list();
+        } finally {
+            logProcessingTime(start);
+        }
+    }
+
+    private void logProcessingTime(long start) {
+        LOGGER.debug("Querying all instances takes {} ms", System.currentTimeMillis() - start);
     }
 
     @Override
@@ -67,8 +80,27 @@ public abstract class ParameterDao<T extends DescribableEntity, I extends I18nEn
         DbQuery query = checkLevelParameterForHierarchyQuery(q);
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
-        criteria = i18n(getI18NEntityClass(), criteria, query);
-        return query.addFilters(criteria, getDatasetProperty(), session).list();
+        addFetchModes(criteria, query, query.isExpanded());
+        if (!query.isDefaultLocal()) {
+            criteria = i18n(getI18NEntityClass(), criteria, query);
+        }
+        criteria = query.addFilters(criteria, getDatasetProperty(), session);
+        long start = System.currentTimeMillis();
+        try {
+            return criteria.list();
+        } finally {
+            logProcessingTime(start);
+        }
     }
+
+    @Override
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        if (!q.isDefaultLocal()) {
+            criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
+        }
+        return super.addFetchModes(criteria, q, instance);
+    }
+
+
 
 }

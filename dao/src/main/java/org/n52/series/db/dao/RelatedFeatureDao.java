@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -56,6 +55,7 @@ public class RelatedFeatureDao extends AbstractDao<RelatedFeatureEntity> {
             criteria.createCriteria(RelatedFeatureEntity.OFFERINGS)
                     .add(Restrictions.in(OfferingEntity.PROPERTY_IDENTIFIER, query.getParameters().getOfferings()));
         }
+        addFetchModes(criteria, query, query.isExpanded());
         return criteria.list();
     }
 

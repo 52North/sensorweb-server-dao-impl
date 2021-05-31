@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -28,11 +27,14 @@
  */
 package org.n52.series.db.da;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import org.hibernate.Session;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.count.CountValue;
+import org.n52.janmayen.i18n.LocaleHelper;
 import org.n52.series.db.DataRepositoryComponent;
 import org.n52.series.db.beans.CountDataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -40,14 +42,40 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.dao.DataDao;
 import org.n52.series.db.dao.DbQuery;
 
-
 @DataRepositoryComponent(value = "count", datasetEntityType = DatasetEntity.class)
-public class CountDataRepository
-        extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
+public class CountDataRepository extends AbstractNumericalDataRepository<CountDataEntity, CountValue, Integer> {
 
     @Override
     protected CountValue createEmptyValue() {
         return new CountValue();
+    }
+
+    @Override
+    public CountValue getFirstValue(DatasetEntity entity, Session session, DbQuery query) {
+        if (entity.getFirstQuantityValue() != null) {
+            CountValue value = createEmptyValue();
+            value.setValue(entity.getFirstQuantityValue().intValue());
+            value.setTimestamp(createTimeOutput(entity.getFirstValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getFirstValue(entity, session, query);
+    }
+
+    @Override
+    public CountValue getLastValue(DatasetEntity entity, Session session, DbQuery query) {
+        if (entity.getLastQuantityValue() != null) {
+            CountValue value = createEmptyValue();
+            value.setValue(entity.getLastQuantityValue().intValue());
+            value.setTimestamp(createTimeOutput(entity.getLastValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getLastValue(entity, session, query);
     }
 
     @Override
@@ -71,9 +99,7 @@ public class CountDataRepository
         }
 
         ServiceEntity service = getServiceEntity(series);
-        Integer observationValue = !service.isNoDataValue(observation)
-                ? observation.getValue()
-                : null;
+        Integer observationValue = !service.isNoDataValue(observation) ? observation.getValue() : null;
 
         CountValue value = prepareValue(observation, query);
         value.setValue(observationValue);

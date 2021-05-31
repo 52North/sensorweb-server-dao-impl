@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -29,9 +28,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.CategoryOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.CategoryEntity;
 import org.n52.series.db.dao.AbstractDao;
 import org.n52.series.db.dao.CategoryDao;
@@ -63,13 +60,13 @@ public class CategoryRepository extends ParameterRepository<CategoryEntity, Cate
     }
 
     @Override
+    protected CategoryOutput createCondensed(CategoryEntity entity, DbQuery query, Session session) {
+        return getMapperFactory().getCategoryMapper(query.getParameters()).createCondensed(entity, query);
+    }
+
+    @Override
     protected CategoryOutput createExpanded(CategoryEntity entity, DbQuery query, Session session) {
-        CategoryOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query.withoutFieldsFilter())
-                : getCondensedService(getServiceEntity(entity), query.withoutFieldsFilter());
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+        return getMapperFactory().getCategoryMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 
 }

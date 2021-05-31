@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -29,6 +28,8 @@
 package org.n52.series.db.dao;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -69,6 +70,14 @@ import org.slf4j.LoggerFactory;
 
 public class DbQuery {
 
+    protected static final String FEATURE_ALIAS = "feature_";
+
+    protected static final String PROCEDURE_ALIAS = "procedure_";
+
+    protected static final String PHENOMENON_ALIAS = "phenomenon_";
+
+    protected static final String OFFERING_ALIAS = "offering_";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DbQuery.class);
 
     private static final String PROPERTY_ID = "id";
@@ -85,9 +94,24 @@ public class DbQuery {
 
     private boolean includeHierarchy = true;
 
+    private String locale;
+
+    private String localeForLabel;
+
+    private boolean isDefaultLocale;
+
+    private String hrefBase;
+
+    private Map<String, Criteria> subCriteria = new LinkedHashMap<>();
+
+
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
             this.parameters = parameters;
+            this.locale = parameters.getLocale();
+            this.isDefaultLocale = parameters.isDefaultLocal();
+            this.localeForLabel = isDefaultLocal() ? null : getLocale();
+            this.hrefBase = parameters.getHrefBase();
         }
     }
 
@@ -97,15 +121,16 @@ public class DbQuery {
      * @return a new instance with spatial filters removed
      */
     public DbQuery removeSpatialFilter() {
-        return new DbQuery(parameters.removeAllOf(Parameters.BBOX)
-                                     .removeAllOf(Parameters.NEAR));
+        return new DbQuery(parameters.removeAllOf(Parameters.BBOX).removeAllOf(Parameters.NEAR));
     }
 
     /**
      * Create a new instance and replaces given parameter values.
      *
-     * @param parameter the parameter which values to be replaced
-     * @param values the new values
+     * @param parameter
+     *            the parameter which values to be replaced
+     * @param values
+     *            the new values
      * @return a new instance with containing the new parameter values
      */
     public DbQuery replaceWith(String parameter, String... values) {
@@ -116,7 +141,7 @@ public class DbQuery {
      * Creates a new instance and removes all given parameters.
      *
      * @param parameterNames
-     *        the parameters to remove
+     *            the parameters to remove
      * @return a new instance with given parameters removed
      */
     public DbQuery removeAllOf(String... parameterNames) {
@@ -138,11 +163,19 @@ public class DbQuery {
     }
 
     public String getHrefBase() {
-        return parameters.getHrefBase();
+        return hrefBase;
     }
 
     public String getLocale() {
-        return parameters.getLocale();
+        return locale;
+    }
+
+    public String getLocaleForLabel() {
+        return localeForLabel;
+    }
+
+    public boolean isDefaultLocal() {
+        return isDefaultLocale;
     }
 
     public String getSearchTerm() {
@@ -150,8 +183,11 @@ public class DbQuery {
     }
 
     public Interval getTimespan() {
-        return parameters.getTimespan()
-                         .toInterval();
+        return parameters.getTimespan().toInterval();
+    }
+
+    public Interval getLastValueMatches() {
+        return parameters.getLastValueMatches() != null ? parameters.getLastValueMatches().toInterval() : null;
     }
 
     public Integer getLevel() {
@@ -191,30 +227,39 @@ public class DbQuery {
         return parameters.getAsBoolean(Parameters.COMPLEX_PARENT, false);
     }
 
-    public Set<String> getValueTypes() {
-        return parameters.getValueTypes();
+    public boolean isSetDatasetTypeFilter() {
+        return !parameters.getDatasetTypes().isEmpty();
+    }
+
+    public boolean isSetObservationTypeFilter() {
+        return !parameters.getObservationTypes().isEmpty();
     }
 
     public boolean isSetValueTypeFilter() {
-        return !parameters.getValueTypes()
-                          .isEmpty();
+        return !parameters.getValueTypes().isEmpty();
     }
 
-//    public String getHandleAsValueTypeFallback() {
-//        return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
-//                ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
-//                : ValueType.DEFAULT_VALUE_TYPE;
-//    }
+    // public String getHandleAsValueTypeFallback() {
+    // return parameters.containsParameter(Parameters.HANDLE_AS_VALUE_TYPE)
+    // ? parameters.getAsString(Parameters.HANDLE_AS_VALUE_TYPE)
+    // : ValueType.DEFAULT_VALUE_TYPE;
+    // }
 
     public boolean checkTranslationForLocale(Criteria criteria) {
         return !criteria.add(Restrictions.like(PROPERTY_LOCALE, getCountryCode())).list().isEmpty();
     }
 
-    public Criteria addLocaleTo(Criteria criteria, Class< ? > clazz) {
+    public Criteria addLocaleTo(Criteria criteria, Class<?> clazz) {
+        return addLocaleTo(criteria, clazz, null);
+    }
+
+    public Criteria addLocaleTo(Criteria criteria, Class<?> clazz, String path) {
         if (getLocale() != null && DataModelUtil.isEntitySupported(clazz, criteria)) {
-            Criteria translations = criteria.createCriteria(PROPERTY_TRANSLATIONS, JoinType.LEFT_OUTER_JOIN);
+            Criteria translations = criteria.createCriteria(
+                    path != null && !path.isEmpty() ? path + "." + PROPERTY_TRANSLATIONS : PROPERTY_TRANSLATIONS,
+                    JoinType.LEFT_OUTER_JOIN);
             translations.add(Restrictions.or(Restrictions.like(PROPERTY_LOCALE, getCountryCode()),
-                                             Restrictions.isNull(PROPERTY_LOCALE)));
+                    Restrictions.isNull(PROPERTY_LOCALE)));
         }
         return criteria;
     }
@@ -232,7 +277,7 @@ public class DbQuery {
             Date start = startDate.toDate();
             Date end = endDate.toDate();
             criteria.add(Restrictions.or(Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_START, start, end),
-                                         Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
+                    Restrictions.between(DataEntity.PROPERTY_SAMPLING_TIME_END, start, end)));
         }
         return criteria;
     }
@@ -256,20 +301,14 @@ public class DbQuery {
     }
 
     private Criteria addOdataFilter(FESCriterionGenerator generator, Criteria criteria) {
-        return parameters.getODataFilter()
-                         .map(generator::create)
-                         .map(criteria::add)
-                         .orElse(criteria);
+        return parameters.getODataFilter().map(generator::create).map(criteria::add).orElse(criteria);
     }
 
     private Criteria addLimitAndOffsetFilter(Criteria criteria) {
         if (getParameters().containsParameter(Parameters.OFFSET)) {
-            int limit = (getParameters().containsParameter(Parameters.LIMIT))
-                    ? getParameters().getLimit()
-                    : DEFAULT_LIMIT;
-            limit = (limit > 0)
-                    ? limit
-                    : DEFAULT_LIMIT;
+            int limit =
+                    (getParameters().containsParameter(Parameters.LIMIT)) ? getParameters().getLimit() : DEFAULT_LIMIT;
+            limit = (limit > 0) ? limit : DEFAULT_LIMIT;
             criteria.setFirstResult(getParameters().getOffset() * limit);
         }
         if (getParameters().containsParameter(Parameters.LIMIT)) {
@@ -287,7 +326,7 @@ public class DbQuery {
         Set<String> platforms = parameters.getPlatforms();
         Set<String> features = parameters.getFeatures();
         Set<String> datasets = parameters.getDatasets();
-//        Set<String> series = parameters.getSeries();
+        // Set<String> series = parameters.getSeries();
 
         Set<String> samplings = parameters.getSamplings();
         Set<String> measuringPrograms = parameters.getMeasuringPrograms();
@@ -296,23 +335,17 @@ public class DbQuery {
                 ? hasValues(samplings) || hasValues(measuringPrograms)
                 : false;
 
-        if (!(hasValues(platforms)
-                || hasValues(phenomena)
-                || hasValues(procedures)
-                || hasValues(offerings)
-                || hasValues(features)
-                || hasValues(categories)
-                || hasValues(datasets)
-                || samplingSupported)) {
+        if (!(hasValues(platforms) || hasValues(phenomena) || hasValues(procedures) || hasValues(offerings)
+                || hasValues(features) || hasValues(categories) || hasValues(datasets) || samplingSupported)) {
             // no subquery neccessary
             return criteria;
         }
 
         DetachedCriteria filter = DetachedCriteria.forClass(DatasetEntity.class);
-//        if (hasValues(platforms)) {
-//            features.addAll(getStationaryIds(platforms));
-//            procedures.addAll(getMobileIds(platforms));
-//        }
+        // if (hasValues(platforms)) {
+        // features.addAll(getStationaryIds(platforms));
+        // procedures.addAll(getMobileIds(platforms));
+        // }
 
         addFilterRestriction(phenomena, DatasetEntity.PROPERTY_PHENOMENON, filter);
         // FIXME check for simple or full db models
@@ -332,7 +365,7 @@ public class DbQuery {
                         + SamplingProfileDatasetEntity.PROPERTY_MEASURING_PROGRAMS, filter);
             }
         }
-//        addFilterRestriction(series, filter);
+        // addFilterRestriction(series, filter);
 
         addFilterRestriction(datasets, filter);
 
@@ -348,7 +381,7 @@ public class DbQuery {
     private void addProcedureRestriction(Set<String> procedures, DetachedCriteria filter, Session session) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(ProcedureEntity.PROPERTY_PARENTS,
                 ProcedureEntity.class, session)) {
-            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, "proc_");
+            addHierarchicalFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter, PROCEDURE_ALIAS);
         } else {
             addFilterRestriction(procedures, DatasetEntity.PROPERTY_PROCEDURE, filter);
         }
@@ -357,7 +390,7 @@ public class DbQuery {
     private void addOfferingRestriction(Set<String> offerings, DetachedCriteria filter, Session session) {
         if (isIncludeHierarchy() && DataModelUtil.isPropertyNameSupported(OfferingEntity.PROPERTY_PARENTS,
                 OfferingEntity.class, session)) {
-            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, "off_");
+            addHierarchicalFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter, OFFERING_ALIAS);
         } else {
             addFilterRestriction(offerings, DatasetEntity.PROPERTY_OFFERING, filter);
         }
@@ -365,22 +398,20 @@ public class DbQuery {
 
     private void addFeatureRestriction(Set<String> features, DetachedCriteria filter) {
         if (isIncludeHierarchy()) {
-            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, "feat_");
+            addHierarchicalFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter, FEATURE_ALIAS);
         } else {
             addFilterRestriction(features, DatasetEntity.PROPERTY_FEATURE, filter);
         }
     }
 
-    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values,
-                                                              String entity,
-                                                              DetachedCriteria filter,
-                                                              String prefix) {
+    private DetachedCriteria addHierarchicalFilterRestriction(Set<String> values, String entity,
+            DetachedCriteria filter, String prefix) {
         if (hasValues(values)) {
             filter.createCriteria(entity, prefix + "e")
-                  // join the parents to enable filtering via parent ids
-                  .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
-                  .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
-                                       Restrictions.in(prefix + "p.id", QueryUtils.parseToIds(values))));
+                    // join the parents to enable filtering via parent ids
+                    .createAlias(prefix + "e.parents", prefix + "p", JoinType.LEFT_OUTER_JOIN)
+                    .add(Restrictions.or(createIdCriterion(values, prefix + "e"),
+                            Restrictions.in(prefix + "p.id", QueryUtils.parseToIds(values))));
         }
         return filter;
     }
@@ -396,8 +427,7 @@ public class DbQuery {
                 return filter.add(restriction);
             } else {
                 // return subquery for further chaining
-                return filter.createCriteria(entity)
-                        .add(restriction);
+                return filter.createCriteria(entity).add(restriction);
             }
         }
         return filter;
@@ -408,16 +438,13 @@ public class DbQuery {
     }
 
     private Criterion createIdCriterion(Set<String> values, String alias) {
-        return parameters.isMatchDomainIds()
-                ? createDomainIdFilter(values, alias)
-                : createIdFilter(values, alias);
+        return parameters.isMatchDomainIds() ? createDomainIdFilter(values, alias) : createIdFilter(values, alias);
     }
 
     private Criterion createDomainIdFilter(Set<String> filterValues, String alias) {
         String column = QueryUtils.createAssociation(alias, DatasetEntity.PROPERTY_DOMAIN_ID);
         return filterValues.stream().map(filter -> Restrictions.ilike(column, filter))
-                .collect(Restrictions::disjunction, Disjunction::add,
-                         (a, b) -> b.conditions().forEach(a::add));
+                .collect(Restrictions::disjunction, Disjunction::add, (a, b) -> b.conditions().forEach(a::add));
     }
 
     public Criterion createIdFilter(Set<String> filterValues, String alias) {
@@ -431,11 +458,9 @@ public class DbQuery {
 
     public Criteria addResultTimeFilter(Criteria criteria) {
         if (parameters.shallClassifyByResultTimes()) {
-            criteria.add(parameters.getResultTimes().stream()
-                    .map(Instant::parse).map(Instant::toDate)
+            criteria.add(parameters.getResultTimes().stream().map(Instant::parse).map(Instant::toDate)
                     .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
-                    .collect(Restrictions::disjunction, Disjunction::add,
-                             (a, b) -> b.conditions().forEach(a::add)));
+                    .collect(Restrictions::disjunction, Disjunction::add, (a, b) -> b.conditions().forEach(a::add)));
         }
         return criteria;
     }
@@ -481,6 +506,14 @@ public class DbQuery {
         return new DbQuery(parameters.removeAllOf(Parameters.FILTER_FIELDS));
     }
 
+    public DbQuery withoutSelectFilter() {
+        return new DbQuery(parameters.removeAllOf(Parameters.SELECT));
+    }
+
+    public DbQuery withSubSelectFilter(String selection) {
+        return new DbQuery(parameters.withSubSelectFilter(selection));
+    }
+
     public boolean expandWithNextValuesBeyondInterval() {
         return parameters.isExpandWithNextValuesBeyondInterval();
     }
@@ -493,12 +526,20 @@ public class DbQuery {
     }
 
     /**
-     * @param includeHierarchy the includeHierarchy to set
-     * @return
+     * @param includeHierarchy
+     *            the includeHierarchy to set
+     * @return this
      */
     public DbQuery setIncludeHierarchy(boolean includeHierarchy) {
         this.includeHierarchy = includeHierarchy;
         return this;
+    }
+
+    protected Criteria getDatasetSubCriteria(Criteria criteria, String key, String alias) {
+        if (!subCriteria.containsKey(key)) {
+            subCriteria.put(key, criteria.createCriteria(key, alias));
+         }
+         return subCriteria.get(key);
     }
 
 }

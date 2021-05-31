@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -36,6 +35,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
@@ -48,8 +49,7 @@ import org.n52.series.db.beans.QuantityDataEntity;
 import org.n52.series.db.dao.DbQuery;
 
 @DataRepositoryComponent(value = "quantity-profile", datasetEntityType = DatasetEntity.class)
-public class QuantityProfileDataRepository extends
-        ProfileDataRepository<DatasetEntity, BigDecimal, BigDecimal> {
+public class QuantityProfileDataRepository extends ProfileDataRepository<DatasetEntity, BigDecimal, BigDecimal> {
 
     private final QuantityDataRepository quantityRepository;
 
@@ -58,16 +58,17 @@ public class QuantityProfileDataRepository extends
     }
 
     @Override
-    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation,
-                                                   DatasetEntity dataset,
-                                                   DbQuery query) {
+    protected ProfileValue<BigDecimal> createValue(ProfileDataEntity observation, DatasetEntity dataset,
+            DbQuery query) {
         Locale locale = LocaleHelper.decode(query.getLocale());
         NumberFormat formatter = NumberFormat.getInstance(locale);
 
         ProfileValue<BigDecimal> profile = createProfileValue(observation, query);
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
-        for (DataEntity< ? > dataEntity : observation.getValue()) {
-            QuantityDataEntity quantity = (QuantityDataEntity) dataEntity;
+        for (DataEntity<?> dataEntity : observation.getValue()) {
+            QuantityDataEntity quantity =
+                    (QuantityDataEntity) (dataEntity instanceof HibernateProxy ? Hibernate.unproxy(dataEntity)
+                            : dataEntity);
             QuantityValue valueItem = quantityRepository.createValue(quantity.getValue(), quantity, query);
             addParameters(quantity, valueItem, query);
             if (dataEntity.hasVerticalFrom() || dataEntity.hasVerticalTo()) {

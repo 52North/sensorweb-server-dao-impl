@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -69,6 +68,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
+    protected static final String TRANSLATIONS_ALIAS = "translations";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
     protected final Session session;
@@ -122,9 +122,10 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
-        Criteria instanceCriteria = query.isMatchDomainIds()
-                ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        Criteria instanceCriteria =
+                query.isMatchDomainIds() ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
+                        : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        addFetchModes(instanceCriteria, query, true);
         return clazz.cast(instanceCriteria.uniqueResult());
     }
 
@@ -144,7 +145,12 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query) {
-        return hasTranslation(query, clazz) ? query.addLocaleTo(criteria, clazz) : criteria;
+        return i18n(clazz, criteria, query, null);
+    }
+
+    protected <I extends I18nEntity> Criteria i18n(Class<I> clazz, Criteria criteria, DbQuery query, String path) {
+        return !query.isDefaultLocal() && hasTranslation(query, clazz) ? query.addLocaleTo(criteria, clazz, path)
+                : criteria;
     }
 
     private <I extends I18nEntity> boolean hasTranslation(DbQuery parameters, Class<I> clazz) {
@@ -182,6 +188,9 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     private DetachedCriteria createDatasetSubqueryViaExplicitJoin(DbQuery query) {
         DetachedCriteria subquery = DetachedCriteria.forClass(DatasetEntity.class).add(createPublishedDatasetFilter());
+        if (query.getLastValueMatches() != null) {
+            subquery.add(createLastValuesFilter(query));
+        }
         if (getDatasetProperty().equalsIgnoreCase(DatasetEntity.PROPERTY_FEATURE)) {
             DetachedCriteria featureCriteria = addSpatialFilter(query, subquery);
             return featureCriteria.setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
@@ -191,6 +200,11 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
                     .setProjection(Projections.property(DescribableEntity.PROPERTY_ID));
 
         }
+    }
+
+    protected final Criterion createLastValuesFilter(DbQuery query) {
+        return Restrictions.between(DatasetEntity.PROPERTY_LAST_VALUE_AT,
+                query.getLastValueMatches().getStart().toDate(), query.getLastValueMatches().getEnd().toDate());
     }
 
     protected final Conjunction createPublishedDatasetFilter() {
@@ -209,12 +223,13 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
      */
     protected DetachedCriteria addSpatialFilter(DbQuery query, DetachedCriteria criteria) {
         return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
-//        return query.addSpatialFilter(criteria);
+        // return query.addSpatialFilter(criteria);
     }
 
     protected Criteria addSpatialFilter(DbQuery query, Criteria criteria) {
-        return query.addSpatialFilter(criteria.createCriteria(DatasetEntity.PROPERTY_FEATURE));
-//        return query.addSpatialFilter(criteria);
+        return query.addSpatialFilter(
+                query.getDatasetSubCriteria(criteria, DatasetEntity.PROPERTY_FEATURE, query.FEATURE_ALIAS));
+        // return query.addSpatialFilter(criteria);
     }
 
     protected Criteria addDatasetTypesFilter(String parameter, Criteria criteria, DbQuery query) {
@@ -322,21 +337,20 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         return Subqueries.propertyIn(QueryUtils.createAssociation(property, DescribableEntity.PROPERTY_ID), c);
     }
 
-//    protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
-//        query.getParameters()
-//                .getGeometryTypes()
-//                .stream()
-//                .filter(geometryType -> !geometryType.isEmpty())
-//                .map(this::getGeometryType)
-//                .filter(Objects::nonNull)
-//                .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
-//                .forEach(criteria::add);
-//        return criteria;
-//    }
+    // protected Criteria addGeometryTypeFilter(DbQuery query, Criteria criteria) {
+    // query.getParameters()
+    // .getGeometryTypes()
+    // .stream()
+    // .filter(geometryType -> !geometryType.isEmpty())
+    // .map(this::getGeometryType)
+    // .filter(Objects::nonNull)
+    // .map(type -> SpatialRestrictions.geometryType(DataEntity.PROPERTY_GEOMETRY_ENTITY, type))
+    // .forEach(criteria::add);
+    // return criteria;
+    // }
 
     private GeometryType getGeometryType(String geometryType) {
-        return Arrays.stream(GeometryType.values())
-                .filter(type -> type.name().equalsIgnoreCase(geometryType))
+        return Arrays.stream(GeometryType.values()).filter(type -> type.name().equalsIgnoreCase(geometryType))
                 .findAny().orElse(null);
     }
 
@@ -361,6 +375,18 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     protected List<String> toStringList(Collection<Long> set) {
         return set.stream().map(s -> s.toString()).collect(Collectors.toList());
+    }
+
+    private Criteria addFetchModes(Criteria criteria, DbQuery q) {
+        return addFetchModes(criteria, q, q.isExpanded());
+    }
+
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        return criteria;
+    }
+
+    protected String getFetchPath(String... values) {
+        return String.join(".", values);
     }
 
     /**
@@ -392,7 +418,8 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     /**
      * Currently used in SOS cache operations.
      *
-     * @param query Query parameters
+     * @param query
+     *            Query parameters
      *
      * @return the result
      *
@@ -407,6 +434,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
         DetachedCriteria subquery = DetachedCriteria.forClass(getEntityClass());
         subquery.add(Restrictions.eq(DatasetEntity.PROPERTY_DELETED, false));
         query.addFilters(c, getDatasetProperty(), session);
+        addFetchModes(c, query);
         return c.list();
     }
 }

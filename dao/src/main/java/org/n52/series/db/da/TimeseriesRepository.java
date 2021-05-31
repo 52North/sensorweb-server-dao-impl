@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -48,6 +47,7 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
+import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.dataset.ValueType;
 import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
@@ -93,7 +93,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
             DatasetDao<DatasetEntity> seriesDao = createDao(session);
             DbQuery query = dbQueryFactory.createFrom(parameters);
             List<DatasetEntity> found = seriesDao.find(query);
-            return convertToResults(found, query.getLocale());
+            return convertToResults(found, query.getLocaleForLabel());
         } finally {
             returnSession(session);
         }
@@ -200,12 +200,11 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
                     && referenceSeriesEntity.getValueType().equals(ValueType.quantity)) {
                 ReferenceValueOutput<QuantityValue> refenceValueOutput = new ReferenceValueOutput<>();
                 ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
-                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
+                refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocaleForLabel()));
                 refenceValueOutput.setReferenceValueId(referenceSeriesEntity.getId().toString());
 
                 QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
-                refenceValueOutput.setLastValue(
-                        repository.assembleDataValue(lastValue, referenceSeriesEntity, query));
+                refenceValueOutput.setLastValue(repository.assembleDataValue(lastValue, referenceSeriesEntity, query));
                 outputs.add(refenceValueOutput);
             }
         }
@@ -216,7 +215,7 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
             throws DataAccessException {
         IoParameters parameters = query.getParameters();
         TimeseriesMetadataOutput result = new TimeseriesMetadataOutput(parameters);
-        String locale = query.getLocale();
+        String locale = query.getLocaleForLabel();
         PhenomenonEntity phenomenon = entity.getPhenomenon();
         String phenomenonLabel = phenomenon.getLabelFrom(locale);
         ProcedureEntity procedure = entity.getProcedure();
@@ -254,6 +253,19 @@ public class TimeseriesRepository extends SessionAwareRepository implements Outp
 
         // XXX explicit cast here
         return stationRepository.getCondensedInstance(featurePkid, query, session);
+    }
+
+    protected DatasetParameters createTimeseriesOutput(DatasetEntity dataset, DbQuery parameters)
+            throws DataAccessException {
+        DatasetParameters metadata = new DatasetParameters();
+        ServiceEntity service = getServiceEntity(dataset);
+        metadata.setService(getCondensedService(service, parameters));
+        metadata.setOffering(getCondensedOffering(dataset.getOffering(), parameters));
+        metadata.setProcedure(getCondensedProcedure(dataset.getProcedure(), parameters));
+        metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), parameters));
+        metadata.setCategory(getCondensedCategory(dataset.getCategory(), parameters));
+        metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), parameters));
+        return metadata;
     }
 
 }

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -78,11 +77,39 @@ public class QuantityDataRepository
     }
 
     @Override
+    public QuantityValue getFirstValue(DatasetEntity entity, Session session, DbQuery query) {
+        if (entity.getFirstQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
+            value.setValue(format(entity.getFirstQuantityValue(), entity));
+            value.setTimestamp(createTimeOutput(entity.getFirstValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getFirstValue(entity, session, query);
+    }
+
+    @Override
+    public QuantityValue getLastValue(DatasetEntity entity, Session session, DbQuery query) {
+        if (entity.getLastQuantityValue() != null) {
+            QuantityValue value = createEmptyValue();
+            value.setValue(format(entity.getLastQuantityValue(), entity));
+            value.setTimestamp(createTimeOutput(entity.getLastValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
+        }
+        return super.getLastValue(entity, session, query);
+    }
+
+    @Override
     public List<ReferenceValueOutput<QuantityValue>> getReferenceValues(DatasetEntity dataset, DbQuery query,
             Session session) {
-        List<DatasetEntity> referenceValues = dataset.getReferenceValues().stream().filter(Objects::nonNull)
-                .filter(rv -> rv.isPublished())
-                .filter(rv -> rv.getValueType() == ValueType.quantity).collect(toList());
+        List<DatasetEntity> referenceValues =
+                dataset.getReferenceValues().stream().filter(Objects::nonNull).filter(rv -> rv.isPublished())
+                        .filter(rv -> rv.getValueType() == ValueType.quantity).collect(toList());
 
         List<ReferenceValueOutput<QuantityValue>> outputs = new ArrayList<>();
         for (DatasetEntity referenceDatasetEntity : referenceValues) {
@@ -91,7 +118,7 @@ public class QuantityDataRepository
             refenceValueOutput.setReferenceValueId(datasetId);
 
             ProcedureEntity procedure = referenceDatasetEntity.getProcedure();
-            String label = procedure.getNameI18n(query.getLocale());
+            String label = procedure.getNameI18n(query.getLocaleForLabel());
             refenceValueOutput.setLabel(label);
 
             QuantityValue lastValue = getLastValue(referenceDatasetEntity, session, query);

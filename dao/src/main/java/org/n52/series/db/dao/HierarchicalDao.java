@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -29,6 +28,7 @@
 package org.n52.series.db.dao;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -47,6 +47,7 @@ import org.hibernate.transform.RootEntityResultTransformer;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
+import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.HierarchicalEntity;
 import org.n52.series.db.beans.IdEntity;
@@ -120,9 +121,16 @@ public abstract class HierarchicalDao<T extends HierarchicalEntity<T>, I extends
     protected Set<Long> getChildrenIds(DbQuery query, Set<String> entities, int level) {
         Criteria c = getDefaultCriteria();
         c.add(query.getParameters().isMatchDomainIds() ? createDomainIdFilter(entities) : createIdFilter(entities));
-        c.createCriteria(HierarchicalEntity.PROPERTY_CHILDREN, "c");
-        c.setProjection(Projections.property("c." + IdEntity.PROPERTY_ID));
-        return queryRecursiv(new LinkedHashSet<>(c.list()), level - 1);
+        if (checkChildrenProperty()) {
+            c.createCriteria(HierarchicalEntity.PROPERTY_CHILDREN, "c");
+            c.setProjection(Projections.property("c." + IdEntity.PROPERTY_ID));
+            return queryRecursiv(new LinkedHashSet<>(c.list()), level - 1);
+        }
+        return Collections.emptySet();
+    }
+
+    private boolean checkChildrenProperty() {
+        return DataModelUtil.isPropertyNameSupported(HierarchicalEntity.PROPERTY_CHILDREN, getEntityClass(), session);
     }
 
     protected DbQuery updateQuery(DbQuery query, Collection<String> entities) {

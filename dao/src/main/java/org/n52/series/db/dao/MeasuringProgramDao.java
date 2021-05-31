@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -33,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.Interval;
@@ -41,9 +41,11 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataModelUtil;
+import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.i18n.I18nMeasuringProgramEntity;
 import org.n52.series.db.beans.sampling.MeasuringProgramEntity;
+import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,6 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         super(session);
     }
 
-
     @Override
     @SuppressWarnings("unchecked")
     public List<MeasuringProgramEntity> find(DbQuery q) {
@@ -68,6 +69,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
         criteria.add(Restrictions.ilike(DescribableEntity.PROPERTY_NAME, "%" + query.getSearchTerm() + "%"));
+        addFetchModes(criteria, query, query.isExpanded());
         return addFilters(criteria, query).list();
     }
 
@@ -81,6 +83,7 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
         LOGGER.debug("get all instances: {}", query);
         Criteria criteria = getDefaultCriteria(query);
         criteria = i18n(getI18NEntityClass(), criteria, query);
+        addFetchModes(criteria, query, query.isExpanded());
         return addFilters(criteria, query).list();
     }
 
@@ -110,9 +113,40 @@ public class MeasuringProgramDao extends AbstractDao<MeasuringProgramEntity>
     }
 
     @Override
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        super.addFetchModes(criteria, q, instance);
+        criteria.setFetchMode(MeasuringProgramEntity.PROPERTY_DATASETS, FetchMode.JOIN);
+        criteria.setFetchMode(
+                getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_FEATURE),
+                FetchMode.JOIN);
+        if (!q.isDefaultLocal()) {
+            criteria.setFetchMode(TRANSLATIONS_ALIAS, FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(SamplingEntity.PROPERTY_DATASETS, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                    DatasetEntity.PROPERTY_FEATURE, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+        }
+        if (q.isExpanded() || instance) {
+            // criteria.setFetchMode(MeasuringProgramEntity.PROPERTY_SAMPLINGS, FetchMode.JOIN);
+            criteria.setFetchMode(
+                    getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_PHENOMENON),
+                    FetchMode.JOIN);
+            criteria.setFetchMode(
+                    getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS, DatasetEntity.PROPERTY_CATEGORY),
+                    FetchMode.JOIN);
+            if (!q.isDefaultLocal()) {
+                criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_PHENOMENON, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+                criteria.setFetchMode(getFetchPath(MeasuringProgramEntity.PROPERTY_DATASETS,
+                        DatasetEntity.PROPERTY_CATEGORY, TRANSLATIONS_ALIAS), FetchMode.JOIN);
+            }
+        }
+        return criteria;
+    }
+
+    @Override
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
-//        String nonNullAlias = alias != null ? alias : getDefaultAlias();
-//        Criteria criteria = session.createCriteria(clazz, nonNullAlias);
+        // String nonNullAlias = alias != null ? alias : getDefaultAlias();
+        // Criteria criteria = session.createCriteria(clazz, nonNullAlias);
         Criteria criteria = session.createCriteria(clazz);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         return criteria;

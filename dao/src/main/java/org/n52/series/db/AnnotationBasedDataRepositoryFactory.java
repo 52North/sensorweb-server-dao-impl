@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -64,13 +63,12 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
         this.appContext = appContext;
     }
 
-    @SuppressWarnings("unchecked")
     private Stream<DataRepository<? extends DatasetEntity,
                                     ? extends DataEntity<?>,
                                     ? extends AbstractValue<?>, ?>> getAllDataAssemblers() {
         Map<String, Object> beansWithAnnotation = appContext.getBeansWithAnnotation(DataRepositoryComponent.class);
         Collection<Object> dataAssembleTypes = beansWithAnnotation.values();
-        LOGGER.debug("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
+        LOGGER.trace("Found following " + DataRepositoryComponent.class.getSimpleName() + ": {}",
                 dataAssembleTypes.stream().map(it -> it.getClass().getSimpleName()).collect(joining(", ")));
         return dataAssembleTypes.stream().filter(DataRepository.class::isInstance).map(DataRepository.class::cast);
     }
@@ -110,11 +108,13 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @SuppressWarnings("unchecked")
     public <S extends DatasetEntity,
             E extends DataEntity<T>,
-            V extends AbstractValue<?>, T>
-            DataRepository<S, E, V, T> create(
+            V extends AbstractValue<?>, T> DataRepository<S, E, V, T> create(
             String observationType, String valueType, Class<S> entityType) {
-        return (DataRepository<S, E, V, T>) addToCache(observationType, valueType,
-                findDataAssembler(observationType, valueType).orElseThrow(throwException(observationType, valueType)));
+        return hasCacheEntry(observationType, valueType)
+                ? (DataRepository<S, E, V, T>) cache.get(getType(observationType, valueType))
+                : (DataRepository<S, E, V, T>) addToCache(observationType, valueType,
+                        findDataAssembler(observationType, valueType)
+                                .orElseThrow(throwException(observationType, valueType)));
     }
 
     private <A extends DataRepository<? extends DatasetEntity,

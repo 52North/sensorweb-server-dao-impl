@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -31,18 +30,14 @@ package org.n52.series.db.da;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
 import org.n52.io.request.IoParameters;
-import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.StationOutput;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
-import org.n52.series.db.dao.DatasetDao;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.FeatureDao;
 import org.n52.series.spi.search.SearchResult;
@@ -84,8 +79,8 @@ public class StationRepository extends SessionAwareRepository
         }
     }
 
-    private List<SearchResult> convertToSearchResults(List< ? extends DescribableEntity> found, DbQuery query) {
-        String locale = query.getLocale();
+    private List<SearchResult> convertToSearchResults(List<? extends DescribableEntity> found, DbQuery query) {
+        String locale = query.getLocaleForLabel();
         List<SearchResult> results = new ArrayList<>();
         for (DescribableEntity searchResult : found) {
             String pkid = Long.toString(searchResult.getId());
@@ -177,12 +172,13 @@ public class StationRepository extends SessionAwareRepository
             throws DataAccessException {
         StationOutput result = createCondensed(feature, query);
 
-        Class<DatasetEntity> clazz = DatasetEntity.class;
-        DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
-        List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
+        // Class<DatasetEntity> clazz = DatasetEntity.class;
+        // DatasetDao<DatasetEntity> seriesDao = new DatasetDao<>(session, clazz);
+        // List<DatasetEntity> series = seriesDao.getInstancesWith(feature, query);
 
-        Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
-        result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result ::setTimeseries);
+        // Map<String, DatasetParameters> timeseriesList = createTimeseriesList(series, query);
+        // result.setValue(StationOutput.PROPERTIES, timeseriesList, query.getParameters(), result
+        // ::setTimeseries);
 
         return result;
     }
@@ -192,7 +188,7 @@ public class StationRepository extends SessionAwareRepository
         IoParameters parameters = query.getParameters();
 
         String id = Long.toString(entity.getId());
-        String label = entity.getLabelFrom(query.getLocale());
+        String label = entity.getLabelFrom(query.getLocaleForLabel());
         Geometry geometry = getGeometry(entity, query);
         result.setId(id);
         result.setValue(StationOutput.PROPERTIES, label, parameters, result::setLabel);
@@ -201,14 +197,11 @@ public class StationRepository extends SessionAwareRepository
     }
 
     private Geometry getGeometry(FeatureEntity featureEntity, DbQuery query) {
-        return featureEntity.isSetGeometry()
-                ? getGeometry(featureEntity.getGeometryEntity(), query)
-                : null;
+        return featureEntity.isSetGeometry() ? getGeometry(featureEntity.getGeometryEntity(), query) : null;
     }
 
     private DbQuery addPointLocationOnlyRestriction(DbQuery query) {
-        return dbQueryFactory.createFrom(query.getParameters()
-                                              .extendWith("geometryTypes", "Point"));
+        return dbQueryFactory.createFrom(query.getParameters().extendWith("geometryTypes", "Point"));
     }
 
 }

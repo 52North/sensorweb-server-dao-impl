@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -29,9 +28,7 @@
 package org.n52.series.db.da;
 
 import org.hibernate.Session;
-import org.n52.io.response.AbstractOutput;
 import org.n52.io.response.OfferingOutput;
-import org.n52.io.response.ServiceOutput;
 import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.db.dao.OfferingDao;
@@ -62,12 +59,12 @@ public class OfferingRepository extends HierarchicalParameterRepository<Offering
     }
 
     @Override
+    protected OfferingOutput createCondensed(OfferingEntity entity, DbQuery query, Session session) {
+        return getMapperFactory().getOfferingMapper(query.getParameters()).createCondensed(entity, query);
+    }
+
+    @Override
     protected OfferingOutput createExpanded(OfferingEntity entity, DbQuery query, Session session) {
-        OfferingOutput result = createCondensed(entity, query, session);
-        ServiceOutput service = (query.getHrefBase() != null)
-                ? getCondensedExtendedService(getServiceEntity(entity), query)
-                : getCondensedService(getServiceEntity(entity), query);
-        result.setValue(AbstractOutput.SERVICE, service, query.getParameters(), result::setService);
-        return result;
+        return getMapperFactory().getOfferingMapper(query.getParameters()).createExpanded(entity, query, session);
     }
 }

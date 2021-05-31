@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015-2020 52°North Initiative for Geospatial Open Source
- * Software GmbH
+ * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -67,7 +66,7 @@ public class ProcedureDao extends HierarchicalDao<ProcedureEntity, I18nProcedure
 
     @Override
     public Set<Long> getChildrenIds(DbQuery query) {
-        Set<String> procedures = query.getParameters().getFeatures();
+        Set<String> procedures = query.getParameters().getProcedures();
         if (procedures != null && !procedures.isEmpty()) {
            return getChildrenIds(query, procedures, query.getLevel());
         }
