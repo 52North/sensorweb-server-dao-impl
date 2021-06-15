@@ -51,9 +51,9 @@
         <env>dev</env>
 
         <geotools.version>25.1</geotools.version>
-        <geolatte.version>1.8.1</geolatte.version>
+        <geolatte.version>1.8.2</geolatte.version>
         <hibernate.version>5.4.32.Final</hibernate.version>
-        <spring-boot.version>2.5.0</spring-boot.version>
+        <spring-boot.version>2.5.1</spring-boot.version>
         <series-api.version>3.5.0-SNAPSHOT</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>8.2.1</arctic-sea.version>
@@ -234,7 +234,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.9.0</version>
+                <version>2.10.0</version>
             </dependency>
 
             <dependency>
