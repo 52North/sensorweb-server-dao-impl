@@ -37,64 +37,30 @@ import java.util.List;
 
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.OfferingOutput;
-import org.n52.sensorweb.server.db.TestBase;
 import org.n52.sensorweb.server.db.TestRepositories;
-import org.n52.sensorweb.server.db.TestRepositoryConfig;
 import org.n52.sensorweb.server.db.assembler.core.OfferingAssembler;
-import org.n52.sensorweb.server.db.assembler.mapper.OutputMapperFactory;
-import org.n52.sensorweb.server.db.factory.ServiceEntityFactory;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.old.dao.DefaultDbQueryFactory;
-import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
-import org.n52.sensorweb.server.db.repositories.core.OfferingRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.OfferingEntity;
-import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-@Disabled
-public class OfferingAssemblerTest extends TestBase {
-
-    @Autowired
-    private OfferingRepository offeringRepository;
-
-    @Autowired
-    private DatasetRepository datasetRepository;
+public class OfferingAssemblerTest extends AbstractAssemblerTest {
 
     @Autowired
     private TestRepositories testRepositories;
 
     @Autowired
-    private AutowireCapableBeanFactory beanFactory;
-
     private OfferingAssembler assembler;
-
-    @Override
-    @BeforeEach
-    public void setUp() {
-        super.setUp();
-        beanFactory.autowireBean(new ServiceEntityFactory());
-        beanFactory.autowireBean(new DefaultDbQueryFactory());
-        beanFactory.autowireBean(new OutputMapperFactory());
-        this.assembler = new OfferingAssembler(offeringRepository, datasetRepository);
-        // Manually start autowiring on non-spring managed Object
-        beanFactory.autowireBean(assembler);
-    }
 
     @Test
     @DisplayName("Offering of non-public dataset is not found")
@@ -128,61 +94,52 @@ public class OfferingAssemblerTest extends TestBase {
 
         Assertions.assertAll("Offerings with matching (by Domain ID) Phenomena filters", () -> {
             final DbQuery ph1Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-                                           .replaceWith(Parameters.PHENOMENA, "ph1");
+                    .replaceWith(Parameters.PHENOMENA, "ph1");
             final List<OfferingOutput> offerings = assembler.getAllCondensed(ph1Query);
-            assertThat(offerings).extracting(OfferingOutput::getDomainId)
-                                 .anyMatch(it -> it.equals("of1"))
-                                 .anyMatch(it -> it.equals("of2"))
-                                 .noneMatch(it -> it.equals("of3"));
+            assertThat(offerings).extracting(OfferingOutput::getDomainId).anyMatch(it -> it.equals("of1"))
+                    .anyMatch(it -> it.equals("of2")).noneMatch(it -> it.equals("of3"));
         });
 
         Assertions.assertAll("Offerings with matching (by Domain ID) Procedure filters", () -> {
             DbQuery pr1Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-            							   .replaceWith(Parameters.PROCEDURES, "pr1");
+                    .replaceWith(Parameters.PROCEDURES, "pr1");
 
             List<OfferingOutput> offerings = assembler.getAllCondensed(pr1Query);
-            assertThat(offerings).extracting(OfferingOutput::getDomainId)
-                                 .anyMatch(it -> it.equals("of1"))
-                                 .noneMatch(it -> it.equals("of2"))
-                                 .noneMatch(it -> it.equals("of3"));
+            assertThat(offerings).extracting(OfferingOutput::getDomainId).anyMatch(it -> it.equals("of1"))
+                    .noneMatch(it -> it.equals("of2")).noneMatch(it -> it.equals("of3"));
         });
-
 
         Assertions.assertAll("Offerings with matching (by Domain ID) Feature filters", () -> {
             DbQuery fe2Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-            							   .replaceWith(Parameters.FEATURES, "fe2");
+                    .replaceWith(Parameters.FEATURES, "fe2");
 
             List<OfferingOutput> offerings = assembler.getAllCondensed(fe2Query);
-            assertThat(offerings).extracting(OfferingOutput::getDomainId)
-                                 .noneMatch(it -> it.equals("of1"))
-                                 .anyMatch(it -> it.equals("of2"))
-                                 .anyMatch(it -> it.equals("of3"));
+            assertThat(offerings).extracting(OfferingOutput::getDomainId).noneMatch(it -> it.equals("of1"))
+                    .anyMatch(it -> it.equals("of2")).anyMatch(it -> it.equals("of3"));
         });
 
         Assertions.assertAll("Offerings with matching (by Domain ID) Offerings filters", () -> {
             DbQuery pr1Query = defaultQuery.replaceWith(MATCH_DOMAIN_IDS, TRUE.toString())
-            							   .replaceWith(Parameters.OFFERINGS, "of1,of2");
+                    .replaceWith(Parameters.OFFERINGS, "of1,of2");
 
             List<OfferingOutput> offerings = assembler.getAllCondensed(pr1Query);
-            assertThat(offerings).extracting(OfferingOutput::getDomainId)
-                                 .anyMatch(it -> it.equals("of1"))
-                                 .anyMatch(it -> it.equals("of2"))
-                                 .noneMatch(it -> it.equals("of3"));
+            assertThat(offerings).extracting(OfferingOutput::getDomainId).anyMatch(it -> it.equals("of1"))
+                    .anyMatch(it -> it.equals("of2")).noneMatch(it -> it.equals("of3"));
         });
 
-        //TODO: Test Services Filter
-        //TODO: Test Categories Filter
-        //TODO: Test Platforms Filter
-        //TODO: Test Stations Filter
-        //TODO: Test platformTypes Filter
-        //TODO: Test valueTypes Filter
+        // TODO: Test Services Filter
+        // TODO: Test Categories Filter
+        // TODO: Test Platforms Filter
+        // TODO: Test Stations Filter
+        // TODO: Test platformTypes Filter
+        // TODO: Test valueTypes Filter
     }
 
     @Test
     @DisplayName("Offering output assembled properly")
     public void given_validDataset_when_queryingOffering_then_outputGetsAssembledProperly() {
 
-    	final String offeringIdentifier = "off";
+        final String offeringIdentifier = "off";
         final String offeringLabel = "TestLabel";
 
         final OfferingEntity offering = new OfferingEntity();
@@ -196,10 +153,9 @@ public class OfferingAssemblerTest extends TestBase {
         final DbQuery query = defaultQuery.replaceWith(HREF_BASE, "https://foo.com/");
         Assertions.assertAll("Assert members of serialized output assemble", () -> {
             final List<OfferingOutput> offerings = assembler.getAllCondensed(query);
-            assertThat(offerings).element(0)
-                                 .returns(expectedId, OfferingOutput::getId)
-                                 .returns("off", OfferingOutput::getDomainId)
-                                 .returns("https://foo.com/offerings/" + expectedId, OfferingOutput::getHref);
+            assertThat(offerings).element(0).returns(expectedId, OfferingOutput::getId)
+                    .returns("off", OfferingOutput::getDomainId)
+                    .returns("https://foo.com/offerings/" + expectedId, OfferingOutput::getHref);
         });
 
         Assertions.assertAll("Assert members of serialized output assemble (Condensed)", () -> {
@@ -213,7 +169,7 @@ public class OfferingAssemblerTest extends TestBase {
             // Does not return unserialized fields
             element.extracting(OfferingOutput::getExtras).allMatch(it -> it == null);
             element.extracting(OfferingOutput::getService).allMatch(it -> it == null);
-            element.extracting(OfferingOutput::getHref).allMatch(it -> it == null);
+            element.extracting(OfferingOutput::getHref).allMatch(it -> it != null);
         });
 
         Assertions.assertAll("Assert members of serialized output assemble (Expanded)", () -> {
@@ -223,41 +179,12 @@ public class OfferingAssemblerTest extends TestBase {
             element.extracting(OfferingOutput::getId).allMatch(it -> it.equals(expectedId));
             element.extracting(OfferingOutput::getDomainId).allMatch(it -> it.equals(offeringIdentifier));
             element.extracting(OfferingOutput::getLabel).allMatch(it -> it.equals(offeringLabel));
-            //TODO: Check if getExtras is supposed to return null or empty collection
+            // TODO: Check if getExtras is supposed to return null or empty collection
             element.extracting(OfferingOutput::getExtras).allMatch(it -> it == null);
 
-            element.extracting(OfferingOutput::getService).allMatch(it ->
-            			it.getLabel().equals("TestService") &&
-						it.getId().equals("42")
-			);
+            element.extracting(OfferingOutput::getService)
+                    .allMatch(it -> it.getLabel().equals("TestService") && it.getId().equals("42"));
         });
     }
 
-    @SpringBootConfiguration
-    @EnableJpaRepositories(basePackageClasses = DatasetRepository.class)
-    static class Config extends TestRepositoryConfig<DatasetEntity> {
-        public Config() {
-            super("/mapping/core/persistence.xml");
-        }
-
-        @Override
-        public TestRepositories testRepositories() {
-            return new TestRepositories();
-        }
-
-        @Bean
-        public ServiceEntity serviceEntity() {
-            ServiceEntity serviceEntity = new ServiceEntity();
-            serviceEntity.setId(42L);
-            serviceEntity.setVersion("2.0");
-            serviceEntity.setName("TestService");
-            serviceEntity.setNoDataValues("-9999");
-            return serviceEntity;
-        }
-
-        @Bean
-        public ServiceEntityFactory serviceEntityFactory() {
-            return new ServiceEntityFactory();
-        }
-    }
 }

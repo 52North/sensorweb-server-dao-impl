@@ -166,7 +166,7 @@ public class TestRepositories {
         return save(entity);
     }
 
-    private FormatEntity upsertFormat(final String format) {
+    public FormatEntity upsertFormat(final String format) {
         return formatRepository.existsByFormat(format)
             ? formatRepository.findByFormat(format)
             : save(newFormat(format).build());
