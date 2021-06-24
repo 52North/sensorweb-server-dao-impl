@@ -27,6 +27,16 @@
  */
 package org.n52.sensorweb.server.db.assembler.core;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
@@ -52,15 +62,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @Transactional
@@ -177,7 +178,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         DatasetQuerySpecifications dsQS = DatasetQuerySpecifications.of(dbQueryFactory.createFrom(parameters), null);
         List<Specification<DatasetEntity>> specifications = new LinkedList<>();
         if (dataset.getCategory() != null && dataset.getCategory().getId() != null) {
-            specifications.add(dsQS.matchFeatures(dataset.getCategory().getId().toString()));
+            specifications.add(dsQS.matchCategory(dataset.getCategory().getId().toString()));
         }
         if (dataset.getFeature() != null && dataset.getFeature().getId() != null) {
             specifications.add(dsQS.matchFeatures(dataset.getFeature().getId().toString()));
@@ -253,7 +254,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
             getOutputMapperFactory().getPhenomenonMapper(query).createCondensed(dataset.getPhenomenon()));
         metadata.setCategory(getOutputMapperFactory().getCategoryMapper(query).createCondensed(dataset.getCategory()));
         metadata.setPlatform(getOutputMapperFactory().getPlatformMapper(query).createCondensed(dataset.getPlatform()));
-        if (dataset.hasTagss()) {
+        if (dataset.hasTags()) {
             metadata.setTags(dataset.getTags().parallelStream()
                                  .map(t -> getOutputMapperFactory().getTagMapper(query).createCondensed(t))
                                  .collect(Collectors.toList()));

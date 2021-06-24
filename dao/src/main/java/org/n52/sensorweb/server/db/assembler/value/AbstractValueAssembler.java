@@ -213,6 +213,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *            the actual (empty) value
      * @param observation
      *            the observation entity
+     * @param dataset
+     *            the dataset entity
      * @param query
      *            the query
      * @return the value with time

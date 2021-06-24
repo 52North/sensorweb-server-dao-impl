@@ -31,6 +31,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.ProcedureOutput;
 import org.n52.sensorweb.server.db.assembler.ParameterOutputAssembler;
@@ -53,6 +55,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProcedureAssembler
         extends ParameterOutputAssembler<ProcedureEntity, ProcedureOutput, ProcedureSearchResult> {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Inject
     private FormatAssembler formatAssembler;
@@ -102,7 +107,7 @@ public class ProcedureAssembler
         }
         entity.setFormat(formatAssembler.getOrInsertInstance(
                 entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
-        return getParameterRepository().saveAndFlush(entity);
+        return super.getOrInsertInstance(entity);
     }
 
     @Override

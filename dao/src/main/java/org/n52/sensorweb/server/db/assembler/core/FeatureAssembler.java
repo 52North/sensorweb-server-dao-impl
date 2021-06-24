@@ -95,48 +95,6 @@ public class FeatureAssembler
         return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
     }
 
-    // @Override
-    // protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query) {
-    // return createExpanded(entity, query, false, false, query.getLevel());
-    // }
-    //
-    // protected FeatureOutput createExpanded(AbstractFeatureEntity entity, DbQuery query, boolean isParent,
-    // boolean isChild, Integer level) {
-    // FeatureOutput result = super.createExpanded(entity, query);
-    // if (!isParent && !isChild && entity.hasParents()) {
-    // List<FeatureOutput> parents = getMemberList(entity.getParents(), query, level, true, false);
-    // result.setValue(HierarchicalParameterOutput.PARENTS, parents, query.getParameters(),
-    // result::setParents);
-    // }
-    // if (level != null && level > 0) {
-    // if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
-    // List<FeatureOutput> children = getMemberList(entity.getChildren(), query, level - 1, false, true);
-    // result.setValue(HierarchicalParameterOutput.CHILDREN, children, query.getParameters(),
-    // result::setChildren);
-    // }
-    // }
-    // return result;
-    // }
-    //
-    // private List<FeatureOutput> getMemberList(Set<AbstractFeatureEntity> entities, DbQuery query, Integer
-    // level,
-    // boolean isNotParent, boolean isNotChild) {
-    // List<FeatureOutput> list = new LinkedList<>();
-    // for (AbstractFeatureEntity e : entities) {
-    // list.add(createExpanded(e, query, isNotParent, isNotChild, level));
-    // }
-    // return list;
-    // }
-    //
-    // private Map<String, DatasetParameters> createDatasetParameters(List<?> datasets) {
-    // Map<String, DatasetParameters> map = new LinkedHashMap<>();
-    // for (Object object : datasets) {
-    // DatasetOutput<AbstractValue<?>> value = (DatasetOutput<AbstractValue<?>>) object;
-    // map.put(value.getId(), value.getDatasetParameters());
-    // }
-    // return map;
-    // }
-
     @Override
     public AbstractFeatureEntity getOrInsertInstance(AbstractFeatureEntity entity) {
         AbstractFeatureEntity<?> instance = getParameterRepository().getInstance(entity);
@@ -154,12 +112,12 @@ public class FeatureAssembler
         }
         entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
                 : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
-
-        return getParameterRepository().saveAndFlush(entity);
+        return super.getOrInsertInstance(entity);
     }
 
     @Override
     protected ParameterOutputSearchResultMapper<AbstractFeatureEntity, FeatureOutput> getMapper(DbQuery query) {
         return getOutputMapperFactory().getFeatureMapper(query);
     }
+
 }

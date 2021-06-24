@@ -153,7 +153,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         metadata.setPhenomenon(getCondensedPhenomenon(dataset.getPhenomenon(), query));
         metadata.setCategory(getCondensedCategory(dataset.getCategory(), query));
         metadata.setPlatform(getCondensedPlatform(dataset.getPlatform(), query));
-        if (dataset.hasTagss()) {
+        if (dataset.hasTags()) {
             metadata.setTags(getCondensedTags(dataset.getTags(), query));
         }
         return metadata;

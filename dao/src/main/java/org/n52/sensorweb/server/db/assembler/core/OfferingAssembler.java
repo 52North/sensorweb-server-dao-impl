@@ -30,6 +30,9 @@ package org.n52.sensorweb.server.db.assembler.core;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.response.OfferingOutput;
 import org.n52.sensorweb.server.db.assembler.ParameterOutputAssembler;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
@@ -48,6 +51,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional
 public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, OfferingOutput, OfferingSearchResult> {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public OfferingAssembler(OfferingRepository offeringRepository, DatasetRepository datasetRepository) {
         super(offeringRepository, datasetRepository);
@@ -91,7 +97,7 @@ public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, 
             }
             entity.setParents(parents);
         }
-        return getParameterRepository().saveAndFlush(entity);
+        return super.getOrInsertInstance(entity);
     }
 
     @Override

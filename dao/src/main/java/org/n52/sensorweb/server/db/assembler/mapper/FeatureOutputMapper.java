@@ -29,6 +29,7 @@ package org.n52.sensorweb.server.db.assembler.mapper;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,21 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
+import org.n52.series.db.beans.parameter.BooleanParameterEntity;
+import org.n52.series.db.beans.parameter.CategoryParameterEntity;
+import org.n52.series.db.beans.parameter.ComplexParameterEntity;
+import org.n52.series.db.beans.parameter.CountParameterEntity;
+import org.n52.series.db.beans.parameter.JsonParameterEntity;
+import org.n52.series.db.beans.parameter.ParameterEntity;
+import org.n52.series.db.beans.parameter.QuantityParameterEntity;
+import org.n52.series.db.beans.parameter.TextParameterEntity;
+import org.n52.series.db.beans.parameter.XmlParameterEntity;
+import org.n52.series.db.beans.parameter.feature.FeatureComplexParameterEntity;
+import org.n52.series.db.beans.parameter.feature.FeatureParameterEntity;
 
 public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<AbstractFeatureEntity, FeatureOutput> {
+
+    private ParameterCreator creator = new ParameterCreator();
 
     public FeatureOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
         this(query, outputMapperFactory, false);
@@ -73,6 +87,10 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
             Map<String, DatasetParameters> timeseriesList = createTimeseriesList(entity.getDatasets());
             output.setValue(FeatureOutput.PROPERTIES, timeseriesList, getDbQuery().getParameters(),
                     output::setDatasets);
+            if (entity.hasParameters()) {
+                output.setValue(FeatureOutput.PARAMETERS, createParameters(entity), getDbQuery().getParameters(),
+                        output::setParameters);
+            }
         }
         if (entity instanceof FeatureEntity) {
             if (!isParent && !isChild && entity.hasParents()
@@ -121,8 +139,125 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
         return timeseriesOutputs;
     }
 
+    private Map<String, Object> createParameters(AbstractFeatureEntity entity) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (ParameterEntity<?> parameter : entity.getParameters()) {
+            map.putAll(creator.visit(parameter));
+        }
+        return map;
+    }
+
     @Override
     public FeatureOutput getParameterOuput() {
         return new FeatureOutput();
     }
+
+    public static class ParameterCreator {
+
+        private static final String UOM = "uom";
+        private static final String DESCRIPTION = "description";
+        private static final String DOMAIN = "domain";
+        private static final String LAST_UPDATE = "lastUpdate";
+
+        public Map<String, Object> visit(ParameterEntity<?> parameter) {
+            if (parameter instanceof QuantityParameterEntity) {
+                return visit((QuantityParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof CountParameterEntity) {
+                return visit((CountParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof BooleanParameterEntity) {
+                return visit((BooleanParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof CategoryParameterEntity) {
+                return visit((CategoryParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof TextParameterEntity) {
+                return visit((TextParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof XmlParameterEntity) {
+                return visit((XmlParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof JsonParameterEntity) {
+                return visit((JsonParameterEntity) parameter, setCommonValues(parameter));
+            } else if (parameter instanceof ComplexParameterEntity) {
+                return visit((ComplexParameterEntity) parameter, setCommonValues(parameter));
+            }
+            return null;
+        }
+
+        public Map<String, Object> visit(QuantityParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetUnit()) {
+                map.put(UOM, parameter.getUnit().getSymbol());
+            }
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue().doubleValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(BooleanParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(CategoryParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetUnit()) {
+                map.put(UOM, parameter.getUnit().getSymbol());
+            }
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(ComplexParameterEntity parameter, Map<String, Object> map) {
+            Map<String, Object> subMap = new LinkedHashMap<>();
+            for (FeatureParameterEntity<?> param : ((FeatureComplexParameterEntity) parameter).getValue()) {
+                subMap.putAll(visit(param));
+            }
+            map.put(parameter.getName(), subMap);
+            return map;
+        }
+
+        public Map<String, Object> visit(CountParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(TextParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(XmlParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        public Map<String, Object> visit(JsonParameterEntity parameter, Map<String, Object> map) {
+            if (parameter.isSetValue()) {
+                map.put(parameter.getName(), parameter.getValue());
+            }
+            return map;
+        }
+
+        private Map<String, Object> setCommonValues(ParameterEntity<?> p) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            if (p.isSetDescription()) {
+                map.put(DESCRIPTION, p.getDescription());
+            }
+            if (p.isSetDomain()) {
+                map.put(DOMAIN, p.getDescription());
+            }
+            if (p.isSetLastUpdate()) {
+                map.put(LAST_UPDATE, p.getDescription());
+            }
+            return map;
+        }
+
+    }
+
 }

@@ -27,6 +27,9 @@
  */
 package org.n52.sensorweb.server.db.assembler.core;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.response.TagOutput;
 import org.n52.sensorweb.server.db.assembler.ParameterOutputAssembler;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
@@ -45,6 +48,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional
 public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput, TagSearchResult> {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public TagAssembler(TagRepository tagRepository, DatasetRepository datasetRepository) {
         super(tagRepository, datasetRepository);

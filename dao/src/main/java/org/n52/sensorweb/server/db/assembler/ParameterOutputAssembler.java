@@ -30,6 +30,7 @@ package org.n52.sensorweb.server.db.assembler;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,15 +45,19 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
+import org.n52.sensorweb.server.db.repositories.core.UnitRepository;
 import org.n52.sensorweb.server.srv.OutputAssembler;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.HibernateRelations;
+import org.n52.series.db.beans.UnitEntity;
+import org.n52.series.db.beans.parameter.ComplexParameterEntity;
+import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
 public abstract class ParameterOutputAssembler<E extends DescribableEntity,
-                                               O extends AbstractOutput,
-                                               S extends SearchResult>
+                                               O extends AbstractOutput, S extends SearchResult>
         implements OutputAssembler<O>, InsertAssembler<E>, ClearAssembler<E> {
 
     @PersistenceContext
@@ -61,6 +66,9 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
     private final ParameterDataRepository<E> parameterRepository;
 
     private final DatasetRepository datasetRepository;
+
+    @Inject
+    private UnitRepository unitRepository;
 
     @Inject
     private OutputMapperFactory outputMapperFactory;
@@ -121,6 +129,41 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
         final Specification<E> predicate = createFilterPredicate(query);
         final Iterable<E> entities = parameterRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
+    }
+
+    @Override
+    public E checkParameterUnits(E entity) {
+        if (entity.hasParameters()) {
+            for (ParameterEntity<?> parameter : entity.getParameters()) {
+                checkUnit(parameter);
+            }
+        }
+        return entity;
+    }
+
+    protected void checkUnit(ParameterEntity<?> parameter) {
+        if (parameter instanceof HibernateRelations.HasUnit) {
+            UnitEntity unit = ((HibernateRelations.HasUnit) parameter).getUnit();
+            ((HibernateRelations.HasUnit) parameter).setUnit(getOrInsertUnit(unit));
+        } else if (parameter instanceof ComplexParameterEntity) {
+            Set<?> value = (Set<?>) ((ComplexParameterEntity) parameter).getValue();
+            for (Object v : value) {
+                if (v instanceof ParameterEntity) {
+                    checkUnit((ParameterEntity) v);
+                }
+            }
+        }
+    }
+
+    private UnitEntity getOrInsertUnit(UnitEntity unit) {
+        if (unit != null && unit.isSetIdentifier()) {
+            UnitEntity instance = unitRepository.getInstance(unit);
+            if (instance != null) {
+                return instance;
+            }
+            return unitRepository.saveAndFlush(unit);
+        }
+        return null;
     }
 
     public EntityManager getEntityManager() {

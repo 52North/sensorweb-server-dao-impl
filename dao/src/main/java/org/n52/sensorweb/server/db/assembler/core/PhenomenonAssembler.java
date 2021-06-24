@@ -30,6 +30,9 @@ package org.n52.sensorweb.server.db.assembler.core;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.n52.io.response.PhenomenonOutput;
 import org.n52.sensorweb.server.db.assembler.ParameterOutputAssembler;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
@@ -49,6 +52,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhenomenonAssembler
         extends ParameterOutputAssembler<PhenomenonEntity, PhenomenonOutput, PhenomenonSearchResult> {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public PhenomenonAssembler(PhenomenonRepository phenomenonRepository, DatasetRepository datasetRepository) {
         super(phenomenonRepository, datasetRepository);
@@ -93,11 +99,12 @@ public class PhenomenonAssembler
             }
             entity.setParents(parents);
         }
-        return getParameterRepository().saveAndFlush(entity);
+        return super.getOrInsertInstance(entity);
     }
 
     @Override
     protected ParameterOutputSearchResultMapper<PhenomenonEntity, PhenomenonOutput> getMapper(DbQuery query) {
         return getOutputMapperFactory().getPhenomenonMapper(query);
     }
+
 }
