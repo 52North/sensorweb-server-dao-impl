@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.n52.io.request.IoParameters;
@@ -109,5 +110,14 @@ public class ProcedureDao extends HierarchicalDao<ProcedureEntity, I18nProcedure
     protected IoParameters replaceParameter(DbQuery query, Collection<String> entities) {
         return query.getParameters().replaceWith(Parameters.PROCEDURES, entities);
     }
+
+    protected Criteria addFetchModes(Criteria criteria, DbQuery q, boolean instance) {
+        if (instance) {
+            criteria.setFetchMode(ProcedureEntity.PROPERTY_PARENTS, FetchMode.JOIN);
+            criteria.setFetchMode(ProcedureEntity.PROPERTY_CHILDREN, FetchMode.JOIN);
+        }
+        return criteria;
+    }
+
 
 }
