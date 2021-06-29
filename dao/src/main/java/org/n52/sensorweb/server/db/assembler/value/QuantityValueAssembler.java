@@ -162,7 +162,7 @@ public class QuantityValueAssembler
         }
 
         if (hasSingleValidReferenceValue(observations)) {
-            QuantityDataEntity entity = observations.get(0);
+            QuantityDataEntity entity = unproxy(observations.get(0));
             result.addValues(expandToInterval(entity.getValue(), dataset, query));
         }
         return result;
@@ -188,8 +188,7 @@ public class QuantityValueAssembler
             ProcedureEntity procedure = referenceSeriesEntity.getProcedure();
             refenceValueOutput.setLabel(procedure.getNameI18n(query.getLocale()));
             refenceValueOutput.setReferenceValueId(createReferenceDatasetId(query, referenceSeriesEntity));
-
-            QuantityDataEntity lastValue = (QuantityDataEntity) referenceSeriesEntity.getLastObservation();
+            QuantityDataEntity lastValue = unproxy(referenceSeriesEntity.getLastObservation());
             refenceValueOutput.setLastValue(assembleDataValue(lastValue, referenceSeriesEntity, query));
             outputs.add(refenceValueOutput);
         }
