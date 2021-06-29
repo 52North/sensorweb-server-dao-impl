@@ -51,6 +51,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.IoParameters;
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.sensorweb.server.db.TimeOutputCreator;
@@ -198,7 +199,8 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     protected Stream<E> findAll(DatasetEntity dataset, DbQuery query) {
-        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E> of(query);
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<E> of(
+                dataset != null ? query.replaceWith(Parameters.DATASETS, Long.toString(dataset.getId())) : query);
         Specification<E> predicate = dataFilterSpec.matchFilters();
         Iterable<E> entities = dataRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
