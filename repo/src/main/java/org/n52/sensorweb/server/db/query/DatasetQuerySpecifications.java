@@ -34,6 +34,7 @@ import java.util.Collections;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 
 import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.hibernate.query.criteria.internal.expression.LiteralExpression;
@@ -355,13 +356,15 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchProcedures(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
-            return null;
-        }
+
         return (root, query, builder) -> {
             final Join<DatasetEntity, ProcedureEntity> join =
                     root.join(DatasetEntity.PROPERTY_PROCEDURE, JoinType.INNER);
-            return getIdPredicate(join, ids);
+            Predicate predicate = builder.isFalse(join.get(ProcedureEntity.PROPERTY_REFERENCE));
+            if (ids != null && !ids.isEmpty()) {
+                return builder.and(predicate, getIdPredicate(join, ids));
+            }
+            return predicate;
         };
     }
 
