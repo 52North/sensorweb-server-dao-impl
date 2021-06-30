@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -55,7 +56,7 @@ public class QuantityValueAssembler
         extends AbstractNumericalValueAssembler<QuantityDataEntity, QuantityValue, BigDecimal> {
 
     public QuantityValueAssembler(DataRepository<QuantityDataEntity> dataRepository,
-                                  DatasetRepository datasetRepository) {
+            DatasetRepository datasetRepository) {
         super(dataRepository, datasetRepository);
     }
 
@@ -69,8 +70,9 @@ public class QuantityValueAssembler
     @Override
     public QuantityValue getFirstValue(DatasetEntity dataset, DbQuery query) {
         if (hasConnector(dataset)) {
-            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset).orElse(null);
-            return assembleDataValue((QuantityDataEntity) data, dataset, query);
+            DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset)
+                    .orElse(null);
+            return assembleDataValue(unproxy(data), dataset, query);
         }
         return super.getFirstValue(dataset, query);
     }
@@ -78,8 +80,9 @@ public class QuantityValueAssembler
     @Override
     public QuantityValue getLastValue(DatasetEntity dataset, DbQuery query) {
         if (hasConnector(dataset)) {
-            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset).orElse(null);
-            return assembleDataValue((QuantityDataEntity) data, dataset, query);
+            DataEntity<?> data = getConnector(dataset).getLastObservation(dataset)
+                    .orElse(null);
+            return assembleDataValue(unproxy(data), dataset, query);
         }
         return super.getLastValue(dataset, query);
     }
@@ -88,8 +91,9 @@ public class QuantityValueAssembler
     protected Data<QuantityValue> assembleDataValues(DatasetEntity dataset, DbQuery query) {
         if (hasConnector(dataset)) {
             Data<QuantityValue> result = new Data<>();
-            getConnector(dataset).getObservations(dataset, query).stream()
-                    .map(entry -> assembleDataValue((QuantityDataEntity) entry, dataset, query))
+            getConnector(dataset).getObservations(dataset, query)
+                    .stream()
+                    .map(entry -> assembleDataValue(unproxy(entry), dataset, query))
                     .forEach(entry -> result.addNewValue(entry));
             return result;
         }
@@ -105,8 +109,8 @@ public class QuantityValueAssembler
             return data.getValue();
         }
         final Integer scale = dataset.getNumberOfDecimals();
-        return (scale != null) && (scale.intValue() >= 0) ? data.getValue().setScale(scale, RoundingMode.HALF_UP)
-                : data.getValue();
+        return (scale != null) && (scale.intValue() >= 0) ? data.getValue()
+                .setScale(scale, RoundingMode.HALF_UP) : data.getValue();
     }
 
     @Override
@@ -138,11 +142,12 @@ public class QuantityValueAssembler
         Map<String, Data<QuantityValue>> referenceSeries = new HashMap<>();
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
-                Data<QuantityValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
+                DbQuery refQuery = query.replaceWith(Parameters.DATASETS, Long.toString(referenceSeriesEntity.getId()));
+                Data<QuantityValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, refQuery);
                 if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
+                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, refQuery);
                 }
-                referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
+                referenceSeries.put(createReferenceDatasetId(refQuery, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
@@ -171,8 +176,12 @@ public class QuantityValueAssembler
     private QuantityValue[] expandToInterval(BigDecimal value, DatasetEntity series, DbQuery query) {
         QuantityDataEntity referenceStart = new QuantityDataEntity();
         QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
+        referenceStart.setSamplingTimeEnd(query.getTimespan()
+                .getStart()
+                .toDate());
+        referenceEnd.setSamplingTimeEnd(query.getTimespan()
+                .getEnd()
+                .toDate());
         referenceStart.setValue(value);
         referenceEnd.setValue(value);
         return new QuantityValue[] { assembleDataValue(referenceStart, series, query),
