@@ -184,7 +184,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
             specifications.add(dsQS.matchFeatures(dataset.getFeature().getId().toString()));
         }
         if (dataset.getProcedure() != null && dataset.getProcedure().getId() != null) {
-            specifications.add(dsQS.matchProcedures(dataset.getProcedure().getId().toString()));
+            specifications.add(dsQS.matchProcedures(true, dataset.getProcedure().getId().toString()));
         }
         if (dataset.getOffering() != null && dataset.getOffering().getId() != null) {
             specifications.add(dsQS.matchOfferings(dataset.getOffering().getId().toString()));

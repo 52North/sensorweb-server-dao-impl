@@ -81,7 +81,7 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         parameter.setUnit(unit);
         entity.addParameter(parameter);
 
-        AbstractFeatureEntity inserted = assembler.insertOrUpdateInstance(entity);
+        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
 
         AbstractFeatureEntity feature = repository.getById(inserted.getId());
@@ -104,7 +104,7 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         final FeatureBuilder builder = newFeature("feature_param_2");
         final FeatureEntity entity = builder.setFormat(formatEntity).build();
         entity.addParameter(getComplex(entity));
-        AbstractFeatureEntity inserted = assembler.insertOrUpdateInstance(entity);
+        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
 
         AbstractFeatureEntity feature = repository.getById(inserted.getId());
@@ -135,7 +135,7 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         parameter.setValue(new BigDecimal("2.0"));
         parameter.setFeature(entity);
         entity.addParameter(parameter);
-        AbstractFeatureEntity inserted = assembler.insertOrUpdateInstance(entity);
+        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
 
         AbstractFeatureEntity feature = repository.getById(inserted.getId());

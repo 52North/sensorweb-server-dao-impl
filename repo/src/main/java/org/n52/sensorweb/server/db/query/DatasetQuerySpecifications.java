@@ -328,6 +328,19 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
     /**
      * Matches datasets having procedures with given ids.
      *
+     * @param all
+     *            <code>true</code> to include referenced procedures
+     * @return a boolean expression
+     * @see #matchProcedures(Collection)
+     */
+    public Specification<DatasetEntity> matchProcedures(boolean all) {
+        final IoParameters parameters = dbQuery.getParameters();
+        return matchProcedures(parameters.getProcedures(), all);
+    }
+
+    /**
+     * Matches datasets having procedures with given ids.
+     *
      * @param ids
      *            the ids to match
      * @return a boolean expression
@@ -335,6 +348,20 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      */
     public Specification<DatasetEntity> matchProcedures(final String... ids) {
         return ids != null ? matchProcedures(Arrays.asList(ids)) : matchProcedures(Collections.emptyList());
+    }
+
+    /**
+     * Matches datasets having procedures with given ids.
+     *
+     * @param all
+     *            <code>true</code> to include referenced procedures
+     * @param ids
+     *            the ids to match
+     * @return a boolean expression
+     * @see #matchProcedures(Collection)
+     */
+    public Specification<DatasetEntity> matchProcedures(boolean all, final String... ids) {
+        return ids != null ? matchProcedures(Arrays.asList(ids), all) : matchProcedures(Collections.emptyList(), all);
     }
 
     /**
@@ -356,10 +383,39 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchProcedures(final Collection<String> ids) {
+        return matchProcedures(ids, false);
+    }
 
+    /**
+     * Matches datasets having procedures with given ids. For example:
+     *
+     * <pre>
+     *  where procedure.id in (&lt;ids&gt;)
+     * </pre>
+     *
+     * In case of {@link DbQuery#isMatchDomainIds()} returns {@literal true} the following query path will be
+     * used:
+     *
+     * <pre>
+     *  where procedure.identifier in (&lt;ids&gt;)
+     * </pre>
+     *
+     * @param ids
+     *            the ids to match
+     * @param all
+     *            <code>true</code> to include referenced procedures
+     * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
+     */
+    public Specification<DatasetEntity> matchProcedures(final Collection<String> ids, boolean all) {
         return (root, query, builder) -> {
             final Join<DatasetEntity, ProcedureEntity> join =
                     root.join(DatasetEntity.PROPERTY_PROCEDURE, JoinType.INNER);
+            if (all) {
+                if ((ids == null) || ids.isEmpty()) {
+                    return null;
+                }
+                return getIdPredicate(join, ids);
+            }
             Predicate predicate = builder.isFalse(join.get(ProcedureEntity.PROPERTY_REFERENCE));
             if (ids != null && !ids.isEmpty()) {
                 return builder.and(predicate, getIdPredicate(join, ids));
