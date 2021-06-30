@@ -38,6 +38,7 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.HierarchicalEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class FeatureQuerySpecifications extends ParameterQuerySpecifications {
@@ -48,6 +49,31 @@ public final class FeatureQuerySpecifications extends ParameterQuerySpecificatio
 
     public static FeatureQuerySpecifications of(DbQuery dbQuery, EntityManager entityManager) {
         return new FeatureQuerySpecifications(dbQuery, entityManager);
+    }
+
+    /**
+     * Matches procedures included in a result of a given filter, i.e.
+     *
+     * <pre>
+     *   where id in (select fk_procedure_id from dataset where &lt;filter&gt;)
+     * </pre>
+     *
+     * @param filter
+     *            the query
+     * @param id
+     *            the feature id
+     * @return a boolean expression
+     */
+    public Specification<AbstractFeatureEntity> selectFrom(final Specification<DatasetEntity> filter, String id) {
+        return (root, query, builder) -> {
+            Subquery<Long> sq = query.subquery(Long.class);
+            Root<DatasetEntity> dataset = sq.from(DatasetEntity.class);
+            sq.select(dataset.get(DatasetEntity.PROPERTY_FEATURE).get(DescribableEntity.PROPERTY_ID))
+                    .where(filter.toPredicate(dataset, query, builder));
+            return builder.or(builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq),
+                    builder.and(builder.equal(root.get(DescribableEntity.PROPERTY_ID), id),
+                            builder.isNotEmpty(root.get(HierarchicalEntity.PROPERTY_CHILDREN))));
+        };
     }
 
     /**

@@ -92,7 +92,7 @@ public class FeatureAssembler
         final Specification<DatasetEntity> datasetPredicate =
                 dsFilterSpec.matchFeatures(id).and(dsFilterSpec.isPublic());
         FeatureQuerySpecifications filterSpec = FeatureQuerySpecifications.of(query, entityManager);
-        return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate));
+        return filterSpec.selectFrom(dsFilterSpec.toSubquery(datasetPredicate), id);
     }
 
     @Override
