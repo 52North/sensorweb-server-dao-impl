@@ -27,10 +27,11 @@
  */
 package org.n52.sensorweb.server.db.repositories;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.data.domain.Example;
@@ -56,9 +57,16 @@ public interface ParameterServiceRepository<T extends DescribableEntity> extends
 
     default ExampleMatcher createMatcher() {
         return ExampleMatcher.matching()
-                .withIgnorePaths(DescribableEntity.PROPERTY_ID, DescribableEntity.STA_IDENTIFIER)
+                .withIgnorePaths(getMatcherIgnorePaths().toArray(new String[0]))
                 .withMatcher(DescribableEntity.PROPERTY_IDENTIFIER, GenericPropertyMatchers.exact())
-                .withMatcher(DatasetEntity.PROPERTY_SERVICE, GenericPropertyMatchers.exact());
+                .withMatcher(DescribableEntity.PROPERTY_SERVICE, GenericPropertyMatchers.exact());
+    }
+
+    default Set<String> getMatcherIgnorePaths() {
+        Set<String> paths = new HashSet<>();
+        paths.add(DescribableEntity.PROPERTY_ID);
+        paths.add(DescribableEntity.STA_IDENTIFIER);
+        return paths;
     }
 
     default <T extends DescribableEntity> T createIdentifierServiceExample(T entity) {

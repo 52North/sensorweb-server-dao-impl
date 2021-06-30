@@ -28,6 +28,7 @@
 package org.n52.sensorweb.server.db.repositories.core;
 
 import java.util.List;
+import java.util.Set;
 
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.ProcedureEntity;
@@ -40,5 +41,13 @@ public interface ProcedureRepository extends ParameterServiceRepository<Procedur
     @Override
     default List<ProcedureEntity> findByService(ServiceEntity service) {
         return findAll(createExample(new ProcedureEntity(), createMatcher()));
+    }
+
+    @Override
+    default Set<String> getMatcherIgnorePaths() {
+        Set<String> paths = ParameterServiceRepository.super.getMatcherIgnorePaths();
+        paths.add(ProcedureEntity.PROPERTY_REFERENCE);
+        paths.add(ProcedureEntity.PROPERTY_AGGRAGATION);
+        return paths;
     }
 }
