@@ -245,22 +245,23 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             // filter based on given result times
             return query.addResultTimeFilter(criteria);
         } else {
-            // values for oldest result time
-            String rtAlias = "rtAlias";
-            String rtColumn = QueryUtils.createAssociation(rtAlias, column);
-            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
-            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
-            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
-            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset))
-                              .setProjection(Projections.projectionList()
-                                                        .add(Projections.groupProperty(rtColumn))
-                                                        .add(Projections.groupProperty(rtDatasetId))
-                                                        .add(Projections.max(rtResultTime)));
-            criteria.add(Subqueries.propertiesIn(new String[] {
-                column,
-                DataEntity.PROPERTY_DATASET,
-                DataEntity.PROPERTY_RESULT_TIME
-            }, maxResultTimeQuery));
+            // values for newest result time
+            criteria.addOrder(Order.desc(DataEntity.PROPERTY_RESULT_TIME));
+//            String rtAlias = "rtAlias";
+//            String rtColumn = QueryUtils.createAssociation(rtAlias, column);
+//            String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
+//            String rtResultTime = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_RESULT_TIME);
+//            DetachedCriteria maxResultTimeQuery = DetachedCriteria.forClass(getEntityClass(), rtAlias);
+//            maxResultTimeQuery.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset))
+//                              .setProjection(Projections.projectionList()
+//                                                        .add(Projections.groupProperty(rtColumn))
+//                                                        .add(Projections.groupProperty(rtDatasetId))
+//                                                        .add(Projections.max(rtResultTime)));
+//            criteria.add(Subqueries.propertiesIn(new String[] {
+//                column,
+//                DataEntity.PROPERTY_DATASET,
+//                DataEntity.PROPERTY_RESULT_TIME
+//            }, maxResultTimeQuery));
 
         }
         return criteria;
