@@ -235,7 +235,8 @@ public class DatasetAssembler<V extends AbstractValue<?>>
             instance.setLastObservation(dataset.getLastObservation());
             instance.setLastQuantityValue(dataset.getLastQuantityValue());
         }
-        if (minChanged || maxChanged) {
+        if ((instance.isDeleted() && !dataset.isDeleted()) || minChanged || maxChanged) {
+            instance.setDeleted(false);
             return getParameterRepository().saveAndFlush(instance);
         }
         return instance;
