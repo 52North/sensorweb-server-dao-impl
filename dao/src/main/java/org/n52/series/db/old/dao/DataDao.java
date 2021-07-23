@@ -196,26 +196,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
-        final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
-        final Order order = Order.desc(DataEntity.PROPERTY_SAMPLING_TIME_START);
-        final Criteria criteria = createDataCriteria(column, dataset, query, order);
-        return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
-                           .setMaxResults(1)
-                           .uniqueResult();
-    }
-
-    @SuppressWarnings("unchecked")
-    public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
-        final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
-        final Order order = Order.asc(DataEntity.PROPERTY_SAMPLING_TIME_END);
-        final Criteria criteria = createDataCriteria(column, dataset, query, order);
-        return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
-                           .setMaxResults(1)
-                           .uniqueResult();
-    }
-
-    @SuppressWarnings("unchecked")
     public T getDataValueViaTimeend(DatasetEntity series, DbQuery query) {
         Date timeend = series.getLastValueAt();
         Criteria criteria = createDataAtCriteria(timeend, DataEntity.PROPERTY_SAMPLING_TIME_END, series, query);
@@ -248,7 +228,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query) {
         return createDataCriteria(column, dataset, query, DEFAULT_ORDER);
     }
-    
+
     private Criteria createBaseDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
         Criteria criteria = getDefaultCriteria(query, order);
         criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
@@ -285,8 +265,8 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         }
         return criteria;
     }
-    
-    
+
+
     private Criteria createClosedDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
         Criteria criteria = createBaseDataCriteria(column, dataset, query, order);
         IoParameters parameters = query.getParameters();

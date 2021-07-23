@@ -32,10 +32,12 @@ import static java.util.stream.Collectors.toMap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -232,6 +234,13 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         final Date timestart = observation.getSamplingTimeStart();
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
             value.setTimestart(createTimeOutput(timestart, dataset.getOriginTimezone(), parameters));
+        }
+        if (observation.hasParameters()) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            for (ParameterEntity<?> param : observation.getParameters()) {
+                map.put(param.getName(), param.getValue());
+            }
+            value.addParameter(map);
         }
         value.setTimestamp(createTimeOutput(timeend, dataset.getOriginTimezone(), parameters));
         return value;
