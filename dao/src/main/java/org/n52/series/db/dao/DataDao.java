@@ -139,7 +139,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
         final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
         final Order order = Order.desc(column);
-        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        final Criteria criteria = createClosedDataCriteria(column, dataset, query, order);
         return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
                            .setMaxResults(1)
                            .uniqueResult();
@@ -149,7 +149,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
         final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
         final Order order = Order.asc(column);
-        final Criteria criteria = createDataCriteria(column, dataset, query, order);
+        final Criteria criteria = createClosedDataCriteria(column, dataset, query, order);
         return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
                            .setMaxResults(1)
                            .uniqueResult();
@@ -230,11 +230,15 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query) {
         return createDataCriteria(column, dataset, query, DEFAULT_ORDER);
     }
-
-    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+    
+    private Criteria createBaseDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
         Criteria criteria = getDefaultCriteria(query, order);
         criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
+        return criteria;
+    }
 
+    private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+        Criteria criteria = createBaseDataCriteria(column, dataset, query, order);
         IoParameters parameters = query.getParameters();
         if (parameters.isAllResultTimes()) {
             // no filter needed
@@ -244,7 +248,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
             // filter based on given result times
             return query.addResultTimeFilter(criteria);
         } else {
-            // values for oldest result time
+            // values for newest result time
             String rtAlias = "rtAlias";
             String rtColumn = QueryUtils.createAssociation(rtAlias, column);
             String rtDatasetId = QueryUtils.createAssociation(rtAlias, DataEntity.PROPERTY_DATASET);
@@ -260,7 +264,24 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
                 DataEntity.PROPERTY_DATASET,
                 DataEntity.PROPERTY_RESULT_TIME
             }, maxResultTimeQuery));
-
+        }
+        return criteria;
+    }
+    
+    
+    private Criteria createClosedDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+        Criteria criteria = createBaseDataCriteria(column, dataset, query, order);
+        IoParameters parameters = query.getParameters();
+        if (parameters.isAllResultTimes()) {
+            // no filter needed
+            return criteria;
+        } else if (!parameters.getResultTimes()
+                              .isEmpty()) {
+            // filter based on given result times
+            return query.addResultTimeFilter(criteria);
+        } else {
+            // values for newest result time
+            criteria.addOrder(Order.desc(DataEntity.PROPERTY_RESULT_TIME));
         }
         return criteria;
     }
