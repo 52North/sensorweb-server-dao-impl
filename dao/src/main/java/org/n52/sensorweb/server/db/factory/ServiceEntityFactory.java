@@ -105,7 +105,8 @@ public class ServiceEntityFactory implements Constructable {
         entity.setId(Long.valueOf(id != null ? id : DEFAULT_ID));
         entity.setName(check(name) ? name : DEFAULT_NAME);
         entity.setVersion(check(version) ? version : DEFAULT_VERSION);
-        entity.setNoDataValues(noDataValues);
+        entity.setNoDataValues(check(noDataValues) ? noDataValues : DEFAULT_NO_DATA_VALUES);
+        addIdentifier(entity);
         return entity;
     }
 
@@ -115,6 +116,7 @@ public class ServiceEntityFactory implements Constructable {
             serviceEntity.setName(name);
             serviceEntity.setVersion(version);
             serviceEntity.setNoDataValues(noDataValues);
+            addIdentifier(serviceEntity);
         }
     }
 
@@ -124,7 +126,12 @@ public class ServiceEntityFactory implements Constructable {
         entity.setName(DEFAULT_NAME);
         entity.setVersion(DEFAULT_VERSION);
         entity.setNoDataValues(DEFAULT_NO_DATA_VALUES);
+        addIdentifier(entity);
         return entity;
+    }
+
+    private void addIdentifier(ServiceEntity entity) {
+        entity.setIdentifier(Long.toString(entity.getId()));
     }
 
 }

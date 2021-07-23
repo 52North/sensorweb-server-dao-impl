@@ -13,8 +13,7 @@
 
     <properties>
 
-        <!-- optional properties file -->
-        <postgis.version>2.5.0</postgis.version>
+        <postgis.version>2.5.1</postgis.version>
         <javax-jaxb.version>3.0.1</javax-jaxb.version>
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
