@@ -205,7 +205,8 @@ public class QuantityDataRepository
                 Data<QuantityValue> referencedDatasetData =
                         assembleData(data.get(referenceDatasetEntity.getId()), query);
                 if (haveToExpandReferenceData(referencedDatasetData)) {
-                    referencedDatasetData = expandReferenceDataIfNecessary(referenceDatasetEntity, query, session);
+                    referencedDatasetData = expandReferenceDataIfNecessary(referenceDatasetEntity,
+                            referencedDatasetData, query, session);
                 }
                 if (query.expandWithNextValuesBeyondInterval()) {
                     QuantityDataEntity previousValue =
@@ -274,19 +275,13 @@ public class QuantityDataRepository
         return referencedDatasetData.getValues().size() <= 1;
     }
 
-    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
+    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, Data<QuantityValue> data,
+            DbQuery query, Session session) throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(dataset.getId(), query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            QuantityValue lastValue = getLastValue(dataset, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            QuantityDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
+        if (data == null || data.getValues().isEmpty()) {
+            result.addValues(expandToInterval(dataset.getLastQuantityValue(), dataset, query));
+        } else if (data.getValues().size() == 1) {
+            result.addValues(expandToInterval(data.getValues().get(0).getValue(), dataset, query));
         }
         return result;
     }
