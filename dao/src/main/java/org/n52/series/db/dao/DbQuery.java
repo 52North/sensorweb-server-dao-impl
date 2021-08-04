@@ -465,6 +465,17 @@ public class DbQuery {
         return criteria;
     }
 
+    public DetachedCriteria addResultTimeFilter(DetachedCriteria criteria) {
+        if (parameters.shallClassifyByResultTimes()) {
+            criteria.add(parameters.getResultTimes().stream()
+                    .map(Instant::parse).map(Instant::toDate)
+                    .map(x -> Restrictions.eq(DataEntity.PROPERTY_RESULT_TIME, x))
+                    .collect(Restrictions::disjunction, Disjunction::add,
+                             (a, b) -> b.conditions().forEach(a::add)));
+        }
+        return criteria;
+    }
+
     public Criteria addSpatialFilter(Criteria criteria) {
         SpatialFilter filter = createSpatialFilter();
         return filter != null ? criteria.add(filter) : criteria;

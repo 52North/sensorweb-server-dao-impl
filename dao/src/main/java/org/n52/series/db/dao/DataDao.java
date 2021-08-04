@@ -138,21 +138,28 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     @SuppressWarnings("unchecked")
     public T getClosestOuterPreviousValue(final DatasetEntity dataset, final DateTime lowerBound, final DbQuery query) {
         final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
-        final Order order = Order.desc(column);
-        final Criteria criteria = createClosedDataCriteria(column, dataset, query, order);
-        return (T) criteria.add(Restrictions.lt(column, lowerBound.toDate()))
-                           .setMaxResults(1)
-                           .uniqueResult();
+
+        DetachedCriteria baseFilter = createBaseClosedDataCriteria(dataset, query);
+        baseFilter.add(Restrictions.lt(column, lowerBound.toDate()));
+        baseFilter.setProjection(Projections.max(column));
+        DetachedCriteria filter = createClosedDataCriteria(column, dataset, query, baseFilter);
+        Criteria criteria = getDefaultCriteria();
+        criteria.add(Subqueries.propertyEq(DataEntity.PROPERTY_ID, filter));
+        return (T) criteria.uniqueResult();
     }
 
     @SuppressWarnings("unchecked")
     public T getClosestOuterNextValue(final DatasetEntity dataset, final DateTime upperBound, final DbQuery query) {
-        final String column = DataEntity.PROPERTY_SAMPLING_TIME_END;
-        final Order order = Order.asc(column);
-        final Criteria criteria = createClosedDataCriteria(column, dataset, query, order);
-        return (T) criteria.add(Restrictions.gt(column, upperBound.toDate()))
-                           .setMaxResults(1)
-                           .uniqueResult();
+        final String column = DataEntity.PROPERTY_SAMPLING_TIME_START;
+
+        DetachedCriteria baseFilter = createBaseClosedDataCriteria(dataset, query);
+        baseFilter.add(Restrictions.gt(column, upperBound.toDate()));
+        baseFilter.setProjection(Projections.min(column));
+        DetachedCriteria filter = createClosedDataCriteria(column, dataset, query, baseFilter);
+
+        Criteria criteria = getDefaultCriteria();
+        criteria.add(Subqueries.propertyEq(DataEntity.PROPERTY_ID, filter));
+        return (T) criteria.uniqueResult();
     }
 
     @Override
@@ -179,7 +186,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     }
 
     private Criteria getDefaultCriteria(Order order) {
-        return getDefaultCriteria().addOrder(order);
+        return order != null ? getDefaultCriteria().addOrder(order) : getDefaultCriteria();
     }
 
     private Criteria getDefaultCriteria(final DbQuery query, Order order) {
@@ -230,12 +237,6 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query) {
         return createDataCriteria(column, dataset, query, DEFAULT_ORDER);
     }
-    
-    private Criteria createBaseDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
-        Criteria criteria = getDefaultCriteria(query, order);
-        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
-        return criteria;
-    }
 
     private Criteria createDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
         Criteria criteria = createBaseDataCriteria(column, dataset, query, order);
@@ -267,10 +268,28 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
         }
         return criteria;
     }
-    
-    
-    private Criteria createClosedDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
-        Criteria criteria = createBaseDataCriteria(column, dataset, query, order);
+
+    private Criteria createBaseDataCriteria(String column, DatasetEntity dataset, DbQuery query, Order order) {
+        Criteria criteria = getDefaultCriteria(query, order);
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
+        return criteria;
+    }
+
+    private DetachedCriteria createBaseClosedDataCriteria(DatasetEntity dataset, DbQuery query) {
+        DetachedCriteria criteria = DetachedCriteria.forClass(entityType);
+        query.addSpatialFilter(criteria);
+        query.addResultTimeFilter(criteria);
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DATASET, dataset));
+        criteria.add(Restrictions.isNull(DataEntity.PROPERTY_PARENT));
+        criteria.add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+        return criteria;
+    }
+
+    private DetachedCriteria createClosedDataCriteria(String column, DatasetEntity dataset, DbQuery query,
+            DetachedCriteria filter) {
+        DetachedCriteria criteria = createBaseClosedDataCriteria(dataset, query);
+        criteria.add(Subqueries.propertyEq(column, filter));
+        criteria.setProjection(Projections.property(DataEntity.PROPERTY_ID));
         IoParameters parameters = query.getParameters();
         if (parameters.isAllResultTimes()) {
             // no filter needed
