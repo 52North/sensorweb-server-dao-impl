@@ -14,7 +14,7 @@
     <properties>
 
         <postgis.version>2.5.1</postgis.version>
-        <javax-jaxb.version>3.0.1</javax-jaxb.version>
+        <javax-jaxb.version>3.0.2</javax-jaxb.version>
         <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
