@@ -71,6 +71,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * <ul>
      * <li>{@link #matchDatasets()}</li>
      * <li>{@link #matchTimespan()}</li>
+     * <li>{@link #matchIsNotDeleted()}</li>
      * <li>{@link #matchParentsIsNull()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
@@ -79,7 +80,8 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      */
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DataEntity> matchFilters() {
-        return matchDatasets().and(matchTimespan()).and(matchParentsIsNull()).and(matchesSpatially());
+        return matchDatasets().and(matchTimespan()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                .and(matchesSpatially());
     }
 
     /**
@@ -87,6 +89,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * <ul>
      * <li>{@link #matchDatasets()}</li>
      * <li>{@link #matchTimespan()}</li>
+     * <li>{@link #matchIsNotDeleted()}</li>
      * <li>{@link #matchParentsIsNull()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
@@ -95,7 +98,8 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      */
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DataEntity> matchFiltersParentsNotNull() {
-        return matchDatasets().and(matchTimespan()).and(matchParentsIsNotNull()).and(matchesSpatially());
+        return matchDatasets().and(matchTimespan()).and(matchIsNotDeleted()).and(matchParentsIsNotNull())
+                .and(matchesSpatially());
     }
 
     /**
@@ -112,6 +116,10 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
                     builder.lessThanOrEqualTo(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END), requestedEnd));
         };
 
+    }
+
+    public Specification<DataEntity> matchIsNotDeleted() {
+        return (root, query, builder) -> builder.equal(root.get(DataEntity.PROPERTY_DELETED), 0);
     }
 
     /**
@@ -213,21 +221,42 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
         Root<DataEntity> root = query.from(DataEntity.class);
-        query.select(root).orderBy(builder.desc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
-                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
-                matchBefore(getTimespanStart()).toPredicate(root, query, builder));
-        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
+        Subquery sq = query.subquery(Date.class);
+        Root<DataEntity> max = sq.from(DataEntity.class);
+        sq.select(builder.max(max.get(DataEntity.PROPERTY_SAMPLING_TIME_START)))
+                .where(matchDatasets(dataset.getId()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                        .toPredicate(max, query, builder),
+                        builder.lessThan(max.get(DataEntity.PROPERTY_SAMPLING_TIME_START), getTimespanStart()));
+        Subquery sqObs = query.subquery(Long.class);
+        Root<DataEntity> obsId = sqObs.from(DataEntity.class);
+        sqObs.select(obsId.get(DataEntity.PROPERTY_ID))
+                .where(builder.and(builder.equal(obsId.get(DataEntity.PROPERTY_SAMPLING_TIME_START), sq.getSelection()),
+                        matchDatasets(dataset.getId()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                                .toPredicate(obsId, query, builder)));
+        query.select(root);
+        query.where(builder.equal(root.get(DataEntity.PROPERTY_ID), sqObs.getSelection()));
+        return entityManager.createQuery(query).getResultList().stream().findFirst();
     }
 
     public Optional<DataEntity> matchClosestAfterEnd(DatasetEntity dataset, EntityManager entityManager) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataEntity> query = builder.createQuery(DataEntity.class);
         Root<DataEntity> root = query.from(DataEntity.class);
-        query.select(root).orderBy(builder.asc(root.get(DataEntity.PROPERTY_SAMPLING_TIME_END))).where(
-                matchDatasets(dataset.getId()).toPredicate(root, query, builder),
-                matchAfter(getTimespanEnd()).toPredicate(root, query, builder));
-
-        return entityManager.createQuery(query).setMaxResults(1).getResultList().stream().findFirst();
+        Subquery sq = query.subquery(Date.class);
+        Root<DataEntity> min = sq.from(DataEntity.class);
+        sq.select(builder.min(min.get(DataEntity.PROPERTY_SAMPLING_TIME_START)))
+                .where(matchDatasets(dataset.getId()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                        .toPredicate(min, query, builder),
+                        builder.greaterThan(min.get(DataEntity.PROPERTY_SAMPLING_TIME_START), getTimespanEnd()));
+        Subquery sqObs = query.subquery(Long.class);
+        Root<DataEntity> obsId = sqObs.from(DataEntity.class);
+        sqObs.select(obsId.get(DataEntity.PROPERTY_ID))
+                .where(builder.and(builder.equal(obsId.get(DataEntity.PROPERTY_SAMPLING_TIME_START), sq.getSelection()),
+                        matchDatasets(dataset.getId()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                                .toPredicate(obsId, query, builder)));
+        query.select(root);
+        query.where(builder.equal(root.get(DataEntity.PROPERTY_ID), sqObs.getSelection()));
+        return entityManager.createQuery(query).getResultList().stream().findFirst();
     }
 
     public Long count(DatasetEntity dataset, EntityManager entityManager) {

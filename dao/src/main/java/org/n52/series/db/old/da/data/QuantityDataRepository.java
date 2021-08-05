@@ -272,7 +272,7 @@ public class QuantityDataRepository
         if (data == null || data.getValues().isEmpty()) {
             result.addValues(expandToInterval(dataset.getLastQuantityValue(), dataset, query));
         } else if (data.getValues().size() == 1) {
-            result.addValues(expandToInterval(data.getValues().get(0).getValue(), dataset, query));
+            result.addValues(expandToInterval(data.getValues().iterator().next().getValue(), dataset, query));
         }
         return result;
     }
