@@ -36,6 +36,9 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class DatabaseMetadataDao {
 
     private final Session session;
@@ -45,14 +48,14 @@ public class DatabaseMetadataDao {
     }
 
     public MetadataEntity< ? > getInstance(Long key) {
-        return (MetadataEntity< ? >) session.get(MetadataEntity.class, key);
+        return session.get(MetadataEntity.class, key);
     }
 
     @SuppressWarnings("unchecked")
     public List<MetadataEntity< ? >> getAllFor(Long id) {
         Criteria criteria = session.createCriteria(MetadataEntity.class)
                                    .add(Restrictions.eq(MetadataEntity.PROPERTY_SERIES_ID, id));
-        return (List<MetadataEntity< ? >>) criteria.list();
+        return criteria.list();
     }
 
     @SuppressWarnings("unchecked")
@@ -60,7 +63,7 @@ public class DatabaseMetadataDao {
         Criteria criteria = session.createCriteria(MetadataEntity.class)
                                    .add(Restrictions.eq(MetadataEntity.PROPERTY_SERIES_ID, id));
         addCaseInsensitivePropertyMatch(criteria, fields);
-        return (List<MetadataEntity< ? >>) criteria.list();
+        return criteria.list();
     }
 
     private void addCaseInsensitivePropertyMatch(Criteria criteria, Set<String> fields) {
@@ -77,7 +80,7 @@ public class DatabaseMetadataDao {
         Criteria criteria = session.createCriteria(MetadataEntity.class)
                                    .add(Restrictions.eq(MetadataEntity.PROPERTY_SERIES_ID, id))
                                    .setProjection(Projections.property(MetadataEntity.PROPERTY_NAME));
-        return (List<String>) criteria.list();
+        return criteria.list();
     }
 
 }

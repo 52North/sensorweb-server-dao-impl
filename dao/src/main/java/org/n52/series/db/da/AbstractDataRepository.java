@@ -138,7 +138,7 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
                 observation.getDataset().getOriginTimezone(), parameters);
         TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
                 observation.getDataset().getOriginTimezone(), parameters);
-        if (parameters.isShowTimeIntervals() && (timestart != null)) {
+        if (parameters.isShowTimeIntervals() && timestart != null) {
             emptyValue.setTimestart(timestart);
         }
         emptyValue.setTimestamp(timeend);

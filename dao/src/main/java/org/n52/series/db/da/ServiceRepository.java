@@ -79,7 +79,7 @@ public class ServiceRepository extends ParameterRepository<ServiceEntity, Servic
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return (getServiceEntity() != null) && getServiceEntity().getId().equals(id);
+        return getServiceEntity() != null && getServiceEntity().getId().equals(id);
     }
 
     @Override

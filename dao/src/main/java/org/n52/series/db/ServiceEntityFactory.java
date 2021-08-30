@@ -34,8 +34,11 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Configurable
 @Component
+@SuppressFBWarnings({ "EI_EXPOSE_REP" })
 public class ServiceEntityFactory implements Constructable {
 
     private static final String SERVICE_ID_KEY = "helgoland.service.id";

@@ -75,7 +75,7 @@ public interface OutputMapper<T extends ParameterOutput, S extends DescribableEn
     }
 
     default boolean isSubSelected(String sub, String selection) {
-        return !hasSelect() || (getSubSelection().containsKey(sub) && checkSubSelected(sub, selection));
+        return !hasSelect() || getSubSelection().containsKey(sub) && checkSubSelected(sub, selection);
     }
 
     default boolean checkSubSelected(String sub, String selection) {

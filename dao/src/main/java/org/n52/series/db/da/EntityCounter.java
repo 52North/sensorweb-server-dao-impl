@@ -47,6 +47,9 @@ import org.n52.series.db.dao.ProcedureDao;
 import org.n52.series.db.dao.SamplingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class EntityCounter {
 
     private final HibernateSessionStore sessionStore;

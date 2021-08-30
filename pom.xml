@@ -452,7 +452,12 @@
                 <artifactId>geolatte-geom</artifactId>
                 <version>${geolatte.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>4.4.0</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>

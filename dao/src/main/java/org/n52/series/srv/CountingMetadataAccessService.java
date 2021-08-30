@@ -36,6 +36,9 @@ import org.n52.series.spi.srv.CountingMetadataService;
 import org.n52.web.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class CountingMetadataAccessService implements CountingMetadataService {
 
     private final EntityCounter counter;

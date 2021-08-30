@@ -56,9 +56,12 @@ import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.n52.web.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class TimeseriesRepository extends SessionAwareRepository implements OutputAssembler<TimeseriesMetadataOutput> {
 
     private final StationRepository stationRepository;

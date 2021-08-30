@@ -77,6 +77,9 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP" })
 public abstract class AbstractOuputMapper<T extends ParameterOutput, S extends DescribableEntity>
         implements OutputMapper<T, S> {
 

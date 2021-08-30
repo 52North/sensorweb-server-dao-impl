@@ -31,6 +31,9 @@ import java.util.Set;
 
 import org.n52.io.request.IoParameters;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class ResultTimeService {
 
     private final ResultTimeRepository repository;

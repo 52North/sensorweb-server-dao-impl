@@ -60,7 +60,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Transactional
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implements SearchableDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetDao.class);
@@ -265,11 +268,11 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
         return params.getDatasetTypes().size() == 1 && params.getDatasetTypes().contains(DatasetType.timeseries.name())
                 && params.getObservationTypes().size() == 1
                 && params.getObservationTypes().contains(ObservationType.simple.name())
-                && ((params.getValueTypes().size() == 1 && (params.getValueTypes().contains(ValueType.quantity.name())
-                        || params.getValueTypes().contains(ValueType.count.name())))
-                        || (params.getValueTypes().size() == 2
+                && (params.getValueTypes().size() == 1 && (params.getValueTypes().contains(ValueType.quantity.name())
+                        || params.getValueTypes().contains(ValueType.count.name()))
+                        || params.getValueTypes().size() == 2
                                 && params.getValueTypes().contains(ValueType.quantity.name())
-                                && params.getValueTypes().contains(ValueType.count.name())));
+                                && params.getValueTypes().contains(ValueType.count.name()));
     }
 
     private boolean isProfile(IoParameters params) {
