@@ -80,12 +80,16 @@ public class ResultTimeExtension extends MetadataExtension<DatasetOutput< ? >> {
     }
 
     @Override
-    public Collection<String> getExtraMetadataFieldNames(DatasetOutput< ? > output) {
-        final ParameterOutput serviceOutput = output.getDatasetParameters(true)
-                                                    .getService();
-        return isAvailableFor(serviceOutput.getId())
-            ? Collections.singleton(EXTENSION_NAME)
-            : Collections.emptySet();
+    public Collection<String> getExtraMetadataFieldNames(DatasetOutput<?> output) {
+        if (output.getDatasetParameters() != null) {
+            final ParameterOutput serviceOutput = output.getDatasetParameters(true).getService();
+            return isAvailableFor(serviceOutput.getId())
+                    ? Collections.singleton(EXTENSION_NAME)
+                    : Collections.emptySet();
+        } else {
+            LOGGER.warn("Missing parameters for dataset '{}'!", output.getId());
+        }
+        return Collections.emptySet();
     }
 
     private boolean isAvailableFor(String serviceId) {
