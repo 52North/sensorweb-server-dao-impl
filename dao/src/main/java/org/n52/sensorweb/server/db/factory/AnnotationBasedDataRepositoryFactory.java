@@ -29,6 +29,7 @@ package org.n52.sensorweb.server.db.factory;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -52,12 +53,14 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationBasedDataRepositoryFactory.class);
 
     private final Map<String, ? super ValueAssembler<?, ?, ?>> cache;
+    private final Set<String> valueTypes;
 
     private final ApplicationContext appContext;
 
     @Autowired
     public AnnotationBasedDataRepositoryFactory(ApplicationContext appContext) {
         this.cache = new HashMap<>();
+        this.valueTypes = new LinkedHashSet<>();
         this.appContext = appContext;
     }
 
@@ -131,6 +134,20 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     @Override
     public boolean hasCacheEntry(String datasetType, String observationType, String valueType) {
         return cache.containsKey(getType(datasetType, observationType, valueType));
+    }
+
+    @Override
+    public Set<String> getValueTypes() {
+        if (valueTypes.isEmpty()) {
+            getAllDataAssemblers().map(this::getDataType).forEach(type -> {
+                if (type.contains("-")) {
+                    valueTypes.add(type.split("-")[0]);
+                } else {
+                    valueTypes.add(type);
+                }
+            });
+        }
+        return valueTypes;
     }
 
     //

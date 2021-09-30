@@ -47,4 +47,6 @@ public interface DataRepositoryTypeFactory {
     Class<? extends DatasetEntity> getDatasetEntityType(String datasetType, String observationType, String valueType);
 
     boolean hasCacheEntry(String datasetType, String observationType, String valueType);
+
+    Set<String> getValueTypes();
 }
