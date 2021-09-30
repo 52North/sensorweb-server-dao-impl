@@ -49,10 +49,13 @@ import org.n52.series.db.beans.OfferingEntity;
 import org.n52.series.db.beans.PhenomenonEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.db.beans.ServiceEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatasetOutputMapper<V extends AbstractValue<?>>
         extends ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetOutputMapper.class);
     private static final DbQuery DUMMY_QUERY = new DbQuery(null);
 
     public DatasetOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory) {
@@ -138,10 +141,15 @@ public class DatasetOutputMapper<V extends AbstractValue<?>>
         IoParameters params = getDbQuery().getParameters();
         try {
             ValueAssembler<?, V, ?> dataRepository = getDataRepositoryFactory(entity);
-            if (!hasSelect()) {
-                addAllExpanded(output, entity, getDbQuery(), params, dataRepository);
+            if (dataRepository != null) {
+                if (!hasSelect()) {
+                    addAllExpanded(output, entity, getDbQuery(), params, dataRepository);
+                } else {
+                    addSelectedExpanded(output, entity, getDbQuery(), params, dataRepository);
+                }
             } else {
-                addSelectedExpanded(output, entity, getDbQuery(), params, dataRepository);
+                LOGGER.warn("Can not create expanded output due to missing value assembler for dataset '{}'!",
+                        entity.getId());
             }
         } catch (DatasetFactoryException e) {
             getLogger().debug("Error adding expanded values!", e);
