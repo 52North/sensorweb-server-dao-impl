@@ -1,6 +1,6 @@
 {
     "phenomenonIntervals": {
-        "6": {
+        "60000": {
             "statusIntervals": {
                 "50 - 100 Percent": {
                     "upper": 100.0,
@@ -16,7 +16,7 @@
         }
     },
     "datasetIntervals": {
-        "7": {
+        "70000": {
             "statusIntervals": {
                 "over 20": {
                     "lower": 20.0,

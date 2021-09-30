@@ -1,7 +1,7 @@
 
 {
     "phenomenonStyles": {
-        "6": {
+        "60000": {
             "style": {
                 "chartType": "line",
                 "properties": {
@@ -13,7 +13,7 @@
         }
     },
     "datasetStyles": {
-        "7": {
+        "70000": {
             "style": {
                 "chartType": "bar",
                 "properties": {
