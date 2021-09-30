@@ -72,15 +72,16 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * <li>{@link #matchDatasets()}</li>
      * <li>{@link #matchTimespan()}</li>
      * <li>{@link #matchIsNotDeleted()}</li>
-     * <li>{@link #matchParentsIsNull()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
      *
      * @return a boolean expression matching all filter criteria
      */
+    //     * <li>{@link #matchParentsIsNull()}</li>
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public Specification<DataEntity> matchFilters() {
-        return matchDatasets().and(matchTimespan()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+        //.and(matchParentsIsNull())
+        return matchDatasets().and(matchTimespan()).and(matchIsNotDeleted())
                 .and(matchesSpatially());
     }
 
@@ -91,6 +92,24 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * <li>{@link #matchTimespan()}</li>
      * <li>{@link #matchIsNotDeleted()}</li>
      * <li>{@link #matchParentsIsNull()}</li>
+     * <li>{@link #matchesSpatially()}</li>
+     * </ul>
+     *
+     * @return a boolean expression matching all filter criteria
+     */
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
+    public Specification<DataEntity> matchFiltersParentsIsNull() {
+        return matchDatasets().and(matchTimespan()).and(matchIsNotDeleted()).and(matchParentsIsNull())
+                .and(matchesSpatially());
+    }
+
+    /**
+     * Aggregates following filters in an {@literal AND} expression:
+     * <ul>
+     * <li>{@link #matchDatasets()}</li>
+     * <li>{@link #matchTimespan()}</li>
+     * <li>{@link #matchIsNotDeleted()}</li>
+     * <li>{@link #matchParentsIsNotNull()}</li>
      * <li>{@link #matchesSpatially()}</li>
      * </ul>
      *
