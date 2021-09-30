@@ -127,11 +127,20 @@ public class DatasetAssembler<V extends AbstractValue<?>>
         if (query.getParameters().containsParameter(Parameters.DATASETS)) {
             DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
             Specification<DatasetEntity> predicate =
-                dsFilterSpec.matchFilters().and(dsFilterSpec.matchIds(query.getParameters().getDatasets()));
+                    dsFilterSpec.matchFilters().and(dsFilterSpec.matchIds(query.getParameters().getDatasets()));
             final Iterable<DatasetEntity> entities = getParameterRepository().findAll(predicate);
             return StreamUtils.createStreamFromIterator(entities.iterator());
         }
-        return super.findAll(query);
+        DbQuery queryWithValueTypes;
+        if (query.isSetValueTypeFilter()) {
+            Set<String> valueTypes = new LinkedHashSet<>(query.getValueTypes());
+            valueTypes.retainAll(dataRepositoryFactory.getValueTypes());
+            queryWithValueTypes = query.replaceWith(Parameters.FILTER_VALUE_TYPES, valueTypes);
+        } else {
+            queryWithValueTypes =
+                    query.replaceWith(Parameters.FILTER_VALUE_TYPES, dataRepositoryFactory.getValueTypes());
+        }
+        return super.findAll(queryWithValueTypes);
     }
 
     @Override
