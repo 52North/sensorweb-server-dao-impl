@@ -27,6 +27,7 @@
  */
 package org.n52.sensorweb.server.db.assembler.core;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -37,15 +38,12 @@ import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.n52.io.handler.DatasetFactoryException;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.io.response.dataset.DatasetTypesMetadata;
-import org.n52.io.response.dataset.ReferenceValueOutput;
-import org.n52.sensorweb.server.db.ValueAssembler;
 import org.n52.sensorweb.server.db.assembler.ParameterOutputAssembler;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.factory.DataRepositoryTypeFactory;
@@ -149,35 +147,9 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     protected DatasetOutput<V> createExpanded(DatasetEntity entity, DbQuery query) {
-        IoParameters params = query.getParameters();
         ParameterOutputSearchResultMapper<DatasetEntity, DatasetOutput<V>> mapper = getMapper(query);
         DatasetOutput<V> result = mapper.createCondensed(entity);
         mapper.addExpandedValues(entity, result);
-        DatasetParameters datasetParams = createDatasetParameters(entity, query.withoutFieldsFilter(), mapper);
-
-        ValueAssembler<?, V, ?> assembler;
-        try {
-            assembler = (ValueAssembler<?, V, ?>) dataRepositoryFactory.create(entity.getDatasetType().name(),
-                                                                               entity.getObservationType().name(),
-                                                                               entity.getValueType().name(),
-                                                                               DatasetEntity.class);
-            V firstValue = assembler.getFirstValue(entity, query);
-            V lastValue = assembler.getLastValue(entity, query);
-
-            List<ReferenceValueOutput<V>> refValues = assembler.getReferenceValues(entity, query);
-            lastValue = isReferenceSeries(entity) && isCongruentValues(firstValue, lastValue)
-                // ensure we have a valid interval
-                ? firstValue
-                : lastValue;
-
-            result.setValue(DatasetOutput.REFERENCE_VALUES, refValues, params, result::setReferenceValues);
-            result.setValue(DatasetOutput.DATASET_PARAMETERS, datasetParams, params, result::setDatasetParameters);
-            result.setValue(DatasetOutput.FIRST_VALUE, firstValue, params, result::setFirstValue);
-            result.setValue(DatasetOutput.LAST_VALUE, lastValue, params, result::setLastValue);
-        } catch (DatasetFactoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         return result;
     }
 
