@@ -30,23 +30,30 @@ package org.n52.sensorweb.server.db.assembler.value;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.query.DataQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DataRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProfileDataEntity;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.StreamUtils;
 
 public abstract class ProfileValueAssembler<V, T>
         extends AbstractValueAssembler<ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {
 
+    private final DataRepository<ProfileDataEntity> profileDataRepository;
+
     public ProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
             DatasetRepository datasetRepository) {
         super(profileDataRepository, datasetRepository);
+        this.profileDataRepository = profileDataRepository;
     }
 
     @Override
@@ -80,5 +87,13 @@ public abstract class ProfileValueAssembler<V, T>
         ProfileDataItem<T> dataItem = new ProfileDataItem<>();
         dataItem.setValue(dataEntity.getValue());
         return dataItem;
+    }
+
+    @Override
+    protected Stream<ProfileDataEntity> findAll(DatasetEntity dataset, DbQuery query) {
+        DataQuerySpecifications dataFilterSpec = DataQuerySpecifications.<ProfileDataEntity>of(query);
+        Specification<ProfileDataEntity> predicate = dataFilterSpec.matchFiltersParentsIsNull();
+        Iterable<ProfileDataEntity> entities = profileDataRepository.findAll(predicate);
+        return StreamUtils.createStreamFromIterator(entities.iterator());
     }
 }
