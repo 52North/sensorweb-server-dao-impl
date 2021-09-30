@@ -29,7 +29,6 @@ package org.n52.sensorweb.server.db.old.dao;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -150,7 +149,7 @@ public class DbQuery {
         return new DbQuery(parameters.replaceWith(parameter, values));
     }
 
-    public DbQuery replaceWith(String parameter, List<String> values) {
+    public DbQuery replaceWith(String parameter, Collection<String> values) {
         return new DbQuery(parameters.replaceWith(parameter, values));
     }
 
