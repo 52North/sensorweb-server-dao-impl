@@ -36,7 +36,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.series.db.DataRepositoryTypeFactory;
-import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.da.mapper.DatasetMapper;

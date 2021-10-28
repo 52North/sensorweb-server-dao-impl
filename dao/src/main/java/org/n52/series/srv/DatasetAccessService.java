@@ -35,14 +35,15 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DataCollection;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.series.db.DataAccessException;
 import org.n52.series.db.DataRepositoryTypeFactory;
-import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.da.DataRepository;
 import org.n52.series.db.da.DatasetRepository;
 import org.n52.series.db.dao.DbQuery;
 import org.n52.series.spi.srv.DataService;
+import org.n52.series.spi.srv.DatasetTypesService;
 import org.n52.web.exception.InternalServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
 public class DatasetAccessService<V extends AbstractValue<?>> extends AccessService<DatasetOutput<V>>
-        implements DataService<Data<V>> {
+        implements DataService<Data<V>>, DatasetTypesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetAccessService.class);
 
@@ -87,12 +88,17 @@ public class DatasetAccessService<V extends AbstractValue<?>> extends AccessServ
         DbQuery dbQuery = dbQueryFactory.createFrom(parameters);
         Class<? extends DatasetEntity> entityType = DatasetEntity.class;
         DataRepository<? extends DatasetEntity, ?, V, ?> assembler =
-                dataFactory.create(metadata.getObservationType().name(), metadata.getValueType().name(), entityType);
+                dataFactory.create(metadata.getObservationType(), metadata.getValueType(), entityType);
         return assembler.getData(metadata.getId(), dbQuery);
     }
 
     private DatasetRepository<V> getRepository() {
         return (DatasetRepository<V>) repository;
+    }
+
+    @Override
+    public List<DatasetTypesMetadata> getDatasetTypesMetadata(IoParameters map) {
+        return getRepository().getDatasetTypesMetadata(map);
     }
 
 }

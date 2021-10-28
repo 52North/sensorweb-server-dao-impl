@@ -383,10 +383,6 @@
                         <artifactId>jai_core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.eclipse.emf</groupId>
                         <artifactId>org.eclipse.emf.ecore</artifactId>
                     </exclusion>
