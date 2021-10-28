@@ -31,7 +31,6 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Locale;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -572,8 +571,7 @@ public class DbQuery {
 
     public NumberFormat getNumberFormat() {
         if (numberFormat == null) {
-            Locale locale = LocaleHelper.decode(getLocale());
-            this.numberFormat = NumberFormat.getInstance(locale);
+            this.numberFormat = NumberFormat.getInstance(LocaleHelper.decode(getLocale()));
         }
         return numberFormat;
     }

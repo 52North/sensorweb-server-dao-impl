@@ -35,6 +35,7 @@ import org.hibernate.Session;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.series.db.DataRepositoryTypeFactory;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
