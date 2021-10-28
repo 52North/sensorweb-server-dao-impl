@@ -130,8 +130,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     public List<DataEntity<?>> getAllInstancesFor(Set<Long> series, DbQuery query) {
         Criteria criteria = getDefaultCriteria(query)
-                .add(Restrictions.in(DataEntity.PROPERTY_DATASET_ID, series))
-                .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+                .add(Restrictions.in(DataEntity.PROPERTY_DATASET_ID, series));
         query.addTimespanTo(criteria);
         return criteria.list();
     }
