@@ -45,6 +45,7 @@ This project includes:
   Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-ehcache under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-spatial under GNU Library General Public License v2.1 or later
+  HTTP Clients under Lesser General Public License (LGPL)
   HyperSQL Database under HSQLDB License, a BSD open source license
   istack common utility code runtime under Eclipse Distribution License - v 1.0
   J2ObjC Annotations under The Apache Software License, Version 2.0
@@ -133,6 +134,7 @@ This project includes:
   Spring Web under Apache License, Version 2.0
   Spring Web MVC under Apache License, Version 2.0
   TXW2 Runtime under Eclipse Distribution License - v 1.0
+  Units of Measurement API under BSD 3-Clause
   Xalan Java under The Apache Software License, Version 2.0
   Xalan Java Serializer under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License

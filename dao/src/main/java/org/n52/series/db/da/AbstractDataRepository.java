@@ -136,9 +136,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
         IoParameters parameters = query.getParameters();
         TimeOutput timeend = createTimeOutput(observation.getSamplingTimeEnd(),
-                observation.getDataset().getOriginTimezone(), parameters);
+                observation.getDataset().getDateTimeZone(), query.isFormatToUnixTime());
         TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
-                observation.getDataset().getOriginTimezone(), parameters);
+                observation.getDataset().getDateTimeZone(), query.isFormatToUnixTime());
         if (parameters.isShowTimeIntervals() && (timestart != null)) {
             emptyValue.setTimestart(timestart);
         }

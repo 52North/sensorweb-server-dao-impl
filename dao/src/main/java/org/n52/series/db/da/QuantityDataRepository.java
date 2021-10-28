@@ -341,9 +341,7 @@ public class QuantityDataRepository
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         value.setDetectionLimit(getDetectionLimit(observation));
-        Locale locale = LocaleHelper.decode(query.getLocale());
-        NumberFormat formatter = NumberFormat.getInstance(locale);
-        value.setValueFormatter(formatter::format);
+        value.setValueFormatter(query.getNumberFormat()::format);
         return value;
     }
 
