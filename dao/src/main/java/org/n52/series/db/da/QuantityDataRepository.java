@@ -180,7 +180,7 @@ public class QuantityDataRepository
                 }
             }
         }
-        DataDao obsDao = new DataDao(session);
+        DataDao obsDao = createDataDao(session);
         List<DataEntity> observations = obsDao.getAllInstancesFor(series, dbQuery);
         for (DataEntity dataEntity : observations) {
             QuantityDataEntity observationEntity = unproxy(dataEntity, session);
@@ -347,5 +347,10 @@ public class QuantityDataRepository
 
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
         return format(observation.getValue(), dataset);
+    }
+
+    @Override
+    protected DataDao<QuantityDataEntity> createDataDao(Session session) {
+        return new DataDao(session, QuantityDataEntity.class);
     }
 }
