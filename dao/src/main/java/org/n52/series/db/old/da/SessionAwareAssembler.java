@@ -30,6 +30,11 @@ package org.n52.series.db.old.da;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
 import org.locationtech.jts.geom.Geometry;
@@ -81,6 +86,8 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     @Autowired
     protected OutputMapperFactory mapperFactory;
+
+    private Map<String, DateTimeZone> timeZoneMap = new ConcurrentHashMap<>();
 
     private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
 
@@ -236,6 +243,36 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         // if (getSession().getSessionFactory().getAllClassMetadata().values().isEmpty()) {
         // throw new IllegalStateException("No Entites mapped. Check series.database.mappings!");
         // }
+    }
+
+    protected TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
+        if (date != null) {
+            return createTimeOutput(date, getOriginTimeZone(originTimezone), parameters.formatToUnixTime());
+        }
+        return null;
+    }
+
+
+    protected TimeOutput createTimeOutput(Date date, DateTimeZone zone, boolean formatToUnixTime) {
+        if (date != null) {
+            return new TimeOutput(new DateTime(date).withZone(zone), formatToUnixTime);
+        }
+        return null;
+    }
+
+    protected DateTimeZone getOriginTimeZone(String originTimezone) {
+        if (originTimezone != null && !originTimezone.isEmpty()) {
+            if (!timeZoneMap.containsKey(originTimezone)) {
+                if (originTimezone.matches(OFFSET_REGEX)) {
+                    timeZoneMap.put(originTimezone, DateTimeZone
+                            .forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(originTimezone).normalized())));
+                } else {
+                    timeZoneMap.put(originTimezone, DateTimeZone.forID(originTimezone.trim()));
+                }
+            }
+            return timeZoneMap.get(originTimezone);
+        }
+        return DateTimeZone.UTC;
     }
 
 }

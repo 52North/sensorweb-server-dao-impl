@@ -94,11 +94,14 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     public boolean hasInstance(String id, DbQuery query) {
-        return getInstance(id, query) != null;
+        return hasInstance(id, query, getEntityClass());
     }
 
     public boolean hasInstance(String id, DbQuery query, Class<?> clazz) {
-        return getInstance(id, query) != null;
+        Criteria criteria = getInstanceCriteria(id, query, getEntityClass());
+        criteria.setProjection(Projections.property(DatasetEntity.PROPERTY_ID));
+        criteria.setMaxResults(1);
+        return criteria.uniqueResult() != null;
     }
 
     @Override
@@ -107,7 +110,7 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     public boolean hasInstance(Long id, DbQuery query, Class<?> clazz) {
-        return getInstance(id, query) != null;
+        return hasInstance(Long.toString(id), query, getEntityClass());
     }
 
     public T getInstance(String key, DbQuery query) {
@@ -127,11 +130,21 @@ public abstract class AbstractDao<T> implements GenericDao<T, Long> {
     }
 
     protected T getInstance(String key, DbQuery query, Class<T> clazz, Criteria criteria) {
-        Criteria instanceCriteria =
-                query.isMatchDomainIds() ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
-                        : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        Criteria instanceCriteria = getInstanceCriteria(key, query, criteria);
         addFetchModes(instanceCriteria, query, true);
-        return clazz.cast(instanceCriteria.uniqueResult());
+        return clazz.cast(getInstanceCriteria(key, query, criteria).uniqueResult());
+    }
+
+    private Criteria getInstanceCriteria(String key, DbQuery query, Class<T> clazz) {
+        Criteria criteria = getDefaultCriteria(query, clazz);
+        return getInstanceCriteria(key, query, criteria);
+    }
+
+    private Criteria getInstanceCriteria(String key, DbQuery query, Criteria criteria) {
+        Criteria instanceCriteria = query.isMatchDomainIds()
+                ? criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_DOMAIN_ID, key))
+                : criteria.add(Restrictions.eq(DescribableEntity.PROPERTY_ID, Long.parseLong(key)));
+        return instanceCriteria;
     }
 
     @Override

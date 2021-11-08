@@ -172,7 +172,7 @@ public class QuantityDataRepository
                 }
             }
         }
-        DataDao obsDao = new DataDao(session);
+        DataDao obsDao = createDataDao(session);
         List<DataEntity> observations = obsDao.getAllInstancesFor(series, dbQuery);
         for (DataEntity dataEntity : observations) {
             QuantityDataEntity observationEntity = unproxy(dataEntity, session);
@@ -332,13 +332,16 @@ public class QuantityDataRepository
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         value.setDetectionLimit(getDetectionLimit(observation));
-        Locale locale = LocaleHelper.decode(query.getLocale());
-        NumberFormat formatter = NumberFormat.getInstance(locale);
-        value.setValueFormatter(formatter::format);
+        value.setValueFormatter(query.getNumberFormat()::format);
         return value;
     }
 
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
         return format(observation.getValue(), dataset.getNumberOfDecimals());
+    }
+
+    @Override
+    protected DataDao<QuantityDataEntity> createDataDao(Session session) {
+        return new DataDao(session, QuantityDataEntity.class);
     }
 }
