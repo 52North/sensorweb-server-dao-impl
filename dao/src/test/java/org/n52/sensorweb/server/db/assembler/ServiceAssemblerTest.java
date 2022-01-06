@@ -25,27 +25,30 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.sensorweb.server.db.assembler.core;
+package org.n52.sensorweb.server.db.assembler;
 
-import javax.inject.Inject;
+import java.util.List;
 
-import org.n52.sensorweb.server.db.repositories.core.FormatRepository;
-import org.n52.series.db.beans.FormatEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.n52.io.response.ServiceOutput;
+import org.n52.sensorweb.server.db.assembler.core.ServiceAssembler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-@Component
-public class FormatAssembler {
+@DataJpaTest
+public class ServiceAssemblerTest extends AbstractAssemblerTest {
 
-    @Inject
-    private FormatRepository formatRepository;
+    @Autowired
+    private ServiceAssembler assembler;
 
-    @Transactional
-    public FormatEntity getOrInsertInstance(FormatEntity format) {
-        FormatEntity instance = formatRepository.findByFormat(format.getFormat());
-        if (instance != null) {
-            return instance;
-        }
-        return formatRepository.saveAndFlush(format);
+    @Test
+    public void get_all_condensed() {
+        List<ServiceOutput> services = assembler.getAllCondensed(defaultQuery);
+        Assertions.assertNotNull(services);
+        Assertions.assertFalse(services.isEmpty());
+        ServiceOutput service = services.get(0);
+        Assertions.assertNotNull(service.getId());
     }
+
 }

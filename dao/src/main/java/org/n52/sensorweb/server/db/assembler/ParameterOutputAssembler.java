@@ -53,6 +53,7 @@ import org.n52.series.db.beans.UnitEntity;
 import org.n52.series.db.beans.parameter.ComplexParameterEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.spi.search.SearchResult;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
@@ -70,6 +71,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
     @Inject
     private UnitRepository unitRepository;
 
+    @Lazy
     @Inject
     private OutputMapperFactory outputMapperFactory;
 

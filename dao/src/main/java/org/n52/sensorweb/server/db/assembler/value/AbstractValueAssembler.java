@@ -67,7 +67,6 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.GeometryEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
@@ -80,7 +79,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
      *
      * @see #assertServiceAvailable(DescribableEntity)
      */
-    @Autowired
+    @Inject
     protected ServiceEntityFactory serviceEntityFactory;
 
     private final DataRepository<E> dataRepository;

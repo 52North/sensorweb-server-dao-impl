@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -52,7 +53,7 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ServiceEntity;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.ServiceSearchResult;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
@@ -68,10 +69,11 @@ public class ServiceAssembler
 
     private final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository;
 
-    @Autowired
+    @Inject
     private ServiceEntityFactory serviceEntityFactory;
 
-    @Autowired
+    @Lazy
+    @Inject
     private OutputMapperFactory outputMapperFactory;
 
     public ServiceAssembler(final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository) {

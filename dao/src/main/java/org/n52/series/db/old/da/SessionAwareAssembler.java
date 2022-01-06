@@ -30,6 +30,9 @@ package org.n52.series.db.old.da;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
@@ -76,18 +79,19 @@ import org.n52.series.db.old.HibernateSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 public abstract class SessionAwareAssembler implements InitializingBean, TimeOutputCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareAssembler.class);
 
-    @Autowired
+    @Inject
     protected ServiceEntityFactory serviceEntityFactory;
 
     protected final DbQueryFactory dbQueryFactory;
 
-    @Autowired
+    @Lazy
+    @Inject
     protected OutputMapperFactory mapperFactory;
 
     private Map<String, DateTimeZone> timeZoneMap = new ConcurrentHashMap<>();
@@ -96,7 +100,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
 
     private final HibernateSessionStore sessionStore;
 
-    @Autowired
+    @Inject
     public SessionAwareAssembler(HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {
         this.sessionStore = sessionStore;
         this.dbQueryFactory = dbQueryFactory == null ? new DefaultDbQueryFactory() : dbQueryFactory;
