@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -37,7 +37,6 @@ import java.util.List;
 
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,12 +45,9 @@ import org.n52.io.response.ProcedureOutput;
 import org.n52.sensorweb.server.db.TestRepositories;
 import org.n52.sensorweb.server.db.assembler.core.ProcedureAssembler;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
-import org.n52.sensorweb.server.db.repositories.core.ProcedureRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 

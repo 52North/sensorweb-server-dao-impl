@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -38,7 +38,6 @@ import org.locationtech.jts.io.ParseException;
 import org.n52.io.request.Parameters;
 import org.n52.sensorweb.server.db.TestBase;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.query.FeatureQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;

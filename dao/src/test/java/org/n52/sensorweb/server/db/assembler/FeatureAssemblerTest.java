@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -32,13 +32,11 @@ import static org.n52.sensorweb.server.test.FeatureBuilder.newFeature;
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.n52.io.response.FeatureOutput;
 import org.n52.sensorweb.server.db.assembler.core.FeatureAssembler;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
 import org.n52.sensorweb.server.test.FeatureBuilder;

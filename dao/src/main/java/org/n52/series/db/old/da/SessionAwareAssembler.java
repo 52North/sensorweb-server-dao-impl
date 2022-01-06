@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -37,6 +37,8 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -51,6 +53,7 @@ import org.n52.io.response.PlatformOutput;
 import org.n52.io.response.ProcedureOutput;
 import org.n52.io.response.ServiceOutput;
 import org.n52.io.response.TagOutput;
+import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.DatasetParameters;
 import org.n52.sensorweb.server.db.TimeOutputCreator;
 import org.n52.sensorweb.server.db.assembler.mapper.OutputMapperFactory;
@@ -245,7 +248,8 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         // }
     }
 
-    protected TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
+    @Override
+    public TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
         if (date != null) {
             return createTimeOutput(date, getOriginTimeZone(originTimezone), parameters.formatToUnixTime());
         }
@@ -260,7 +264,8 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
         return null;
     }
 
-    protected DateTimeZone getOriginTimeZone(String originTimezone) {
+    @Override
+    public DateTimeZone getOriginTimeZone(String originTimezone) {
         if (originTimezone != null && !originTimezone.isEmpty()) {
             if (!timeZoneMap.containsKey(originTimezone)) {
                 if (originTimezone.matches(OFFSET_REGEX)) {

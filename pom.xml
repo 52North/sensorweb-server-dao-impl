@@ -55,7 +55,7 @@
         <hibernate.version>5.6.3.Final</hibernate.version>
         <spring-boot.version>2.6.2</spring-boot.version>
         <series-api.version>3.5.0-PR.4</series-api.version>
-        <series-hibernate.version>4.0.0-PR.5</series-hibernate.version>
+        <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
         <arctic-sea.version>9.2.1</arctic-sea.version>
         <version.jts>1.18.2</version.jts>
 
@@ -222,7 +222,7 @@
             <dependency>
                 <groupId>org.geolatte</groupId>
                 <artifactId>geolatte-geom</artifactId>
-                <version>1.8.0</version>
+                <version>1.8.2</version>
             </dependency>
             
             <dependency>

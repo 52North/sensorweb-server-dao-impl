@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -60,7 +60,6 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.sensorweb.server.db.old.DataModelUtil;
 import org.n52.janmayen.i18n.LocaleHelper;
-import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
