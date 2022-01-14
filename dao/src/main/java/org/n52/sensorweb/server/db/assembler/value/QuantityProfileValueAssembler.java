@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
@@ -98,7 +99,8 @@ public class QuantityProfileValueAssembler extends ProfileValueAssembler<BigDeci
     private List<ProfileDataItem<BigDecimal>> getDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             ProfileValue<BigDecimal> profile, DbQuery query) {
         List<ProfileDataItem<BigDecimal>> dataItems = new ArrayList<>();
-        for (DataEntity<?> dataEntity : observation.getValue()) {
+        for (DataEntity<?> e : observation.getValue()) {
+            DataEntity<?> dataEntity = Hibernate.unproxy(e, DataEntity.class);
             QuantityDataEntity quantityEntity = (QuantityDataEntity) dataEntity;
             QuantityValue valueItem = prepareValue(new QuantityValue(), dataEntity, dataset, query);
 
