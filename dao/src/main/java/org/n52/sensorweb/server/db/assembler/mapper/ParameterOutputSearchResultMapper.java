@@ -308,4 +308,69 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
         return subSelection;
     }
 
+    protected static class DatasetParameterChecker {
+
+        private final Set<String> datasetTypes;
+        private final Set<String> observationTypes;
+        private final Set<String> valueTypes;
+        private final boolean hasFilter;
+        private Set<String> offerings;
+        private Set<String> phenomena;
+        private Set<String> procedures;
+        private Set<String> platforms;
+
+        private Set<String> datasets;
+        private Set<String> categories;
+        private Set<String> services;
+
+        public DatasetParameterChecker(DbQuery dbQuery) {
+            this.datasetTypes = dbQuery.getParameters().getDatasetTypes();
+            this.observationTypes = dbQuery.getParameters().getObservationTypes();
+            this.valueTypes = dbQuery.getParameters().getValueTypes();
+            this.hasFilter = !datasetTypes.isEmpty() || !observationTypes.isEmpty() || !valueTypes.isEmpty();
+            this.offerings = dbQuery.getParameters().getOfferings();
+            this.phenomena = dbQuery.getParameters().getPhenomena();
+            this.procedures = dbQuery.getParameters().getProcedures();
+            this.platforms = dbQuery.getParameters().getPlatforms();
+            this.categories = dbQuery.getParameters().getCategories();
+            this.services = dbQuery.getParameters().getServices();
+            this.datasets = dbQuery.getParameters().getDatasets();
+        }
+
+        public boolean check(DatasetEntity dataset) {
+            return notReference(dataset) && checkType(dataset) && checkParameter(dataset);
+        }
+
+        private boolean checkParameter(DatasetEntity dataset) {
+            return checkParameter(dataset, datasets) && checkParameter(dataset.getOffering(), offerings)
+                    && checkParameter(dataset.getPhenomenon(), phenomena)
+                    && checkParameter(dataset.getProcedure(), procedures)
+                    && checkParameter(dataset.getPlatform(), platforms)
+                    && checkParameter(dataset.getCategory(), categories)
+                    && checkParameter(dataset.getService(), services);
+        }
+
+        private boolean checkParameter(DescribableEntity entity, Set<String> filter) {
+            if (entity != null && !filter.isEmpty()) {
+                return filter.contains(Long.toString(entity.getId())) || filter.contains(entity.getIdentifier());
+            }
+            return true;
+        }
+
+        private boolean notReference(DatasetEntity dataset) {
+            return !dataset.getProcedure().isReference();
+        }
+
+        private boolean checkType(DatasetEntity dataset) {
+            if (hasFilter) {
+                return (datasetTypes.isEmpty() ? true
+                        : datasetTypes.contains(dataset.getDatasetType().name())) && (observationTypes.isEmpty() ? true
+                                : observationTypes.contains(dataset.getObservationType().name()))
+                                        && (valueTypes.isEmpty() ? true
+                                                : valueTypes.contains(dataset.getValueType().name()));
+            }
+            return true;
+        }
+    }
+
 }

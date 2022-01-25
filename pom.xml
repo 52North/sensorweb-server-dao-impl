@@ -52,7 +52,7 @@
 
         <geotools.version>26.1</geotools.version>
         <geolatte.version>1.8.2</geolatte.version>
-        <hibernate.version>5.6.4.Final</hibernate.version>
+        <hibernate.version>5.6.1.Final</hibernate.version>
         <spring-boot.version>2.6.3</spring-boot.version>
         <series-api.version>3.5.0-PR.4</series-api.version>
         <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>

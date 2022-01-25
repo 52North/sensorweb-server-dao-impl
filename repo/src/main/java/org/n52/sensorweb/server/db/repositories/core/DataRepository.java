@@ -40,6 +40,6 @@ public interface DataRepository<T extends DataEntity<?>> extends JpaRepository<T
 
     List<T> findAllByDataset(DatasetEntity dataset);
 
-    ResultTimeView getResutTimeViewByDataset(long parseLong);
+//    ResultTimeView getResutTimeViewByDatasetId(long datasetId);
 
 }

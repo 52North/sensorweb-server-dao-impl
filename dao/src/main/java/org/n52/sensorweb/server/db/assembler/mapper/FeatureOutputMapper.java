@@ -130,10 +130,11 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
 
     private Map<String, DatasetParameters> createTimeseriesList(Collection<DatasetEntity> series) {
         Map<String, DatasetParameters> timeseriesOutputs = new HashMap<>();
-        for (DatasetEntity timeseries : series) {
-            if (!timeseries.getProcedure().isReference()) {
-                String timeseriesId = Long.toString(timeseries.getId());
-                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(timeseries, getDbQuery()));
+        DatasetParameterChecker checker = new DatasetParameterChecker(getDbQuery());
+        for (DatasetEntity dataset : series) {
+            if (checker.check(dataset)) {
+                String timeseriesId = Long.toString(dataset.getId());
+                timeseriesOutputs.put(timeseriesId, createTimeseriesOutput(dataset, getDbQuery()));
             }
         }
         return timeseriesOutputs;
