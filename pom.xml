@@ -54,9 +54,9 @@
         <geolatte.version>1.8.2</geolatte.version>
         <hibernate.version>5.6.1.Final</hibernate.version>
         <spring-boot.version>2.6.3</spring-boot.version>
-        <series-api.version>3.5.0-PR.4</series-api.version>
-        <series-hibernate.version>4.0.0-SNAPSHOT</series-hibernate.version>
-        <arctic-sea.version>9.2.1</arctic-sea.version>
+        <helgoland-api.version>3.5.0-PR.5</helgoland-api.version>
+        <db-model.version>4.0.0-PR.6</db-model.version>
+        <arctic-sea.version>9.3.0</arctic-sea.version>
         <version.jts>1.18.2</version.jts>
 
         <java.compiler.source>1.8</java.compiler.source>
@@ -118,7 +118,7 @@
             <dependency>
                 <groupId>org.n52.sensorweb-server.helgoland</groupId>
                 <artifactId>helgoland-spi</artifactId>
-                <version>${series-api.version}</version>
+                <version>${helgoland-api.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.n52.arctic-sea</groupId>
@@ -133,23 +133,23 @@
             <dependency>
                 <groupId>org.n52.sensorweb-server.helgoland</groupId>
                 <artifactId>helgoland-io</artifactId>
-                <version>${series-api.version}</version>
+                <version>${helgoland-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.n52.sensorweb-server.helgoland</groupId>
                 <artifactId>helgoland-rest</artifactId>
-                <version>${series-api.version}</version>
+                <version>${helgoland-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.n52.sensorweb-server.helgoland</groupId>
                 <artifactId>helgoland-web-resources</artifactId>
-                <version>${series-api.version}</version>
+                <version>${helgoland-api.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
                 <artifactId>db-model-entities</artifactId>
-                <version>${series-hibernate.version}</version>
+                <version>${db-model.version}</version>
                 <exclusions>
                   <exclusion>
                     <groupId>javax.activation</groupId>
@@ -164,12 +164,12 @@
             <dependency>
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
                 <artifactId>db-model-mappings</artifactId>
-                <version>${series-hibernate.version}</version>
+                <version>${db-model.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
                 <artifactId>db-model-types</artifactId>
-                <version>${series-hibernate.version}</version>
+                <version>${db-model.version}</version>
             </dependency>
 
             <dependency>
