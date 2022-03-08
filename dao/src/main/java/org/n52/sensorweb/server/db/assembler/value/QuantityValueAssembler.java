@@ -29,9 +29,11 @@ package org.n52.sensorweb.server.db.assembler.value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
 import org.n52.io.response.dataset.ReferenceValueOutput;
 import org.n52.io.response.dataset.quantity.QuantityValue;
+import org.n52.janmayen.i18n.LocaleHelper;
 import org.n52.sensorweb.server.db.ValueAssemblerComponent;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.repositories.core.DataRepository;
@@ -73,6 +76,14 @@ public class QuantityValueAssembler
             DataEntity<?> data = getConnector(dataset).getFirstObservation(dataset)
                     .orElse(null);
             return assembleDataValue(unproxy(data), dataset, query);
+        } else if (dataset.getFirstQuantityValue() != null) {
+            QuantityValue value = new QuantityValue();
+            value.setValue(format(dataset.getFirstQuantityValue(), dataset));
+            value.setTimestamp(createTimeOutput(dataset.getFirstValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
         }
         return super.getFirstValue(dataset, query);
     }
@@ -83,6 +94,14 @@ public class QuantityValueAssembler
             DataEntity<?> data = getConnector(dataset).getLastObservation(dataset)
                     .orElse(null);
             return assembleDataValue(unproxy(data), dataset, query);
+        } else if (dataset.getLastQuantityValue() != null) {
+            QuantityValue value = new QuantityValue();
+            value.setValue(format(dataset.getLastQuantityValue(), dataset));
+            value.setTimestamp(createTimeOutput(dataset.getLastValueAt(), null, query.getParameters()));
+            Locale locale = LocaleHelper.decode(query.getLocale());
+            NumberFormat formatter = NumberFormat.getInstance(locale);
+            value.setValueFormatter(formatter::format);
+            return value;
         }
         return super.getLastValue(dataset, query);
     }
