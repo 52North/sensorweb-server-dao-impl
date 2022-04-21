@@ -331,30 +331,45 @@
                             </artifactItem>
                         </artifactItems>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <id>hibernate-mapping</id>
-                            <phase>generate-resources</phase>
-                            <goals>
-                                <goal>unpack</goal>
-                            </goals>
-                            <configuration>
-                                <usedDependencies>
-                                    <usedDependency>org.springframework:spring-core</usedDependency>
-                                </usedDependencies>
-                                <artifactItems>
-                                    <artifactItem>
-                                        <groupId>org.n52.sensorweb-server.db-model</groupId>
-                                        <artifactId>db-model-mappings</artifactId>
-                                        <overWrite>false</overWrite>
-                                    </artifactItem>
-                                </artifactItems>
-                                <includes>**/*.hbm.xml,**/README</includes>
-                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                <overWriteReleases>false</overWriteReleases>
-                            </configuration>
-                        </execution>
-                    </executions>
+                    </execution>
+                    <execution>
+                        <id>hibernate-mapping</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <usedDependencies>
+                                <usedDependency>org.springframework:spring-core</usedDependency>
+                            </usedDependencies>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.n52.sensorweb-server.db-model</groupId>
+                                    <artifactId>db-model-mappings</artifactId>
+                                    <overWrite>false</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*.hbm.xml,**/README</includes>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+            
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.3.0</version>
                 </plugin>
                 
                 <plugin>
@@ -400,7 +415,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>11.0.8</version>
+                    <version>11.0.9</version>
                     <configuration>
                         <stopKey>C</stopKey>
                         <stopPort>34343</stopPort>
