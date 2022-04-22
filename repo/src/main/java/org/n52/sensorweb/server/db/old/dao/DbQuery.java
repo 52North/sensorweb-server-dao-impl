@@ -458,7 +458,7 @@ public class DbQuery {
     private DetachedCriteria addFilterRestriction(Set<String> values, String entity, DetachedCriteria filter) {
         if (hasValues(values)) {
             Criterion restriction = createIdCriterion(values);
-            if ((entity == null) || entity.isEmpty()) {
+            if (entity == null || entity.isEmpty()) {
                 return filter.add(restriction);
             } else {
                 // return subquery for further chaining
@@ -488,7 +488,7 @@ public class DbQuery {
     }
 
     private boolean hasValues(Set<String> values) {
-        return (values != null) && !values.isEmpty();
+        return values != null && !values.isEmpty();
     }
 
     public Criteria addResultTimeFilter(Criteria criteria) {

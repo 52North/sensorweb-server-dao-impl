@@ -40,6 +40,8 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class EntityCounter {
 
@@ -80,6 +82,7 @@ public class EntityCounter {
 
     private final DataRepositoryTypeFactory dataRepositoryFactory;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public EntityCounter(DbQueryFactory dbQueryFactory, DataRepositoryTypeFactory dataRepositoryFactory) {
         this.dbQueryFactory = dbQueryFactory;
         this.dataRepositoryFactory = dataRepositoryFactory;

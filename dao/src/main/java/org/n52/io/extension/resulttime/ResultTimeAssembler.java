@@ -51,6 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class ResultTimeAssembler extends ExtensionAssembler {
 
@@ -58,6 +60,7 @@ public class ResultTimeAssembler extends ExtensionAssembler {
 
     private EntityManager entityManager;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ResultTimeAssembler(EntityManager entityManager, DatasetRepository datasetRepository,
             DbQueryFactory dbQueryFactory) {
         super(datasetRepository, dbQueryFactory);

@@ -51,6 +51,8 @@ import org.n52.series.spi.search.ServiceSearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 //@Component
 public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceOutput> {
 
@@ -62,6 +64,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
 
     private final DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ServiceAssembler(EntityCounter counter,
             DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator,
             HibernateSessionStore sessionStore, DbQueryFactory dbQueryFactory) {

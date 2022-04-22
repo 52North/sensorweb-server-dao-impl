@@ -37,6 +37,8 @@ import org.n52.series.db.beans.DatasetEntity;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.stream.Stream;
 
 public abstract class TrajectoryValueAssembler<E extends DataEntity<T>, V extends AbstractValue<?>, T>
@@ -44,6 +46,7 @@ public abstract class TrajectoryValueAssembler<E extends DataEntity<T>, V extend
 
     private final DataRepository<E> trajectoryDataRepository;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public TrajectoryValueAssembler(DataRepository<E> trajectoryDataRepository,
                                     DatasetRepository datasetRepository) {
         super(trajectoryDataRepository, datasetRepository);

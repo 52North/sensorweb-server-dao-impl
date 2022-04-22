@@ -45,11 +45,14 @@ import org.n52.series.db.beans.ProfileDataEntity;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public abstract class ProfileValueAssembler<V, T>
         extends AbstractValueAssembler<ProfileDataEntity, ProfileValue<V>, Set<DataEntity<?>>> {
 
     private final DataRepository<ProfileDataEntity> profileDataRepository;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ProfileValueAssembler(DataRepository<ProfileDataEntity> profileDataRepository,
             DatasetRepository datasetRepository) {
         super(profileDataRepository, datasetRepository);

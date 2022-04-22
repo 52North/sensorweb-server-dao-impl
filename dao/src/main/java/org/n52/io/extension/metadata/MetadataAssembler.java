@@ -71,7 +71,7 @@ public class MetadataAssembler extends ExtensionAssembler {
     protected Map<String, Object> getExtras(ParameterOutput output, IoParameters parameters) {
         final Set<String> fields = parameters.getFields();
         Optional<DatasetEntity> dataset = getDatasetRepository().findById(Long.parseLong(output.getId()));
-        return !dataset.isPresent() || (dataset.isPresent() && !dataset.get().hasParameters()) ? new LinkedHashMap<>()
+        return !dataset.isPresent() || dataset.isPresent() && !dataset.get().hasParameters() ? new LinkedHashMap<>()
                 : fields == null ? convertToOutputs(dataset.get().getParameters())
                         : convertToOutputs(dataset.get().getParameters().stream()
                                 .filter(p -> fields.contains(p.getName())).collect(Collectors.toList()));

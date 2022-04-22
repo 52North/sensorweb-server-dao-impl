@@ -59,8 +59,11 @@ import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 @Transactional
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class ServiceAssembler
         implements OutputAssembler<ServiceOutput>, InsertAssembler<ServiceEntity>, ClearAssembler<ServiceEntity> {
 
@@ -76,6 +79,7 @@ public class ServiceAssembler
     @Inject
     private OutputMapperFactory outputMapperFactory;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ServiceAssembler(final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository) {
         this.serviceRepository = serviceRepository;
     }
@@ -124,7 +128,7 @@ public class ServiceAssembler
 
     @Override
     public boolean exists(final String id, final DbQuery query) {
-        return (getParameterRepository() != null && getParameterRepository().exists(createPublicPredicate(id, query)))
+        return getParameterRepository() != null && getParameterRepository().exists(createPublicPredicate(id, query))
                 || serviceEntityFactory.getServiceEntity() != null;
     }
 

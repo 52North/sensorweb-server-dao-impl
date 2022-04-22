@@ -29,6 +29,7 @@ package org.n52.sensorweb.server.db.assembler.mapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -300,12 +301,12 @@ public abstract class ParameterOutputSearchResultMapper<E extends DescribableEnt
 
     @Override
     public Set<String> getSelection() {
-        return selection;
+        return Collections.unmodifiableSet(selection);
     }
 
     @Override
     public Map<String, Set<String>> getSubSelection() {
-        return subSelection;
+        return Collections.unmodifiableMap(subSelection);
     }
 
     protected static class DatasetParameterChecker {

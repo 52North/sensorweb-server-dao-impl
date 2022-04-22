@@ -128,7 +128,7 @@ public class QuantityValueAssembler
             return data.getValue();
         }
         final Integer scale = dataset.getNumberOfDecimals();
-        return (scale != null) && (scale.intValue() >= 0) ? data.getValue()
+        return scale != null && scale.intValue() >= 0 ? data.getValue()
                 .setScale(scale, RoundingMode.HALF_UP) : data.getValue();
     }
 
@@ -150,7 +150,7 @@ public class QuantityValueAssembler
         }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query));
         }
         return result;

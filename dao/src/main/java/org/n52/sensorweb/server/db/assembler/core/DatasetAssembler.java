@@ -61,6 +61,8 @@ import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 @Transactional
 public class DatasetAssembler<V extends AbstractValue<?>>
@@ -73,6 +75,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     private EntityManager entityManager;
     private FormatAssembler formatAssembler;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public DatasetAssembler(DatasetRepository parameterRepository,
                             DatasetRepository datasetRepository,
                             DataRepositoryTypeFactory dataRepositoryFactory,
@@ -202,21 +205,21 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     private DatasetEntity update(DatasetEntity instance, DatasetEntity dataset) {
         boolean minChanged = false;
         boolean maxChanged = false;
-        if (!instance.isSetFirstValueAt() || (instance.isSetFirstValueAt() && dataset.isSetFirstValueAt()
-            && instance.getFirstValueAt().after(dataset.getFirstValueAt()))) {
+        if (!instance.isSetFirstValueAt() || instance.isSetFirstValueAt() && dataset.isSetFirstValueAt()
+            && instance.getFirstValueAt().after(dataset.getFirstValueAt())) {
             minChanged = true;
             instance.setFirstValueAt(dataset.getFirstValueAt());
             instance.setFirstObservation(dataset.getFirstObservation());
             instance.setFirstQuantityValue(dataset.getFirstQuantityValue());
         }
-        if (!instance.isSetLastValueAt() || (instance.isSetLastValueAt() && dataset.isSetLastValueAt()
-            && instance.getLastValueAt().before(dataset.getLastValueAt()))) {
+        if (!instance.isSetLastValueAt() || instance.isSetLastValueAt() && dataset.isSetLastValueAt()
+            && instance.getLastValueAt().before(dataset.getLastValueAt())) {
             maxChanged = true;
             instance.setLastValueAt(dataset.getLastValueAt());
             instance.setLastObservation(dataset.getLastObservation());
             instance.setLastQuantityValue(dataset.getLastQuantityValue());
         }
-        if ((instance.isDeleted() && !dataset.isDeleted()) || minChanged || maxChanged) {
+        if (instance.isDeleted() && !dataset.isDeleted() || minChanged || maxChanged) {
             instance.setDeleted(false);
             return getParameterRepository().saveAndFlush(instance);
         }
@@ -249,9 +252,9 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
-        return ((firstValue == null) && (lastValue == null))
-            || ((firstValue != null) && lastValue.getTimestamp().equals(firstValue.getTimestamp()))
-            || ((lastValue != null) && firstValue.getTimestamp().equals(lastValue.getTimestamp()));
+        return firstValue == null && lastValue == null
+            || firstValue != null && lastValue.getTimestamp().equals(firstValue.getTimestamp())
+            || lastValue != null && firstValue.getTimestamp().equals(lastValue.getTimestamp());
     }
 
     public List<DatasetTypesMetadata> getDatasetTypesMetadata(DbQuery dbQuery) {

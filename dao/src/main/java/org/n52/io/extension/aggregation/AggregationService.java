@@ -32,10 +32,13 @@ import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.AggregationOutput;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class AggregationService {
     private final AggregationAssembler repository;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public AggregationService(AggregationAssembler repository) {
         this.repository = repository;
     }

@@ -49,6 +49,8 @@ import org.n52.series.db.old.dao.SearchableDao;
 import org.n52.series.spi.search.FeatureSearchResult;
 import org.n52.series.spi.search.SearchResult;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * TODO: JavaDoc
  *
@@ -59,6 +61,7 @@ public class PlatformAssembler extends ParameterAssembler<PlatformEntity, Platfo
 
     private final DatasetAssembler<AbstractValue<?>> datasetAssembler;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public PlatformAssembler(DatasetAssembler<AbstractValue<?>> datasetAssembler, HibernateSessionStore sessionStore,
             DbQueryFactory dbQueryFactory) {
         super(sessionStore, dbQueryFactory);

@@ -57,6 +57,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 public abstract class ParameterOutputAssembler<E extends DescribableEntity,
                                                O extends AbstractOutput, S extends SearchResult>
         implements OutputAssembler<O>, InsertAssembler<E>, ClearAssembler<E> {

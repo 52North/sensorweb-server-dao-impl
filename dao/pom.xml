@@ -266,6 +266,12 @@
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>test</scope>
+            <exclusions>
+            	<exclusion>
+            		<groupId>javax.activation</groupId>
+            		<artifactId>activation</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

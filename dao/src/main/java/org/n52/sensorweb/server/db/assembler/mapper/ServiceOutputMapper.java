@@ -47,6 +47,8 @@ import org.n52.series.db.beans.ServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<ServiceEntity, ServiceOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceOutputMapper.class);
@@ -56,6 +58,7 @@ public class ServiceOutputMapper extends ParameterOutputSearchResultMapper<Servi
     private final EntityCounter counter;
     private final DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ServiceOutputMapper(DbQuery query, OutputMapperFactory outputMapperFactory, EntityCounter counter,
             DefaultIoFactory<DatasetOutput<AbstractValue<?>>, AbstractValue<?>> ioFactoryCreator, boolean subMappper) {
         super(query, outputMapperFactory, subMappper);

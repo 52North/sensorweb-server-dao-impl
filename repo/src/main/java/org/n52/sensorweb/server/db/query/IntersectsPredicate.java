@@ -45,6 +45,8 @@ import org.hibernate.spatial.SpatialDialect;
 import org.hibernate.spatial.SpatialRelation;
 import org.locationtech.jts.geom.Geometry;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class IntersectsPredicate extends AbstractSimplePredicate implements Expression<Boolean>, Serializable {
     private static final long serialVersionUID = -5467642277075037085L;
 
@@ -54,6 +56,7 @@ public class IntersectsPredicate extends AbstractSimplePredicate implements Expr
 
     private EntityManager entityManager;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public IntersectsPredicate(CriteriaBuilderImpl criteriaBuilder, Expression<Geometry> matchExpression,
             Expression<Geometry> matchingExprssion, EntityManager entityManager) {
         super(criteriaBuilder);

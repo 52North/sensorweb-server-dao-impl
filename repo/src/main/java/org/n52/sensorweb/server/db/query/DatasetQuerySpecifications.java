@@ -251,7 +251,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchOfferings(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -304,7 +304,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchFeatures(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -411,7 +411,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
             final Join<DatasetEntity, ProcedureEntity> join =
                     root.join(DatasetEntity.PROPERTY_PROCEDURE, JoinType.INNER);
             if (all) {
-                if ((ids == null) || ids.isEmpty()) {
+                if (ids == null || ids.isEmpty()) {
                     return null;
                 }
                 return getIdPredicate(join, ids);
@@ -466,7 +466,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchPhenomena(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -518,7 +518,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchCategory(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -570,7 +570,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchTag(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -621,7 +621,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchPlatforms(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -673,7 +673,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DatasetEntity> matchServices(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -719,7 +719,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      */
     public Specification<DatasetEntity> matchDatasetTypes(final Collection<String> datasetTypes) {
         return (root, query, builder) -> {
-            if ((datasetTypes == null) || datasetTypes.isEmpty()) {
+            if (datasetTypes == null || datasetTypes.isEmpty()) {
                 return builder.notEqual(root.get(DatasetEntity.PROPERTY_DATASET_TYPE), DatasetType.not_initialized);
             }
             return root.get(DatasetEntity.PROPERTY_DATASET_TYPE).in(DatasetType.convert(datasetTypes));
@@ -764,7 +764,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      */
     public Specification<DatasetEntity> matchObservationTypes(final Collection<String> observationTypes) {
         return (root, query, builder) -> {
-            if ((observationTypes == null) || observationTypes.isEmpty()) {
+            if (observationTypes == null || observationTypes.isEmpty()) {
                 return builder.notEqual(root.get(DatasetEntity.PROPERTY_OBSERVATION_TYPE),
                         ObservationType.not_initialized);
             }
@@ -809,7 +809,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      */
     public Specification<DatasetEntity> matchValueTypes(final Collection<String> valueTypes) {
         return (root, query, builder) -> {
-            if ((valueTypes == null) || valueTypes.isEmpty()) {
+            if (valueTypes == null || valueTypes.isEmpty()) {
                 return builder.notEqual(root.get(DatasetEntity.PROPERTY_VALUE_TYPE), ValueType.not_initialized);
             }
             return root.get(DatasetEntity.PROPERTY_VALUE_TYPE).in(ValueType.convert(valueTypes));
@@ -846,7 +846,7 @@ public final class DatasetQuerySpecifications extends QuerySpecifications {
      */
     public Specification<DatasetEntity> matchesSpatially() {
         final Geometry geometry = dbQuery.getSpatialFilter();
-        if ((geometry == null) || geometry.isEmpty()) {
+        if (geometry == null || geometry.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {

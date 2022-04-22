@@ -45,6 +45,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 @Transactional
 public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, PlatformOutput, PlatformSearchResult> {
@@ -52,6 +54,7 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
     @PersistenceContext
     private EntityManager entityManager;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public PlatformAssembler(PlatformRepository platformRepository, DatasetRepository datasetRepository) {
         super(platformRepository, datasetRepository);
     }

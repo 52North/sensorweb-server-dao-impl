@@ -51,7 +51,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
+@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 public class AggregationAssembler extends ExtensionAssembler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationAssembler.class);

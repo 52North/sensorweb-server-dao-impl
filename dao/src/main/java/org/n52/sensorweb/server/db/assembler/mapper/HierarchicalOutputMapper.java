@@ -59,7 +59,7 @@ public abstract class HierarchicalOutputMapper<E extends HierarchicalEntity<E>,
                     output::setParents);
         }
         if (level != null && level > 0) {
-            if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()
+            if ((!isParent && !isChild || !isParent && isChild) && entity.hasChildren()
                     && parameters.isSelected(HierarchicalParameterOutput.CHILDREN)) {
                 List<O> children = getMemberList(entity.getChildren(), level - 1, false, true);
                 output.setValue(HierarchicalParameterOutput.CHILDREN, children, getDbQuery().getParameters(),

@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -114,7 +115,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
     }
 
     private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {
-        if ((serviceEntityFactory == null) && (entity == null)) {
+        if (serviceEntityFactory == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
     }
@@ -229,7 +230,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         final IoParameters parameters = query.getParameters();
         final Date timeend = observation.getSamplingTimeEnd();
         final Date timestart = observation.getSamplingTimeStart();
-        if (parameters.isShowTimeIntervals() && (timestart != null)) {
+        if (parameters.isShowTimeIntervals() && timestart != null) {
             value.setTimestart(createTimeOutput(timestart, dataset.getOriginTimezone(), parameters));
         }
         if (observation.hasParameters()) {
@@ -374,7 +375,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     @Override
     public Map<String, ValueConnector> getConnectors() {
-        return connectors;
+        return Collections.unmodifiableMap(connectors);
     }
 
 }

@@ -99,7 +99,7 @@ public final class FeatureQuerySpecifications extends ParameterQuerySpecificatio
 
     public Specification<AbstractFeatureEntity> matchesSpatially() {
         final Geometry geometry = dbQuery.getSpatialFilter();
-        if ((geometry == null) || geometry.isEmpty()) {
+        if (geometry == null || geometry.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {

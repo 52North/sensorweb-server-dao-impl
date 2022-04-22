@@ -57,6 +57,7 @@
         <helgoland-api.version>3.5.0-PR.6</helgoland-api.version>
         <db-model.version>4.0.0-PR.7</db-model.version>
         <arctic-sea.version>9.5.1</arctic-sea.version>
+        <version.jts>1.18.2</version.jts>
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
 

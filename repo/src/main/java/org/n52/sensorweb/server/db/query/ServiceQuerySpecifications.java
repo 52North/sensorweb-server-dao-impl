@@ -72,7 +72,7 @@ public final class ServiceQuerySpecifications extends ParameterQuerySpecificatio
 
     @Override
     public <T extends DescribableEntity> Specification<T> matchServices(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {

@@ -36,6 +36,8 @@ import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.QuantityDataEntity;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class QuantityTrajectoryValueAssembler
 
     private final QuantityValueAssembler assembler;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public QuantityTrajectoryValueAssembler(DataRepository<QuantityDataEntity> TrajectoryDataRepository,
                                             DatasetRepository datasetRepository,
                                             QuantityValueAssembler assembler) {

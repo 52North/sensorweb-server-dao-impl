@@ -336,9 +336,9 @@ public class DatasetAssembler<V extends AbstractValue<?>> extends SessionAwareAs
     }
 
     private boolean isCongruentValues(AbstractValue<?> firstValue, AbstractValue<?> lastValue) {
-        return ((firstValue == null) && (lastValue == null))
-                || ((firstValue != null) && lastValue.getTimestamp().equals(firstValue.getTimestamp()))
-                || ((lastValue != null) && firstValue.getTimestamp().equals(lastValue.getTimestamp()));
+        return firstValue == null && lastValue == null
+                || firstValue != null && lastValue.getTimestamp().equals(firstValue.getTimestamp())
+                || lastValue != null && firstValue.getTimestamp().equals(lastValue.getTimestamp());
     }
 
     private boolean isReferenceSeries(DatasetEntity series) {

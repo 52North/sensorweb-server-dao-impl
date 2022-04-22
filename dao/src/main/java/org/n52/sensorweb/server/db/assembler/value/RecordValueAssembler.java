@@ -114,7 +114,7 @@ public class RecordValueAssembler extends AbstractValueAssembler<RecordDataEntit
         }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(referenceValues, query));
         }
         return result;

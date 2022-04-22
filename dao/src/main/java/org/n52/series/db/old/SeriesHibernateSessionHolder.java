@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 @Transactional
 public class SeriesHibernateSessionHolder implements HibernateSessionStore {
@@ -45,6 +47,7 @@ public class SeriesHibernateSessionHolder implements HibernateSessionStore {
 
     private final EntityManager entityManager;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public SeriesHibernateSessionHolder(EntityManager entityManager) {
         this.entityManager = entityManager;
     }

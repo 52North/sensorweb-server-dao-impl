@@ -28,6 +28,7 @@
 package org.n52.sensorweb.server.db.factory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -148,7 +149,7 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
                 }
             });
         }
-        return valueTypes;
+        return Collections.unmodifiableSet(valueTypes);
     }
 
 }

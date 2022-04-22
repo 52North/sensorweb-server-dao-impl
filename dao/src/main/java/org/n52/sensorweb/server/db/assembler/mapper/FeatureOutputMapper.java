@@ -100,7 +100,7 @@ public class FeatureOutputMapper extends ParameterOutputSearchResultMapper<Abstr
                         output::setParents);
             }
             if (level != null && level > 0) {
-                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()
+                if ((!isParent && !isChild || !isParent && isChild) && entity.hasChildren()
                         && getDbQuery().getParameters().isSelected(HierarchicalParameterOutput.CHILDREN)) {
                     List<FeatureOutput> children = getMemberList(entity.getChildren(), level - 1, false, true);
                     output.setValue(HierarchicalParameterOutput.CHILDREN, children, getDbQuery().getParameters(),

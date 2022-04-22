@@ -99,7 +99,7 @@ public class ParameterQuerySpecifications extends QuerySpecifications {
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public <T extends DescribableEntity> Specification<T> matchServices(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {

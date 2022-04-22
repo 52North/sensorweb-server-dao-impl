@@ -32,6 +32,9 @@ import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 public abstract class ExtensionAssembler {
 
     private DbQueryFactory dbQueryFactory;

@@ -34,11 +34,14 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class ExtrasHierarchicalParameterService {
 
     private final ExtrasHierarchicalParameterAssembler repository;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public ExtrasHierarchicalParameterService(ExtrasHierarchicalParameterAssembler repository) {
         this.repository = repository;
     }

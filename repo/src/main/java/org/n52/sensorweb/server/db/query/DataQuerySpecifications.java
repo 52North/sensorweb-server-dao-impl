@@ -205,7 +205,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      * @return a boolean expression or {@literal null} when given ids are {@literal null} or empty
      */
     public Specification<DataEntity> matchDatasets(final Collection<String> ids) {
-        if ((ids == null) || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {
@@ -396,7 +396,7 @@ public final class DataQuerySpecifications<E extends DatasetEntity> extends Quer
      */
     public Specification<DataEntity> matchesSpatially() {
         final Geometry geometry = dbQuery.getSpatialFilter();
-        if ((geometry == null) || geometry.isEmpty()) {
+        if (geometry == null || geometry.isEmpty()) {
             return null;
         }
         return (root, query, builder) -> {

@@ -46,6 +46,8 @@ import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
 public class Search implements SearchService {
 
@@ -67,6 +69,7 @@ public class Search implements SearchService {
 
     private final DbQueryFactory dbQueryFactory;
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public Search(OutputAssembler<ProcedureOutput> procedureRepository,
                   OutputAssembler<PhenomenonOutput> phenomenonRepository,
                   OutputAssembler<FeatureOutput> featureRepository,
