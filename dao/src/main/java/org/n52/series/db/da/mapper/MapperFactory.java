@@ -155,7 +155,7 @@ public class MapperFactory {
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((getServiceEntity() == null) && (entity == null)) {
+        if (getServiceEntity() == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
     }

@@ -70,6 +70,8 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class DbQuery {
 
     protected static final String FEATURE_ALIAS = "feature_";
@@ -569,6 +571,7 @@ public class DbQuery {
         return formatToUnixTime;
     }
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP" })
     public NumberFormat getNumberFormat() {
         if (numberFormat == null) {
             this.numberFormat = NumberFormat.getInstance(LocaleHelper.decode(getLocale()));

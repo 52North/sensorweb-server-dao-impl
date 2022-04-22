@@ -51,6 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * TODO: JavaDoc
  *
@@ -60,6 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @SuppressWarnings("rawtypes")
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataDao.class);

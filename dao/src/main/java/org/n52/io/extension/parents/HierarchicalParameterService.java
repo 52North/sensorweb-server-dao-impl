@@ -33,6 +33,9 @@ import java.util.Set;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.HierarchicalParameterOutput;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class HierarchicalParameterService {
 
     private final HierarchicalParameterRepository repository;

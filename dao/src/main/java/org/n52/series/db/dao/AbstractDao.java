@@ -66,6 +66,9 @@ import org.n52.series.db.beans.i18n.I18nEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public abstract class AbstractDao<T> implements GenericDao<T, Long> {
 
     protected static final String TRANSLATIONS_ALIAS = "translations";

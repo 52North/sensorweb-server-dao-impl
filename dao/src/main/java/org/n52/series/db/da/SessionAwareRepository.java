@@ -75,6 +75,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
@@ -228,7 +231,7 @@ public abstract class SessionAwareRepository {
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((getServiceEntity() == null) && (entity == null)) {
+        if (getServiceEntity() == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
     }

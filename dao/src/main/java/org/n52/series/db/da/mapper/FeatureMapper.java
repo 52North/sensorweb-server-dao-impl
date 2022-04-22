@@ -108,7 +108,7 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
                         result::setParents);
             }
             if (level != null && level > 0) {
-                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                if ((!isParent && !isChild || !isParent && isChild) && entity.hasChildren()) {
                     List<FeatureOutput> children = getMemberList(entity.getChildren(),
                             query.withSubSelectFilter(HierarchicalParameterOutput.CHILDREN), level - 1, false, true,
                             session);
