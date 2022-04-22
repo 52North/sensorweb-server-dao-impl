@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -132,8 +132,7 @@ public class DataDao<T extends DataEntity> extends AbstractDao<T> {
 
     public List<DataEntity<?>> getAllInstancesFor(Set<Long> series, DbQuery query) {
         Criteria criteria = getDefaultCriteria(query)
-                .add(Restrictions.in(DataEntity.PROPERTY_DATASET_ID, series))
-                .add(Restrictions.eq(DataEntity.PROPERTY_DELETED, Boolean.FALSE));
+                .add(Restrictions.in(DataEntity.PROPERTY_DATASET_ID, series));
         query.addTimespanTo(criteria);
         return criteria.list();
     }

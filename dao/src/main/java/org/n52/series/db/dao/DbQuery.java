@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -27,6 +27,7 @@
  */
 package org.n52.series.db.dao;
 
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.n52.io.crs.CRSUtils;
 import org.n52.io.request.FilterResolver;
 import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
+import org.n52.janmayen.i18n.LocaleHelper;
 import org.n52.series.db.DataModelUtil;
 import org.n52.series.db.beans.DataEntity;
 import org.n52.series.db.beans.DatasetEntity;
@@ -105,6 +107,12 @@ public class DbQuery {
     private Map<String, Criteria> subCriteria = new LinkedHashMap<>();
 
 
+    private Boolean formatToUnixTime;
+
+    private NumberFormat numberFormat;
+
+    private Boolean isExpanded;
+
     public DbQuery(IoParameters parameters) {
         if (parameters != null) {
             this.parameters = parameters;
@@ -112,6 +120,7 @@ public class DbQuery {
             this.isDefaultLocale = parameters.isDefaultLocal();
             this.localeForLabel = isDefaultLocal() ? null : getLocale();
             this.hrefBase = parameters.getHrefBase();
+            this.formatToUnixTime = parameters.formatToUnixTime();
         }
     }
 
@@ -212,7 +221,10 @@ public class DbQuery {
     }
 
     public boolean isExpanded() {
-        return parameters.isExpanded();
+        if (isExpanded == null) {
+            isExpanded = parameters.isExpanded();
+        }
+        return isExpanded;
     }
 
     public boolean isMatchDomainIds() {
@@ -551,6 +563,17 @@ public class DbQuery {
             subCriteria.put(key, criteria.createCriteria(key, alias));
          }
          return subCriteria.get(key);
+    }
+
+    public boolean isFormatToUnixTime() {
+        return formatToUnixTime;
+    }
+
+    public NumberFormat getNumberFormat() {
+        if (numberFormat == null) {
+            this.numberFormat = NumberFormat.getInstance(LocaleHelper.decode(getLocale()));
+        }
+        return numberFormat;
     }
 
 }

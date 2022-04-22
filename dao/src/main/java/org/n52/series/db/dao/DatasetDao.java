@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -41,8 +41,8 @@ import org.hibernate.transform.ResultTransformer;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.dataset.DatasetOutput;
+import org.n52.io.response.dataset.DatasetTypesMetadata;
 import org.n52.series.db.DataAccessException;
-import org.n52.series.db.DatasetTypesMetadata;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -365,9 +365,9 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
             DatasetTypesMetadata datasetTypesMetadata = new DatasetTypesMetadata();
             if (tuple != null) {
                 datasetTypesMetadata.setId(tuple[0].toString());
-                datasetTypesMetadata.setDatasetType(DatasetType.valueOf(tuple[1].toString()));
-                datasetTypesMetadata.setObservationType(ObservationType.valueOf(tuple[2].toString()));
-                datasetTypesMetadata.setValueType(ValueType.valueOf(tuple[3].toString()));
+                datasetTypesMetadata.setDatasetType(tuple[1].toString());
+                datasetTypesMetadata.setObservationType(tuple[2].toString());
+                datasetTypesMetadata.setValueType(tuple[3].toString());
             }
             return datasetTypesMetadata;
         }

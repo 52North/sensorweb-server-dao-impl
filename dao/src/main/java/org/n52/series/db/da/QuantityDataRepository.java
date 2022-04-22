@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -179,7 +179,7 @@ public class QuantityDataRepository
                 }
             }
         }
-        DataDao obsDao = new DataDao(session);
+        DataDao obsDao = createDataDao(session);
         List<DataEntity> observations = obsDao.getAllInstancesFor(series, dbQuery);
         for (DataEntity dataEntity : observations) {
             QuantityDataEntity observationEntity = unproxy(dataEntity, session);
@@ -340,13 +340,16 @@ public class QuantityDataRepository
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         value.setDetectionLimit(getDetectionLimit(observation));
-        Locale locale = LocaleHelper.decode(query.getLocale());
-        NumberFormat formatter = NumberFormat.getInstance(locale);
-        value.setValueFormatter(formatter::format);
+        value.setValueFormatter(query.getNumberFormat()::format);
         return value;
     }
 
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
         return format(observation.getValue(), dataset);
+    }
+
+    @Override
+    protected DataDao<QuantityDataEntity> createDataDao(Session session) {
+        return new DataDao(session, QuantityDataEntity.class);
     }
 }

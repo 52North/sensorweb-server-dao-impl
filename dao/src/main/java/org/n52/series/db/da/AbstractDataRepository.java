@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -135,9 +135,9 @@ public abstract class AbstractDataRepository<S extends DatasetEntity,
 
         IoParameters parameters = query.getParameters();
         TimeOutput timeend = createTimeOutput(observation.getSamplingTimeEnd(),
-                observation.getDataset().getOriginTimezone(), parameters);
+                observation.getDataset().getDateTimeZone(), query.isFormatToUnixTime());
         TimeOutput timestart = createTimeOutput(observation.getSamplingTimeStart(),
-                observation.getDataset().getOriginTimezone(), parameters);
+                observation.getDataset().getDateTimeZone(), query.isFormatToUnixTime());
         if (parameters.isShowTimeIntervals() && timestart != null) {
             emptyValue.setTimestart(timestart);
         }
