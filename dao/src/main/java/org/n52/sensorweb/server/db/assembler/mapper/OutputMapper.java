@@ -69,7 +69,7 @@ public interface OutputMapper<E extends DescribableEntity, O extends ParameterOu
     }
 
     default boolean isSubSelected(String sub, String selection) {
-        return !hasSelect() || (getSubSelection().containsKey(sub) && checkSubSelected(sub, selection));
+        return !hasSelect() || getSubSelection().containsKey(sub) && checkSubSelected(sub, selection);
     }
 
     default boolean checkSubSelected(String sub, String selection) {

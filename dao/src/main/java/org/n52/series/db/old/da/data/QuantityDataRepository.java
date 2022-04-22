@@ -139,7 +139,7 @@ public class QuantityDataRepository
         }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(dataset, dataIncludeReferences, query, session));
         }
         if (query.expandWithNextValuesBeyondInterval()) {
@@ -163,7 +163,7 @@ public class QuantityDataRepository
         series.add(dataset.getId());
         map.put(dataset.getId(), new LinkedList<QuantityDataEntity>());
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             for (DatasetEntity seriesEntity : referenceValues) {
                 if (seriesEntity != null && seriesEntity.isPublished()
                         && seriesEntity.getValueType().equals(ValueType.quantity)) {

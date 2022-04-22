@@ -70,6 +70,8 @@ import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class DbQuery {
 
     public static final String FEATURE_ALIAS = "feature_";
@@ -594,6 +596,7 @@ public class DbQuery {
         return formatToUnixTime;
     }
 
+    @SuppressFBWarnings({ "EI_EXPOSE_REP" })
     public NumberFormat getNumberFormat() {
         if (numberFormat == null) {
             this.numberFormat = NumberFormat.getInstance(LocaleHelper.decode(getLocale()));

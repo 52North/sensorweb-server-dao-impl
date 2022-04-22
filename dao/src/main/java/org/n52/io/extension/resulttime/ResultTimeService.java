@@ -32,8 +32,10 @@ import java.util.Set;
 import org.n52.io.request.IoParameters;
 import org.springframework.stereotype.Component;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Component
-public class ResultTimeService {
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })public class ResultTimeService {
 
     private final ResultTimeAssembler repository;
 

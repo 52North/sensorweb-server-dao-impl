@@ -103,7 +103,7 @@ public class ServiceAssembler extends ParameterAssembler<ServiceEntity, ServiceO
     }
 
     private boolean isConfiguredServiceInstance(Long id) {
-        return (getServiceEntity() != null) && getServiceEntity().getId().equals(id);
+        return getServiceEntity() != null && getServiceEntity().getId().equals(id);
     }
 
     @Override

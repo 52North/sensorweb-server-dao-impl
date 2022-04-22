@@ -61,10 +61,13 @@ import org.n52.series.spi.search.TimeseriesSearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * @author <a href="mailto:h.bredel@52north.org">Henning Bredel</a>
  */
 // @Component
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public class TimeseriesAssembler extends SessionAwareAssembler implements OutputAssembler<TimeseriesMetadataOutput> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeseriesAssembler.class);

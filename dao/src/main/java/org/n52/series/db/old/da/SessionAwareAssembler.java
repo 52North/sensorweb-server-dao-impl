@@ -81,6 +81,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Lazy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public abstract class SessionAwareAssembler implements InitializingBean, TimeOutputCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareAssembler.class);
@@ -240,7 +243,7 @@ public abstract class SessionAwareAssembler implements InitializingBean, TimeOut
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((getServiceEntity() == null) && (entity == null)) {
+        if (getServiceEntity() == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
     }
