@@ -186,7 +186,7 @@ public class DatasetDao<T extends DatasetEntity> extends AbstractDao<T> implemen
     protected Criteria getDefaultCriteria(String alias, DbQuery query, Class<?> clazz) {
         boolean ignoreReferenceDatasets =
                 DatasetEntity.class.equals(clazz) && query.getParameters().getDatasets() != null
-                        && !query.getParameters().getDatasets().isEmpty() ? false : true;
+                        && query.getParameters().getDatasets().isEmpty();
         // declare explicit alias here
         return getDefaultCriteria(alias, ignoreReferenceDatasets, query, clazz);
     }
