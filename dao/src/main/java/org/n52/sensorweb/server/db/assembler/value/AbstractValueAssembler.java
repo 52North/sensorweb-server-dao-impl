@@ -111,7 +111,7 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
 
     private ServiceEntity getServiceEntity(final DescribableEntity entity) {
         assertServiceAvailable(entity);
-        return entity.getService() != null ? entity.getService() : serviceEntityFactory.getServiceEntity();
+        return serviceEntityFactory.getServiceEntity(entity.getService());
     }
 
     private void assertServiceAvailable(final DescribableEntity entity) throws IllegalStateException {

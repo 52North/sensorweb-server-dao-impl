@@ -46,7 +46,7 @@ public class ServiceEntityFactory implements Constructable {
     private static final String SERVICE_VERSION_KEY = "helgoland.service.version";
     private static final String SERVICE_NO_DATA_VALUES_KEY = "helgoland.service.nodatavalues";
     private static final Integer DEFAULT_ID = 1;
-    private static final String DEFAULT_NAME = "My RESTful Dataset Service";
+    private static final String DEFAULT_NAME = "My RESTful Dataset Service (default)";
     private static final String DEFAULT_VERSION = "3.0";
     private static final String DEFAULT_NO_DATA_VALUES = "-9999.0,99999,NO_DATA";
 
@@ -63,14 +63,14 @@ public class ServiceEntityFactory implements Constructable {
         return serviceEntity;
     }
 
+    public ServiceEntity getServiceEntity(ServiceEntity entity) {
+        return entity != null ? enrich(entity) : serviceEntity;
+    }
+
     @Override
     public void init() {
-        ServiceEntity createdService = createServiceEntity();
         if (serviceEntity == null) {
-            serviceEntity = getDefaultServiceEntity();
-        }
-        if (!serviceEntity.equals(createdService)) {
-            serviceEntity = createdService;
+            serviceEntity = createServiceEntity();
         }
         initialized = true;
     }
@@ -123,13 +123,8 @@ public class ServiceEntityFactory implements Constructable {
         }
     }
 
-    private ServiceEntity getDefaultServiceEntity() {
-        ServiceEntity entity = new ServiceEntity();
-        entity.setId(Long.valueOf(DEFAULT_ID));
-        entity.setName(DEFAULT_NAME);
-        entity.setVersion(DEFAULT_VERSION);
-        entity.setNoDataValues(DEFAULT_NO_DATA_VALUES);
-        addIdentifier(entity);
+    private ServiceEntity enrich(ServiceEntity entity) {
+        entity.setNoDataValues(noDataValues);
         return entity;
     }
 

@@ -231,7 +231,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
                                                           DatasetOutput<V>> mapper) {
         DatasetParameters metadata = new DatasetParameters();
         metadata.setService(getOutputMapperFactory().getServiceMapper(query)
-                .createCondensed(dataset.hasService() ? dataset.getService() : serviceFactory.getServiceEntity()));
+                .createCondensed(serviceFactory.getServiceEntity(dataset.getService())));
         metadata.setOffering(getOutputMapperFactory().getOfferingMapper(query).createCondensed(dataset.getOffering()));
         metadata.setProcedure(
             getOutputMapperFactory().getProcedureMapper(query).createCondensed(dataset.getProcedure()));
