@@ -27,10 +27,17 @@
  */
 package org.n52.sensorweb.server.db.factory;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.n52.faroe.annotation.Configurable;
 import org.n52.faroe.annotation.Setting;
 import org.n52.janmayen.lifecycle.Constructable;
 import org.n52.series.db.beans.ServiceEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +47,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Component
 @SuppressFBWarnings({ "EI_EXPOSE_REP" })
 public class ServiceEntityFactory implements Constructable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceEntityFactory.class);
 
     private static final String SERVICE_ID_KEY = "helgoland.service.id";
     private static final String SERVICE_NAME_KEY = "helgoland.service.name";
@@ -57,6 +66,9 @@ public class ServiceEntityFactory implements Constructable {
     private String name;
     private String version;
     private String noDataValues;
+    private Collection<String> noDataValuesList = new LinkedList<>();
+    private Collection<BigDecimal> quantityNoDataValues = new LinkedList<>();
+    private Collection<Integer> countNoDataValues = new LinkedList<>();
     private boolean initialized;
 
     public ServiceEntity getServiceEntity() {
@@ -96,7 +108,39 @@ public class ServiceEntityFactory implements Constructable {
     @Setting(SERVICE_NO_DATA_VALUES_KEY)
     public void setNoDataValues(String noDataValues) {
         this.noDataValues = noDataValues;
+        LOGGER.debug("Set noData values: {}", noDataValues);
+        this.noDataValuesList.clear();
+        this.countNoDataValues.clear();
+        this.quantityNoDataValues.clear();
+        if (noDataValues != null && !noDataValues.isEmpty()) {
+            final String[] values = noDataValues.split(",");
+            this.noDataValuesList.addAll(Arrays.asList(values));
+            convertToBigDecimal(this.noDataValuesList);
+            convertToIntegers(this.noDataValuesList);
+        }
         updateEntity();
+    }
+
+    private void convertToBigDecimal(Collection<String> collection) {
+        for (String value : collection) {
+            String trimmed = value.trim();
+            try {
+                this.quantityNoDataValues.add(new BigDecimal(trimmed));
+            } catch (NumberFormatException e) {
+                LOGGER.trace("Ignoring NO_DATA value {} (not a big decimal value).", trimmed);
+            }
+        }
+    }
+
+    private void convertToIntegers(Collection<String> collection) {
+        for (String value : collection) {
+            String trimmed = value.trim();
+            try {
+                this.countNoDataValues.add(Integer.parseInt(trimmed));
+            } catch (NumberFormatException e) {
+                LOGGER.trace("Ignoring NO_DATA value {} (not an integer).", trimmed);
+            }
+        }
     }
 
     private boolean check(String check) {
@@ -118,13 +162,13 @@ public class ServiceEntityFactory implements Constructable {
             serviceEntity.setId(Long.valueOf(id));
             serviceEntity.setName(name);
             serviceEntity.setVersion(version);
-            serviceEntity.setNoDataValues(noDataValues);
+            serviceEntity.setNoDataValues(noDataValuesList, quantityNoDataValues, countNoDataValues);
             addIdentifier(serviceEntity);
         }
     }
 
     private ServiceEntity enrich(ServiceEntity entity) {
-        entity.setNoDataValues(noDataValues);
+        entity.setNoDataValues(noDataValuesList, quantityNoDataValues, countNoDataValues);
         return entity;
     }
 
