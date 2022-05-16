@@ -21,4 +21,7 @@ updates:
     versions: [4.0.0-PR.x]
   - dependency-name: org.n52.sensorweb-server.db-model:db-model-entities
     versions: [4.0.0-PR.x]
-
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
