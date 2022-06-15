@@ -45,6 +45,7 @@ import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.series.spi.search.SearchResult;
 import org.n52.series.spi.search.SearchService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -91,6 +92,7 @@ public class Search implements SearchService {
     }
 
     @Override
+    @Transactional
     public Collection<SearchResult> searchResources(IoParameters parameters) {
         Set<SearchResult> results = new HashSet<>();
 
