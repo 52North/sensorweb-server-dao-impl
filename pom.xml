@@ -53,7 +53,7 @@
         <geotools.version>27.0</geotools.version>
         <geolatte.version>1.8.2</geolatte.version>
         <hibernate.version>5.6.9.Final</hibernate.version>
-        <spring-boot.version>2.6.8</spring-boot.version>
+        <spring-boot.version>2.7.0</spring-boot.version>
         <helgoland-api.version>3.5.0-PR.7</helgoland-api.version>
         <db-model.version>4.0.0-SNAPSHOT</db-model.version>
         <arctic-sea.version>9.5.3</arctic-sea.version>
