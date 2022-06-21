@@ -67,10 +67,20 @@ public class CategoryAssembler extends ParameterOutputAssembler<CategoryEntity, 
     }
 
     @Override
-    public Specification<CategoryEntity> createFilterPredicate(DbQuery query) {
+    protected Specification<CategoryEntity> createSearchFilterPredicate(DbQuery query) {
+        CategoryQuerySpecifications filterSpec = CategoryQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
+    protected Specification<CategoryEntity> createFilterPredicate(DbQuery query) {
+        return createFilterPredicate(query, CategoryQuerySpecifications.of(query));
+    }
+
+    private Specification<CategoryEntity> createFilterPredicate(DbQuery query,
+            CategoryQuerySpecifications filterSpec) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        CategoryQuerySpecifications cFilterSpec = CategoryQuerySpecifications.of(query);
-        return cFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

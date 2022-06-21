@@ -80,10 +80,20 @@ public class FeatureAssembler
     }
 
     @Override
+    protected Specification<AbstractFeatureEntity> createSearchFilterPredicate(DbQuery query) {
+        FeatureQuerySpecifications filterSpec = FeatureQuerySpecifications.of(query, entityManager);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
     protected Specification<AbstractFeatureEntity> createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
-        FeatureQuerySpecifications fFilterSpec = FeatureQuerySpecifications.of(query, entityManager);
-        return fFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return createFilterPredicate(query, FeatureQuerySpecifications.of(query, entityManager));
+    }
+
+    private Specification<AbstractFeatureEntity> createFilterPredicate(DbQuery query,
+            FeatureQuerySpecifications filterSpec) {
+        DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

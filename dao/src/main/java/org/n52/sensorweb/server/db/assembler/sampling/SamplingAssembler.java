@@ -70,6 +70,12 @@ public class SamplingAssembler extends ParameterOutputAssembler<SamplingEntity, 
     }
 
     @Override
+    protected Specification<SamplingEntity> createSearchFilterPredicate(DbQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     protected SamplingOutputMapper getMapper(DbQuery query) {
         return getOutputMapperFactory().getSamplingMapper(query);
     }

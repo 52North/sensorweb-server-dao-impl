@@ -71,10 +71,20 @@ public class PhenomenonAssembler
     }
 
     @Override
+    protected Specification<PhenomenonEntity> createSearchFilterPredicate(DbQuery query) {
+        PhenomenonQuerySpecifications filterSpec = PhenomenonQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
     protected Specification<PhenomenonEntity> createFilterPredicate(DbQuery query) {
+        return createFilterPredicate(query, PhenomenonQuerySpecifications.of(query));
+    }
+
+    private Specification<PhenomenonEntity> createFilterPredicate(DbQuery query,
+            PhenomenonQuerySpecifications filterSpec) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        PhenomenonQuerySpecifications pFilterSpec = PhenomenonQuerySpecifications.of(query);
-        return pFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

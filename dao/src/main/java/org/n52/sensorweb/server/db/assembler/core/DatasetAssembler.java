@@ -112,6 +112,12 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     @Override
+    protected Specification<DatasetEntity> createSearchFilterPredicate(DbQuery query) {
+        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
+        return dsFilterSpec.matchFilters().and(dsFilterSpec.matchsLike());
+    }
+
+    @Override
     public List<DatasetOutput<V>> getAllExpanded(final DbQuery query) {
         return findAll(query).map(entity -> createExpanded(entity, query)).collect(Collectors.toList());
     }

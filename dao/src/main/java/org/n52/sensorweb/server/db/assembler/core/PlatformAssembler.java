@@ -70,10 +70,20 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
     }
 
     @Override
+    protected Specification<PlatformEntity> createSearchFilterPredicate(DbQuery query) {
+        PlatformQuerySpecifications filterSpec = PlatformQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
     protected Specification<PlatformEntity> createFilterPredicate(DbQuery query) {
-        DatasetQuerySpecifications dsFilterSpec = DatasetQuerySpecifications.of(query, entityManager);
-        PlatformQuerySpecifications pFilterSpec = PlatformQuerySpecifications.of(query);
-        return pFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return createFilterPredicate(query, PlatformQuerySpecifications.of(query));
+    }
+
+    private Specification<PlatformEntity> createFilterPredicate(DbQuery query,
+            PlatformQuerySpecifications filterSpec) {
+        DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

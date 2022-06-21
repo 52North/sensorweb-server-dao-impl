@@ -57,6 +57,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 
+import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphUtils;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
@@ -90,6 +92,8 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     protected abstract Specification<E> createPublicPredicate(String id, DbQuery query);
 
+    protected abstract Specification<E> createSearchFilterPredicate(DbQuery query);
+
     protected abstract Specification<E> createFilterPredicate(DbQuery query);
 
     public Long count(DbQuery query) {
@@ -117,7 +121,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     @Override
     public Collection<SearchResult> searchFor(final DbQuery query) {
-        return findAll(query).map(it -> getMapper(query).createSearchResult(it, prepareEmptySearchResult()))
+        return findAllSearch(query).map(it -> getMapper(query).createSearchResult(it, prepareEmptySearchResult()))
                 .collect(Collectors.toList());
     }
 
@@ -130,9 +134,17 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
         return DatasetQuerySpecifications.of(query, entityManager);
     }
 
+    public Stream<E> findAllSearch(final DbQuery query) {
+        return findAll(createSearchFilterPredicate(query));
+    }
+
     public Stream<E> findAll(final DbQuery query) {
-        final Specification<E> predicate = createFilterPredicate(query);
-        final Iterable<E> entities = parameterRepository.findAll(predicate);
+        return findAll(createFilterPredicate(query));
+    }
+
+    private Stream<E> findAll(Specification<E> predicate) {
+        final Iterable<E> entities =
+                parameterRepository.findAll(predicate, EntityGraphUtils.fromAttributePaths("translations"));
         return StreamUtils.createStreamFromIterator(entities.iterator());
     }
 

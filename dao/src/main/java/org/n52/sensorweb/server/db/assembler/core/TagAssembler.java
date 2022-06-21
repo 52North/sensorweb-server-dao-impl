@@ -67,10 +67,20 @@ public class TagAssembler extends ParameterOutputAssembler<TagEntity, TagOutput,
     }
 
     @Override
-    public Specification<TagEntity> createFilterPredicate(DbQuery query) {
+    protected Specification<TagEntity> createSearchFilterPredicate(DbQuery query) {
+        TagQuerySpecifications filterSpec = TagQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
+    protected Specification<TagEntity> createFilterPredicate(DbQuery query) {
+        return createFilterPredicate(query, TagQuerySpecifications.of(query));
+    }
+
+    private Specification<TagEntity> createFilterPredicate(DbQuery query,
+            TagQuerySpecifications filterSpec) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        TagQuerySpecifications cFilterSpec = TagQuerySpecifications.of(query);
-        return cFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

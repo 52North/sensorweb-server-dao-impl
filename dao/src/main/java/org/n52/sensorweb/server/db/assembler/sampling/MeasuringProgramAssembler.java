@@ -74,6 +74,12 @@ public class MeasuringProgramAssembler
     }
 
     @Override
+    protected Specification<MeasuringProgramEntity> createSearchFilterPredicate(DbQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     protected MeasuringProgramOutputMapper getMapper(DbQuery query) {
         return getOutputMapperFactory().getMeasuringProgramMapper(query);
     }

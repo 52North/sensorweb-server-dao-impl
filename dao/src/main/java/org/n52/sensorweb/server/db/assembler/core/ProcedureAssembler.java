@@ -77,10 +77,20 @@ public class ProcedureAssembler
     }
 
     @Override
+    protected Specification<ProcedureEntity> createSearchFilterPredicate(DbQuery query) {
+        ProcedureQuerySpecifications filterSpec = ProcedureQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
     protected Specification<ProcedureEntity> createFilterPredicate(DbQuery query) {
+        return createFilterPredicate(query, ProcedureQuerySpecifications.of(query));
+    }
+
+    private Specification<ProcedureEntity> createFilterPredicate(DbQuery query,
+            ProcedureQuerySpecifications filterSpec) {
         DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
-        ProcedureQuerySpecifications pFilterSpec = ProcedureQuerySpecifications.of(query);
-        return pFilterSpec.selectFrom(dsFilterSpec.matchFilters());
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override

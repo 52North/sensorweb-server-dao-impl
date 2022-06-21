@@ -70,9 +70,20 @@ public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, 
     }
 
     @Override
+    protected Specification<OfferingEntity> createSearchFilterPredicate(DbQuery query) {
+        OfferingQuerySpecifications filterSpec = OfferingQuerySpecifications.of(query);
+        return createFilterPredicate(query, filterSpec).and(filterSpec.matchsLike());
+    }
+
+    @Override
     protected Specification<OfferingEntity> createFilterPredicate(DbQuery query) {
-        OfferingQuerySpecifications oFilterSpec = OfferingQuerySpecifications.of(query);
-        return oFilterSpec.selectFrom(getDatasetQuerySpecification(query).matchFilters());
+        return createFilterPredicate(query, OfferingQuerySpecifications.of(query));
+    }
+
+    private Specification<OfferingEntity> createFilterPredicate(DbQuery query,
+            OfferingQuerySpecifications filterSpec) {
+        DatasetQuerySpecifications dsFilterSpec = getDatasetQuerySpecification(query);
+        return filterSpec.selectFrom(dsFilterSpec.matchFilters());
     }
 
     @Override
