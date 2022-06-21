@@ -66,4 +66,5 @@ public final class PhenomenonQuerySpecifications extends ParameterQuerySpecifica
             return builder.in(root.get(DescribableEntity.PROPERTY_ID)).value(sq);
         };
     }
+
 }

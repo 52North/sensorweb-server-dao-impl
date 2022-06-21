@@ -29,14 +29,17 @@ package org.n52.sensorweb.server.db.repositories;
 
 import org.n52.series.db.beans.DescribableEntity;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphCrudRepository;
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository;
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor;
+import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphQueryByExampleExecutor;
+
 @NoRepositoryBean
-public interface ParameterDataRepository<T extends DescribableEntity>
-        extends IdentifierRepository<T>, JpaRepository<T, Long>, JpaSpecificationExecutor<T>, CrudRepository<T, Long> {
+public interface ParameterDataRepository<T extends DescribableEntity> extends IdentifierRepository<T>,
+        EntityGraphJpaRepository<T, Long>, EntityGraphJpaSpecificationExecutor<T>, EntityGraphCrudRepository<T, Long>,
+        EntityGraphQueryByExampleExecutor<T> {
 
     boolean existsByName(String name);
 

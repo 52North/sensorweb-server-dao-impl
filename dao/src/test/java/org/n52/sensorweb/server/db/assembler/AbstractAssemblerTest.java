@@ -42,11 +42,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
+
 public abstract class AbstractAssemblerTest extends TestBase {
 
     @SpringBootConfiguration
-    @EnableJpaRepositories(basePackages = "org.n52.sensorweb.server.db")
-    @ComponentScan(basePackages = { "org.n52.sensorweb.server.db.assembler", "org.n52.sensorweb.server.db.factory"})
+    @EnableJpaRepositories(basePackages = "org.n52.sensorweb.server.db",
+            repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
+    @ComponentScan(basePackages = { "org.n52.sensorweb.server.db.assembler", "org.n52.sensorweb.server.db.factory" })
     static class Config extends TestRepositoryConfig<DatasetEntity> {
         public Config() {
             super("/mapping/core/persistence.xml");

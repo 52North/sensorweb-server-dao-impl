@@ -47,7 +47,6 @@ import org.n52.sensorweb.server.db.TestBase;
 import org.n52.sensorweb.server.db.TestRepositories;
 import org.n52.sensorweb.server.db.TestRepositoryConfig;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.FeatureEntity;
@@ -57,6 +56,8 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -138,41 +139,55 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         // assert test requirement
         assertThat(d1.getProcedure()).as("Datasets share the same procedure").isNotSameAs(d2.getProcedure());
 
-//        Assertions.assertAll("Empty Query matches all", () -> {
-//            final DatasetQuerySpecifications filterSpec = DatasetQuerySpecifications.of(defaultQuery);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1, d2);
-//        });
-//
-//        Assertions.assertAll("Query matches 'stationary' datasets", () -> {
-//            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_STATIONARY);
-//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_STATIONARY))).containsOnly(d1);
-//        });
-//
-//        Assertions.assertAll("Default query does not match 'mobile' datasets", () -> {
-//            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE);
-//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE))).containsOnly(d2);
-//        });
-//
-//        Assertions.assertAll("Default query does match 'remote' datasets ", () -> {
-//            d2.setInsitu(false);
-//            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_REMOTE);
-//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_REMOTE))).containsOnly(d2);
-//        });
-//
-//        Assertions.assertAll("Default query does match 'mobile/remote' datasets ", () -> {
-//            d2.setInsitu(false);
-//            d2.setMobile(true);
-//            final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES, PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE);
-//            final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
-//            assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE))).containsOnly(d2);
-//        });
+        // Assertions.assertAll("Empty Query matches all", () -> {
+        // final DatasetQuerySpecifications filterSpec =
+        // DatasetQuerySpecifications.of(defaultQuery);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1,
+        // d2);
+        // });
+        //
+        // Assertions.assertAll("Query matches 'stationary' datasets", () -> {
+        // final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES,
+        // PLATFORM_TYPE_STATIONARY);
+        // final DatasetQuerySpecifications filterSpec =
+        // getDatasetQuerySpecification(query);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d1);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_STATIONARY))).containsOnly(d1);
+        // });
+        //
+        // Assertions.assertAll("Default query does not match 'mobile'
+        // datasets", () -> {
+        // final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES,
+        // PLATFORM_TYPE_MOBILE);
+        // final DatasetQuerySpecifications filterSpec =
+        // getDatasetQuerySpecification(query);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE))).containsOnly(d2);
+        // });
+        //
+        // Assertions.assertAll("Default query does match 'remote' datasets ",
+        // () -> {
+        // d2.setInsitu(false);
+        // final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES,
+        // PLATFORM_TYPE_REMOTE);
+        // final DatasetQuerySpecifications filterSpec =
+        // getDatasetQuerySpecification(query);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_REMOTE))).containsOnly(d2);
+        // });
+        //
+        // Assertions.assertAll("Default query does match 'mobile/remote'
+        // datasets ", () -> {
+        // d2.setInsitu(false);
+        // d2.setMobile(true);
+        // final DbQuery query = defaultQuery.replaceWith(FILTER_PLATFORM_TYPES,
+        // PLATFORM_TYPE_MOBILE, PLATFORM_TYPE_REMOTE);
+        // final DatasetQuerySpecifications filterSpec =
+        // getDatasetQuerySpecification(query);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes())).containsOnly(d2);
+        // assertThat(datasetRepository.findAll(filterSpec.matchPlatformTypes(PLATFORM_TYPE_MOBILE,
+        // PLATFORM_TYPE_REMOTE))).containsOnly(d2);
+        // });
     }
 
     @Test
@@ -303,16 +318,16 @@ public class DatasetQuerySpecificationsTest extends TestBase {
         Assertions.assertAll("Mixed filter with existing parameters", () -> {
             final String phId1 = getIdAsString(d1.getPhenomenon());
             final String phId2 = getIdAsString(d2.getPhenomenon());
-            final DbQuery query = defaultQuery.replaceWith(PHENOMENA, phId1, phId2)
-                                        .replaceWith(OFFERINGS, offId1, offId2);
+            final DbQuery query =
+                    defaultQuery.replaceWith(PHENOMENA, phId1, phId2).replaceWith(OFFERINGS, offId1, offId2);
             final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).containsAll(toList(d1, d2));
         });
 
         Assertions.assertAll("Matching nothing at all", () -> {
             final String notExistingId = "42";
-            final DbQuery query = defaultQuery.replaceWith(PHENOMENA, notExistingId)
-                                        .replaceWith(OFFERINGS, offId1, offId2);
+            final DbQuery query =
+                    defaultQuery.replaceWith(PHENOMENA, notExistingId).replaceWith(OFFERINGS, offId1, offId2);
             final DatasetQuerySpecifications filterSpec = getDatasetQuerySpecification(query);
             assertThat(datasetRepository.findAll(filterSpec.matchFilters())).isEmpty();
         });
@@ -347,9 +362,9 @@ public class DatasetQuerySpecificationsTest extends TestBase {
 
     private
 
-    @SpringBootConfiguration
-    @EnableJpaRepositories(basePackageClasses = DatasetRepository.class)
-    static class Config extends TestRepositoryConfig<DatasetEntity> {
+    @SpringBootConfiguration @EnableJpaRepositories(basePackageClasses = DatasetRepository.class,
+            repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class) static class Config
+                    extends TestRepositoryConfig<DatasetEntity> {
         public Config() {
             super("/mapping/core/persistence.xml");
         }

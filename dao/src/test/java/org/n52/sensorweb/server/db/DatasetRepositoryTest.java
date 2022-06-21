@@ -50,6 +50,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
+
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
 public class DatasetRepositoryTest extends TestBase {
@@ -88,7 +90,8 @@ public class DatasetRepositoryTest extends TestBase {
     }
 
     @SpringBootConfiguration
-    @EnableJpaRepositories(basePackageClasses = DatasetRepository.class)
+    @EnableJpaRepositories(basePackageClasses = DatasetRepository.class,
+            repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
     static class Config extends TestRepositoryConfig<DatasetEntity> {
         public Config() {
             super("/mapping/core/persistence.xml");

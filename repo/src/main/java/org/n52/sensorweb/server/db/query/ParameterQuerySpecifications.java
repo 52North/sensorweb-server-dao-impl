@@ -32,8 +32,12 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.n52.io.request.IoParameters;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
@@ -106,6 +110,27 @@ public class ParameterQuerySpecifications extends QuerySpecifications {
             final Join<DatasetEntity, ServiceEntity> join = root.join(DatasetEntity.PROPERTY_SERVICE, JoinType.INNER);
             return getIdPredicate(join, ids);
         };
+    }
+
+    public <T extends DescribableEntity> Specification<T> matchsLike() {
+        return (root, query, builder) -> {
+            return builder.or(matchLikeName(root, builder), matchLikeidentifier(root, builder));
+        };
+    }
+
+    protected <T extends DescribableEntity> Predicate matchLikeName(Root<T> root, CriteriaBuilder builder) {
+        return matchLikeProperty(root, builder, DescribableEntity.PROPERTY_NAME);
+    }
+
+    protected <T extends DescribableEntity> Predicate matchLikeidentifier(Root<T> root, CriteriaBuilder builder) {
+        return matchLikeProperty(root, builder, DescribableEntity.PROPERTY_IDENTIFIER);
+    }
+
+    protected <T extends DescribableEntity> Predicate matchLikeProperty(Root<T> root, CriteriaBuilder builder,
+            String property) {
+        Expression<String> path = root.get(property);
+        Expression<String> lower = builder.lower(path);
+        return builder.like(lower, "%" + dbQuery.getSearchTerm() + "%");
     }
 
 }

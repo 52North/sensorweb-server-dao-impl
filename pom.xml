@@ -54,7 +54,8 @@
         <geolatte.version>1.8.2</geolatte.version>
         <hibernate.version>5.6.9.Final</hibernate.version>
         <spring-boot.version>2.7.0</spring-boot.version>
-        <helgoland-api.version>3.5.0-PR.7</helgoland-api.version>
+        <spring-data-entity-graph.version>2.6.1</spring-data-entity-graph.version>
+        <helgoland-api.version>3.5.0-SNAPSHOT</helgoland-api.version>
         <db-model.version>4.0.0-SNAPSHOT</db-model.version>
         <arctic-sea.version>9.5.3</arctic-sea.version>
         <version.jts>1.18.2</version.jts>
@@ -78,6 +79,11 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+			<dependency>
+				<groupId>com.cosium.spring.data</groupId>
+				<artifactId>spring-data-jpa-entity-graph</artifactId>
+				<version>${spring-data-entity-graph.version}</version>
+			</dependency>
             
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -106,6 +112,13 @@
                 <artifactId>dao-impl-repo</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+	            <groupId>${project.groupId}</groupId>
+	            <artifactId>dao-impl-repo</artifactId>
+	            <version>${project.version}</version>
+	            <classifier>tests</classifier>
+	            <scope>test</scope>
+	        </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>dao-impl-webapp</artifactId>

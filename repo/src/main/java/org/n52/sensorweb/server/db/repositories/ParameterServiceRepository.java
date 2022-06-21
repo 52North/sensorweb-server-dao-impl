@@ -39,11 +39,13 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphs;
+
 @NoRepositoryBean
 public interface ParameterServiceRepository<T extends DescribableEntity> extends ParameterDataRepository<T> {
 
     default Optional<T> findByIdentifierAndService(T entity) {
-        return findOne(createExample(entity, createMatcher()));
+        return findOne(createExample(entity, createMatcher()), EntityGraphs.empty());
     }
 
     @Override
