@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,6 +70,8 @@ import org.n52.series.db.beans.sampling.SamplingEntity;
 import org.n52.series.db.beans.sampling.SamplingProfileDatasetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -206,7 +209,7 @@ public class DbQuery {
     }
 
     public String getSearchTerm() {
-        return parameters.getAsString(Parameters.SEARCH_TERM);
+        return Joiner.on(",").join(parameters.getSearchTerms());
     }
 
     public Interval getTimespan() {
