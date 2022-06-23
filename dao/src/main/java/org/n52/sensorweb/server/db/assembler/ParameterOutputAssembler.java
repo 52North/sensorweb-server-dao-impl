@@ -162,7 +162,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
         if (parameter instanceof HibernateRelations.HasUnit) {
             UnitEntity unit = ((HibernateRelations.HasUnit) parameter).getUnit();
             ((HibernateRelations.HasUnit) parameter).setUnit(getOrInsertUnit(unit));
-        } else if (parameter instanceof ComplexParameterEntity) {
+        } else if (parameter instanceof ComplexParameterEntity && parameter.getValue() != null) {
             Set<?> value = (Set<?>) ((ComplexParameterEntity) parameter).getValue();
             for (Object v : value) {
                 if (v instanceof ParameterEntity) {

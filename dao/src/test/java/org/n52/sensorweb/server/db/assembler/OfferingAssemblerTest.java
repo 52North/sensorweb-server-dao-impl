@@ -33,7 +33,10 @@ import static org.n52.io.request.Parameters.HREF_BASE;
 import static org.n52.io.request.Parameters.MATCH_DOMAIN_IDS;
 import static org.n52.sensorweb.server.test.TestUtils.getIdAsString;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Assertions;
@@ -45,8 +48,12 @@ import org.n52.io.response.OfferingOutput;
 import org.n52.sensorweb.server.db.TestRepositories;
 import org.n52.sensorweb.server.db.assembler.core.OfferingAssembler;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.repositories.core.OfferingRepository;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.Describable;
 import org.n52.series.db.beans.OfferingEntity;
+import org.n52.series.db.beans.i18n.I18nEntity;
+import org.n52.series.db.beans.i18n.I18nOfferingEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -57,6 +64,9 @@ public class OfferingAssemblerTest extends AbstractAssemblerTest {
 
     @Autowired
     private TestRepositories testRepositories;
+
+    @Autowired
+    private OfferingRepository repository;
 
     @Autowired
     private OfferingAssembler assembler;
@@ -184,6 +194,43 @@ public class OfferingAssemblerTest extends AbstractAssemblerTest {
             element.extracting(OfferingOutput::getService)
                     .allMatch(it -> it.getLabel().equals("TestService") && it.getId().equals("42"));
         });
+    }
+
+    @Test
+    public void insert_offering_with_translation() {
+        final String offeringIdentifier = "off";
+        final String offeringLabel = "TestLabel";
+
+        final OfferingEntity entity = new OfferingEntity();
+        entity.setIdentifier(offeringIdentifier);
+        entity.setName(offeringLabel);
+
+        I18nOfferingEntity i18n = new I18nOfferingEntity();
+        i18n.setLocale("en");
+        i18n.setEntity(entity);
+        i18n.setName("test");
+        Set<I18nEntity<? extends Describable>> i18ns = new LinkedHashSet<>();
+        i18ns.add(i18n);
+        entity.setTranslations(i18ns);
+
+        OfferingEntity inserted = assembler.getOrInsertInstance(entity);
+        repository.flush();
+        Assertions.assertNotNull(inserted);
+
+        OfferingEntity offering = repository.getReferenceById(inserted.getId());
+        Assertions.assertNotNull(offering);
+        Assertions.assertTrue(offering.hasTranslations());
+
+        Assertions.assertEquals(1, offering.getTranslations().size());
+        I18nEntity<? extends Describable> param = offering.getTranslations().iterator().next();
+        Assertions.assertNotNull(param);
+        Assertions.assertTrue(param instanceof I18nOfferingEntity);
+
+        repository.delete(entity);
+        repository.flush();
+        Optional<OfferingEntity> deleted = repository.findById(offering.getId());
+        Assertions.assertNotNull(deleted);
+        Assertions.assertFalse(deleted.isPresent());
     }
 
 }

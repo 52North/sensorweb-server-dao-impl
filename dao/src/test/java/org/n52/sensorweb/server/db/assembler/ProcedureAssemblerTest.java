@@ -33,7 +33,11 @@ import static org.n52.io.request.Parameters.HREF_BASE;
 import static org.n52.io.request.Parameters.MATCH_DOMAIN_IDS;
 import static org.n52.sensorweb.server.test.TestUtils.getIdAsString;
 
+import java.math.BigDecimal;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Assertions;
@@ -45,8 +49,18 @@ import org.n52.io.response.ProcedureOutput;
 import org.n52.sensorweb.server.db.TestRepositories;
 import org.n52.sensorweb.server.db.assembler.core.ProcedureAssembler;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
+import org.n52.sensorweb.server.db.repositories.core.ProcedureRepository;
 import org.n52.series.db.beans.DatasetEntity;
+import org.n52.series.db.beans.Describable;
+import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.ProcedureEntity;
+import org.n52.series.db.beans.UnitEntity;
+import org.n52.series.db.beans.i18n.I18nEntity;
+import org.n52.series.db.beans.i18n.I18nProcedureEntity;
+import org.n52.series.db.beans.parameter.ParameterEntity;
+import org.n52.series.db.beans.parameter.feature.FeatureQuantityParameterEntity;
+import org.n52.series.db.beans.parameter.procedure.ProcedureQuantityParameterEntity;
+import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -57,6 +71,9 @@ public class ProcedureAssemblerTest extends AbstractAssemblerTest {
 
     @Autowired
     private TestRepositories testRepositories;
+
+    @Autowired
+    private ProcedureRepository repository;
 
     @Autowired
     private ProcedureAssembler assembler;
@@ -189,4 +206,84 @@ public class ProcedureAssemblerTest extends AbstractAssemblerTest {
         });
     }
 
+    @Test
+    public void insert_procedure_with_simple_parameter() {
+        final String formatIdentifier = "TestParamFormat";
+        final String procedureIdentifier = "TestParamProcedure";
+        final String procedureLabel = "TestParamLabel";
+
+        final FormatEntity formatEntity = new FormatEntity();
+        formatEntity.setFormat(formatIdentifier);
+        ProcedureEntity entity = new ProcedureEntity();
+        entity.setFormat(formatEntity);
+        entity.setIdentifier(procedureIdentifier);
+        entity.setName(procedureLabel);
+
+        ProcedureQuantityParameterEntity parameter = new ProcedureQuantityParameterEntity();
+        parameter.setName("param_name");
+        parameter.setValue(new BigDecimal("1.0"));
+        parameter.setProcedure(entity);
+        UnitEntity unit = new UnitEntity();
+        unit.setIdentifier("m");
+        parameter.setUnit(unit);
+        entity.addParameter(parameter);
+
+        ProcedureEntity inserted = assembler.getOrInsertInstance(entity);
+        repository.flush();
+        Assertions.assertNotNull(inserted);
+
+        ProcedureEntity procedure = repository.getReferenceById(inserted.getId());
+        Assertions.assertNotNull(procedure);
+        Assertions.assertTrue(procedure.hasParameters());
+
+        Assertions.assertEquals(1, procedure.getParameters().size());
+        ParameterEntity<?> param = procedure.getParameters().iterator().next();
+        Assertions.assertNotNull(param);
+        Assertions.assertTrue(param instanceof ProcedureQuantityParameterEntity);
+        Assertions.assertNotNull(((ProcedureQuantityParameterEntity) param).getUnit());
+
+        repository.delete(entity);
+        repository.flush();
+        Optional<ProcedureEntity> deleted = repository.findById(procedure.getId());
+        Assertions.assertNotNull(deleted);
+        Assertions.assertFalse(deleted.isPresent());
+    }
+
+    @Test
+    public void insert_procedure_with_translation() {
+        final String formatIdentifier = "TestFormat";
+        final String procedureIdentifier = "TestProcedure";
+        final String procedureLabel = "TestLabel";
+
+        ProcedureEntity entity = testRepositories.upsertSimpleProcedure(procedureIdentifier, formatIdentifier);
+        entity.setIdentifier(procedureIdentifier);
+        entity.setName(procedureLabel);
+
+        I18nProcedureEntity i18n = new I18nProcedureEntity();
+        i18n.setLocale("en");
+        i18n.setEntity(entity);
+        i18n.setName("test");
+        Set<I18nEntity<? extends Describable>> i18ns = new LinkedHashSet<>();
+        i18ns.add(i18n);
+        entity.setTranslations(i18ns);
+
+        ProcedureEntity inserted = assembler.getOrInsertInstance(entity);
+        repository.flush();
+        Assertions.assertNotNull(inserted);
+
+        ProcedureEntity procedure = repository.getReferenceById(inserted.getId());
+        Assertions.assertNotNull(procedure);
+        Assertions.assertTrue(procedure.hasTranslations());
+
+        Assertions.assertEquals(1, procedure.getTranslations().size());
+        I18nEntity<? extends Describable> param = procedure.getTranslations().iterator().next();
+        Assertions.assertNotNull(param);
+        Assertions.assertTrue(param instanceof I18nProcedureEntity);
+
+        repository.delete(entity);
+        repository.flush();
+        Optional<ProcedureEntity> deleted = repository.findById(procedure.getId());
+        Assertions.assertNotNull(deleted);
+        Assertions.assertFalse(deleted.isPresent());
+    }
 }
