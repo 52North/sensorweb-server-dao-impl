@@ -28,6 +28,7 @@
 package org.n52.sensorweb.server.db.assembler;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -96,6 +97,11 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     protected abstract Specification<E> createFilterPredicate(DbQuery query);
 
+    public E refresh(E entity) {
+        entityManager.refresh(entity);
+        return entity;
+    }
+
     public Long count(DbQuery query) {
         return getParameterRepository().count(createFilterPredicate(query));
     }
@@ -149,26 +155,37 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
     }
 
     @Override
-    public E checkParameterUnits(E entity) {
+    public E checkParameter(E entity) {
         if (entity.hasParameters()) {
+            Set<ParameterEntity<?>> newParams = new LinkedHashSet<>();
             for (ParameterEntity<?> parameter : entity.getParameters()) {
-                checkUnit(parameter);
+                checkParameter(entity, parameter, newParams);
             }
+            entity.setParameters(newParams);
         }
         return entity;
+    }
+
+    public void checkParameter(E entity, ParameterEntity<?> parameter, Set<ParameterEntity<?>> newParams) {
+        if (parameter instanceof ComplexParameterEntity && parameter.getValue() != null) {
+            ComplexParameterEntity<?> complex = (ComplexParameterEntity<?>) parameter;
+            for (Object v : (Set<?>) complex.getValue()) {
+                if (v instanceof ParameterEntity) {
+                    ParameterEntity<?> child = (ParameterEntity<?>) v;
+                    checkParameter(entity, child, newParams);
+                    child.setParent((ParameterEntity<?>) complex);
+                }
+            }
+            complex.setValue(null);
+        }
+        newParams.add(parameter);
+        checkUnit(parameter);
     }
 
     protected void checkUnit(ParameterEntity<?> parameter) {
         if (parameter instanceof HibernateRelations.HasUnit) {
             UnitEntity unit = ((HibernateRelations.HasUnit) parameter).getUnit();
             ((HibernateRelations.HasUnit) parameter).setUnit(getOrInsertUnit(unit));
-        } else if (parameter instanceof ComplexParameterEntity && parameter.getValue() != null) {
-            Set<?> value = (Set<?>) ((ComplexParameterEntity) parameter).getValue();
-            for (Object v : value) {
-                if (v instanceof ParameterEntity) {
-                    checkUnit((ParameterEntity) v);
-                }
-            }
         }
     }
 

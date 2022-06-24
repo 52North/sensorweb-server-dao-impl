@@ -43,6 +43,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.n52.sensorweb.server.db.assembler.core.FeatureAssembler;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
+import org.n52.sensorweb.server.db.repositories.core.UnitRepository;
 import org.n52.sensorweb.server.test.FeatureBuilder;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.Describable;
@@ -88,33 +89,28 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         parameter.setUnit(unit);
         entity.addParameter(parameter);
 
-        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
-        repository.flush();
+        AbstractFeatureEntity<?> inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
-
-        AbstractFeatureEntity feature = repository.getReferenceById(inserted.getId());
-        Assertions.assertNotNull(feature);
-        Assertions.assertTrue(feature.hasParameters());
-
-        Assertions.assertEquals(1, feature.getParameters().size());
-        ParameterEntity<?> param = feature.getParameters().iterator().next();
+        Assertions.assertTrue(inserted.hasParameters());
+        Assertions.assertEquals(1, inserted.getParameters().size());
+        ParameterEntity<?> param = inserted.getParameters().iterator().next();
         Assertions.assertNotNull(param);
         Assertions.assertTrue(param instanceof FeatureQuantityParameterEntity);
         Assertions.assertNotNull(((FeatureQuantityParameterEntity) param).getUnit());
 
-        repository.delete(entity);
+        repository.delete(inserted);
         repository.flush();
-        Optional<AbstractFeatureEntity> deleted = repository.findById(feature.getId());
+        Optional<AbstractFeatureEntity> deleted = repository.findById(inserted.getId());
         Assertions.assertNotNull(deleted);
         Assertions.assertFalse(deleted.isPresent());
     }
 
-//    @Test
+    @Test
     @Order(2)
     public void insert_feature_with_translation() {
         final FormatEntity formatEntity = new FormatEntity();
         formatEntity.setFormat(OGCConstants.UNKNOWN);
-        final FeatureBuilder builder = newFeature("feature_param");
+        final FeatureBuilder builder = newFeature("feature_translation");
         final FeatureEntity entity = builder.setFormat(formatEntity).build();
 
         I18nFeatureEntity i18n = new I18nFeatureEntity();
@@ -125,27 +121,22 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         i18ns.add(i18n);
         entity.setTranslations(i18ns);
 
-        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
-        repository.flush();
+        AbstractFeatureEntity<?> inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
-
-        AbstractFeatureEntity feature = repository.getReferenceById(inserted.getId());
-        Assertions.assertNotNull(feature);
-        Assertions.assertTrue(feature.hasTranslations());
-
-        Assertions.assertEquals(1, feature.getTranslations().size());
-        I18nEntity<? extends Describable> param = feature.getTranslations().iterator().next();
+        Assertions.assertTrue(inserted.hasTranslations());
+        Assertions.assertEquals(1, inserted.getTranslations().size());
+        I18nEntity<? extends Describable> param = inserted.getTranslations().iterator().next();
         Assertions.assertNotNull(param);
         Assertions.assertTrue(param instanceof I18nFeatureEntity);
 
-        repository.delete(entity);
+        repository.delete(inserted);
         repository.flush();
-        Optional<AbstractFeatureEntity> deleted = repository.findById(feature.getId());
+        Optional<AbstractFeatureEntity> deleted = repository.findById(inserted.getId());
         Assertions.assertNotNull(deleted);
         Assertions.assertFalse(deleted.isPresent());
     }
 
-//    @Test
+    @Test
     @Order(3)
     public void insert_feature_with_complex_parameter() {
         final FormatEntity formatEntity = new FormatEntity();
@@ -153,30 +144,27 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         final FeatureBuilder builder = newFeature("feature_param_2");
         final FeatureEntity entity = builder.setFormat(formatEntity).build();
         entity.addParameter(getComplex(entity));
-        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
-        repository.flush();
+        AbstractFeatureEntity<?> inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
+        Assertions.assertNotNull(inserted);
+        Assertions.assertTrue(inserted.hasParameters());
 
-        AbstractFeatureEntity feature = repository.getById(inserted.getId());
-        Assertions.assertNotNull(feature);
-        Assertions.assertTrue(feature.hasParameters());
-
-        Assertions.assertEquals(1, feature.getParameters().size());
-        ParameterEntity<?> param = feature.getParameters().iterator().next();
+        Assertions.assertEquals(1, inserted.getParameters().size());
+        ParameterEntity<?> param = inserted.getParameters().iterator().next();
         Assertions.assertNotNull(param);
         Assertions.assertTrue(param instanceof FeatureComplexParameterEntity);
         FeatureComplexParameterEntity complex = (FeatureComplexParameterEntity) param;
         Assertions.assertNotNull(complex.getValue());
         Assertions.assertEquals(2, complex.getValue().size());
 
-        repository.delete(entity);
+        repository.delete(inserted);
         repository.flush();
-        Optional<AbstractFeatureEntity> deleted = repository.findById(feature.getId());
+        Optional<AbstractFeatureEntity> deleted = repository.findById(inserted.getId());
         Assertions.assertNotNull(deleted);
         Assertions.assertFalse(deleted.isPresent());
     }
 
-//    @Test
+    @Test
     @Order(4)
     public void insert_feature_with_simple_and_complex_parameter() {
         final FormatEntity formatEntity = new FormatEntity();
@@ -190,16 +178,12 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         parameter.setValue(new BigDecimal("2.0"));
         parameter.setFeature(entity);
         entity.addParameter(parameter);
-        AbstractFeatureEntity inserted = assembler.getOrInsertInstance(entity);
-        repository.flush();
+        AbstractFeatureEntity<?> inserted = assembler.getOrInsertInstance(entity);
         Assertions.assertNotNull(inserted);
+        Assertions.assertTrue(inserted.hasParameters());
 
-        AbstractFeatureEntity feature = repository.getReferenceById(inserted.getId());
-        Assertions.assertNotNull(feature);
-        Assertions.assertTrue(feature.hasParameters());
-
-        Assertions.assertEquals(2, feature.getParameters().size());
-        Iterator<ParameterEntity<?>> iterator = feature.getParameters().iterator();
+        Assertions.assertEquals(2, inserted.getParameters().size());
+        Iterator<ParameterEntity<?>> iterator = inserted.getParameters().iterator();
         ParameterEntity<?> param = iterator.next();
         Assertions.assertNotNull(param);
         Assertions.assertTrue(param instanceof FeatureComplexParameterEntity);
@@ -210,9 +194,9 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         param = iterator.next();
         Assertions.assertTrue(param instanceof FeatureQuantityParameterEntity);
 
-        repository.delete(entity);
+        repository.delete(inserted);
         repository.flush();
-        Optional<AbstractFeatureEntity> deleted = repository.findById(feature.getId());
+        Optional<AbstractFeatureEntity> deleted = repository.findById(inserted.getId());
         Assertions.assertNotNull(deleted);
         Assertions.assertFalse(deleted.isPresent());
     }
@@ -231,9 +215,9 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         child1.setName("param_complex_quantity");
         child1.setValue(new BigDecimal("1.0"));
         child1.setFeature(parameter.getFeature());
+        child1.setParent(parameter);
         UnitEntity unit = new UnitEntity();
         unit.setIdentifier("m");
-        child1.setUnit(unit);
         children.add(child1);
 
         FeatureCountParameterEntity child2 = new FeatureCountParameterEntity();
@@ -244,6 +228,5 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         parameter.setValue(children);
         return parameter;
     }
-
 
 }

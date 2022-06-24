@@ -33,22 +33,24 @@ import org.n52.series.db.beans.DescribableEntity;
 
 public interface InsertAssembler<E extends DescribableEntity> extends TransactionalAssembler<E> {
 
+    E refresh(E entity);
+
     @Transactional
     default E getOrInsertInstance(E entity) {
         E instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
             return instance;
         }
-        checkParameterUnits(entity);
-        return getParameterRepository().saveAndFlush(entity);
+        checkParameter(entity);
+        return refresh(getParameterRepository().saveAndFlush(entity));
     }
 
     @Transactional
     default E updateInstance(E entity) {
-        return getParameterRepository().saveAndFlush(entity);
+        return refresh(getParameterRepository().saveAndFlush(entity));
     }
 
-    default E checkParameterUnits(E entity) {
+    default E checkParameter(E entity) {
         return entity;
     }
 

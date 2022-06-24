@@ -170,4 +170,10 @@ public class ServiceAssembler
         getParameterRepository().delete(service);
     }
 
+    @Override
+    public ServiceEntity refresh(ServiceEntity entity) {
+        entityManager.refresh(entity);
+        return entity;
+    }
+
 }
