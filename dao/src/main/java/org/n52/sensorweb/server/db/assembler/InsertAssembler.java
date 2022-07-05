@@ -47,6 +47,7 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
 
     @Transactional
     default E updateInstance(E entity) {
+        checkParameter(entity);
         return refresh(getParameterRepository().saveAndFlush(entity));
     }
 

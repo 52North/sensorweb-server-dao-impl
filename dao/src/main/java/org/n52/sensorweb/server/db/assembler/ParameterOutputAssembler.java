@@ -189,7 +189,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
         }
     }
 
-    private UnitEntity getOrInsertUnit(UnitEntity unit) {
+    public UnitEntity getOrInsertUnit(UnitEntity unit) {
         if (unit != null && unit.isSetIdentifier()) {
             UnitEntity instance = unitRepository.getInstance(unit);
             if (instance != null) {

@@ -200,7 +200,7 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         Assertions.assertNotNull(deleted);
         Assertions.assertFalse(deleted.isPresent());
     }
-    
+
     @Test
     @Order(5)
     public void update_feature_with_simple_parameter() {
@@ -225,7 +225,7 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
         Assertions.assertNotNull(param);
         Assertions.assertTrue(param instanceof FeatureQuantityParameterEntity);
         Assertions.assertNotNull(((FeatureQuantityParameterEntity) param).getUnit());
-        
+
         Optional<AbstractFeatureEntity> optional = repository.findById(inserted.getId());
         Assertions.assertNotNull(optional);
         Assertions.assertTrue(optional.isPresent());
@@ -251,6 +251,41 @@ public class FeatureAssemblerTest extends AbstractAssemblerTest {
                 Assertions.assertEquals(new BigDecimal("2.00"), fqpe.getValue());
             }
         }
+
+        repository.delete(updateInstance);
+        repository.flush();
+        Optional<AbstractFeatureEntity> deleted = repository.findById(inserted.getId());
+        Assertions.assertNotNull(deleted);
+        Assertions.assertFalse(deleted.isPresent());
+    }
+
+    @Test
+    @Order(6)
+    public void insert_feature_update_with_simple_parameter() {
+        final FormatEntity formatEntity = new FormatEntity();
+        formatEntity.setFormat(OGCConstants.UNKNOWN);
+        final FeatureBuilder builder = newFeature("feature_param");
+        final FeatureEntity entity = builder.setFormat(formatEntity).build();
+        AbstractFeatureEntity<?> inserted = assembler.getOrInsertInstance(entity);
+        Assertions.assertNotNull(inserted);
+        Assertions.assertFalse(inserted.hasParameters());
+
+        FeatureQuantityParameterEntity parameter = new FeatureQuantityParameterEntity();
+        parameter.setName("param_name");
+        parameter.setValue(new BigDecimal("1.0"));
+        parameter.setFeature(entity);
+        UnitEntity unit = new UnitEntity();
+        unit.setIdentifier("m");
+        parameter.setUnit(assembler.getOrInsertUnit(unit));
+        inserted.addParameter(parameter);
+        AbstractFeatureEntity updateInstance = assembler.updateInstance(entity);
+        Assertions.assertNotNull(updateInstance);
+        Assertions.assertTrue(updateInstance.hasParameters());
+        Assertions.assertEquals(1, updateInstance.getParameters().size());
+        ParameterEntity<?> param = updateInstance.getParameters().iterator().next();
+        Assertions.assertNotNull(param);
+        Assertions.assertTrue(param instanceof FeatureQuantityParameterEntity);
+        Assertions.assertNotNull(((FeatureQuantityParameterEntity) param).getUnit());
 
         repository.delete(updateInstance);
         repository.flush();
