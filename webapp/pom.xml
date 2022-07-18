@@ -232,6 +232,11 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
