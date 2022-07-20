@@ -48,12 +48,15 @@ import org.hibernate.persister.entity.OuterJoinLoadable;
 public final class DataModelUtil {
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Session session) {
-        Transaction transaction = session.beginTransaction();
-        try {
-            return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
-        } finally {
-            transaction.rollback();
+        if (!session.getTransaction().isActive()) {
+            Transaction transaction = session.beginTransaction();
+            try {
+                return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
+            } finally {
+                transaction.rollback();
+            }
         }
+        return hasProperty(property, session.getEntityManagerFactory().getMetamodel().entity(clazz));
     }
 
     public static boolean isPropertyNameSupported(String property, Class<?> clazz, Criteria criteria) {
