@@ -529,6 +529,17 @@
                 <artifactId>xmlgraphics-commons</artifactId>
                 <version>2.7</version>
                 <scope>runtime</scope>
+                <exclusions>
+                	<exclusion>
+						<!--jcl-over-slf4j is used instead -->
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+					<exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
