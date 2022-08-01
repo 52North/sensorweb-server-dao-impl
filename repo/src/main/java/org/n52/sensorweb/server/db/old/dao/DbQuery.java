@@ -226,7 +226,7 @@ public class DbQuery {
     public Geometry getSpatialFilter() {
         BoundingBox spatialFilter = parameters.getSpatialFilter();
         if (spatialFilter != null) {
-            CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
+            CRSUtils crsUtils = getCrsUtils();
             Point ll = spatialFilter.getLowerLeft();
             Point ur = spatialFilter.getUpperRight();
             GeometryFactory geomFactory = crsUtils.createGeometryFactory(databaseSridCode);
