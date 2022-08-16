@@ -34,6 +34,11 @@
         </dependency>
         <dependency>
             <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-types</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
             <artifactId>db-model-mappings</artifactId>
             <scope>test</scope>
         </dependency>
@@ -69,18 +74,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-			<groupId>com.cosium.spring.data</groupId>
-			<artifactId>spring-data-jpa-entity-graph</artifactId>
-		</dependency>
         <dependency>
             <groupId>tech.units</groupId>
             <artifactId>indriya</artifactId>
@@ -179,16 +172,6 @@
 			<groupId>com.cosium.spring.data</groupId>
 			<artifactId>spring-data-jpa-entity-graph</artifactId>
 		</dependency>
-		<dependency>
-            <groupId>org.n52.sensorweb-server.db-model</groupId>
-            <artifactId>db-model-types</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.n52.sensorweb-server.db-model</groupId>
-            <artifactId>db-model-mappings</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
