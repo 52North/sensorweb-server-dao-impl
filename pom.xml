@@ -52,12 +52,12 @@
 
         <geotools.version>27.1</geotools.version>
         <geolatte.version>1.8.2</geolatte.version>
-        <hibernate.version>5.6.10.Final</hibernate.version>
+        <hibernate.version>5.6.11.Final</hibernate.version>
         <spring-boot.version>2.7.3</spring-boot.version>
         <spring-data-entity-graph.version>2.7.6</spring-data-entity-graph.version>
         <helgoland-api.version>3.5.0-PR.10</helgoland-api.version>
         <db-model.version>4.0.0-PR.11</db-model.version>
-        <arctic-sea.version>9.7.0</arctic-sea.version>
+        <arctic-sea.version>9.8.0</arctic-sea.version>
         <version.jts>1.19.0</version.jts>
         <java.compiler.source>1.8</java.compiler.source>
         <java.compiler.target>1.8</java.compiler.target>
@@ -477,7 +477,7 @@
             <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
-                <version>4.7.1</version>
+                <version>4.7.2</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -495,12 +495,12 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.11.0</version>
+                <version>2.11.1</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
-                <version>3.1.7</version>
+                <version>3.1.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.xmlgraphics</groupId>
