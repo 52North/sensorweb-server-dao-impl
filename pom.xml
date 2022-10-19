@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>24</version>
+        <version>26</version>
     </parent>
     <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
     <artifactId>dao-impl-parent</artifactId>
@@ -55,12 +55,13 @@
         <spring-boot.version>2.7.4</spring-boot.version>
         <hibernate.version>5.6.12.Final</hibernate.version>
         <spring-data-entity-graph.version>2.7.6</spring-data-entity-graph.version>
-        <helgoland-api.version>3.5.0-PR.10</helgoland-api.version>
-        <db-model.version>4.0.0-PR.11</db-model.version>
-        <arctic-sea.version>9.8.0</arctic-sea.version>
+        <helgoland-api.version>3.5.0-SNAPSHOT</helgoland-api.version>
+        <db-model.version>4.0.0-SNAPSHOT</db-model.version>
+        <arctic-sea.version>10.0.0-SNAPSHOT</arctic-sea.version>
         <version.jts>1.19.0</version.jts>
-        <java.compiler.source>1.8</java.compiler.source>
-        <java.compiler.target>1.8</java.compiler.target>
+        <version.java>11</version.java>
+        <java.compiler.source>${version.java}</java.compiler.source>
+        <java.compiler.target>${version.java}</java.compiler.target>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
         <currentYearDynamic>${maven.build.timestamp}</currentYearDynamic>
@@ -531,21 +532,6 @@
         </resources>
 
         <plugins>
-        <!-- 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>sources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-             -->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -599,24 +585,6 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.10</version>
-                </plugin>
-
-                <plugin>
                     <!-- license headers -->
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
@@ -667,7 +635,7 @@
                 <plugin>
                     <!-- assemble licenses -->
                     <groupId>org.jasig.maven</groupId>
-                    <artifactId>maven-notice-plugin</artifactId>
+                    <artifactId>notice-maven-plugin</artifactId>
                     <configuration>
                         <noticeTemplate>etc/NOTICE.template</noticeTemplate>
                         <licenseMapping>
