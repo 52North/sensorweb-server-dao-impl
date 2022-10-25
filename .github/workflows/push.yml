@@ -10,15 +10,14 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 11, 17 ]
     runs-on: ubuntu-latest
     name: Java ${{ matrix.java }} compile
     
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v3
-      with:
+      uses: actions/setup-java@v3     with:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
     - name: Build with Maven
@@ -33,7 +32,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 8
+          java-version: 11
           server-id: sonatype-nexus-snapshots
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
