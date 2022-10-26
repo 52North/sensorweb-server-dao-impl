@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -29,7 +29,9 @@ package org.n52.series.db.da;
 
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
 import org.joda.time.DateTime;
@@ -73,6 +75,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
 public abstract class SessionAwareRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionAwareRepository.class);
@@ -86,6 +91,8 @@ public abstract class SessionAwareRepository {
 
     @Autowired
     protected MapperFactory mapperFactory;
+
+    private Map<String, DateTimeZone> timeZoneMap = new ConcurrentHashMap<>();
 
     private final CRSUtils crsUtils = CRSUtils.createEpsgForcedXYAxisOrder();
 
@@ -224,7 +231,7 @@ public abstract class SessionAwareRepository {
     }
 
     private void assertServiceAvailable(DescribableEntity entity) throws IllegalStateException {
-        if ((getServiceEntity() == null) && (entity == null)) {
+        if (getServiceEntity() == null && entity == null) {
             throw new IllegalStateException("No service instance available");
         }
     }
@@ -238,19 +245,30 @@ public abstract class SessionAwareRepository {
 
     protected TimeOutput createTimeOutput(Date date, String originTimezone, IoParameters parameters) {
         if (date != null) {
-            DateTimeZone zone = getOriginTimeZone(originTimezone);
-            return new TimeOutput(new DateTime(date).withZone(zone), parameters.formatToUnixTime());
+            return createTimeOutput(date, getOriginTimeZone(originTimezone), parameters.formatToUnixTime());
+        }
+        return null;
+    }
+
+
+    protected TimeOutput createTimeOutput(Date date, DateTimeZone zone, boolean formatToUnixTime) {
+        if (date != null) {
+            return new TimeOutput(new DateTime(date).withZone(zone), formatToUnixTime);
         }
         return null;
     }
 
     protected DateTimeZone getOriginTimeZone(String originTimezone) {
         if (originTimezone != null && !originTimezone.isEmpty()) {
-            if (originTimezone.matches(OFFSET_REGEX)) {
-                return DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(originTimezone).normalized()));
-            } else {
-                return DateTimeZone.forID(originTimezone.trim());
+            if (!timeZoneMap.containsKey(originTimezone)) {
+                if (originTimezone.matches(OFFSET_REGEX)) {
+                    timeZoneMap.put(originTimezone, DateTimeZone
+                            .forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(originTimezone).normalized())));
+                } else {
+                    timeZoneMap.put(originTimezone, DateTimeZone.forID(originTimezone.trim()));
+                }
             }
+            return timeZoneMap.get(originTimezone);
         }
         return DateTimeZone.UTC;
     }

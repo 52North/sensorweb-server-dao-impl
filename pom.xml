@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.n52</groupId>
         <artifactId>parent</artifactId>
-        <version>21</version>
+        <version>24</version>
     </parent>
     <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
     <artifactId>dao-impl-parent</artifactId>
-    <version>3.5.0</version>
+    <version>3.6.1</version>
     <name>Sensor Web Server DAO Impl</name>
     <packaging>pom</packaging>
 
@@ -41,21 +41,20 @@
         <connection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</connection>
         <developerConnection>scm:git:https://github.com/52North/sensorweb-server-dao-impl.git</developerConnection>
         <url>https://github.com/52North/sensorweb-server-dao-impl</url>
-        <tag>v3.5.0</tag>
+        <tag>v3.6.1</tag>
     </scm>
 
     <properties>
         <!-- dev | ci | prod -->
         <env>dev</env>
 
-        <geotools.version>25.1</geotools.version>
-        <geolatte.version>1.8.1</geolatte.version>
-        <hibernate.version>5.4.32.Final</hibernate.version>
-        <spring-boot.version>2.5.0</spring-boot.version>
-        <series-api.version>3.4.1</series-api.version>
-        <series-hibernate.version>3.1.0</series-hibernate.version>
-        <arctic-sea.version>8.2.1</arctic-sea.version>
-
+        <geotools.version>27.2</geotools.version>
+        <geolatte.version>1.9.0</geolatte.version>
+        <spring-boot.version>2.7.5</spring-boot.version>
+        <hibernate.version>5.6.12.Final</hibernate.version>
+        <series-api.version>3.4.4</series-api.version>
+        <series-hibernate.version>3.2.1</series-hibernate.version>
+        <arctic-sea.version>9.9.0</arctic-sea.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
         <currentYearDynamic>${maven.build.timestamp}</currentYearDynamic>
@@ -183,7 +182,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
+                <version>31.1-jre</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.checkerframework</groupId>
@@ -194,23 +193,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.9.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>fop-core</artifactId>
-                <version>2.6</version>
-                <exclusions>
-                    <exclusion>
-                        <!--jcl-over-slf4j is used instead -->
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>2.11.0</version>
             </dependency>
             <dependency>
                 <groupId>xalan</groupId>
@@ -383,10 +366,6 @@
                         <artifactId>jai_core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.media</groupId>
-                        <artifactId>jai_codec</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.eclipse.emf</groupId>
                         <artifactId>org.eclipse.emf.ecore</artifactId>
                     </exclusion>
@@ -403,19 +382,29 @@
             <dependency>
                 <groupId>tech.units</groupId>
                 <artifactId>indriya</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.3</version>
                 <scope>runtime</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.measure</groupId>
                         <artifactId>unit-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apiguardian</groupId>
+                        <artifactId>apiguardian-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
-             <dependency>
+            <dependency>
+                <groupId>org.apiguardian</groupId>
+                <artifactId>apiguardian-api</artifactId>
+                <version>1.1.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
                 <groupId>javax.measure</groupId>
                 <artifactId>unit-api</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.3</version>
                 <scope>runtime</scope>
                 <exclusions>
                     <exclusion>
@@ -427,7 +416,7 @@
             <dependency>
                 <groupId>javax.measure</groupId>
                 <artifactId>unit-api</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.3</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -445,14 +434,19 @@
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
-                <version>1.18.1</version>
+                <version>1.19.0</version>
             </dependency>
             <dependency>
                 <groupId>org.geolatte</groupId>
                 <artifactId>geolatte-geom</artifactId>
                 <version>${geolatte.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>4.7.2</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
@@ -468,12 +462,12 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.10.10</version>
+                <version>2.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
-                <version>3.1.4</version>
+                <version>3.1.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -616,7 +610,7 @@
                 <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>build-helper-maven-plugin</artifactId>
-                  <version>3.2.0</version>
+                  <version>3.3.0</version>
                   <executions>
                     <execution>
                       <id>timestamp-property</id>
@@ -635,7 +629,7 @@
                 <plugin>
                     <groupId>net.revelc.code.formatter</groupId>
                     <artifactId>formatter-maven-plugin</artifactId>
-                    <version>2.15.0</version>
+                    <version>2.17.0</version>
                     <configuration>
                         <configFile>${project.basedir}/etc/eclipse_formatter.xml</configFile>
                         <lineEnding>LF</lineEnding>

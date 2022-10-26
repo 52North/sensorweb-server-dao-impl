@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -108,7 +108,7 @@ public class FeatureMapper extends AbstractOuputMapper<FeatureOutput, FeatureEnt
                         result::setParents);
             }
             if (level != null && level > 0) {
-                if (((!isParent && !isChild) || (!isParent && isChild)) && entity.hasChildren()) {
+                if ((!isParent && !isChild || !isParent && isChild) && entity.hasChildren()) {
                     List<FeatureOutput> children = getMemberList(entity.getChildren(),
                             query.withSubSelectFilter(HierarchicalParameterOutput.CHILDREN), level - 1, false, true,
                             session);

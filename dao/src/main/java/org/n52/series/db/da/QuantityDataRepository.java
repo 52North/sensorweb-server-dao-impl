@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 52°North Spatial Information Research GmbH
+ * Copyright (C) 2015-2022 52°North Spatial Information Research GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -144,7 +144,7 @@ public class QuantityDataRepository
         }
 
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             metadata.setReferenceValues(assembleReferenceSeries(dataset, dataIncludeReferences, query, session));
         }
         if (query.expandWithNextValuesBeyondInterval()) {
@@ -170,7 +170,7 @@ public class QuantityDataRepository
         series.add(dataset.getId());
         map.put(dataset.getId(), new LinkedList<QuantityDataEntity>());
         List<DatasetEntity> referenceValues = dataset.getReferenceValues();
-        if ((referenceValues != null) && !referenceValues.isEmpty()) {
+        if (referenceValues != null && !referenceValues.isEmpty()) {
             for (DatasetEntity seriesEntity : referenceValues) {
                 if (seriesEntity != null && seriesEntity.isPublished()
                         && seriesEntity.getValueType().equals(ValueType.quantity)) {
@@ -179,7 +179,7 @@ public class QuantityDataRepository
                 }
             }
         }
-        DataDao obsDao = new DataDao(session);
+        DataDao obsDao = createDataDao(session);
         List<DataEntity> observations = obsDao.getAllInstancesFor(series, dbQuery);
         for (DataEntity dataEntity : observations) {
             QuantityDataEntity observationEntity = unproxy(dataEntity, session);
@@ -204,7 +204,8 @@ public class QuantityDataRepository
                 Data<QuantityValue> referencedDatasetData =
                         assembleData(data.get(referenceDatasetEntity.getId()), query);
                 if (haveToExpandReferenceData(referencedDatasetData)) {
-                    referencedDatasetData = expandReferenceDataIfNecessary(referenceDatasetEntity, query, session);
+                    referencedDatasetData = expandReferenceDataIfNecessary(referenceDatasetEntity,
+                            referencedDatasetData, query, session);
                 }
                 if (query.expandWithNextValuesBeyondInterval()) {
                     QuantityDataEntity previousValue =
@@ -273,19 +274,13 @@ public class QuantityDataRepository
         return referencedDatasetData.getValues().size() <= 1;
     }
 
-    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query, Session session)
-            throws DataAccessException {
+    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, Data<QuantityValue> data,
+            DbQuery query, Session session) throws DataAccessException {
         Data<QuantityValue> result = new Data<>();
-        DataDao<QuantityDataEntity> dao = createDataDao(session);
-        List<QuantityDataEntity> observations = dao.getAllInstancesFor(dataset.getId(), query);
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            QuantityValue lastValue = getLastValue(dataset, session, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            QuantityDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
+        if (data == null || data.getValues().isEmpty()) {
+            result.addValues(expandToInterval(dataset.getLastQuantityValue(), dataset, query));
+        } else if (data.getValues().size() == 1) {
+            result.addValues(expandToInterval(data.getValues().get(0).getValue(), dataset, query));
         }
         return result;
     }
@@ -345,13 +340,16 @@ public class QuantityDataRepository
         QuantityValue value = prepareValue(observation, query);
         value.setValue(observationValue);
         value.setDetectionLimit(getDetectionLimit(observation));
-        Locale locale = LocaleHelper.decode(query.getLocale());
-        NumberFormat formatter = NumberFormat.getInstance(locale);
-        value.setValueFormatter(formatter::format);
+        value.setValueFormatter(query.getNumberFormat()::format);
         return value;
     }
 
     private BigDecimal format(QuantityDataEntity observation, DatasetEntity dataset) {
         return format(observation.getValue(), dataset);
+    }
+
+    @Override
+    protected DataDao<QuantityDataEntity> createDataDao(Session session) {
+        return new DataDao(session, QuantityDataEntity.class);
     }
 }
