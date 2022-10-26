@@ -55,13 +55,11 @@
         <spring-boot.version>2.7.5</spring-boot.version>
         <hibernate.version>5.6.12.Final</hibernate.version>
         <spring-data-entity-graph.version>2.7.6</spring-data-entity-graph.version>
-        <helgoland-api.version>3.5.0-SNAPSHOT</helgoland-api.version>
-        <db-model.version>4.0.0-SNAPSHOT</db-model.version>
-        <arctic-sea.version>10.0.0-SNAPSHOT</arctic-sea.version>
+        <helgoland-api.version>3.5.0-PR.11</helgoland-api.version>
+        <db-model.version>4.0.0-PR.12</db-model.version>
+        <arctic-sea.version>10.0.0</arctic-sea.version>
         <version.jts>1.19.0</version.jts>
         <version.java>11</version.java>
-        <java.compiler.source>${version.java}</java.compiler.source>
-        <java.compiler.target>${version.java}</java.compiler.target>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
         <currentYearDynamic>${maven.build.timestamp}</currentYearDynamic>

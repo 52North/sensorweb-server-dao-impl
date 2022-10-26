@@ -6,21 +6,6 @@ updates:
     interval: daily
     time: "04:00"
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-web-resources
-    versions: [3.5.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-rest
-    versions: [3.5.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-io
-    versions: [3.5.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.helgoland:helgoland-spi
-    versions: [3.5.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.db-model:db-model-types
-    versions: [4.0.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.db-model:db-model-mappings
-    versions: [4.0.0-PR.x]
-  - dependency-name: org.n52.sensorweb-server.db-model:db-model-entities
-    versions: [4.0.0-PR.x]
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
