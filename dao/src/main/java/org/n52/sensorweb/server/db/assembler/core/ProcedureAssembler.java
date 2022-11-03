@@ -106,7 +106,7 @@ public class ProcedureAssembler
     public ProcedureEntity getOrInsertInstance(ProcedureEntity entity) {
         ProcedureEntity instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return instance;
+            return getOrUpdateInstance(instance, entity);
         }
         if (entity.hasParents()) {
             Set<ProcedureEntity> parents = new LinkedHashSet<>();
@@ -115,9 +115,14 @@ public class ProcedureAssembler
             }
             entity.setParents(parents);
         }
+        return super.getOrInsertInstance(entity);
+    }
+
+    @Override
+    public ProcedureEntity checkReferencedEntities(ProcedureEntity entity) {
         entity.setFormat(formatAssembler.getOrInsertInstance(
                 entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
-        return super.getOrInsertInstance(entity);
+        return super.checkReferencedEntities(entity);
     }
 
     @Override

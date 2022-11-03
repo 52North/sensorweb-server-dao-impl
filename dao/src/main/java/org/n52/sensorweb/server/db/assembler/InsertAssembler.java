@@ -27,9 +27,8 @@
  */
 package org.n52.sensorweb.server.db.assembler;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import org.n52.series.db.beans.DescribableEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface InsertAssembler<E extends DescribableEntity> extends TransactionalAssembler<E> {
 
@@ -39,10 +38,22 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
     default E getOrInsertInstance(E entity) {
         E instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return instance;
+            return getOrUpdateInstance(instance, entity);
         }
         checkParameter(entity);
+        checkReferencedEntities(entity);
         return refresh(getParameterRepository().saveAndFlush(entity));
+    }
+
+    default E getOrUpdateInstance(E instance, E entity) {
+        if (entity.getId() == null) {
+            entity.setId(instance.getId());
+            entity.setStaIdentifier(instance.getStaIdentifier());
+            checkReferencedEntities(entity);
+            return refresh(getParameterRepository().saveAndFlush(entity));
+        } else {
+            return instance;
+        }
     }
 
     @Transactional
@@ -52,6 +63,10 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
     }
 
     default E checkParameter(E entity) {
+        return entity;
+    }
+
+    default E checkReferencedEntities(E entity) {
         return entity;
     }
 

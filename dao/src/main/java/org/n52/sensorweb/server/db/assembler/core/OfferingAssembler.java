@@ -99,7 +99,7 @@ public class OfferingAssembler extends ParameterOutputAssembler<OfferingEntity, 
     public OfferingEntity getOrInsertInstance(OfferingEntity entity) {
         OfferingEntity instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return instance;
+            return getOrUpdateInstance(instance, entity);
         }
         if (entity.hasParents()) {
             Set<OfferingEntity> parents = new LinkedHashSet<>();

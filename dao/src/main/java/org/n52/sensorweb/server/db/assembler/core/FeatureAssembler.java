@@ -109,7 +109,7 @@ public class FeatureAssembler
     public AbstractFeatureEntity getOrInsertInstance(AbstractFeatureEntity entity) {
         AbstractFeatureEntity<?> instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return instance;
+            return getOrUpdateInstance(instance, entity);
         }
         if (entity.hasParents()) {
             Set<AbstractFeatureEntity> parents = new LinkedHashSet<>();
@@ -123,6 +123,13 @@ public class FeatureAssembler
         entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
                 : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
         return super.getOrInsertInstance(entity);
+    }
+
+    @Override
+    public AbstractFeatureEntity checkReferencedEntities(AbstractFeatureEntity entity) {
+        entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
+                : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        return super.checkReferencedEntities(entity);
     }
 
     @Override
