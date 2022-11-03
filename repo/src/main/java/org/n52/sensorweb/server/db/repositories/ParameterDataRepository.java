@@ -48,7 +48,8 @@ public interface ParameterDataRepository<T extends DescribableEntity> extends Id
     }
 
     default T getInstance(T entity) {
-        return findByIdentifier(entity.getIdentifier()).orElse(null);
+        return entity.getId() != null ? getReferenceById(entity.getId())
+                : findByIdentifier(entity.getIdentifier()).orElse(null);
     }
 
 }
