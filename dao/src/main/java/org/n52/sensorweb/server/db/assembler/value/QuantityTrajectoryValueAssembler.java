@@ -48,10 +48,10 @@ public class QuantityTrajectoryValueAssembler
     private final QuantityValueAssembler assembler;
 
     @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-    public QuantityTrajectoryValueAssembler(DataRepository<QuantityDataEntity> TrajectoryDataRepository,
+    public QuantityTrajectoryValueAssembler(DataRepository<QuantityDataEntity> trajectoryDataRepository,
                                             DatasetRepository datasetRepository,
                                             QuantityValueAssembler assembler) {
-        super(TrajectoryDataRepository, datasetRepository);
+        super(trajectoryDataRepository, datasetRepository);
         this.assembler = assembler;
     }
 

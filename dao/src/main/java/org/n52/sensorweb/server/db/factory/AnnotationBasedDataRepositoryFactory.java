@@ -81,13 +81,22 @@ public class AnnotationBasedDataRepositoryFactory implements DataRepositoryTypeF
     }
 
     private String getType(String datasetType, String observationType, String valueType) {
-        return (datasetType != null && !datasetType.isEmpty()
-                && datasetType.equalsIgnoreCase(DatasetType.trajectory.name()))
-                        ? valueType + "-" + datasetType
-                        : (observationType != null && !observationType.isEmpty()
-                                && !observationType.equalsIgnoreCase(ObservationType.simple.name()))
-                                        ? valueType + "-" + observationType
-                                        : valueType;
+        if (datasetType != null && !datasetType.isEmpty()) {
+            switch (DatasetType.valueOf(datasetType)) {
+                case trajectory:
+                case profile:
+                    return (observationType != null && !observationType.isEmpty()
+                    && !observationType.equalsIgnoreCase(ObservationType.simple.name()))
+                            ? valueType + "-" + observationType + "-" + datasetType
+                            : valueType + "-" + datasetType;
+                default:
+                    return (observationType != null && !observationType.isEmpty()
+                            && !observationType.equalsIgnoreCase(ObservationType.simple.name()))
+                                    ? valueType + "-" + observationType
+                                    : valueType;
+            }
+        }
+        return valueType;
     }
 
     private Optional<ValueAssembler<? extends DataEntity<?>, ? extends AbstractValue<?>, ?>> findDataAssembler(

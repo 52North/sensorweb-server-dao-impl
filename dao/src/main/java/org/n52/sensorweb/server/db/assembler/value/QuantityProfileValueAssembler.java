@@ -60,7 +60,7 @@ public class QuantityProfileValueAssembler extends ProfileValueAssembler<BigDeci
         return assembleDataValue(observation, dataset, query, profile);
     }
 
-    private ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
+    protected ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             DbQuery query, ProfileValue<BigDecimal> profile) {
         profile.setValue(getDataValue(observation, dataset, profile, query));
         return profile;

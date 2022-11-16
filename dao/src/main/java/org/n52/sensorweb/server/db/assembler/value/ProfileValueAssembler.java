@@ -71,7 +71,7 @@ public abstract class ProfileValueAssembler<V, T>
 
     protected <E extends DataEntity<V>> ProfileDataItem<V> assembleDataItem(E dataEntity, ProfileValue<T> profile,
             ProfileDataEntity observation, DbQuery query) {
-        ProfileDataItem<V> dataItem = new ProfileDataItem<>();
+        ProfileDataItem<V> dataItem = createProfileDataItem();
         dataItem.setValue(dataEntity.getValue());
 
         // IoParameters parameters = query.getParameters();
@@ -98,5 +98,9 @@ public abstract class ProfileValueAssembler<V, T>
         Specification<ProfileDataEntity> predicate = dataFilterSpec.matchFiltersParentsIsNull();
         Iterable<ProfileDataEntity> entities = profileDataRepository.findAll(predicate);
         return StreamUtils.createStreamFromIterator(entities.iterator());
+    }
+
+    public ProfileDataItem<V> createProfileDataItem() {
+        return new ProfileDataItem<>();
     }
 }
