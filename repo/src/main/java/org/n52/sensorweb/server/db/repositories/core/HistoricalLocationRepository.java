@@ -27,7 +27,7 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
-import org.n52.sensorweb.server.db.repositories.AbstractRepository;
+import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.series.db.beans.sta.HistoricalLocationEntity;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Transactional
-public interface HistoricalLocationRepository extends AbstractRepository<HistoricalLocationEntity> {
+public interface HistoricalLocationRepository extends ParameterDataRepository<HistoricalLocationEntity> {
 
 }

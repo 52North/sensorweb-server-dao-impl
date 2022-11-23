@@ -28,54 +28,35 @@
 package org.n52.sensorweb.server.db.assembler;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.n52.io.response.AbstractOutput;
 import org.n52.sensorweb.server.db.assembler.mapper.OutputMapperFactory;
 import org.n52.sensorweb.server.db.assembler.mapper.ParameterOutputSearchResultMapper;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
-import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
-import org.n52.sensorweb.server.db.repositories.core.UnitRepository;
 import org.n52.sensorweb.server.srv.OutputAssembler;
 import org.n52.series.db.beans.DescribableEntity;
-import org.n52.series.db.beans.HibernateRelations;
-import org.n52.series.db.beans.UnitEntity;
-import org.n52.series.db.beans.parameter.ComplexParameterEntity;
-import org.n52.series.db.beans.parameter.ParameterEntity;
 import org.n52.series.spi.search.SearchResult;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.util.StreamUtils;
-
-import com.cosium.spring.data.jpa.entity.graph.domain.EntityGraphUtils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 public abstract class ParameterOutputAssembler<E extends DescribableEntity,
                                                O extends AbstractOutput, S extends SearchResult>
-        implements OutputAssembler<O>, InsertAssembler<E>, ClearAssembler<E> {
+        extends ParameterAssembler<E>
+        implements OutputAssembler<O> {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final ParameterDataRepository<E> parameterRepository;
 
     private final DatasetRepository datasetRepository;
-
-    @Inject
-    private UnitRepository unitRepository;
 
     @Lazy
     @Inject
@@ -83,7 +64,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     public ParameterOutputAssembler(final ParameterDataRepository<E> parameterRepository,
             final DatasetRepository datasetRepository) {
-        this.parameterRepository = parameterRepository;
+       super(parameterRepository);
         this.datasetRepository = datasetRepository;
     }
 
@@ -95,16 +76,6 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
 
     protected abstract Specification<E> createSearchFilterPredicate(DbQuery query);
 
-    protected abstract Specification<E> createFilterPredicate(DbQuery query);
-
-    public E refresh(E entity) {
-        entityManager.refresh(entity);
-        return entity;
-    }
-
-    public Long count(DbQuery query) {
-        return getParameterRepository().count(createFilterPredicate(query));
-    }
 
     @Override
     public List<O> getAllCondensed(final DbQuery query) {
@@ -121,7 +92,7 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
     @Override
     public O getInstance(final String id, final DbQuery query) {
         final Specification<E> publicEntity = createPublicPredicate(id, query);
-        final Optional<E> entity = parameterRepository.findOne(publicEntity);
+        final Optional<E> entity = getParameterRepository().findOne(publicEntity);
         return entity.map(it -> getMapper(query).createExpanded(it, prepareEmptyOutput())).orElse(null);
     }
 
@@ -131,83 +102,15 @@ public abstract class ParameterOutputAssembler<E extends DescribableEntity,
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean exists(final String id, final DbQuery query) {
-        return parameterRepository.exists(createPublicPredicate(id, query));
-    }
-
-    protected DatasetQuerySpecifications getDatasetQuerySpecification(DbQuery query) {
-        return DatasetQuerySpecifications.of(query, entityManager);
-    }
-
     public Stream<E> findAllSearch(final DbQuery query) {
         return findAll(createSearchFilterPredicate(query));
     }
 
-    public Stream<E> findAll(final DbQuery query) {
-        return findAll(createFilterPredicate(query));
-    }
-
-    private Stream<E> findAll(Specification<E> predicate) {
-        final Iterable<E> entities =
-                parameterRepository.findAll(predicate, EntityGraphUtils.fromAttributePaths("translations"));
-        return StreamUtils.createStreamFromIterator(entities.iterator());
-    }
-
     @Override
-    public E checkParameter(E entity) {
-        if (entity.hasParameters()) {
-            Set<ParameterEntity<?>> newParams = new LinkedHashSet<>();
-            for (ParameterEntity<?> parameter : entity.getParameters()) {
-                checkParameter(entity, parameter, newParams);
-            }
-            entity.setParameters(newParams);
-        }
-        return entity;
+    public boolean exists(final String id, final DbQuery query) {
+        return getParameterRepository().exists(createPublicPredicate(id, query));
     }
 
-    public void checkParameter(E entity, ParameterEntity<?> parameter, Set<ParameterEntity<?>> newParams) {
-        if (parameter instanceof ComplexParameterEntity && parameter.getValue() != null) {
-            ComplexParameterEntity<?> complex = (ComplexParameterEntity<?>) parameter;
-            for (Object v : (Set<?>) complex.getValue()) {
-                if (v instanceof ParameterEntity) {
-                    ParameterEntity<?> child = (ParameterEntity<?>) v;
-                    checkParameter(entity, child, newParams);
-                    child.setParent((ParameterEntity<?>) complex);
-                }
-            }
-            complex.setValue(null);
-        }
-        newParams.add(parameter);
-        checkUnit(parameter);
-    }
-
-    protected void checkUnit(ParameterEntity<?> parameter) {
-        if (parameter instanceof HibernateRelations.HasUnit) {
-            UnitEntity unit = ((HibernateRelations.HasUnit) parameter).getUnit();
-            ((HibernateRelations.HasUnit) parameter).setUnit(getOrInsertUnit(unit));
-        }
-    }
-
-    public UnitEntity getOrInsertUnit(UnitEntity unit) {
-        if (unit != null && unit.isSetIdentifier()) {
-            UnitEntity instance = unitRepository.getInstance(unit);
-            if (instance != null) {
-                return instance;
-            }
-            return unitRepository.saveAndFlush(unit);
-        }
-        return null;
-    }
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    @Override
-    public ParameterDataRepository<E> getParameterRepository() {
-        return parameterRepository;
-    }
 
     public DatasetRepository getDatasetRepository() {
         return datasetRepository;

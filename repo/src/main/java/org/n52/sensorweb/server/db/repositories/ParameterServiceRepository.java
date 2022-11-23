@@ -40,7 +40,8 @@ import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
 import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
-public interface ParameterServiceRepository<T extends DescribableEntity> extends ParameterDataRepository<T> {
+public interface ParameterServiceRepository<T extends DescribableEntity>
+        extends ParameterDataRepository<T>, NameRepository<T> {
 
     default Optional<T> findByIdentifierAndService(T entity) {
         return findOne(createExample(entity, createMatcher()));

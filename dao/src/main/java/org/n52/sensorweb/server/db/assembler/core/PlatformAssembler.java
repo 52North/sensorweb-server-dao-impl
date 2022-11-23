@@ -27,6 +27,10 @@
  */
 package org.n52.sensorweb.server.db.assembler.core;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -40,6 +44,8 @@ import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.PlatformRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.PlatformEntity;
+import org.n52.series.db.beans.sta.HistoricalLocationEntity;
+import org.n52.series.db.beans.sta.LocationEntity;
 import org.n52.series.spi.search.PlatformSearchResult;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -53,6 +59,12 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Inject
+    private LocationAssembler locationAssembler;
+
+    @Inject
+    private HistoricalLocationAssembler historicalLocationAssembler;
 
     @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public PlatformAssembler(PlatformRepository platformRepository, DatasetRepository datasetRepository) {
@@ -98,6 +110,25 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
     @Override
     protected ParameterOutputSearchResultMapper<PlatformEntity, PlatformOutput> getMapper(DbQuery query) {
         return getOutputMapperFactory().getPlatformMapper(query);
+    }
+
+    @Override
+    public PlatformEntity checkReferencedEntities(PlatformEntity entity) {
+        if (entity.hasLocationEntities()) {
+            Set<LocationEntity> newLocations = new LinkedHashSet<>();
+            for (LocationEntity location : entity.getLocations()) {
+                newLocations.add(locationAssembler.getOrInsertInstance(location));
+            }
+            entity.setLocations(newLocations);
+        }
+        if (entity.hasHistoricalLocations()) {
+            Set<HistoricalLocationEntity> newHistoricalLocations = new LinkedHashSet<>();
+            for (HistoricalLocationEntity historicalLocation : entity.getHistoricalLocations()) {
+                newHistoricalLocations.add(historicalLocationAssembler.getOrInsertInstance(historicalLocation));
+            }
+            entity.setHistoricalLocations(newHistoricalLocations);
+        }
+        return super.checkReferencedEntities(entity);
     }
 
 }

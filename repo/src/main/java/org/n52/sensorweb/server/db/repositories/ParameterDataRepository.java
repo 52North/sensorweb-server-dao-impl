@@ -31,17 +31,11 @@ import org.n52.series.db.beans.DescribableEntity;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphCrudRepository;
-import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaRepository;
-import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphJpaSpecificationExecutor;
 import com.cosium.spring.data.jpa.entity.graph.repository.EntityGraphQueryByExampleExecutor;
 
 @NoRepositoryBean
-public interface ParameterDataRepository<T extends DescribableEntity> extends IdentifierRepository<T>,
-        EntityGraphJpaRepository<T, Long>, EntityGraphJpaSpecificationExecutor<T>, EntityGraphCrudRepository<T, Long>,
-        EntityGraphQueryByExampleExecutor<T> {
-
-    boolean existsByName(String name);
+public interface ParameterDataRepository<T extends DescribableEntity>
+        extends AbstractRepository<T>, EntityGraphQueryByExampleExecutor<T> {
 
     default boolean exists(Specification<T> spcification) {
         return findOne(spcification).isPresent();

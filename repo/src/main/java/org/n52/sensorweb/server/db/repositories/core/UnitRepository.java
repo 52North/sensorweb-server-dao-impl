@@ -29,12 +29,13 @@ package org.n52.sensorweb.server.db.repositories.core;
 
 import java.util.Optional;
 
+import org.n52.sensorweb.server.db.repositories.NameRepository;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.series.db.beans.UnitEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface UnitRepository extends ParameterDataRepository<UnitEntity> {
+public interface UnitRepository extends ParameterDataRepository<UnitEntity>, NameRepository<UnitEntity> {
 
     default boolean existsBySymbol(String symbol) {
         return existsByIdentifier(symbol);

@@ -27,6 +27,9 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import java.util.List;
+import java.util.Set;
+
 import org.n52.sensorweb.server.db.repositories.ParameterServiceRepository;
 import org.n52.series.db.beans.DatasetEntity;
 import org.n52.series.db.beans.DescribableEntity;
@@ -35,9 +38,6 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 @Transactional
 public interface DatasetRepository extends ParameterServiceRepository<DatasetEntity> {

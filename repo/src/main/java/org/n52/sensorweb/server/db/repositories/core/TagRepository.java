@@ -27,11 +27,12 @@
  */
 package org.n52.sensorweb.server.db.repositories.core;
 
+import org.n52.sensorweb.server.db.repositories.NameRepository;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.series.db.beans.TagEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public interface TagRepository extends ParameterDataRepository<TagEntity> {
+public interface TagRepository extends ParameterDataRepository<TagEntity>, NameRepository<TagEntity> {
 
 }

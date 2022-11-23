@@ -25,18 +25,26 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  */
-package org.n52.sensorweb.server.db.repositories.core;
+package org.n52.sensorweb.server.db.assembler.core;
 
-import org.n52.sensorweb.server.db.repositories.NameRepository;
+import org.n52.sensorweb.server.db.assembler.ParameterAssembler;
+import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
-import org.n52.series.db.beans.sta.LocationEntity;
+import org.n52.series.db.beans.sta.HistoricalLocationEntity;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author <a href="mailto:j.speckamp@52north.org">Jan Speckamp</a>
- *
- */
+@Component
 @Transactional
-public interface LocationRepository extends ParameterDataRepository<LocationEntity>, NameRepository<LocationEntity> {
+public class HistoricalLocationAssembler extends ParameterAssembler<HistoricalLocationEntity> {
 
+    public HistoricalLocationAssembler(final ParameterDataRepository<HistoricalLocationEntity> parameterRepository) {
+        super(parameterRepository);
+    }
+
+    @Override
+    protected Specification<HistoricalLocationEntity> createFilterPredicate(DbQuery query) {
+        return null;
+    }
 }
