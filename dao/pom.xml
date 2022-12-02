@@ -19,6 +19,10 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>dao-impl-repos</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>dao-impl-repo</artifactId>
 			<classifier>tests</classifier>
 			<scope>test</scope>
@@ -51,10 +55,6 @@
 		<dependency>
 			<groupId>org.n52.sensorweb-server.db-model</groupId>
 			<artifactId>db-model-entities</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.n52.sensorweb-server.db-model</groupId>
-			<artifactId>db-model-repos</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.n52.sensorweb-server.db-model</groupId>

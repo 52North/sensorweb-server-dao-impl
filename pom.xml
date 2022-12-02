@@ -15,6 +15,7 @@
     <modules>
         <module>dao</module>
         <module>repo</module>
+        <module>repos</module>
         <!-- <module>springboot</module> -->
         <module>webapp</module>
     </modules>
@@ -114,6 +115,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>dao-impl-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>dao-impl-repos</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
