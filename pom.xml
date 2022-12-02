@@ -57,7 +57,7 @@
         <spring-data.version>2.7.6</spring-data.version>
         <spring-data-entity-graph.version>2.7.10</spring-data-entity-graph.version>
         <helgoland-api.version>3.5.0-PR.12</helgoland-api.version>
-        <db-model.version>4.0.0-PR.14</db-model.version>
+        <db-model.version>4.0.0-SNAPSHOT</db-model.version>
         <arctic-sea.version>10.0.2</arctic-sea.version>
         <version.jts>1.19.0</version.jts>
         <version.java>11</version.java>
@@ -170,6 +170,21 @@
             <dependency>
                 <groupId>org.n52.sensorweb-server.db-model</groupId>
                 <artifactId>db-model-entities</artifactId>
+                <version>${db-model.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                  </exclusion>
+                  <exclusion>
+                    <groupId>com.neovisionaries</groupId>
+                    <artifactId>nv-i18n</artifactId>
+                  </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.n52.sensorweb-server.db-model</groupId>
+                <artifactId>db-model-repos</artifactId>
                 <version>${db-model.version}</version>
                 <exclusions>
                   <exclusion>

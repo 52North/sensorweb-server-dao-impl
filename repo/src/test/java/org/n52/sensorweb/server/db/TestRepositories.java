@@ -34,8 +34,6 @@ import static org.n52.sensorweb.server.test.OfferingBuilder.newOffering;
 import static org.n52.sensorweb.server.test.PhenomenonBuilder.newPhenomenon;
 import static org.n52.sensorweb.server.test.ProcedureBuilder.newProcedure;
 
-import java.util.UUID;
-
 import org.n52.sensorweb.server.db.repositories.core.CategoryRepository;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
@@ -168,7 +166,7 @@ public class TestRepositories {
 
     public FormatEntity upsertFormat(final String format) {
         return formatRepository.existsByFormat(format)
-            ? formatRepository.findByFormat(format)
+            ? formatRepository.findByFormat(format).get()
             : save(newFormat(format).build());
     }
 

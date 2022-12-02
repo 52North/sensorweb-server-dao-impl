@@ -70,6 +70,7 @@ public class ServiceAssembler
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Inject
     private final Optional<ParameterDataRepository<ServiceEntity>> serviceRepository;
 
     @Inject

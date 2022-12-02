@@ -43,6 +43,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.n52.sensorweb-server.db-model</groupId>
+            <artifactId>db-model-repos</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.n52.arctic-sea</groupId>
             <artifactId>shetland</artifactId>
             <scope>provided</scope>
@@ -70,10 +75,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>tech.units</groupId>
@@ -167,6 +174,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -175,6 +183,7 @@
         <dependency>
 			<groupId>com.cosium.spring.data</groupId>
 			<artifactId>spring-data-jpa-entity-graph</artifactId>
+			<scope>test</scope>
 		</dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

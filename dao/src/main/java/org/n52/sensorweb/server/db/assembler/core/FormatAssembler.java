@@ -27,6 +27,8 @@
  */
 package org.n52.sensorweb.server.db.assembler.core;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import org.n52.sensorweb.server.db.repositories.core.FormatRepository;
@@ -42,9 +44,9 @@ public class FormatAssembler {
 
     @Transactional
     public FormatEntity getOrInsertInstance(FormatEntity format) {
-        FormatEntity instance = formatRepository.findByFormat(format.getFormat());
-        if (instance != null) {
-            return instance;
+        Optional<FormatEntity> instance = formatRepository.findByFormat(format.getFormat());
+        if (instance.isPresent()) {
+            return instance.get();
         }
         return formatRepository.saveAndFlush(format);
     }
