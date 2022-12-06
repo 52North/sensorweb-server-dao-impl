@@ -48,4 +48,10 @@ public class LocationAssembler extends ParameterAssembler<LocationEntity> {
         return null;
     }
 
+    @Override
+    public LocationEntity checkReferencedEntities(LocationEntity entity) {
+        entity.setLocationEncoding(getFormat(entity.getLocationEncoding()));
+        return super.checkReferencedEntities(entity);
+    }
+
 }

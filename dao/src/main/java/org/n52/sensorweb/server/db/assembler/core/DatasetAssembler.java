@@ -53,9 +53,7 @@ import org.n52.sensorweb.server.db.old.dao.DbQueryFactory;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.spi.search.DatasetSearchResult;
-import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Component;
@@ -73,20 +71,17 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     private final ServiceEntityFactory serviceFactory;
     @PersistenceContext
     private EntityManager entityManager;
-    private FormatAssembler formatAssembler;
 
     @SuppressFBWarnings({ "EI_EXPOSE_REP2" })
     public DatasetAssembler(DatasetRepository parameterRepository,
                             DatasetRepository datasetRepository,
                             DataRepositoryTypeFactory dataRepositoryFactory,
                             DbQueryFactory dbQueryFactory,
-                            ServiceEntityFactory serviceFactory,
-                            FormatAssembler formatAssembler) {
+                            ServiceEntityFactory serviceFactory) {
         super(parameterRepository, datasetRepository);
         this.dataRepositoryFactory = dataRepositoryFactory;
         this.dbQueryFactory = dbQueryFactory;
         this.serviceFactory = serviceFactory;
-        this.formatAssembler = formatAssembler;
     }
 
     @Override
@@ -202,9 +197,7 @@ public class DatasetAssembler<V extends AbstractValue<?>>
     }
 
     private DatasetEntity insert(DatasetEntity dataset) {
-        dataset.setOMObservationType(
-                formatAssembler.getOrInsertInstance(dataset.isSetOMObservationType() ? dataset.getOMObservationType()
-                        : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        dataset.setOMObservationType(getFormat(dataset.getOMObservationType()));
         return getParameterRepository().saveAndFlush(dataset);
     }
 

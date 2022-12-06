@@ -30,7 +30,6 @@ package org.n52.sensorweb.server.db.assembler.core;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -43,10 +42,8 @@ import org.n52.sensorweb.server.db.query.ProcedureQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.ProcedureRepository;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.ProcedureEntity;
 import org.n52.series.spi.search.ProcedureSearchResult;
-import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,9 +55,6 @@ public class ProcedureAssembler
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    @Inject
-    private FormatAssembler formatAssembler;
 
     public ProcedureAssembler(ProcedureRepository procedureRepository, DatasetRepository datasetRepository) {
         super(procedureRepository, datasetRepository);
@@ -120,8 +114,7 @@ public class ProcedureAssembler
 
     @Override
     public ProcedureEntity checkReferencedEntities(ProcedureEntity entity) {
-        entity.setFormat(formatAssembler.getOrInsertInstance(
-                entity.isSetFormat() ? entity.getFormat() : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        entity.setFormat(getFormat(entity.getFormat()));
         return super.checkReferencedEntities(entity);
     }
 

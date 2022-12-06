@@ -35,16 +35,19 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.n52.sensorweb.server.db.assembler.core.FormatAssembler;
 import org.n52.sensorweb.server.db.assembler.mapper.OutputMapperFactory;
 import org.n52.sensorweb.server.db.old.dao.DbQuery;
 import org.n52.sensorweb.server.db.query.DatasetQuerySpecifications;
 import org.n52.sensorweb.server.db.repositories.ParameterDataRepository;
 import org.n52.sensorweb.server.db.repositories.core.UnitRepository;
 import org.n52.series.db.beans.DescribableEntity;
+import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.db.beans.HibernateRelations;
 import org.n52.series.db.beans.UnitEntity;
 import org.n52.series.db.beans.parameter.ComplexParameterEntity;
 import org.n52.series.db.beans.parameter.ParameterEntity;
+import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.StreamUtils;
@@ -59,6 +62,9 @@ public abstract class ParameterAssembler<E extends DescribableEntity>
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Inject
+    private FormatAssembler formatAssembler;
 
     private final ParameterDataRepository<E> parameterRepository;
 
@@ -142,6 +148,15 @@ public abstract class ParameterAssembler<E extends DescribableEntity>
             return unitRepository.saveAndFlush(unit);
         }
         return null;
+    }
+
+    protected FormatAssembler getFormatAssembler() {
+        return formatAssembler;
+    }
+
+    protected FormatEntity getFormat(FormatEntity format) {
+        return getFormatAssembler()
+                .getOrInsertInstance(format != null ? format : new FormatEntity().setFormat(OGCConstants.UNKNOWN));
     }
 
     public EntityManager getEntityManager() {

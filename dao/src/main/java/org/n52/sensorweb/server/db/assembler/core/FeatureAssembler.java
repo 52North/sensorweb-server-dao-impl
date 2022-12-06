@@ -44,9 +44,7 @@ import org.n52.sensorweb.server.db.repositories.core.DatasetRepository;
 import org.n52.sensorweb.server.db.repositories.core.FeatureRepository;
 import org.n52.series.db.beans.AbstractFeatureEntity;
 import org.n52.series.db.beans.DatasetEntity;
-import org.n52.series.db.beans.FormatEntity;
 import org.n52.series.spi.search.FeatureSearchResult;
-import org.n52.shetland.ogc.OGCConstants;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,8 +57,7 @@ public class FeatureAssembler
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Inject
-    private FormatAssembler formatAssembler;
+
 
     @Inject
     private DatasetAssembler<?> datasetAssembler;
@@ -120,15 +117,13 @@ public class FeatureAssembler
             }
             entity.setParents(parents);
         }
-        entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
-                : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        entity.setFeatureType(getFormat(entity.getFeatureType()));
         return super.getOrInsertInstance(entity);
     }
 
     @Override
     public AbstractFeatureEntity checkReferencedEntities(AbstractFeatureEntity entity) {
-        entity.setFeatureType(formatAssembler.getOrInsertInstance(entity.isSetFeatureType() ? entity.getFeatureType()
-                : new FormatEntity().setFormat(OGCConstants.UNKNOWN)));
+        entity.setFeatureType(getFormat(entity.getFeatureType()));
         return super.checkReferencedEntities(entity);
     }
 

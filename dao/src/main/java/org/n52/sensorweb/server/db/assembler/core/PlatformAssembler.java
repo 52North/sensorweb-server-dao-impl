@@ -114,7 +114,7 @@ public class PlatformAssembler extends ParameterOutputAssembler<PlatformEntity, 
 
     @Override
     public PlatformEntity checkReferencedEntities(PlatformEntity entity) {
-        if (entity.hasLocationEntities()) {
+        if (entity.hasLocations()) {
             Set<LocationEntity> newLocations = new LinkedHashSet<>();
             for (LocationEntity location : entity.getLocations()) {
                 newLocations.add(locationAssembler.getOrInsertInstance(location));
