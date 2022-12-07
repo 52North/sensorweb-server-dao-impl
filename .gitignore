@@ -11,3 +11,4 @@ nb-configuration.xml
 *.iml
 .idea
 console.log
+dao/logs.log
