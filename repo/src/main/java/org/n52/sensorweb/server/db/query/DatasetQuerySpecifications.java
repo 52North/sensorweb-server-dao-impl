@@ -188,6 +188,10 @@ public final class DatasetQuerySpecifications extends ParameterQuerySpecificatio
         return (root, query, builder) -> builder.isNotNull(root.get(DatasetEntity.PROPERTY_IDENTIFIER));
     }
 
+    public Specification<DatasetEntity> isNotHidden() {
+        return (root, query, builder) -> builder.isFalse(root.get(DatasetEntity.HIDDEN_CHILD));
+    }
+
     public Specification<DatasetEntity> matchInsitu() {
         String insitu = dbQuery.getParameters().getInsitu();
         if (insitu != null && !insitu.isEmpty()) {
