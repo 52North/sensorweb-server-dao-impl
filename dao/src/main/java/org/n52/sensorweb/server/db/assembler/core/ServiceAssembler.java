@@ -85,6 +85,16 @@ public class ServiceAssembler
         this.serviceRepository = serviceRepository;
     }
 
+    public ServiceEntity getOrInsertInstance(ServiceEntity entity) {
+        ServiceEntity instance = getParameterRepository().getInstance(entity);
+        if (instance != null) {
+           return getOrUpdateInstance(instance, entity);
+        }
+        checkParameter(entity);
+        checkReferencedEntities(entity);
+        return refresh(getParameterRepository().saveAndFlush(entity));
+    }
+
     @Override
     public ParameterDataRepository<ServiceEntity> getParameterRepository() {
         return isSetServiceRepository() ? serviceRepository.get() : null;

@@ -38,7 +38,7 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
     default E getOrInsertInstance(E entity) {
         E instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return getOrUpdateInstance(instance, entity);
+            return instance;
         }
         checkParameter(entity);
         checkReferencedEntities(entity);
@@ -49,6 +49,7 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
         if (entity.getId() == null) {
             entity.setId(instance.getId());
             entity.setStaIdentifier(instance.getStaIdentifier());
+            checkParameterUpdate(entity, instance);
             checkReferencedEntities(entity);
             return refresh(getParameterRepository().saveAndFlush(entity));
         } else {
@@ -60,6 +61,10 @@ public interface InsertAssembler<E extends DescribableEntity> extends Transactio
     default E updateInstance(E entity) {
         checkParameter(entity);
         return refresh(getParameterRepository().saveAndFlush(entity));
+    }
+
+    default E checkParameterUpdate(E entity, E instance) {
+        return entity;
     }
 
     default E checkParameter(E entity) {

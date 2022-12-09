@@ -100,7 +100,7 @@ public class ProcedureAssembler
     public ProcedureEntity getOrInsertInstance(ProcedureEntity entity) {
         ProcedureEntity instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return getOrUpdateInstance(instance, entity);
+            return instance;
         }
         if (entity.hasParents()) {
             Set<ProcedureEntity> parents = new LinkedHashSet<>();

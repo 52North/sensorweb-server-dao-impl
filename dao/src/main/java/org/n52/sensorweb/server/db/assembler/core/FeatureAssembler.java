@@ -57,8 +57,6 @@ public class FeatureAssembler
     @PersistenceContext
     private EntityManager entityManager;
 
-
-
     @Inject
     private DatasetAssembler<?> datasetAssembler;
 
@@ -106,7 +104,7 @@ public class FeatureAssembler
     public AbstractFeatureEntity getOrInsertInstance(AbstractFeatureEntity entity) {
         AbstractFeatureEntity<?> instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return getOrUpdateInstance(instance, entity);
+            return instance;
         }
         if (entity.hasParents()) {
             Set<AbstractFeatureEntity> parents = new LinkedHashSet<>();

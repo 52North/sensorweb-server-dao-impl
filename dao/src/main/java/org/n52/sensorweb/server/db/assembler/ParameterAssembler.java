@@ -86,6 +86,11 @@ public abstract class ParameterAssembler<E extends DescribableEntity>
         return entity;
     }
 
+    public E merge(E entity) {
+        entityManager.merge(entity);
+        return entity;
+    }
+
     public Long count(DbQuery query) {
         return getParameterRepository().count(createFilterPredicate(query));
     }

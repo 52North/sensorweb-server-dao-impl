@@ -100,7 +100,7 @@ public class PhenomenonAssembler
     public PhenomenonEntity getOrInsertInstance(PhenomenonEntity entity) {
         PhenomenonEntity instance = getParameterRepository().getInstance(entity);
         if (instance != null) {
-            return getOrUpdateInstance(instance, entity);
+            return instance;
         }
         if (entity.hasParents()) {
             Set<PhenomenonEntity> parents = new LinkedHashSet<>();
