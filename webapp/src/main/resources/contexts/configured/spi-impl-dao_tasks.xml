@@ -10,6 +10,7 @@
 
     <ctx:annotation-config />
 
+    <!-- TODO: Enable and make compatible with springboot
     <bean id="jobScheduler" class="org.n52.io.task.JobScheduler" init-method="init" destroy-method="shutdown">
         <property name="scheduler">
             <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -26,7 +27,7 @@
             </list>
         </property>
     </bean>
-
+-->
     <bean id="preRenderingJob" class="org.n52.io.PreRenderingJob">
         <!-- start with '/' to place config under WEB-INF/classes folder -->
         <property name="configFile" value="/config-task-prerendering.json" />

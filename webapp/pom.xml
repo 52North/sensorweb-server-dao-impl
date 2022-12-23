@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.n52.sensorweb-server.dao-impl</groupId> 
         <artifactId>dao-impl-parent</artifactId>
-        <version>3.6.1</version>
+        <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dao-impl-webapp</artifactId>
@@ -15,6 +15,7 @@
 
         <postgis.version>2.5.1</postgis.version>
         <javax-jaxb.version>3.0.2</javax-jaxb.version>
+        <local.configFile>src/main/resources/application.properties</local.configFile>
 
         <webapp.workdir>${project.build.directory}/webapp-work</webapp.workdir>
 
@@ -53,6 +54,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dao-impl-repo</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.n52.sensorweb-server.db-model</groupId>
             <artifactId>db-model-entities</artifactId>
             <scope>runtime</scope>
@@ -71,18 +77,22 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -94,61 +104,70 @@
             <artifactId>spring-oxm</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>${javax-jaxb.version}</version>
-            <scope>runtime</scope>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${javax-jaxb.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-            <scope>runtime</scope>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+            <scope>runtime</scope>
         </dependency>
+        
+<!--         <dependency> -->
+<!--             <groupId>javax.xml.bind</groupId> -->
+<!--             <artifactId>jaxb-api</artifactId> -->
+<!--             <scope>runtime</scope> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>com.sun.xml.bind</groupId> -->
+<!--             <artifactId>jaxb-impl</artifactId> -->
+<!--             <version>2.2.1.1</version> -->
+<!--             <scope>runtime</scope> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>javax.activation</groupId> -->
+<!--             <artifactId>activation</artifactId> -->
+<!--             <version>1.1.1</version> -->
+<!--             <scope>runtime</scope> -->
+<!--         </dependency> -->
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.mchange</groupId>
-                    <artifactId>c3p0</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -191,12 +210,6 @@
         </dependency>
 
         <dependency>
-            <!-- drop-in replacement for JCL -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <!-- drop-in replacement for jog4j -->
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
@@ -218,6 +231,32 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
@@ -244,6 +283,13 @@
             </resource>
         </resources>
 
+        <filters>
+            <!-- filters src/main/resources -->
+            <!-- ordering is important here -->
+            <filter>src/main/resources/application.properties</filter>
+            <filter>${local.configFile}</filter>
+        </filters>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -255,7 +301,23 @@
                         <goals>
                             <goal>unpack</goal>
                         </goals>
-                        <configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.3.0</version>
+                    <configuration>
                         <artifactItems>
                             <artifactItem>
                                 <groupId>org.n52.sensorweb-server.helgoland</groupId>
@@ -274,46 +336,32 @@
                             </artifactItem>
                         </artifactItems>
                     </configuration>
-                    </execution>
-                    <execution>
-                        <id>hibernate-mapping</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <usedDependencies>
-                                <usedDependency>org.springframework:spring-core</usedDependency>
-                            </usedDependencies>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.n52.sensorweb-server.db-model</groupId>
-                                    <artifactId>db-model-mappings</artifactId>
-                                    <overWrite>false</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                            <includes>**/*.hbm.xml,**/README</includes>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-            
-        </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <executions>
+                        <execution>
+                            <id>hibernate-mapping</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>unpack</goal>
+                            </goals>
+                            <configuration>
+                                <usedDependencies>
+                                    <usedDependency>org.springframework:spring-core</usedDependency>
+                                </usedDependencies>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>org.n52.sensorweb-server.db-model</groupId>
+                                        <artifactId>db-model-mappings</artifactId>
+                                        <overWrite>false</overWrite>
+                                    </artifactItem>
+                                </artifactItems>
+                                <includes>**/*.hbm.xml,**/README</includes>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                <overWriteReleases>false</overWriteReleases>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -354,7 +402,6 @@
                         </webResources>
                     </configuration>
                 </plugin>
-
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>

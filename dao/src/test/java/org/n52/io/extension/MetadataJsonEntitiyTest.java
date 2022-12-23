@@ -31,7 +31,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.n52.io.extension.metadata.MetadataJsonEntity;
+import org.n52.series.db.beans.parameter.dataset.DatasetJsonParameterEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,18 +41,15 @@ public class MetadataJsonEntitiyTest {
 
     @Test
     public void givenMetadataJsonEntity_whenSerialize_ValueAsJsonNode() throws JsonProcessingException, IOException {
-        MetadataJsonEntity entity = new MetadataJsonEntity();
+        DatasetJsonParameterEntity entity = new DatasetJsonParameterEntity();
         entity.setId(1L);
         entity.setName("some_metadata");
-        entity.setSeriesId(1L);
-        entity.setType("json");
         entity.setValue("{\"key\":\"value\",\"object\":{\"key1\":\"string\",\"key2\":42}}");
 
         ObjectMapper om = new ObjectMapper();
-        String jsonString = om.writeValueAsString(entity);
+        String jsonString = entity.getValue();
         JsonNode jsonNode = om.readTree(jsonString);
-        JsonNode at = jsonNode.path("value")
-                              .path("object");
+        JsonNode at = jsonNode.path("object");
         Assertions.assertTrue(at.isObject());
     }
 

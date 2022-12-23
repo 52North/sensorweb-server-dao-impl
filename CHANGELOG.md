@@ -1,5 +1,13 @@
 # 2.x
 
+## 3.0.0
+
+### Changes
+- Integration of Spring Data and QueryDSL
+
+### Issues
+- [#121](https://github.com/52North/dao-series-api/issues/121) Implement next/previous values beyond requested timespan
+
 ## 2.0.0
 
 ### Changes

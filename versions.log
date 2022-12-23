@@ -1,0 +1,2033 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Series REST API DAO                                                [pom]
+[INFO] Series REST API DAO - DAO                                          [jar]
+[INFO] Series REST API DAO - Webapp                                       [war]
+[INFO] 
+[INFO] ------------------< org.n52.series-api.db:series-dao >------------------
+[INFO] Building Series REST API DAO 3.0.0-SNAPSHOT                        [1/3]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- versions-maven-plugin:2.7:display-dependency-updates (default-cli) @ series-dao ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   antlr:antlr ........................................ 2.7.7 -> 20030911
+[INFO]   ch.qos.logback:logback-access .................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-classic ................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-core .................... 1.2.3 -> 1.3.0-alpha4
+[INFO]   com.atomikos:transactions-jdbc ........................ 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jms ......................... 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jta ......................... 4.0.6 -> 5.0.1
+[INFO]   com.datastax.cassandra:cassandra-driver-core .......... 3.6.0 -> 4.0.0
+[INFO]   com.datastax.cassandra:cassandra-driver-mapping ....... 3.6.0 -> 3.7.2
+[INFO]   com.fasterxml:classmate ............................... 1.4.0 -> 1.5.0
+[INFO]   com.fasterxml.jackson.core:jackson-annotations ... 2.9.0 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-core .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-databind ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-avro ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-csv ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-ion ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-properties ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-smile ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-xml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-yaml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-guava ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate3 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate4 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate5 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hppc ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jaxrs ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jdk8 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-joda ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-json-org ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr310 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr353 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-pcollections ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base ... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-cbor-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-smile-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-xml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-yaml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-all .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-objects ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-retrofit2 .... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-stree ........ 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-afterburner ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-guice ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jaxb-annotations ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jsonSchema ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-kotlin ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-mrbean ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-osgi ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-parameter-names ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-paranamer ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.woodstox:woodstox-core .............. 5.0.3 -> 6.0.0.pr2
+[INFO]   com.github.ben-manes.caffeine:caffeine ................ 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:guava ................... 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:jcache .................. 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:simulator ............... 2.6.2 -> 2.7.0
+[INFO]   com.google.appengine:appengine-api-1.0-sdk .......... 1.9.75 -> 1.9.76
+[INFO]   com.hazelcast:hazelcast ............................. 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-client ...................... 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-hibernate52 ................... 1.2.3 -> 1.3.2
+[INFO]   com.hazelcast:hazelcast-spring ...................... 3.11.4 -> 3.12.1
+[INFO]   com.microsoft.sqlserver:mssql-jdbc ...
+[INFO]                                        6.4.0.jre8 -> 7.3.1.jre12-preview
+[INFO]   com.querydsl:querydsl-apt ............................. 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-collections ..................... 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-core ............................ 4.2.1 -> 5.0.0
+[INFO]   com.rabbitmq:amqp-client .............................. 5.4.3 -> 5.7.2
+[INFO]   com.samskivert:jmustache ................................ 1.14 -> 1.15
+[INFO]   com.sendgrid:sendgrid-java ............................ 4.3.0 -> 4.4.1
+[INFO]   com.sun.xml.messaging.saaj:saaj-impl .................. 1.5.0 -> 1.5.1
+[INFO]   com.zaxxer:HikariCP ................................... 3.2.0 -> 3.3.1
+[INFO]   commons-codec:commons-codec ............................. 1.11 -> 1.13
+[INFO]   de.flapdoodle.embed:de.flapdoodle.embed.mongo ......... 2.1.2 -> 2.2.0
+[INFO]   dom4j:dom4j ................................. 1.6.1 -> 20040902.021138
+[INFO]   io.dropwizard.metrics:metrics-annotation .............. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-core .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-ehcache ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-graphite ................ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-healthchecks ............ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-httpasyncclient ......... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jdbi .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jersey2 ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jetty9 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jmx ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-json .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jvm ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-log4j2 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-logback ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlet ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlets ................ 4.0.5 -> 4.1.0
+[INFO]   io.micrometer:micrometer-core ......................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-jersey2 ...................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-appoptics ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-atlas ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-azure-monitor ....... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-cloudwatch .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-datadog ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-dynatrace ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-elastic ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-ganglia ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-graphite ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-humio ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-influx .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-jmx ................. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-kairos .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-new-relic ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-prometheus .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-signalfx ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-stackdriver ......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-statsd .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-wavefront ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-test ......................... 1.1.5 -> 1.2.0
+[INFO]   io.netty:netty-all ...................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-buffer ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec .................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-dns ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-haproxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http2 .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-memcache ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-mqtt ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-redis .............. 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-smtp ............... 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-socks .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-stomp .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-xml ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-common ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-dev-tools ................ 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-example .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler-proxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver ................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver-dns ............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-epoll ... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-kqueue ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-native-unix-common ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-rxtx ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-sctp ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-udt ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.prometheus:simpleclient_pushgateway ................ 0.5.0 -> 0.6.0
+[INFO]   io.reactivex.rxjava2:rxjava .......................... 2.2.9 -> 2.2.10
+[INFO]   io.rest-assured:json-path ............................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:json-schema-validator ................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:rest-assured .......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:scala-support ......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:spring-mock-mvc ....................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:xml-path .............................. 3.1.1 -> 4.0.0
+[INFO]   io.undertow:undertow-core ............... 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-servlet ............ 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-websockets-jsr ..... 2.0.21.Final -> 2.0.22.Final
+[INFO]   javax.xml.bind:jaxb-api .................. 2.3.1 -> 2.4.0-b180830.0359
+[INFO]   jaxen:jaxen ........................................... 1.1.6 -> 1.2.0
+[INFO]   joda-time:joda-time ................................. 2.10.2 -> 2.10.3
+[INFO]   junit:junit ...................................... 4.12 -> 4.13-beta-3
+[INFO]   mysql:mysql-connector-java .......................... 8.0.16 -> 8.0.17
+[INFO]   net.bytebuddy:byte-buddy ............................ 1.9.13 -> 1.9.15
+[INFO]   net.bytebuddy:byte-buddy-agent ...................... 1.9.13 -> 1.9.15
+[INFO]   net.java.dev.jna:jna .................................. 4.5.2 -> 5.4.0
+[INFO]   net.java.dev.jna:jna-platform ......................... 4.5.2 -> 5.4.0
+[INFO]   net.sourceforge.htmlunit:htmlunit ..................... 2.33 -> 2.35.0
+[INFO]   nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect ...... 2.3.0 -> 2.4.1
+[INFO]   org.apache.activemq:artemis-amqp-protocol ............. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-commons ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-core-client ............... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-client ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-server ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-journal ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-selector .................. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-server .................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-service-extensions ........ 2.6.4 -> 2.9.0
+[INFO]   org.apache.commons:commons-dbcp2 ...................... 2.5.0 -> 2.6.0
+[INFO]   org.apache.commons:commons-lang3 ........................ 3.8.1 -> 3.9
+[INFO]   org.apache.derby:derby ........................ 10.14.2.0 -> 10.15.1.3
+[INFO]   org.apache.kafka:connect-api .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-basic-auth-extension ......... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-file ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-json ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-runtime ...................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-transforms ................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-clients ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-log4j-appender ................. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.11 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.12 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-test-utils ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-tools .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.11 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.12 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.logging.log4j:log4j-1.2-api .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-api .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-cassandra ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-core ................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-couchdb .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-flume-ng ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-iostreams ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jcl .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jmx-gui .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jpa .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jul .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-liquibase ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb2 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb3 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j-impl ........... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j18-impl ......... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-taglib ............... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-to-slf4j ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-web .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.solr:solr-analysis-extras .................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-analytics ........................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-cell ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-clustering ....................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-core ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler ................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler-extras ......... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-langid ........................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-ltr .............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-solrj ............................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-test-framework ................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-velocity ......................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.tomcat:tomcat-annotations-api ............ 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jdbc ....................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jsp-api .................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ........... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-el ............. 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-jasper ......... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-websocket ...... 9.0.21 -> 9.0.22
+[INFO]   org.apache.xmlgraphics:fop ................................ 2.1 -> 2.3
+[INFO]   org.assertj:assertj-core ............................ 3.11.1 -> 3.12.2
+[INFO]   org.codehaus.groovy:groovy ..................... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-ant ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-backports-compat23 ...
+[INFO]                                                    2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-bsf ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-commons ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-picocli ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-console ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-datetime ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-dateutil ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-docgenerator ........ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovydoc ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovysh ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jaxb ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jmx ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json-direct ........ 2.5.7 -> 3.0.0-alpha-3
+[INFO]   org.codehaus.groovy:groovy-jsr223 .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-macro ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-nio ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-servlet ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-sql ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-swing ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-templates ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test-junit5 ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-testng .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-xml ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.janino:janino .......................... 3.0.12 -> 3.0.14
+[INFO]   org.eclipse.jetty:apache-jsp ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:apache-jstl ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-embedded-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-remote-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-annotations ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-ant ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-client ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-deploy ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-distribution ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-hazelcast ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-home ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http-spi ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-io ......... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaas ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaspi ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jmx ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jndi ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-nosql ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-plus ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-proxy ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-quickstart ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-rewrite .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-security ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-server ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlet .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlets ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-spring ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-unixsocket ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util-ajax ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-webapp ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-xml ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.gcloud:jetty-gcloud-session-manager ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-hpack ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-http-client-transport ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.memcached:jetty-memcached-sessions ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-httpservice ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-jsp ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-warurl ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.websocket:websocket-servlet ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.ehcache:ehcache ................................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-clustered ......................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-transactions ...................... 3.6.3 -> 3.8.0
+[INFO]   org.elasticsearch:elasticsearch ....................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-client .... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-high-level-client ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:transport .................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.distribution.integ-test-zip:elasticsearch ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.plugin:transport-netty4-client ...... 6.4.3 -> 7.2.0
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk17 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk18 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.flywaydb:flyway-core ........................ 5.2.4 -> 6.0.0-beta2
+[INFO]   org.glassfish:javax.el ............................ 3.0.0 -> 3.0.1-b11
+[INFO]   org.glassfish.jaxb:codemodel ............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:codemodel-annotation-compiler ...
+[INFO]                                              2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-jxc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-runtime .......... 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-xjc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txw2 .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txwc2 ................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:xsom .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jersey.bundles:jaxrs-ri ................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-apache-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-grizzly-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jdk-connector .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jetty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-netty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-netty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-simple-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers.glassfish:jersey-gf-ejb ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-client ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-common ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-server ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-bean-validation ......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-declarative-linking ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-entity-filtering ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-metainf-services ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc ..................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-bean-validation ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-freemarker .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-jsp ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-mustache ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-proxy-client ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-servlet-portability ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-spring4 ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-wadl-doclet ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x ............... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-ban-custom-hk2-binding ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-servlet ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-transaction ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-validation .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-weld2-se ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-guava ...... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava2 .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-cdi2-se .............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-hk2 .................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-jaxb ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-binding .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson1 ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jettison ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-processing ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-kryo ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-moxy ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-multipart ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-sse ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-server ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-signature .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth2-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-util ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-bundle ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-external ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2 ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-inmemory ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-simple ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.hamcrest:hamcrest-core ................................ 1.3 -> 2.1
+[INFO]   org.hamcrest:hamcrest-library ............................. 1.3 -> 2.1
+[INFO]   org.hibernate:hibernate-core ............. 5.4.3.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-jpamodelgen ..... 5.3.10.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-spatial .......... 5.4.3.Final -> 5.12.2-52N.1
+[INFO]   org.hibernate.validator:hibernate-validator ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hibernate.validator:hibernate-validator-annotation-processor ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hsqldb:hsqldb ..................................... 2.4.1 -> 2.5.0
+[INFO]   org.infinispan:infinispan-cachestore-jdbc ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-jpa ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-leveldb ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha2
+[INFO]   org.infinispan:infinispan-cachestore-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rest ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rocksdb ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-common .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-embedded ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-remote .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-client-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cloud ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-counter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-lock ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-commons ....... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-core .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-directory-provider ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-hibernate-cache-v53 ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache ........ 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-commons ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-lucene-directory ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-objectfilter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-osgi .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-persistence-cli ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-persistence-soft-index ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query-dsl ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-client ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-server ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-scripting ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-core ... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-memcached ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-router ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-spring4-common ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-embedded ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-remote ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-tasks ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tasks-api ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tools ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tree .......... 9.4.15.Final -> 10.0.0.Beta2
+[INFO]   org.influxdb:influxdb-java .............................. 2.14 -> 2.15
+[INFO]   org.jboss.logging:jboss-logging ........... 3.3.2.Final -> 3.4.0.Final
+[INFO]   org.jetbrains.kotlin:kotlin-reflect ................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib .................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk7 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk8 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jolokia:jolokia-core .............................. 1.6.1 -> 1.6.2
+[INFO]   org.junit.jupiter:junit-jupiter-api ................... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-migrationsupport ...... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-params ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.platform:junit-platform-commons ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-console ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-engine .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-launcher ............ 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-runner .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-suite-api ........... 1.3.2 -> 1.5.1
+[INFO]   org.junit.vintage:junit-vintage-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.liquibase:liquibase-core .......................... 3.6.3 -> 3.7.0
+[INFO]   org.mariadb.jdbc:mariadb-java-client .................. 2.3.0 -> 2.4.2
+[INFO]   org.messaginghub:pooled-jms ........................... 1.0.5 -> 1.0.6
+[INFO]   org.mockito:mockito-core ............................. 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-inline ........................... 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-junit-jupiter .................... 2.23.4 -> 3.0.0
+[INFO]   org.mongodb:bson ............................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongo-java-driver .................. 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver ..................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-async ............... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-core ................ 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-reactivestreams ........... 1.9.2 -> 1.11.0
+[INFO]   org.mortbay.jasper:apache-el ........................ 8.5.40 -> 9.0.19
+[INFO]   org.n52.series.db:entities ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:mappings ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:types .............. 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.neo4j:neo4j-ogm-api .......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-bolt-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-core ......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-embedded-driver .............. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-http-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.postgresql:postgresql ...................... 42.2.5 -> 42.2.6.jre7
+[INFO]   org.seleniumhq.selenium:htmlunit-driver ............. 2.33.0 -> 2.35.1
+[INFO]   org.seleniumhq.selenium:selenium-api ......... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-chrome-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-edge-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-firefox-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-ie-driver ... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-java ........ 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-opera-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-remote-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-safari-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-support ..... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.slf4j:jcl-over-slf4j ...................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:jul-to-slf4j ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:log4j-over-slf4j .................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-ext ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-jdk14 ......................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-log4j12 ....................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-nop ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.springframework.cloud:spring-cloud-cloudfoundry-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-connectors-core ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-heroku-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-localconfig-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-spring-service-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.webjars:webjars-locator-core ........................ 0.35 -> 0.37
+[INFO]   org.xerial:sqlite-jdbc .............................. 3.25.2 -> 3.28.0
+[INFO]   org.xmlunit:xmlunit-assertj ........................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-core .............................. 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-legacy ............................ 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-matchers .......................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-placeholders ...................... 2.6.2 -> 2.6.3
+[INFO]   org.yaml:snakeyaml ...................................... 1.23 -> 1.24
+[INFO]   redis.clients:jedis ................................... 2.9.3 -> 3.1.0
+[INFO]   xml-apis:xml-apis .................................... 1.4.01 -> 2.0.2
+[INFO] 
+[INFO] The following dependencies in pluginManagement of plugins have newer versions:
+[INFO]   com.github.spotbugs:spotbugs .................... 3.1.8 -> 4.0.0-beta3
+[INFO]   com.puppycrawl.tools:checkstyle ......................... 8.14 -> 8.22
+[INFO] 
+[INFO] 
+[INFO] ---------------------< org.n52.series-api.db:dao >----------------------
+[INFO] Building Series REST API DAO - DAO 3.0.0-SNAPSHOT                  [2/3]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- versions-maven-plugin:2.7:display-dependency-updates (default-cli) @ dao ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   antlr:antlr ........................................ 2.7.7 -> 20030911
+[INFO]   ch.qos.logback:logback-access .................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-classic ................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-core .................... 1.2.3 -> 1.3.0-alpha4
+[INFO]   com.atomikos:transactions-jdbc ........................ 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jms ......................... 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jta ......................... 4.0.6 -> 5.0.1
+[INFO]   com.datastax.cassandra:cassandra-driver-core .......... 3.6.0 -> 4.0.0
+[INFO]   com.datastax.cassandra:cassandra-driver-mapping ....... 3.6.0 -> 3.7.2
+[INFO]   com.fasterxml:classmate ............................... 1.4.0 -> 1.5.0
+[INFO]   com.fasterxml.jackson.core:jackson-annotations ... 2.9.0 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-core .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-databind ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-avro ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-csv ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-ion ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-properties ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-smile ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-xml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-yaml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-guava ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate3 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate4 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate5 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hppc ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jaxrs ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jdk8 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-joda ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-json-org ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr310 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr353 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-pcollections ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base ... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-cbor-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-smile-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-xml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-yaml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-all .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-objects ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-retrofit2 .... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-stree ........ 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-afterburner ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-guice ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jaxb-annotations ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jsonSchema ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-kotlin ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-mrbean ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-osgi ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-parameter-names ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-paranamer ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.woodstox:woodstox-core .............. 5.0.3 -> 6.0.0.pr2
+[INFO]   com.github.ben-manes.caffeine:caffeine ................ 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:guava ................... 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:jcache .................. 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:simulator ............... 2.6.2 -> 2.7.0
+[INFO]   com.google.appengine:appengine-api-1.0-sdk .......... 1.9.75 -> 1.9.76
+[INFO]   com.hazelcast:hazelcast ............................. 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-client ...................... 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-hibernate52 ................... 1.2.3 -> 1.3.2
+[INFO]   com.hazelcast:hazelcast-spring ...................... 3.11.4 -> 3.12.1
+[INFO]   com.microsoft.sqlserver:mssql-jdbc ...
+[INFO]                                        6.4.0.jre8 -> 7.3.1.jre12-preview
+[INFO]   com.querydsl:querydsl-apt ............................. 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-collections ..................... 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-core ............................ 4.2.1 -> 5.0.0
+[INFO]   com.rabbitmq:amqp-client .............................. 5.4.3 -> 5.7.2
+[INFO]   com.samskivert:jmustache ................................ 1.14 -> 1.15
+[INFO]   com.sendgrid:sendgrid-java ............................ 4.3.0 -> 4.4.1
+[INFO]   com.sun.xml.messaging.saaj:saaj-impl .................. 1.5.0 -> 1.5.1
+[INFO]   com.zaxxer:HikariCP ................................... 3.2.0 -> 3.3.1
+[INFO]   commons-codec:commons-codec ............................. 1.11 -> 1.13
+[INFO]   de.flapdoodle.embed:de.flapdoodle.embed.mongo ......... 2.1.2 -> 2.2.0
+[INFO]   dom4j:dom4j ................................. 1.6.1 -> 20040902.021138
+[INFO]   io.dropwizard.metrics:metrics-annotation .............. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-core .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-ehcache ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-graphite ................ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-healthchecks ............ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-httpasyncclient ......... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jdbi .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jersey2 ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jetty9 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jmx ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-json .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jvm ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-log4j2 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-logback ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlet ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlets ................ 4.0.5 -> 4.1.0
+[INFO]   io.micrometer:micrometer-core ......................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-jersey2 ...................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-appoptics ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-atlas ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-azure-monitor ....... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-cloudwatch .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-datadog ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-dynatrace ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-elastic ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-ganglia ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-graphite ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-humio ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-influx .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-jmx ................. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-kairos .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-new-relic ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-prometheus .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-signalfx ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-stackdriver ......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-statsd .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-wavefront ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-test ......................... 1.1.5 -> 1.2.0
+[INFO]   io.netty:netty-all ...................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-buffer ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec .................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-dns ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-haproxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http2 .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-memcache ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-mqtt ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-redis .............. 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-smtp ............... 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-socks .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-stomp .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-xml ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-common ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-dev-tools ................ 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-example .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler-proxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver ................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver-dns ............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-epoll ... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-kqueue ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-native-unix-common ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-rxtx ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-sctp ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-udt ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.prometheus:simpleclient_pushgateway ................ 0.5.0 -> 0.6.0
+[INFO]   io.reactivex.rxjava2:rxjava .......................... 2.2.9 -> 2.2.10
+[INFO]   io.rest-assured:json-path ............................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:json-schema-validator ................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:rest-assured .......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:scala-support ......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:spring-mock-mvc ....................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:xml-path .............................. 3.1.1 -> 4.0.0
+[INFO]   io.undertow:undertow-core ............... 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-servlet ............ 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-websockets-jsr ..... 2.0.21.Final -> 2.0.22.Final
+[INFO]   javax.xml.bind:jaxb-api .................. 2.3.1 -> 2.4.0-b180830.0359
+[INFO]   jaxen:jaxen ........................................... 1.1.6 -> 1.2.0
+[INFO]   joda-time:joda-time ................................. 2.10.2 -> 2.10.3
+[INFO]   junit:junit ...................................... 4.12 -> 4.13-beta-3
+[INFO]   mysql:mysql-connector-java .......................... 8.0.16 -> 8.0.17
+[INFO]   net.bytebuddy:byte-buddy ............................ 1.9.13 -> 1.9.15
+[INFO]   net.bytebuddy:byte-buddy-agent ...................... 1.9.13 -> 1.9.15
+[INFO]   net.java.dev.jna:jna .................................. 4.5.2 -> 5.4.0
+[INFO]   net.java.dev.jna:jna-platform ......................... 4.5.2 -> 5.4.0
+[INFO]   net.sourceforge.htmlunit:htmlunit ..................... 2.33 -> 2.35.0
+[INFO]   nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect ...... 2.3.0 -> 2.4.1
+[INFO]   org.apache.activemq:artemis-amqp-protocol ............. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-commons ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-core-client ............... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-client ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-server ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-journal ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-selector .................. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-server .................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-service-extensions ........ 2.6.4 -> 2.9.0
+[INFO]   org.apache.commons:commons-dbcp2 ...................... 2.5.0 -> 2.6.0
+[INFO]   org.apache.commons:commons-lang3 ........................ 3.8.1 -> 3.9
+[INFO]   org.apache.derby:derby ........................ 10.14.2.0 -> 10.15.1.3
+[INFO]   org.apache.kafka:connect-api .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-basic-auth-extension ......... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-file ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-json ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-runtime ...................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-transforms ................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-clients ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-log4j-appender ................. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.11 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.12 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-test-utils ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-tools .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.11 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.12 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.logging.log4j:log4j-1.2-api .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-api .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-cassandra ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-core ................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-couchdb .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-flume-ng ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-iostreams ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jcl .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jmx-gui .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jpa .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jul .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-liquibase ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb2 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb3 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j-impl ........... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j18-impl ......... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-taglib ............... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-to-slf4j ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-web .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.solr:solr-analysis-extras .................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-analytics ........................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-cell ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-clustering ....................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-core ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler ................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler-extras ......... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-langid ........................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-ltr .............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-solrj ............................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-test-framework ................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-velocity ......................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.tomcat:tomcat-annotations-api ............ 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jdbc ....................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jsp-api .................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ........... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-el ............. 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-jasper ......... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-websocket ...... 9.0.21 -> 9.0.22
+[INFO]   org.apache.xmlgraphics:fop ................................ 2.1 -> 2.3
+[INFO]   org.assertj:assertj-core ............................ 3.11.1 -> 3.12.2
+[INFO]   org.codehaus.groovy:groovy ..................... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-ant ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-backports-compat23 ...
+[INFO]                                                    2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-bsf ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-commons ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-picocli ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-console ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-datetime ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-dateutil ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-docgenerator ........ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovydoc ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovysh ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jaxb ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jmx ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json-direct ........ 2.5.7 -> 3.0.0-alpha-3
+[INFO]   org.codehaus.groovy:groovy-jsr223 .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-macro ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-nio ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-servlet ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-sql ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-swing ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-templates ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test-junit5 ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-testng .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-xml ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.janino:janino .......................... 3.0.12 -> 3.0.14
+[INFO]   org.eclipse.jetty:apache-jsp ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:apache-jstl ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-embedded-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-remote-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-annotations ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-ant ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-client ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-deploy ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-distribution ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-hazelcast ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-home ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http-spi ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-io ......... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaas ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaspi ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jmx ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jndi ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-nosql ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-plus ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-proxy ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-quickstart ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-rewrite .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-security ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-server ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlet .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlets ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-spring ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-unixsocket ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util-ajax ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-webapp ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-xml ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.gcloud:jetty-gcloud-session-manager ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-hpack ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-http-client-transport ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.memcached:jetty-memcached-sessions ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-httpservice ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-jsp ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-warurl ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.websocket:websocket-servlet ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.ehcache:ehcache ................................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-clustered ......................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-transactions ...................... 3.6.3 -> 3.8.0
+[INFO]   org.elasticsearch:elasticsearch ....................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-client .... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-high-level-client ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:transport .................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.distribution.integ-test-zip:elasticsearch ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.plugin:transport-netty4-client ...... 6.4.3 -> 7.2.0
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk17 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk18 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.flywaydb:flyway-core ........................ 5.2.4 -> 6.0.0-beta2
+[INFO]   org.glassfish:javax.el ............................ 3.0.0 -> 3.0.1-b11
+[INFO]   org.glassfish.jaxb:codemodel ............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:codemodel-annotation-compiler ...
+[INFO]                                              2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-jxc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-runtime .......... 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-xjc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txw2 .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txwc2 ................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:xsom .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jersey.bundles:jaxrs-ri ................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-apache-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-grizzly-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jdk-connector .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jetty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-netty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-netty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-simple-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers.glassfish:jersey-gf-ejb ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-client ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-common ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-server ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-bean-validation ......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-declarative-linking ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-entity-filtering ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-metainf-services ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc ..................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-bean-validation ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-freemarker .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-jsp ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-mustache ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-proxy-client ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-servlet-portability ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-spring4 ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-wadl-doclet ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x ............... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-ban-custom-hk2-binding ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-servlet ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-transaction ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-validation .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-weld2-se ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-guava ...... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava2 .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-cdi2-se .............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-hk2 .................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-jaxb ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-binding .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson1 ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jettison ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-processing ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-kryo ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-moxy ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-multipart ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-sse ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-server ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-signature .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth2-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-util ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-bundle ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-external ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2 ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-inmemory ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-simple ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.hamcrest:hamcrest-core ................................ 1.3 -> 2.1
+[INFO]   org.hamcrest:hamcrest-library ............................. 1.3 -> 2.1
+[INFO]   org.hibernate:hibernate-core ............. 5.4.3.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-jpamodelgen ..... 5.3.10.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-spatial .......... 5.4.3.Final -> 5.12.2-52N.1
+[INFO]   org.hibernate.validator:hibernate-validator ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hibernate.validator:hibernate-validator-annotation-processor ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hsqldb:hsqldb ..................................... 2.4.1 -> 2.5.0
+[INFO]   org.infinispan:infinispan-cachestore-jdbc ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-jpa ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-leveldb ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha2
+[INFO]   org.infinispan:infinispan-cachestore-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rest ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rocksdb ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-common .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-embedded ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-remote .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-client-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cloud ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-counter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-lock ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-commons ....... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-core .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-directory-provider ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-hibernate-cache-v53 ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache ........ 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-commons ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-lucene-directory ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-objectfilter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-osgi .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-persistence-cli ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-persistence-soft-index ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query-dsl ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-client ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-server ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-scripting ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-core ... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-memcached ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-router ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-spring4-common ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-embedded ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-remote ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-tasks ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tasks-api ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tools ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tree .......... 9.4.15.Final -> 10.0.0.Beta2
+[INFO]   org.influxdb:influxdb-java .............................. 2.14 -> 2.15
+[INFO]   org.jboss.logging:jboss-logging ........... 3.3.2.Final -> 3.4.0.Final
+[INFO]   org.jetbrains.kotlin:kotlin-reflect ................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib .................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk7 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk8 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jolokia:jolokia-core .............................. 1.6.1 -> 1.6.2
+[INFO]   org.junit.jupiter:junit-jupiter-api ................... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-migrationsupport ...... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-params ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.platform:junit-platform-commons ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-console ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-engine .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-launcher ............ 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-runner .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-suite-api ........... 1.3.2 -> 1.5.1
+[INFO]   org.junit.vintage:junit-vintage-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.liquibase:liquibase-core .......................... 3.6.3 -> 3.7.0
+[INFO]   org.mariadb.jdbc:mariadb-java-client .................. 2.3.0 -> 2.4.2
+[INFO]   org.messaginghub:pooled-jms ........................... 1.0.5 -> 1.0.6
+[INFO]   org.mockito:mockito-core ............................. 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-inline ........................... 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-junit-jupiter .................... 2.23.4 -> 3.0.0
+[INFO]   org.mongodb:bson ............................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongo-java-driver .................. 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver ..................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-async ............... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-core ................ 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-reactivestreams ........... 1.9.2 -> 1.11.0
+[INFO]   org.mortbay.jasper:apache-el ........................ 8.5.40 -> 9.0.19
+[INFO]   org.n52.series.db:entities ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:mappings ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:types .............. 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.neo4j:neo4j-ogm-api .......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-bolt-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-core ......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-embedded-driver .............. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-http-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.postgresql:postgresql ...................... 42.2.5 -> 42.2.6.jre7
+[INFO]   org.seleniumhq.selenium:htmlunit-driver ............. 2.33.0 -> 2.35.1
+[INFO]   org.seleniumhq.selenium:selenium-api ......... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-chrome-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-edge-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-firefox-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-ie-driver ... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-java ........ 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-opera-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-remote-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-safari-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-support ..... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.slf4j:jcl-over-slf4j ...................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:jul-to-slf4j ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:log4j-over-slf4j .................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-ext ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-jdk14 ......................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-log4j12 ....................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-nop ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.springframework.cloud:spring-cloud-cloudfoundry-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-connectors-core ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-heroku-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-localconfig-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-spring-service-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.webjars:webjars-locator-core ........................ 0.35 -> 0.37
+[INFO]   org.xerial:sqlite-jdbc .............................. 3.25.2 -> 3.28.0
+[INFO]   org.xmlunit:xmlunit-assertj ........................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-core .............................. 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-legacy ............................ 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-matchers .......................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-placeholders ...................... 2.6.2 -> 2.6.3
+[INFO]   org.yaml:snakeyaml ...................................... 1.23 -> 1.24
+[INFO]   redis.clients:jedis ................................... 2.9.3 -> 3.1.0
+[INFO]   xml-apis:xml-apis .................................... 1.4.01 -> 2.0.2
+[INFO] 
+[INFO] The following dependencies in pluginManagement of plugins have newer versions:
+[INFO]   com.github.spotbugs:spotbugs .................... 3.1.8 -> 4.0.0-beta3
+[INFO]   com.puppycrawl.tools:checkstyle ......................... 8.14 -> 8.22
+[INFO] 
+[INFO] 
+[INFO] --------------------< org.n52.series-api.db:webapp >--------------------
+[INFO] Building Series REST API DAO - Webapp 3.0.0-SNAPSHOT               [3/3]
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- versions-maven-plugin:2.7:display-dependency-updates (default-cli) @ webapp ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   antlr:antlr ........................................ 2.7.7 -> 20030911
+[INFO]   ch.qos.logback:logback-access .................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-classic ................. 1.2.3 -> 1.3.0-alpha4
+[INFO]   ch.qos.logback:logback-core .................... 1.2.3 -> 1.3.0-alpha4
+[INFO]   com.atomikos:transactions-jdbc ........................ 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jms ......................... 4.0.6 -> 5.0.1
+[INFO]   com.atomikos:transactions-jta ......................... 4.0.6 -> 5.0.1
+[INFO]   com.datastax.cassandra:cassandra-driver-core .......... 3.6.0 -> 4.0.0
+[INFO]   com.datastax.cassandra:cassandra-driver-mapping ....... 3.6.0 -> 3.7.2
+[INFO]   com.fasterxml:classmate ............................... 1.4.0 -> 1.5.0
+[INFO]   com.fasterxml.jackson.core:jackson-annotations ... 2.9.0 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-core .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.core:jackson-databind ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-avro ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-csv ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-ion ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-properties ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-smile ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-xml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.dataformat:jackson-dataformat-yaml ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-guava ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate3 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate4 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hibernate5 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-hppc ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jaxrs ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jdk8 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-joda ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-json-org ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr310 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-jsr353 ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.datatype:jackson-datatype-pcollections ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base ... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-cbor-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-smile-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-xml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jaxrs:jackson-jaxrs-yaml-provider ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-all .......... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-objects ...... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-retrofit2 .... 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.jr:jackson-jr-stree ........ 2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-afterburner ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-guice ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jaxb-annotations ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-jsonSchema ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-kotlin ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-mrbean ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-osgi ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-parameter-names ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.jackson.module:jackson-module-paranamer ...
+[INFO]                                                      2.9.9 -> 2.10.0.pr1
+[INFO]   com.fasterxml.woodstox:woodstox-core .............. 5.0.3 -> 6.0.0.pr2
+[INFO]   com.github.ben-manes.caffeine:caffeine ................ 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:guava ................... 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:jcache .................. 2.6.2 -> 2.7.0
+[INFO]   com.github.ben-manes.caffeine:simulator ............... 2.6.2 -> 2.7.0
+[INFO]   com.google.appengine:appengine-api-1.0-sdk .......... 1.9.75 -> 1.9.76
+[INFO]   com.hazelcast:hazelcast ............................. 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-client ...................... 3.11.4 -> 3.12.1
+[INFO]   com.hazelcast:hazelcast-hibernate52 ................... 1.2.3 -> 1.3.2
+[INFO]   com.hazelcast:hazelcast-spring ...................... 3.11.4 -> 3.12.1
+[INFO]   com.microsoft.sqlserver:mssql-jdbc ...
+[INFO]                                        6.4.0.jre8 -> 7.3.1.jre12-preview
+[INFO]   com.querydsl:querydsl-apt ............................. 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-collections ..................... 4.2.1 -> 5.0.0
+[INFO]   com.querydsl:querydsl-core ............................ 4.2.1 -> 5.0.0
+[INFO]   com.rabbitmq:amqp-client .............................. 5.4.3 -> 5.7.2
+[INFO]   com.samskivert:jmustache ................................ 1.14 -> 1.15
+[INFO]   com.sendgrid:sendgrid-java ............................ 4.3.0 -> 4.4.1
+[INFO]   com.sun.xml.messaging.saaj:saaj-impl .................. 1.5.0 -> 1.5.1
+[INFO]   com.zaxxer:HikariCP ................................... 3.2.0 -> 3.3.1
+[INFO]   commons-codec:commons-codec ............................. 1.11 -> 1.13
+[INFO]   de.flapdoodle.embed:de.flapdoodle.embed.mongo ......... 2.1.2 -> 2.2.0
+[INFO]   dom4j:dom4j ................................. 1.6.1 -> 20040902.021138
+[INFO]   io.dropwizard.metrics:metrics-annotation .............. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-core .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-ehcache ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-graphite ................ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-healthchecks ............ 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-httpasyncclient ......... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jdbi .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jersey2 ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jetty9 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jmx ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-json .................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-jvm ..................... 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-log4j2 .................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-logback ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlet ................. 4.0.5 -> 4.1.0
+[INFO]   io.dropwizard.metrics:metrics-servlets ................ 4.0.5 -> 4.1.0
+[INFO]   io.micrometer:micrometer-core ......................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-jersey2 ...................... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-appoptics ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-atlas ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-azure-monitor ....... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-cloudwatch .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-datadog ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-dynatrace ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-elastic ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-ganglia ............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-graphite ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-humio ............... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-influx .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-jmx ................. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-kairos .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-new-relic ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-prometheus .......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-signalfx ............ 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-stackdriver ......... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-statsd .............. 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-registry-wavefront ........... 1.1.5 -> 1.2.0
+[INFO]   io.micrometer:micrometer-test ......................... 1.1.5 -> 1.2.0
+[INFO]   io.netty:netty-all ...................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-buffer ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec .................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-dns ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-haproxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-http2 .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-memcache ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-mqtt ............... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-redis .............. 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-smtp ............... 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-codec-socks .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-stomp .............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-codec-xml ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-common ................... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-dev-tools ................ 4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-example .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler .................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-handler-proxy ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver ................. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-resolver-dns ............. 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport ................ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-epoll ... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-native-kqueue ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-native-unix-common ...
+[INFO]                                             4.1.36.Final -> 4.1.37.Final
+[INFO]   io.netty:netty-transport-rxtx ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-sctp ........... 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.netty:netty-transport-udt ............ 4.1.36.Final -> 5.0.0.Alpha2
+[INFO]   io.prometheus:simpleclient_pushgateway ................ 0.5.0 -> 0.6.0
+[INFO]   io.reactivex.rxjava2:rxjava .......................... 2.2.9 -> 2.2.10
+[INFO]   io.rest-assured:json-path ............................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:json-schema-validator ................. 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:rest-assured .......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:scala-support ......................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:spring-mock-mvc ....................... 3.1.1 -> 4.0.0
+[INFO]   io.rest-assured:xml-path .............................. 3.1.1 -> 4.0.0
+[INFO]   io.undertow:undertow-core ............... 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-servlet ............ 2.0.21.Final -> 2.0.22.Final
+[INFO]   io.undertow:undertow-websockets-jsr ..... 2.0.21.Final -> 2.0.22.Final
+[INFO]   javax.xml.bind:jaxb-api .................. 2.3.1 -> 2.4.0-b180830.0359
+[INFO]   jaxen:jaxen ........................................... 1.1.6 -> 1.2.0
+[INFO]   joda-time:joda-time ................................. 2.10.2 -> 2.10.3
+[INFO]   junit:junit ...................................... 4.12 -> 4.13-beta-3
+[INFO]   mysql:mysql-connector-java .......................... 8.0.16 -> 8.0.17
+[INFO]   net.bytebuddy:byte-buddy ............................ 1.9.13 -> 1.9.15
+[INFO]   net.bytebuddy:byte-buddy-agent ...................... 1.9.13 -> 1.9.15
+[INFO]   net.java.dev.jna:jna .................................. 4.5.2 -> 5.4.0
+[INFO]   net.java.dev.jna:jna-platform ......................... 4.5.2 -> 5.4.0
+[INFO]   net.sourceforge.htmlunit:htmlunit ..................... 2.33 -> 2.35.0
+[INFO]   nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect ...... 2.3.0 -> 2.4.1
+[INFO]   org.apache.activemq:artemis-amqp-protocol ............. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-commons ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-core-client ............... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-client ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-jms-server ................ 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-journal ................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-selector .................. 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-server .................... 2.6.4 -> 2.9.0
+[INFO]   org.apache.activemq:artemis-service-extensions ........ 2.6.4 -> 2.9.0
+[INFO]   org.apache.commons:commons-dbcp2 ...................... 2.5.0 -> 2.6.0
+[INFO]   org.apache.commons:commons-lang3 ........................ 3.8.1 -> 3.9
+[INFO]   org.apache.derby:derby ........................ 10.14.2.0 -> 10.15.1.3
+[INFO]   org.apache.kafka:connect-api .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-basic-auth-extension ......... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-file ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-json ......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-runtime ...................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:connect-transforms ................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-clients ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-log4j-appender ................. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams ........................ 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.11 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-scala_2.12 ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-streams-test-utils ............. 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka-tools .......................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.11 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.kafka:kafka_2.12 ........................... 2.0.1 -> 2.3.0
+[INFO]   org.apache.logging.log4j:log4j-1.2-api .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-api .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-cassandra ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-core ................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-couchdb .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-flume-ng ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-iostreams ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jcl .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jmx-gui .............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jpa .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-jul .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-liquibase ............ 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb2 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-mongodb3 ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j-impl ........... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-slf4j18-impl ......... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-taglib ............... 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-to-slf4j ............. 2.11.2 -> 2.12.0
+[INFO]   org.apache.logging.log4j:log4j-web .................. 2.11.2 -> 2.12.0
+[INFO]   org.apache.solr:solr-analysis-extras .................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-analytics ........................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-cell ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-clustering ....................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-core ............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler ................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-dataimporthandler-extras ......... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-langid ........................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-ltr .............................. 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-solrj ............................ 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-test-framework ................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.solr:solr-velocity ......................... 7.7.2 -> 8.1.1
+[INFO]   org.apache.tomcat:tomcat-annotations-api ............ 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jdbc ....................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat:tomcat-jsp-api .................... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ........... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-el ............. 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-jasper ......... 9.0.21 -> 9.0.22
+[INFO]   org.apache.tomcat.embed:tomcat-embed-websocket ...... 9.0.21 -> 9.0.22
+[INFO]   org.apache.xmlgraphics:fop ................................ 2.1 -> 2.3
+[INFO]   org.assertj:assertj-core ............................ 3.11.1 -> 3.12.2
+[INFO]   org.codehaus.groovy:groovy ..................... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-ant ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-backports-compat23 ...
+[INFO]                                                    2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-bsf ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-commons ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-cli-picocli ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-console ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-datetime ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-dateutil ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-docgenerator ........ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovydoc ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-groovysh ............ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jaxb ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-jmx ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-json-direct ........ 2.5.7 -> 3.0.0-alpha-3
+[INFO]   org.codehaus.groovy:groovy-jsr223 .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-macro ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-nio ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-servlet ............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-sql ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-swing ............... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-templates ........... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test ................ 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-test-junit5 ......... 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-testng .............. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.groovy:groovy-xml ................. 2.5.7 -> 3.0.0-beta-2
+[INFO]   org.codehaus.janino:janino .......................... 3.0.12 -> 3.0.14
+[INFO]   org.eclipse.jetty:apache-jsp ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:apache-jstl ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-embedded-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:infinispan-remote-query ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-conscrypt-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-java-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-alpn-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-annotations ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-ant ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-client ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-deploy ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-distribution ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-hazelcast ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-home ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-http-spi ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-io ......... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaas ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jaspi ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jmx ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-jndi ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-nosql ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-plus ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-proxy ...... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-quickstart ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-rewrite .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-security ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-server ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlet .... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-servlets ... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-spring ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-unixsocket ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util ....... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-util-ajax ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-webapp ..... 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty:jetty-xml ........ 9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.fcgi:fcgi-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.gcloud:jetty-gcloud-session-manager ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-client ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-common ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-hpack ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-http-client-transport ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.http2:http2-server ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.memcached:jetty-memcached-sessions ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-httpservice ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-jsp ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.osgi:jetty-osgi-boot-warurl ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.eclipse.jetty.websocket:websocket-servlet ...
+[INFO]                                        9.4.19.v20190610 -> 10.0.0-alpha0
+[INFO]   org.ehcache:ehcache ................................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-clustered ......................... 3.6.3 -> 3.8.0
+[INFO]   org.ehcache:ehcache-transactions ...................... 3.6.3 -> 3.8.0
+[INFO]   org.elasticsearch:elasticsearch ....................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-client .... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:elasticsearch-rest-high-level-client ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.client:transport .................... 6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.distribution.integ-test-zip:elasticsearch ...
+[INFO]                                                           6.4.3 -> 7.2.0
+[INFO]   org.elasticsearch.plugin:transport-netty4-client ...... 6.4.3 -> 7.2.0
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk17 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.firebirdsql.jdbc:jaybird-jdk18 ............. 3.0.6 -> 4.0.0-beta-1
+[INFO]   org.flywaydb:flyway-core ........................ 5.2.4 -> 6.0.0-beta2
+[INFO]   org.glassfish:javax.el ............................ 3.0.0 -> 3.0.1-b11
+[INFO]   org.glassfish.jaxb:codemodel ............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:codemodel-annotation-compiler ...
+[INFO]                                              2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-jxc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-runtime .......... 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:jaxb-xjc .............. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txw2 .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:txwc2 ................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jaxb:xsom .................. 2.3.1 -> 2.4.0-b180830.0438
+[INFO]   org.glassfish.jersey.bundles:jaxrs-ri ................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-apache-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-grizzly-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jdk-connector .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-jetty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.connectors:jersey-netty-connector ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-grizzly2-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-jetty-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-netty-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-servlet-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers:jersey-container-simple-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.containers.glassfish:jersey-gf-ejb ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-client ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-common ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.core:jersey-server ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-bean-validation ......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-declarative-linking ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-entity-filtering ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-metainf-services ........ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc ..................... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-bean-validation ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-freemarker .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-jsp ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-mvc-mustache ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-proxy-client ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-servlet-portability ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-spring4 ................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext:jersey-wadl-doclet ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x ............... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-ban-custom-hk2-binding ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-servlet ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-transaction ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-cdi1x-validation .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.cdi:jersey-weld2-se ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-guava ...... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava ..... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.ext.rx:jersey-rx-client-rxjava2 .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-cdi2-se .............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.inject:jersey-hk2 .................. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-jaxb ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-binding .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson .... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jackson1 ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-jettison ... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-json-processing ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-kryo ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-moxy ............ 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-multipart ....... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.media:jersey-media-sse ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-server ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth1-signature .......... 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.security:oauth2-client ............. 2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-core ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework:jersey-test-framework-util ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-bundle ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-external ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2 ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-inmemory ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jdk-http ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-simple ...
+[INFO]                                                             2.27 -> 2.29
+[INFO]   org.hamcrest:hamcrest-core ................................ 1.3 -> 2.1
+[INFO]   org.hamcrest:hamcrest-library ............................. 1.3 -> 2.1
+[INFO]   org.hibernate:hibernate-core ............. 5.4.3.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-jpamodelgen ..... 5.3.10.Final -> 6.0.0.Alpha2
+[INFO]   org.hibernate:hibernate-spatial .......... 5.4.3.Final -> 5.12.2-52N.1
+[INFO]   org.hibernate.validator:hibernate-validator ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hibernate.validator:hibernate-validator-annotation-processor ...
+[INFO]                                             6.0.17.Final -> 6.1.0.Alpha6
+[INFO]   org.hsqldb:hsqldb ..................................... 2.4.1 -> 2.5.0
+[INFO]   org.infinispan:infinispan-cachestore-jdbc ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-jpa ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-leveldb ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha2
+[INFO]   org.infinispan:infinispan-cachestore-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rest ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cachestore-rocksdb ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-common .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-embedded ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cdi-remote .... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-client-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-cloud ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-counter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-clustered-lock ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-commons ....... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-core .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-directory-provider ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-hibernate-cache-v53 ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache ........ 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-commons ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-jcache-remote ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-lucene-directory ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-objectfilter ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-osgi .......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-persistence-cli ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-persistence-soft-index ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-query-dsl ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-client ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-remote-query-server ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-scripting ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-core ... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-hotrod ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-memcached ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-server-router ...
+[INFO]                                             9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-spring4-common ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-embedded ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-spring4-remote ...
+[INFO]                                            9.4.15.Final -> 10.0.0.Alpha1
+[INFO]   org.infinispan:infinispan-tasks ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tasks-api ..... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tools ......... 9.4.15.Final -> 10.0.0.Beta4
+[INFO]   org.infinispan:infinispan-tree .......... 9.4.15.Final -> 10.0.0.Beta2
+[INFO]   org.influxdb:influxdb-java .............................. 2.14 -> 2.15
+[INFO]   org.jboss.logging:jboss-logging ........... 3.3.2.Final -> 3.4.0.Final
+[INFO]   org.jetbrains.kotlin:kotlin-reflect ................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib .................. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk7 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jetbrains.kotlin:kotlin-stdlib-jdk8 ............. 1.2.71 -> 1.3.41
+[INFO]   org.jolokia:jolokia-core .............................. 1.6.1 -> 1.6.2
+[INFO]   org.junit.jupiter:junit-jupiter-api ................... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-migrationsupport ...... 5.3.2 -> 5.5.1
+[INFO]   org.junit.jupiter:junit-jupiter-params ................ 5.3.2 -> 5.5.1
+[INFO]   org.junit.platform:junit-platform-commons ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-console ............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-engine .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-launcher ............ 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-runner .............. 1.3.2 -> 1.5.1
+[INFO]   org.junit.platform:junit-platform-suite-api ........... 1.3.2 -> 1.5.1
+[INFO]   org.junit.vintage:junit-vintage-engine ................ 5.3.2 -> 5.5.1
+[INFO]   org.liquibase:liquibase-core .......................... 3.6.3 -> 3.7.0
+[INFO]   org.mariadb.jdbc:mariadb-java-client .................. 2.3.0 -> 2.4.2
+[INFO]   org.messaginghub:pooled-jms ........................... 1.0.5 -> 1.0.6
+[INFO]   org.mockito:mockito-core ............................. 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-inline ........................... 2.23.4 -> 3.0.0
+[INFO]   org.mockito:mockito-junit-jupiter .................... 2.23.4 -> 3.0.0
+[INFO]   org.mongodb:bson ............................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongo-java-driver .................. 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver ..................... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-async ............... 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-core ................ 3.8.2 -> 3.11.0-beta4
+[INFO]   org.mongodb:mongodb-driver-reactivestreams ........... 1.9.2 -> 1.11.0
+[INFO]   org.mortbay.jasper:apache-el ........................ 8.5.40 -> 9.0.19
+[INFO]   org.n52.series.db:entities ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:mappings ........... 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.n52.series.db:types .............. 1.0.0-SNAPSHOT -> 2.0.0-alpha.2
+[INFO]   org.neo4j:neo4j-ogm-api .......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-bolt-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-core ......................... 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-embedded-driver .............. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.neo4j:neo4j-ogm-http-driver .................. 3.1.11 -> 3.2.0-RC1
+[INFO]   org.postgresql:postgresql ...................... 42.2.5 -> 42.2.6.jre7
+[INFO]   org.seleniumhq.selenium:htmlunit-driver ............. 2.33.0 -> 2.35.1
+[INFO]   org.seleniumhq.selenium:selenium-api ......... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-chrome-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-edge-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-firefox-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-ie-driver ... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-java ........ 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-opera-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-remote-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-safari-driver ...
+[INFO]                                                  3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.seleniumhq.selenium:selenium-support ..... 3.14.0 -> 4.0.0-alpha-2
+[INFO]   org.slf4j:jcl-over-slf4j ...................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:jul-to-slf4j ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:log4j-over-slf4j .................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-ext ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-jdk14 ......................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-log4j12 ....................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-nop ........................... 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.26 -> 2.0.0-alpha0
+[INFO]   org.springframework.cloud:spring-cloud-cloudfoundry-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-connectors-core ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-heroku-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-localconfig-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.springframework.cloud:spring-cloud-spring-service-connector ...
+[INFO]                                           2.0.5.RELEASE -> 2.0.6.RELEASE
+[INFO]   org.webjars:webjars-locator-core ........................ 0.35 -> 0.37
+[INFO]   org.xerial:sqlite-jdbc .............................. 3.25.2 -> 3.28.0
+[INFO]   org.xmlunit:xmlunit-assertj ........................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-core .............................. 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-legacy ............................ 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-matchers .......................... 2.6.2 -> 2.6.3
+[INFO]   org.xmlunit:xmlunit-placeholders ...................... 2.6.2 -> 2.6.3
+[INFO]   org.yaml:snakeyaml ...................................... 1.23 -> 1.24
+[INFO]   redis.clients:jedis ................................... 2.9.3 -> 3.1.0
+[INFO]   xml-apis:xml-apis .................................... 1.4.01 -> 2.0.2
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   com.sun.xml.bind:jaxb-core .......................... 2.3.0 -> 2.3.0.1
+[INFO]   com.sun.xml.bind:jaxb-impl ............................ 2.3.0 -> 2.3.2
+[INFO] 
+[INFO] The following dependencies in pluginManagement of plugins have newer versions:
+[INFO]   com.github.spotbugs:spotbugs .................... 3.1.8 -> 4.0.0-beta3
+[INFO]   com.puppycrawl.tools:checkstyle ......................... 8.14 -> 8.22
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Series REST API DAO 3.0.0-SNAPSHOT:
+[INFO] 
+[INFO] Series REST API DAO ................................ SUCCESS [  2.883 s]
+[INFO] Series REST API DAO - DAO .......................... SUCCESS [  0.924 s]
+[INFO] Series REST API DAO - Webapp ....................... SUCCESS [  1.069 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.773 s
+[INFO] Finished at: 2019-07-24T14:38:49+02:00
+[INFO] ------------------------------------------------------------------------

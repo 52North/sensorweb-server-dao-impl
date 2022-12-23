@@ -9,8 +9,8 @@
     },
     "phenomenonStyles": [
         {
-            "id": "7",
-            "title": "Dataset quantity_7 from phenomenonStyles config (without legend)",
+            "id": "70000",
+            "title": "Dataset 7 from phenomenonStyles config (without legend)",
             "chartQualifier": "phenomenonStyles_without_legend",
             "interval": [
                 "lastWeek",
@@ -26,8 +26,8 @@
             }
         },
         {
-            "id": "7",
-            "title": "Dataset quantity_7 from phenomenonStyles config (with legend)",
+            "id": "70000",
+            "title": "Dataset 7 from phenomenonStyles config (with legend)",
             "chartQualifier": "phenomenonStyles_with_legend",
             "interval": [
                 "lastWeek",
@@ -48,7 +48,7 @@
     ],
     "datasetStyles": [
         {
-            "id": "6",
+            "id": "60000",
             "title": "Dataset 6 from seriesStyles config  (without legend)",
             "chartQualifier": "datasetStyles_with_legend",
             "interval": [

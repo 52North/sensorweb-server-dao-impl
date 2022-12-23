@@ -12,6 +12,25 @@
     <import resource="../classes/contexts/configured/application.xml"/>
     <import resource="../classes/contexts/configured/spi-impl-dao_beans.xml"/>
     <import resource="../classes/contexts/configured/spi-impl-dao_tasks.xml" />
+    <bean id="serviceEntity" class="org.n52.series.db.beans.ServiceEntity">
+        <property name="id" value="1" />
+        <property name="version" value="2.0" />
+        <property name="name" value="${service.name}" />
+        <property name="noDataValues" value="${service.nodata.values}" />
+    </bean>
+
+    <bean id="metadataService" class="org.n52.series.srv.CountingMetadataAccessService" />
+    <bean id="searchService" class="org.n52.series.srv.Search" />
+
+    <import resource="spi-impl-dao_beans.xml"/>
+    <import resource="spi-impl-dao_tasks.xml" />
+
+    <!-- local.configFile overrides defaults from application.properties -->
+    <!-- <ctx:property-placeholder location="classpath:/application.properties,file://${local.configFile}"
+        ignore-resource-not-found="true" ignore-unresolvable="false" /> -->
+    <ctx:property-placeholder location="classpath:/application.properties"
+        ignore-resource-not-found="true" ignore-unresolvable="false" />
+
     <!-- For SOS Bundles (instead of extra database config) -->
     <!--<bean class="org.n52.series.db.da.sos.SOSHibernateSessionHolder" destroy-method="shutdown" />-->
     <import resource="../classes/contexts/configured/series-database-config.xml" />

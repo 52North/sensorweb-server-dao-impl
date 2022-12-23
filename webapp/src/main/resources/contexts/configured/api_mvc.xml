@@ -8,8 +8,9 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
-
+    <!-- Not liked by springboot
     <mvc:annotation-driven />
+    -->
     <ctx:annotation-config />
 
     <!-- This bean description file injects the SPI implementation into the Web binding layer. Any change will corrupt the
@@ -19,10 +20,6 @@
 
     <bean class="org.n52.web.ctrl.ResourcesController">
         <constructor-arg type="org.n52.series.spi.srv.CountingMetadataService" ref="metadataService" />
-    </bean>
-
-    <bean class="org.n52.web.ctrl.SearchController">
-        <constructor-arg type="org.n52.series.spi.search.SearchService" ref="searchService" />
     </bean>
 
     <bean class="org.n52.web.ctrl.ParameterController" id="parameterController" abstract="true">
@@ -79,9 +76,11 @@
     <bean class="org.n52.web.ctrl.TimeseriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="timeseriesService" />
     </bean>
+<!--
     <bean class="org.n52.web.ctrl.ProfilesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="profileService" />
     </bean>
+ -->
     <!--
     <bean class="org.n52.web.ctrl.GeometriesController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="geometriesService" />
@@ -113,19 +112,33 @@
         </property>
     </bean>
 
-
-    <bean id="dataControllerParent" class="org.n52.web.ctrl.data.DataController" abstract="true">
+    <bean class="org.n52.web.ctrl.data.DatasetsDataController">
         <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
         <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
     </bean>
-    <bean class="org.n52.web.ctrl.data.TimeseriesDataController" parent="dataControllerParent" >
+
+    <bean class="org.n52.web.ctrl.data.TrajectoriesDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
         <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
     </bean>
-    <bean class="org.n52.web.ctrl.data.DatasetsDataController" parent="dataControllerParent" />
-    <bean class="org.n52.web.ctrl.data.ProfilesDataController" parent="dataControllerParent" />
-    <bean class="org.n52.web.ctrl.data.TrajectoriesDataController" parent="dataControllerParent" />
-    <bean class="org.n52.web.ctrl.data.IndividualObservationsDataController" parent="dataControllerParent" />
+
+    <bean class="org.n52.web.ctrl.data.TimeseriesDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
+
+    <bean class="org.n52.web.ctrl.data.IndividualObservationsDataController">
+        <constructor-arg type="org.n52.series.spi.srv.DataService" ref="datasetService" />
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="datasetService" />
+        <property name="preRenderingTask" ref="preRenderingJob" />
+        <property name="requestIntervalRestriction" value="${request.interval.restriction:P370D}" />
+    </bean>
 
     <bean class="org.n52.web.ctrl.SamplingsParameterController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="samplingParameterService" />
@@ -134,5 +147,16 @@
     <bean class="org.n52.web.ctrl.MeasuringProgramsParameterController" parent="parameterController">
         <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="measuringProgramParameterService" />
     </bean>
+
+    <bean class="org.n52.web.ctrl.TagsParameterController" parent="parameterController">
+        <constructor-arg type="org.n52.series.spi.srv.ParameterService" ref="tagParameterService" />
+    </bean>
+
+    <!-- ################################################################ -->
+    <!-- ################# LEGACY CONTROLLER INJECTIONS ################# -->
+    <!-- ################################################################ -->
+
+    <bean id="renderingHintsExtension" class="org.n52.io.extension.RenderingHintsExtension" />
+    <bean id="statusIntervalsExtension" class="org.n52.io.extension.StatusIntervalsExtension" />
 
 </beans>

@@ -22,11 +22,14 @@ This project includes:
   Apache HttpClient under Apache License, Version 2.0
   Apache HttpCore under Apache License, Version 2.0
   Apache XML Graphics Commons under The Apache Software License, Version 2.0
+  AspectJ Tools (Compiler) under Eclipse Public License - v 2.0
+  AspectJ Weaver under Eclipse Public License - v 2.0
   Byte Buddy (without dependencies) under Apache License, Version 2.0
   c3p0 under GNU Lesser General Public License, Version 2.1 or Eclipse Public License, Version 1.0
   Checker Qual under The MIT License
   ClassMate under Apache License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
+  Commons Pool under The Apache Software License, Version 2.0
   commons-compiler under BSD-3-Clause
   Cross-Origin Resource Sharing (CORS) Filter under The Apache Software License, Version 2.0
   ehcache under The Apache Software License, Version 2.0
@@ -38,7 +41,6 @@ This project includes:
   Guava ListenableFuture only under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under Apache License, Version 2.0
   Hibernate Commons Annotations under GNU Library General Public License v2.1 or later
-  Hibernate ORM - hibernate-c3p0 under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-core under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-ehcache under GNU Library General Public License v2.1 or later
   Hibernate ORM - hibernate-spatial under GNU Library General Public License v2.1 or later
@@ -51,20 +53,20 @@ This project includes:
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
   Jakarta Activation under EDL 1.0
-  Jakarta Activation API jar under EDL 1.0
+  Jakarta Annotations API under EPL 2.0 or GPL2 w/ CPE
   Jakarta XML Binding API under Eclipse Distribution License - v 1.0
   janino under BSD-3-Clause
   Java Annotation Indexer under Apache License, Version 2.0
   Java Property Utility under The Apache Software License, Version 2.0
   Java Transaction API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
   JavaBeans Activation Framework API jar under CDDL/GPLv2+CE
-  JavaBeans(TM) Activation Framework under COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+  javax.annotation API under CDDL + GPLv2 with classpath exception
   javax.inject under The Apache Software License, Version 2.0
-  javax.persistence-api under Eclipse Public License v1.0 or Eclipse Distribution License v. 1.0
   JAXB Runtime under Eclipse Distribution License - v 1.0
   jaxb-api under CDDL 1.1 or GPL2 w/ CPE
   JBoss Logging 3 under Apache License, version 2.0
   JCL 1.2 implemented over SLF4J under Apache License, Version 2.0
+  JCommon under GNU Lesser General Public Licence
   JFreeChart under GNU Lesser General Public Licence
   Joda-Time under Apache License, Version 2.0
   Log4j Implemented Over SLF4J under Apache Software Licenses
@@ -77,13 +79,13 @@ This project includes:
   Netty/Common under Apache License, Version 2.0
   Netty/Handler under Apache License, Version 2.0
   Netty/Resolver under Apache License, Version 2.0
+  Netty/TomcatNative [OpenSSL - Classes] under The Apache Software License, Version 2.0
   Netty/Transport under Apache License, Version 2.0
   odata-commons-api under The Apache Software License, Version 2.0
   odata-commons-core under The Apache Software License, Version 2.0
   odata-server-api under The Apache Software License, Version 2.0
   odata-server-core under The Apache Software License, Version 2.0
-  Old JAXB Core under Eclipse Distribution License - v 1.0
-  Old JAXB Runtime under Eclipse Distribution License - v 1.0
+  Open GIS Interfaces under OGC copyright or Lesser General Public License (LGPL)
   org.apache.xmlgraphics:batik-anim under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-awt-util under The Apache Software License, Version 2.0
   org.apache.xmlgraphics:batik-bridge under The Apache Software License, Version 2.0
@@ -110,20 +112,25 @@ This project includes:
   quartz under The Apache Software License, Version 2.0
   Sensor Web Server DAO Impl under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - DAO under GNU General Public License, Version 2.0
+  Sensor Web Server DAO Impl - Jpa Repositories under GNU General Public License, Version 2.0
   Sensor Web Server DAO Impl - Webapp under GNU General Public License, Version 2.0
   Sensor Web Server Database Model - Entities under The Apache Software License, Version 2.0
-  Sensor Web Server Database Model - Hibernate Types under The Apache Software License, Version 2.0
   Sensor Web Server Helgoland - IO module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - PDF report structure under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - REST module under GNU General Public License, Version 2.0
   Sensor Web Server Helgoland - SPI module under GNU General Public License, Version 2.0
+  SI Units under BSD
   SLF4J API Module under MIT License
+  SpotBugs Annotations under GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1
   Spring AOP under Apache License, Version 2.0
+  Spring Aspects under Apache License, Version 2.0
   Spring Beans under Apache License, Version 2.0
   Spring Commons Logging Bridge under Apache License, Version 2.0
   Spring Context under Apache License, Version 2.0
   Spring Context Support under Apache License, Version 2.0
   Spring Core under Apache License, Version 2.0
+  Spring Data Core under Apache License, Version 2.0
+  Spring Data JPA under Apache License, Version 2.0
   Spring Expression Language (SpEL) under Apache License, Version 2.0
   Spring JDBC under Apache License, Version 2.0
   Spring Object/Relational Mapping under Apache License, Version 2.0
@@ -131,10 +138,12 @@ This project includes:
   Spring Transaction under Apache License, Version 2.0
   Spring Web under Apache License, Version 2.0
   Spring Web MVC under Apache License, Version 2.0
+  spring-boot under Apache License, Version 2.0
+  spring-boot-autoconfigure under Apache License, Version 2.0
   TXW2 Runtime under Eclipse Distribution License - v 1.0
   Units of Measurement API under BSD 3-Clause
-  Xalan Java under The Apache Software License, Version 2.0
-  Xalan Java Serializer under The Apache Software License, Version 2.0
+  Units of Measurement Common Unit Systems under BSD
+  xalan under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
   XML Commons External Components XML APIs Extensions under The Apache Software License, Version 2.0
   XmlBeans under The Apache Software License, Version 2.0

@@ -10,4 +10,5 @@ nbactions.xml
 nb-configuration.xml
 *.iml
 .idea
-*.log
+console.log
+dao/logs.log

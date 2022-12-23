@@ -30,15 +30,16 @@ package org.n52.io.extension.resulttime;
 import java.util.Set;
 
 import org.n52.io.request.IoParameters;
+import org.springframework.stereotype.Component;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-@SuppressFBWarnings({ "EI_EXPOSE_REP2" })
-public class ResultTimeService {
+@Component
+@SuppressFBWarnings({ "EI_EXPOSE_REP2" })public class ResultTimeService {
 
-    private final ResultTimeRepository repository;
+    private final ResultTimeAssembler repository;
 
-    public ResultTimeService(ResultTimeRepository repository) {
+    public ResultTimeService(ResultTimeAssembler repository) {
         this.repository = repository;
     }
 

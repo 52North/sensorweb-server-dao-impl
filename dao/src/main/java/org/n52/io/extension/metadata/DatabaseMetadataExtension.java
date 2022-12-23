@@ -33,14 +33,18 @@ import java.util.Map;
 import org.n52.io.request.IoParameters;
 import org.n52.io.response.ParameterOutput;
 import org.n52.io.response.extension.MetadataExtension;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DatabaseMetadataExtension extends MetadataExtension<ParameterOutput> {
 
     private static final String EXTENSION_NAME = "databaseMetadata";
 
-    @Autowired
-    private MetadataRepository repository;
+    private final MetadataAssembler repository;
+
+    public DatabaseMetadataExtension(MetadataAssembler repository) {
+        this.repository = repository;
+    }
 
     @Override
     public String getExtensionName() {

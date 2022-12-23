@@ -9,7 +9,6 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <mvc:annotation-driven />
     <ctx:annotation-config />
 
     <bean name="mapperFactory" class="org.n52.series.db.da.mapper.MapperFactory" />
@@ -23,6 +22,7 @@
     <bean name="datasetRepository" class="org.n52.series.db.da.DatasetRepository" />
     <bean name="samplingRepository" class="org.n52.series.db.da.SamplingRepository" />
     <bean name="measuringProgramRepository" class="org.n52.series.db.da.MeasuringProgramRepository" />
+    <bean name="tagRepository" class="org.n52.series.db.da.TagRepository" />
     <!-- <bean name="geometriesRepository" class="org.n52.series.db.da.GeometriesRepository" /> -->
 
     <bean id="serviceParameterService" class="org.n52.series.srv.AccessService">
@@ -43,9 +43,11 @@
     <bean id="timeseriesService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
+    <!--
      <bean id="profileService" class="org.n52.series.srv.DatasetAccessService">
         <constructor-arg index="0" ref="datasetRepository" />
     </bean>
+     -->
     <!--
     <bean id="geometriesService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="geometriesRepository" />
@@ -66,7 +68,6 @@
     <bean id="phenomenonParameterService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="phenomenonRepository" />
     </bean>
-
     <bean id="resultTimeService" class="org.n52.io.extension.resulttime.ResultTimeService">
         <constructor-arg index="0">
             <bean class="org.n52.io.extension.resulttime.ResultTimeRepository" />
@@ -77,13 +78,13 @@
             <bean class="org.n52.io.extension.parents.HierarchicalParameterRepository" />
         </constructor-arg>
     </bean>
-
     <bean id="samplingParameterService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="samplingRepository" />
     </bean>
-
     <bean id="measuringProgramParameterService" class="org.n52.series.srv.AccessService">
         <constructor-arg index="0" ref="measuringProgramRepository" />
     </bean>
-
+    <bean id="tagParameterService" class="org.n52.series.srv.AccessService">
+        <constructor-arg index="0" ref="tagRepository" />
+    </bean>
 </beans>
