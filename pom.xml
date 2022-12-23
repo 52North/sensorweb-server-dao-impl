@@ -58,7 +58,7 @@
         <spring-data.version>2.7.6</spring-data.version>
         <spring-data-entity-graph.version>2.7.10</spring-data-entity-graph.version>
         <helgoland-api.version>3.5.0</helgoland-api.version>
-        <db-model.version>4.0.0</db-model.version>
+        <db-model.version>4.0.1</db-model.version>
         <arctic-sea.version>10.1.1</arctic-sea.version>
         <version.jts>1.19.0</version.jts>
         <version.java>11</version.java>
