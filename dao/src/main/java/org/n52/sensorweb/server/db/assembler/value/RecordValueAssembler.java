@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -126,44 +124,10 @@ public class RecordValueAssembler extends AbstractValueAssembler<RecordDataEntit
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 Data<RecordValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
-                }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<RecordValue> referenceSeriesData) {
-        Set<RecordValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<RecordValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<RecordValue> result = new Data<>();
-        List<RecordDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            RecordValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            RecordDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private RecordValue[] expandToInterval(Map<String, Object> value, DatasetEntity series, DbQuery query) {
-        RecordDataEntity referenceStart = new RecordDataEntity();
-        RecordDataEntity referenceEnd = new RecordDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new RecordValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override

@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.Data;
@@ -163,48 +161,10 @@ public class QuantityValueAssembler
             if (referenceSeriesEntity.isPublished()) {
                 DbQuery refQuery = query.replaceWith(Parameters.DATASETS, Long.toString(referenceSeriesEntity.getId()));
                 Data<QuantityValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, refQuery);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, refQuery);
-                }
                 referenceSeries.put(createReferenceDatasetId(refQuery, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<QuantityValue> referenceSeriesData) {
-        Set<QuantityValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<QuantityValue> result = new Data<>();
-        List<QuantityDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            QuantityValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            QuantityDataEntity entity = unproxy(observations.get(0));
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private QuantityValue[] expandToInterval(BigDecimal value, DatasetEntity series, DbQuery query) {
-        QuantityDataEntity referenceStart = new QuantityDataEntity();
-        QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan()
-                .getStart()
-                .toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan()
-                .getEnd()
-                .toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new QuantityValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override

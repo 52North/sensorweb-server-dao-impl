@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -129,44 +127,10 @@ public class BooleanValueAssembler extends AbstractValueAssembler<BooleanDataEnt
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 Data<BooleanValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
-                }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<BooleanValue> referenceSeriesData) {
-        Set<BooleanValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<BooleanValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<BooleanValue> result = new Data<>();
-        List<BooleanDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            BooleanValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            BooleanDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private BooleanValue[] expandToInterval(Boolean value, DatasetEntity series, DbQuery query) {
-        BooleanDataEntity referenceStart = new BooleanDataEntity();
-        BooleanDataEntity referenceEnd = new BooleanDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new BooleanValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override

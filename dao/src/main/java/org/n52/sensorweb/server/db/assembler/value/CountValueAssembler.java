@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -125,44 +123,10 @@ public class CountValueAssembler extends AbstractNumericalValueAssembler<CountDa
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 Data<CountValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
-                }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<CountValue> referenceSeriesData) {
-        Set<CountValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<CountValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<CountValue> result = new Data<>();
-        List<CountDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            CountValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            CountDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private CountValue[] expandToInterval(Integer value, DatasetEntity series, DbQuery query) {
-        CountDataEntity referenceStart = new CountDataEntity();
-        CountDataEntity referenceEnd = new CountDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new CountValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override

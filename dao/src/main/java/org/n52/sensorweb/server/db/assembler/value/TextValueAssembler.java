@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -94,44 +92,10 @@ public class TextValueAssembler extends AbstractValueAssembler<TextDataEntity, T
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 Data<TextValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
-                }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<TextValue> referenceSeriesData) {
-        Set<TextValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<TextValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<TextValue> result = new Data<>();
-        List<TextDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            TextValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            TextDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private TextValue[] expandToInterval(String value, DatasetEntity series, DbQuery query) {
-        TextDataEntity referenceStart = new TextDataEntity();
-        TextDataEntity referenceEnd = new TextDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new TextValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override

@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
@@ -127,44 +125,10 @@ public class CategoryValueAssembler extends AbstractValueAssembler<CategoryDataE
         for (DatasetEntity referenceSeriesEntity : referenceValues) {
             if (referenceSeriesEntity.isPublished()) {
                 Data<CategoryValue> referenceSeriesData = assembleDataValues(referenceSeriesEntity, query);
-                if (haveToExpandReferenceData(referenceSeriesData)) {
-                    referenceSeriesData = expandReferenceDataIfNecessary(referenceSeriesEntity, query);
-                }
                 referenceSeries.put(createReferenceDatasetId(query, referenceSeriesEntity), referenceSeriesData);
             }
         }
         return referenceSeries;
-    }
-
-    private boolean haveToExpandReferenceData(Data<CategoryValue> referenceSeriesData) {
-        Set<CategoryValue> values = referenceSeriesData.getValues();
-        return values.size() <= 1;
-    }
-
-    private Data<CategoryValue> expandReferenceDataIfNecessary(DatasetEntity dataset, DbQuery query) {
-        Data<CategoryValue> result = new Data<>();
-        List<CategoryDataEntity> observations = findAll(dataset, query).collect(Collectors.toList());
-        if (!hasValidEntriesWithinRequestedTimespan(observations)) {
-            CategoryValue lastValue = getLastValue(dataset, query);
-            result.addValues(expandToInterval(lastValue.getValue(), dataset, query));
-        }
-
-        if (hasSingleValidReferenceValue(observations)) {
-            CategoryDataEntity entity = observations.get(0);
-            result.addValues(expandToInterval(entity.getValue(), dataset, query));
-        }
-        return result;
-    }
-
-    private CategoryValue[] expandToInterval(String value, DatasetEntity series, DbQuery query) {
-        CategoryDataEntity referenceStart = new CategoryDataEntity();
-        CategoryDataEntity referenceEnd = new CategoryDataEntity();
-        referenceStart.setSamplingTimeEnd(query.getTimespan().getStart().toDate());
-        referenceEnd.setSamplingTimeEnd(query.getTimespan().getEnd().toDate());
-        referenceStart.setValue(value);
-        referenceEnd.setValue(value);
-        return new CategoryValue[] { assembleDataValue(referenceStart, series, query),
-                assembleDataValue(referenceEnd, series, query), };
     }
 
     @Override
