@@ -32,7 +32,6 @@ import static java.util.stream.Collectors.toList;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -203,10 +202,6 @@ public class QuantityDataRepository
                     && referenceDatasetEntity.getValueType().equals(ValueType.quantity)) {
                 Data<QuantityValue> referencedDatasetData =
                         assembleData(data.get(referenceDatasetEntity.getId()), query);
-                if (haveToExpandReferenceData(referencedDatasetData)) {
-                    referencedDatasetData = expandReferenceDataIfNecessary(referenceDatasetEntity,
-                            referencedDatasetData, query, session);
-                }
                 if (query.expandWithNextValuesBeyondInterval()) {
                     QuantityDataEntity previousValue =
                             unproxy(getClosestValueBeforeStart(referenceDatasetEntity, query, session), session);
@@ -270,21 +265,6 @@ public class QuantityDataRepository
         return dataset.getId();
     }
 
-    private boolean haveToExpandReferenceData(Data<QuantityValue> referencedDatasetData) {
-        return referencedDatasetData.getValues().size() <= 1;
-    }
-
-    private Data<QuantityValue> expandReferenceDataIfNecessary(DatasetEntity dataset, Data<QuantityValue> data,
-            DbQuery query, Session session) throws DataAccessException {
-        Data<QuantityValue> result = new Data<>();
-        if (data == null || data.getValues().isEmpty()) {
-            result.addValues(expandToInterval(dataset.getLastQuantityValue(), dataset, query));
-        } else if (data.getValues().size() == 1) {
-            result.addValues(expandToInterval(data.getValues().get(0).getValue(), dataset, query));
-        }
-        return result;
-    }
-
     @Override
     protected Data<QuantityValue> assembleData(DatasetEntity dataset, DbQuery query, Session session) {
         return assembleData(dataset.getId(), query, session);
@@ -303,25 +283,6 @@ public class QuantityDataRepository
                 .map(observation -> assembleDataValue(observation, observation.getDataset(), query))
                 .filter(Objects::nonNull).forEachOrdered(result::addNewValue);
         return result;
-    }
-
-    private QuantityValue[] expandToInterval(BigDecimal value, DatasetEntity dataset, DbQuery query) {
-        QuantityDataEntity referenceStart = new QuantityDataEntity();
-        referenceStart.setDataset(dataset);
-        Date startDate = query.getTimespan().getStart().toDate();
-        referenceStart.setSamplingTimeStart(startDate);
-        referenceStart.setSamplingTimeEnd(startDate);
-        referenceStart.setValue(value);
-
-        Date endDate = query.getTimespan().getEnd().toDate();
-        QuantityDataEntity referenceEnd = new QuantityDataEntity();
-        referenceEnd.setDataset(dataset);
-        referenceEnd.setSamplingTimeStart(endDate);
-        referenceEnd.setSamplingTimeEnd(endDate);
-        referenceEnd.setValue(value);
-
-        return new QuantityValue[] { assembleDataValue(referenceStart, dataset, query),
-                assembleDataValue(referenceEnd, dataset, query), };
     }
 
     @Override
