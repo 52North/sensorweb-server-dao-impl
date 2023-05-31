@@ -217,11 +217,13 @@ public class QuantityDataRepository
                         metadata.setValueBeforeTimespan(before);
                     } else {
                         QuantityValue firstItem = getFirstItem(referencedDatasetData);
-                        QuantityValue quantityValue = new QuantityValue();
-                        quantityValue.setValue(firstItem.getValue());
-                        quantityValue.setTimestamp(new TimeOutput(lowerBound.minus(getOverlappingTime(timespan)),
-                                firstItem.getTimestamp().isUnixTime()));
-                        metadata.setValueBeforeTimespan(quantityValue);
+                        if (firstItem != null) {
+                            QuantityValue quantityValue = new QuantityValue();
+                            quantityValue.setValue(firstItem.getValue());
+                            quantityValue.setTimestamp(new TimeOutput(lowerBound.minus(getOverlappingTime(timespan)),
+                                                                      firstItem.getTimestamp().isUnixTime()));
+                            metadata.setValueBeforeTimespan(quantityValue);
+                        }
                     }
                     QuantityValue after =
                             nextValue != null ? createValue(nextValue, referenceDatasetEntity, query) : null;
@@ -229,11 +231,13 @@ public class QuantityDataRepository
                         metadata.setValueAfterTimespan(after);
                     } else {
                         QuantityValue lastItem = getLastItem(referencedDatasetData);
-                        QuantityValue quantityValue = new QuantityValue();
-                        quantityValue.setValue(lastItem.getValue());
-                        quantityValue.setTimestamp(new TimeOutput(upperBound.plus(getOverlappingTime(timespan)),
-                                lastItem.getTimestamp().isUnixTime()));
-                        metadata.setValueAfterTimespan(quantityValue);
+                        if (lastItem != null) {
+                            QuantityValue quantityValue = new QuantityValue();
+                            quantityValue.setValue(lastItem.getValue());
+                            quantityValue.setTimestamp(new TimeOutput(upperBound.plus(getOverlappingTime(timespan)),
+                                                                      lastItem.getTimestamp().isUnixTime()));
+                            metadata.setValueAfterTimespan(quantityValue);
+                        }
                     }
                 }
                 referencedDatasets.put(createReferenceDatasetId(query, referenceDatasetEntity), referencedDatasetData);
