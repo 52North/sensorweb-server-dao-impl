@@ -42,8 +42,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -193,9 +191,6 @@ public class QuantityDataRepository
     private Map<String, Data<QuantityValue>> assembleReferenceSeries(DatasetEntity dataset,
             Map<Long, List<QuantityDataEntity>> data, DbQuery query, Session session) {
         Map<String, Data<QuantityValue>> referencedDatasets = new HashMap<>();
-        Interval timespan = query.getTimespan();
-        DateTime lowerBound = timespan.getStart();
-        DateTime upperBound = timespan.getEnd();
         for (DatasetEntity referenceDatasetEntity : dataset.getReferenceValues()) {
             if (referenceDatasetEntity != null && referenceDatasetEntity.isPublished()
                     && referenceDatasetEntity.getValueType().equals(ValueType.quantity)) {
