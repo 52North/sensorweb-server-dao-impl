@@ -44,7 +44,6 @@ import java.util.Set;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.n52.io.response.TimeOutput;
 import org.n52.io.response.dataset.Data;
 import org.n52.io.response.dataset.DatasetMetadata;
 import org.n52.io.response.dataset.DatasetOutput;
@@ -203,63 +202,27 @@ public class QuantityDataRepository
                 Data<QuantityValue> referencedDatasetData =
                         assembleData(data.get(referenceDatasetEntity.getId()), query);
                 if (query.expandWithNextValuesBeyondInterval()) {
-                    QuantityDataEntity previousValue =
-                            unproxy(getClosestValueBeforeStart(referenceDatasetEntity, query, session), session);
-                    QuantityDataEntity nextValue =
-                            unproxy(getClosestValueAfterEnd(referenceDatasetEntity, query, session), session);
                     DatasetMetadata<QuantityValue> metadata = referencedDatasetData.getMetadata();
                     if (metadata == null) {
                         referencedDatasetData.setMetadata(metadata = new DatasetMetadata<>());
                     }
-                    QuantityValue before =
-                            previousValue != null ? createValue(previousValue, referenceDatasetEntity, query) : null;
-                    if (before != null) {
-                        metadata.setValueBeforeTimespan(before);
-                    } else {
-                        QuantityValue firstItem = getFirstItem(referencedDatasetData);
-                        if (firstItem != null) {
-                            QuantityValue quantityValue = new QuantityValue();
-                            quantityValue.setValue(firstItem.getValue());
-                            quantityValue.setTimestamp(new TimeOutput(lowerBound.minus(getOverlappingTime(timespan)),
-                                                                      firstItem.getTimestamp().isUnixTime()));
-                            metadata.setValueBeforeTimespan(quantityValue);
-                        }
+
+                    QuantityDataEntity previousValue =
+                            unproxy(getClosestValueBeforeStart(referenceDatasetEntity, query, session), session);
+                    if (previousValue != null) {
+                        metadata.setValueBeforeTimespan(createValue(previousValue, referenceDatasetEntity, query));
                     }
-                    QuantityValue after =
-                            nextValue != null ? createValue(nextValue, referenceDatasetEntity, query) : null;
-                    if (after != null) {
-                        metadata.setValueAfterTimespan(after);
-                    } else {
-                        QuantityValue lastItem = getLastItem(referencedDatasetData);
-                        if (lastItem != null) {
-                            QuantityValue quantityValue = new QuantityValue();
-                            quantityValue.setValue(lastItem.getValue());
-                            quantityValue.setTimestamp(new TimeOutput(upperBound.plus(getOverlappingTime(timespan)),
-                                                                      lastItem.getTimestamp().isUnixTime()));
-                            metadata.setValueAfterTimespan(quantityValue);
-                        }
+
+                    QuantityDataEntity nextValue =
+                        unproxy(getClosestValueAfterEnd(referenceDatasetEntity, query, session), session);
+                    if (nextValue != null) {
+                        metadata.setValueAfterTimespan(createValue(nextValue, referenceDatasetEntity, query));
                     }
                 }
                 referencedDatasets.put(createReferenceDatasetId(query, referenceDatasetEntity), referencedDatasetData);
             }
         }
         return referencedDatasets;
-    }
-
-    private Long getOverlappingTime(Interval timespan) {
-        return ((Double) (timespan.toDurationMillis() * 0.1)).longValue();
-    }
-
-    private QuantityValue getFirstItem(Data<QuantityValue> referenceSeriesData) {
-        return referenceSeriesData.getValues() != null && !referenceSeriesData.getValues().isEmpty()
-                && referenceSeriesData.getValues().size() > 0 ? referenceSeriesData.getValues().get(0) : null;
-    }
-
-    private QuantityValue getLastItem(Data<QuantityValue> referenceSeriesData) {
-        return referenceSeriesData.getValues() != null && !referenceSeriesData.getValues().isEmpty()
-                && referenceSeriesData.getValues().size() > 0
-                        ? referenceSeriesData.getValues().get(referenceSeriesData.getValues().size() - 1)
-                        : null;
     }
 
     protected String createReferenceDatasetId(DbQuery query, DatasetEntity referenceDataset) {
