@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ProfileOutput;
 import org.n52.io.response.dataset.profile.ProfileDataItem;
 import org.n52.io.response.dataset.profile.ProfileValue;
 import org.n52.io.response.dataset.quantity.QuantityValue;
@@ -62,7 +63,9 @@ public class QuantityProfileValueAssembler extends ProfileValueAssembler<BigDeci
 
     protected ProfileValue<BigDecimal> assembleDataValue(ProfileDataEntity observation, DatasetEntity dataset,
             DbQuery query, ProfileValue<BigDecimal> profile) {
-        profile.setValue(getDataValue(observation, dataset, profile, query));
+        if (query.getParameters().isSelected("value")) {
+            profile.setValue(getDataValue(observation, dataset, profile, query));
+        }
         return profile;
     }
 

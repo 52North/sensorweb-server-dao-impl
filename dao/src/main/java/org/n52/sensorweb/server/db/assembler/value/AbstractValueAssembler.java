@@ -55,6 +55,7 @@ import org.n52.io.request.IoParameters;
 import org.n52.io.request.Parameters;
 import org.n52.io.response.dataset.AbstractValue;
 import org.n52.io.response.dataset.Data;
+import org.n52.io.response.dataset.ProfileOutput;
 import org.n52.sensorweb.server.db.TimeOutputCreator;
 import org.n52.sensorweb.server.db.ValueAssembler;
 import org.n52.sensorweb.server.db.factory.ServiceEntityFactory;
@@ -230,10 +231,10 @@ public abstract class AbstractValueAssembler<E extends DataEntity<T>, V extends 
         final IoParameters parameters = query.getParameters();
         final Date timeend = observation.getSamplingTimeEnd();
         final Date timestart = observation.getSamplingTimeStart();
-        if (parameters.isShowTimeIntervals() && timestart != null) {
+        if (parameters.isSelected("timestamp") && parameters.isShowTimeIntervals() && timestart != null) {
             value.setTimestart(createTimeOutput(timestart, dataset.getOriginTimezone(), parameters));
         }
-        if (observation.hasParameters()) {
+        if (parameters.isSelected("parameters") && observation.hasParameters()) {
             Map<String, Object> map = new LinkedHashMap<>();
             for (ParameterEntity<?> param : observation.getParameters()) {
                 map.put(param.getName(), param.getValue());
